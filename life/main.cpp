@@ -1,8 +1,16 @@
 #include <csignal>
 #include <iostream>
 
+#include "life/buildinfo.h"
+
 namespace
 {
+  void version() {
+    const auto* buildinfo = life_get_buildinfo();
+    std::cout << "life " << buildinfo->project_version << "\n";
+    std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
+  }
+
   class ExitHandler {
   public:
     static void exit() { should_exit_ = true; }
@@ -39,6 +47,6 @@ int main(int argc, char** argv)
 
   // Handle Pipe Signal
   register_handler(SIGPIPE, SIG_IGN);
-  
+
   return EXIT_SUCCESS;
 }
