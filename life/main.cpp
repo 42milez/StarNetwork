@@ -1,7 +1,13 @@
 #include <csignal>
 #include <iostream>
+#include <string>
+#include <vector>
+
+#include <boost/program_options.hpp>
 
 #include "life/buildinfo.h"
+
+namespace po = boost::program_options;
 
 namespace
 {
@@ -39,6 +45,52 @@ namespace
 
 int main(int argc, char** argv)
 {
+  po::options_description opt_desc("OPTIONS", 160);
+  opt_desc.add_options()
+    ("join,j", po::value<std::string>()->value_name("<profile>"), "Join the matching server")
+    ("help,h", "Show this help message and exit\n");
+
+  po::options_description allowed_options("Allowed options");
+  allowed_options.add(opt_desc);
+
+  po::variables_map vmap;
+  std::vector<std::string> unrecognized_options;
+
+  try {
+    po::parsed_options parsed = po::command_line_parser(argc, argv).options(allowed_options).allow_unregistered().run();
+    unrecognized_options = collect_unrecognized(parsed.options, po::include_positional);
+    po::store(parsed, vmap);
+    po::notify(vmap);
+  } catch (po::error const &e) {
+    std::cerr << e.what();
+    return EXIT_FAILURE;
+  }
+
+  if (argc <= 1) {
+    std::cout << "Requires at least 1 argument." << std::endl << std::endl;
+    std::cout << "USAGE:" << std::endl
+              << "   life [options]" << std::endl << std::endl;
+    std::cout << opt_desc;
+    return EXIT_FAILURE;
+  }
+
+  for (const auto &option : unrecognized_options) {
+    std::cerr << "Invalid argument: " << option << "\n";
+    return EXIT_FAILURE;
+  }
+
+  if (vmap.count("h") || vmap.count("help")) {
+    std::cout << "NAME: " << std::endl
+              << "   life " << life_get_buildinfo()->project_version << std::endl << std::endl
+              << "USAGE:" << std::endl
+              << "    life [options]" << std::endl << std::endl;
+    std::cout << opt_desc;
+    return EXIT_SUCCESS;
+  } else if (vmap.count("j") || vmap.count("join")) {
+    // sign in to the matching server
+    // ...
+  }
+
   // Handle Exit Signal
   auto sig_handler = [](int signum) { ExitHandler::exit(); };
   register_handler(SIGABRT, sig_handler);
@@ -47,6 +99,16 @@ int main(int argc, char** argv)
 
   // Handle Pipe Signal
   register_handler(SIGPIPE, SIG_IGN);
+
+  ExitHandler eh;
+
+  while (!eh.should_exit()) {
+    // game loop
+    // ...
+  }
+
+  // shutting down gracefully
+  // ...
 
   return EXIT_SUCCESS;
 }
