@@ -15,8 +15,8 @@ set(HUNTER_JOBS_NUMBER 4 CACHE STRING "Hunter jobs number")
 
 include(HunterGate)
 HunterGate(
-        URL "https://github.com/ruslo/hunter/archive/v0.23.30.tar.gz"
-        SHA1 "c062b0a2316cf8dcb57b6a9ad49fea1025a928f6"
+  URL "https://github.com/ruslo/hunter/archive/v0.23.30.tar.gz"
+  SHA1 "c062b0a2316cf8dcb57b6a9ad49fea1025a928f6"
 )
 
 project(life)
@@ -39,10 +39,10 @@ find_package(GTest CONFIG REQUIRED)
 find_package(GMock CONFIG REQUIRED)
 
 if (NOT EXISTS "${GTest_LICENSES}")
-    message(FATAL_ERROR "File not found: '${GTest_LICENSES}")
-else()
-    message("License file: '${GTest_LICENSES}'")
-endif()
+  message(FATAL_ERROR "File not found: '${GTest_LICENSES}")
+else ()
+  message("License file: '${GTest_LICENSES}'")
+endif ()
 
 #  spdlog
 # --------------------------------------------------
