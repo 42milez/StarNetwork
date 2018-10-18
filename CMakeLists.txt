@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12.3)
+cmake_minimum_required(VERSION 3.12.2)
 
 #  Configurations
 # --------------------------------------------------
@@ -30,6 +30,23 @@ cable_add_buildinfo_library(PROJECT_NAME life)
 
 hunter_add_package(Boost COMPONENTS program_options)
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
+
+#  Qt
+# --------------------------------------------------
+
+hunter_add_package(Qt)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt5Widgets REQUIRED)
+
+if (APPLE)
+  if (NOT TARGET Qt5::Widgets)
+    message(FATAL_ERROR "No Qt5::Widgets target")
+  endif ()
+  return()
+endif ()
 
 #  GTest
 # --------------------------------------------------

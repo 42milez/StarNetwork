@@ -4,8 +4,10 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
+#include <QApplication>
 
 #include "life/buildinfo.h"
+#include "MainWindow.h"
 
 namespace po = boost::program_options;
 
@@ -102,13 +104,19 @@ int main(int argc, char** argv)
 
   ExitHandler eh;
 
-  while (!eh.should_exit()) {
-    // game loop
-    // ...
-  }
+  //  while (!eh.should_exit()) {
+  //    // game loop
+  //    // ...
+  //  }
 
   // shutting down gracefully
   // ...
 
-  return EXIT_SUCCESS;
+  QApplication app(argc, argv);
+  MainWindow w;
+  w.show();
+
+  return app.exec();
+
+  //  return EXIT_SUCCESS;
 }
