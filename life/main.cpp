@@ -112,11 +112,11 @@ int main(int argc, char** argv)
   // shutting down gracefully
   // ...
 
+  //  return EXIT_SUCCESS;
+
   QApplication app(argc, argv);
   MainWindow w;
   w.show();
 
   return app.exec();
-
-  //  return EXIT_SUCCESS;
 }

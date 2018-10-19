@@ -14,21 +14,25 @@ set(HUNTER_CONFIGURATION_TYPES Release CACHE STRING "Hunter configuration types"
 set(HUNTER_JOBS_NUMBER 4 CACHE STRING "Hunter jobs number")
 
 include(HunterGate)
+
 HunterGate(
   URL "https://github.com/ruslo/hunter/archive/v0.23.30.tar.gz"
   SHA1 "c062b0a2316cf8dcb57b6a9ad49fea1025a928f6"
 )
 
 project(life)
+
 set(PROJECT_VERSION 0.0.1)
 
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
+
 cable_add_buildinfo_library(PROJECT_NAME life)
 
 #  Boost
 # --------------------------------------------------
 
 hunter_add_package(Boost COMPONENTS program_options)
+
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 
 #  Qt
@@ -41,17 +45,18 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5Widgets CONFIG REQUIRED)
 
-if (APPLE)
-  if (NOT TARGET Qt5::Widgets)
-    message(FATAL_ERROR "No Qt5::Widgets target")
-  endif ()
-  return()
-endif ()
+#if (APPLE)
+#  if (NOT TARGET Qt5::Widgets)
+#    message(FATAL_ERROR "No Qt5::Widgets target")
+#  endif ()
+#  return()
+#endif ()
 
 #  GTest
 # --------------------------------------------------
 
 hunter_add_package(GTest)
+
 find_package(GTest CONFIG REQUIRED)
 find_package(GMock CONFIG REQUIRED)
 
@@ -65,6 +70,7 @@ endif ()
 # --------------------------------------------------
 
 hunter_add_package(spdlog)
+
 find_package(spdlog CONFIG REQUIRED)
 
 #  Subdirectories
