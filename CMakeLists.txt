@@ -39,7 +39,7 @@ hunter_add_package(Qt)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Widgets CONFIG REQUIRED)
 
 if (APPLE)
   if (NOT TARGET Qt5::Widgets)
