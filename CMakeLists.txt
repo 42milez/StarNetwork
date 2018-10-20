@@ -38,19 +38,18 @@ find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 #  Qt
 # --------------------------------------------------
 
-hunter_add_package(Qt)
+hunter_add_package(Qt COMPONENTS qtdeclarative)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
-find_package(Qt5Widgets CONFIG REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
-#if (APPLE)
-#  if (NOT TARGET Qt5::Widgets)
-#    message(FATAL_ERROR "No Qt5::Widgets target")
-#  endif ()
-#  return()
-#endif ()
+if (APPLE)
+  find_package(Qt5PrintSupport REQUIRED)
+endif ()
 
 #  GTest
 # --------------------------------------------------
