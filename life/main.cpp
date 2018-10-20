@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 {
   po::options_description opt_desc("OPTIONS", 160);
   opt_desc.add_options()
-    ("join,j", po::value<std::string>()->value_name("<profile>"), "Join the matching server")
+    ("run,r", "Execute the game client")
     ("help,h", "Show this help message and exit\n");
 
   po::options_description allowed_options("Allowed options");
@@ -88,35 +88,25 @@ int main(int argc, char** argv)
               << "    life [options]" << std::endl << std::endl;
     std::cout << opt_desc;
     return EXIT_SUCCESS;
-  } else if (vmap.count("j") || vmap.count("join")) {
-    // sign in to the matching server
+  } else if (vmap.count("r") || vmap.count("run")) {
+    // Handle Exit Signal
+    auto sig_handler = [](int signum) { ExitHandler::exit(); };
+    register_handler(SIGABRT, sig_handler);
+    register_handler(SIGINT, sig_handler);
+    register_handler(SIGTERM, sig_handler);
+
+    // Handle Pipe Signal
+    register_handler(SIGPIPE, SIG_IGN);
+
+    ExitHandler eh;
+
+    // todo: handle exit with std::async (can it?)
     // ...
+
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+
+    return app.exec();
   }
-
-  // Handle Exit Signal
-  auto sig_handler = [](int signum) { ExitHandler::exit(); };
-  register_handler(SIGABRT, sig_handler);
-  register_handler(SIGINT, sig_handler);
-  register_handler(SIGTERM, sig_handler);
-
-  // Handle Pipe Signal
-  register_handler(SIGPIPE, SIG_IGN);
-
-  ExitHandler eh;
-
-  //  while (!eh.should_exit()) {
-  //    // game loop
-  //    // ...
-  //  }
-
-  // shutting down gracefully
-  // ...
-
-  //  return EXIT_SUCCESS;
-
-  QApplication app(argc, argv);
-  MainWindow w;
-  w.show();
-
-  return app.exec();
 }
