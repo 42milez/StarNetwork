@@ -16,8 +16,9 @@ set(HUNTER_JOBS_NUMBER 4 CACHE STRING "Hunter jobs number")
 include(HunterGate)
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.23.30.tar.gz"
-  SHA1 "c062b0a2316cf8dcb57b6a9ad49fea1025a928f6"
+  URL "https://github.com/ruslo/hunter/archive/v0.23.34.tar.gz"
+  SHA1 "70287b1ffa810ee4e952052a9adff9b4856d0d54"
+  LOCAL
 )
 
 project(life)
@@ -27,6 +28,12 @@ set(PROJECT_VERSION 0.0.1)
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
 cable_add_buildinfo_library(PROJECT_NAME life)
+
+#  OpenSSL
+# --------------------------------------------------
+
+hunter_add_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
 
 #  Boost
 # --------------------------------------------------

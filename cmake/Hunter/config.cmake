@@ -1,0 +1,5 @@
+hunter_config(Boost VERSION 1.68.0-p1)
+hunter_config(GTest VERSION 1.8.0-hunter-p11)
+hunter_config(spdlog VERSION 0.16.3-p1)
+hunter_config(OpenSSL VERSION 1.1.1)
+hunter_config(Qt VERSION 5.11.1)
