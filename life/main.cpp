@@ -4,10 +4,9 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
-#include <QApplication>
+#include <SDL2/SDL.h>
 
 #include "life/buildinfo.h"
-#include "MainWindow.h"
 
 namespace po = boost::program_options;
 
@@ -103,10 +102,14 @@ int main(int argc, char** argv)
     // todo: handle exit with std::async (can it?)
     // ...
 
-    QApplication app(argc, argv);
-    MainWindow w;
-    w.show();
+    if (SDL_Init(SDL_INIT_TIMER) != 0){
+      std::cout << "Error while initializing SDL: " << SDL_GetError() << std::endl;
+      SDL_Quit();
+      return -1;
+    }
 
-    return app.exec();
+    SDL_Quit();
+
+    return EXIT_SUCCESS;
   }
 }

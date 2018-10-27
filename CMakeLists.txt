@@ -42,22 +42,6 @@ hunter_add_package(Boost COMPONENTS program_options)
 
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 
-#  Qt
-# --------------------------------------------------
-
-hunter_add_package(Qt COMPONENTS qtdeclarative)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Quick REQUIRED)
-
-if (APPLE)
-  find_package(Qt5PrintSupport REQUIRED)
-endif ()
-
 #  GTest
 # --------------------------------------------------
 
@@ -71,6 +55,12 @@ if (NOT EXISTS "${GTest_LICENSES}")
 else ()
   message("License file: '${GTest_LICENSES}'")
 endif ()
+
+#  SDL
+# --------------------------------------------------
+
+hunter_add_package(SDL2)
+find_package(SDL2 CONFIG REQUIRED)
 
 #  spdlog
 # --------------------------------------------------
