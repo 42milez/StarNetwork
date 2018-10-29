@@ -6,6 +6,7 @@
 #include <boost/program_options.hpp>
 #include <SDL2/SDL.h>
 
+#include "engine/base/Singleton.h"
 #include "life/buildinfo.h"
 
 namespace po = boost::program_options;
@@ -43,6 +44,26 @@ namespace
     sigaction(signum, nullptr, &act);
   }
 } // namespace
+
+class A {
+public:
+  A() {
+    std::cout << "Class A's constructor." << std::endl;
+  }
+  ~A() {
+    std::cout << "Class A's destructor" << std::endl;
+  }
+};
+
+class B {
+public:
+  B() {
+    std::cout << "Class B's constructor." << std::endl;
+  }
+  ~B() {
+    std::cout << "Class B's destructor" << std::endl;
+  }
+};
 
 int main(int argc, char** argv)
 {
@@ -109,6 +130,10 @@ int main(int argc, char** argv)
     }
 
     SDL_Quit();
+
+    auto a = base::Singleton<A>::Instance();
+    auto b = base::Singleton<B>::Instance();
+    base::SingletonFinalizer::finalize();
 
     return EXIT_SUCCESS;
   }

@@ -69,9 +69,12 @@ hunter_add_package(spdlog)
 
 find_package(spdlog CONFIG REQUIRED)
 
-#  Subdirectories
+#  Directories
 # --------------------------------------------------
 
-add_subdirectory(engine/libnetwork)
-add_subdirectory(engine/libutil)
+include_directories(${CMAKE_SOURCE_DIR})
+
+add_subdirectory(engine/base)
+add_subdirectory(engine/network)
+add_subdirectory(engine/util)
 add_subdirectory(life)
