@@ -9,17 +9,15 @@ namespace base
     base::SingletonFinalizer::FinalizerFunc finalizers[MAX_FINALIZERS_SIZE];
   }
 
-  void base::SingletonFinalizer::add_finalizer(base::SingletonFinalizer::FinalizerFunc func)
-  {
+  void base::SingletonFinalizer::add_finalizer(base::SingletonFinalizer::FinalizerFunc func) {
     assert(num_finalizers < MAX_FINALIZERS_SIZE);
     finalizers[num_finalizers++] = func;
   }
 
-  void base::SingletonFinalizer::finalize()
-  {
+  void base::SingletonFinalizer::finalize() {
     for (auto i = num_finalizers - 1; i >= 0; --i) {
       (*finalizers[i])();
     }
     num_finalizers = 0;
   }
-}
+} // namespace base

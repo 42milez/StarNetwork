@@ -1,7 +1,6 @@
 #ifndef LIFE_SINGLETON_H
 #define LIFE_SINGLETON_H
 
-
 #include <mutex>
 
 namespace base
@@ -18,27 +17,25 @@ namespace base
   template<typename T>
   class Singleton final {
   public:
-    static T &Instance()
-    {
+    static T &Instance() {
       std::call_once(init_flag, Init);
       assert(instance_);
       return *instance_;
     }
 
   private:
-    static void Init()
-    {
+    static void Init() {
       instance_ = new T;
       SingletonFinalizer::add_finalizer(&Singleton<T>::Delete);
     }
 
-    static void Delete()
-    {
+    static void Delete() {
       delete instance_;
       instance_ = nullptr;
     }
 
     static std::once_flag init_flag;
+
     static T *instance_;
   };
 
@@ -48,6 +45,5 @@ namespace base
   template<typename T>
   T *Singleton<T>::instance_ = nullptr;
 } // namespace base
-
 
 #endif // LIFE_SINGLETON_H

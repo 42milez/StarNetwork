@@ -1,11 +1,11 @@
 #include <csignal>
 #include <iostream>
-#include <string>
 #include <vector>
 
 #include <boost/program_options.hpp>
 #include <SDL2/SDL.h>
 
+#include "engine/auth/auth.h"
 #include "engine/base/Singleton.h"
 #include "life/buildinfo.h"
 
@@ -14,7 +14,7 @@ namespace po = boost::program_options;
 namespace
 {
   void version() {
-    const auto* buildinfo = life_get_buildinfo();
+    const auto *buildinfo = life_get_buildinfo();
     std::cout << "life " << buildinfo->project_version << "\n";
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
@@ -22,16 +22,18 @@ namespace
   class ExitHandler {
   public:
     static void exit() { should_exit_ = true; }
+
     bool should_exit() const { return should_exit_; }
+
   private:
     static bool should_exit_;
   };
 
   bool ExitHandler::should_exit_ = false;
 
-  template <typename Func>
+  template<typename Func>
   void register_handler(int signum, Func handler) {
-    struct sigaction act { nullptr };
+    struct sigaction act{nullptr};
     act.sa_handler = handler;
     act.sa_flags = 0;
 
@@ -45,28 +47,7 @@ namespace
   }
 } // namespace
 
-class A {
-public:
-  A() {
-    std::cout << "Class A's constructor." << std::endl;
-  }
-  ~A() {
-    std::cout << "Class A's destructor" << std::endl;
-  }
-};
-
-class B {
-public:
-  B() {
-    std::cout << "Class B's constructor." << std::endl;
-  }
-  ~B() {
-    std::cout << "Class B's destructor" << std::endl;
-  }
-};
-
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
   po::options_description opt_desc("OPTIONS", 160);
   opt_desc.add_options()
     ("run,r", "Execute the game client")
@@ -123,7 +104,7 @@ int main(int argc, char** argv)
     // todo: handle exit with std::async (can it?)
     // ...
 
-    if (SDL_Init(SDL_INIT_TIMER) != 0){
+    if (SDL_Init(SDL_INIT_TIMER) != 0) {
       std::cout << "Error while initializing SDL: " << SDL_GetError() << std::endl;
       SDL_Quit();
       return -1;
@@ -131,8 +112,7 @@ int main(int argc, char** argv)
 
     SDL_Quit();
 
-    auto a = base::Singleton<A>::Instance();
-    auto b = base::Singleton<B>::Instance();
+    auto auth = base::Singleton<auth::Auth>::Instance();
     base::SingletonFinalizer::finalize();
 
     return EXIT_SUCCESS;
