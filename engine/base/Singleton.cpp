@@ -1,4 +1,4 @@
-#include "Singleton.h"
+#include "singleton.h"
 
 namespace base
 {

@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 
 #include "engine/auth/auth.h"
-#include "engine/base/Singleton.h"
+#include "engine/base/singleton.h"
 #include "life/buildinfo.h"
 
 namespace po = boost::program_options;
