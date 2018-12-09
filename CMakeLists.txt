@@ -74,8 +74,8 @@ find_package(spdlog CONFIG REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_subdirectory(engine/auth)
 add_subdirectory(engine/base)
 add_subdirectory(engine/network)
 add_subdirectory(engine/util)
-add_subdirectory(life)
+add_subdirectory(client)
+add_subdirectory(server)

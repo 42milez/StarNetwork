@@ -1,15 +1,10 @@
 #include <csignal>
 #include <iostream>
-#include <thread>
 #include <vector>
 
 #include <boost/program_options.hpp>
-#include <SDL2/SDL.h>
 
 #include "life/buildinfo.h"
-#include "engine/base/Singleton.h"
-#include "Auth.h"
-#include "Client.h"
 
 namespace po = boost::program_options;
 
@@ -52,7 +47,7 @@ namespace {
 int main(int argc, char **argv) {
   po::options_description opt_desc("OPTIONS", 160);
   opt_desc.add_options()
-    ("run,r", "Execute the game client")
+    ("run,r", "Execute the game server")
     ("help,h", "Show this help message and exit\n");
 
   po::options_description allowed_options("Allowed options");
@@ -106,40 +101,7 @@ int main(int argc, char **argv) {
     // todo: handle exit with std::async (can it?)
     // ...
 
-    // auto auth = base::Singleton<auth::auth>::Instance();
-    // base::SingletonFinalizer::finalize();
-
-    if (SDL_Init(SDL_INIT_TIMER) != 0) {
-      std::cout << "Error while initializing SDL: " << SDL_GetError() << std::endl;
-      SDL_Quit();
-      return -1;
-    }
-
-    auth::Auth::static_init();
-    client::Client::static_init();
-
-    if (!auth::Auth::instance_->token_exists()) {
-      //  ユーザー認証
-      // --------------------------------------------------
-      //  - Tokenを所持している、かつ、Tokenの有効期限が切れていなければ
-      //    認証をスキップする
-
-      // IDとパスワードの入力画面を描画（描画は別スレッドで実行する）
-      // ...
-
-      // ローディング画面を描画（描画は別スレッドで実行する）
-      // ...
-
-      // ユーザー認証
-      // todo: autoを使っているとリテラル演算子は使えない？
-      std::string id = "";
-      std::string pw = "";
-      auth::Auth::instance_->request_token(id, pw);
-    }
-
-    //  ゲーム開始
-    // --------------------------------------------------
-    // ...
+    return EXIT_SUCCESS;
   }
 
 } // namespace
