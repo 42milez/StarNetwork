@@ -1,6 +1,7 @@
 #include <future>
 
 #include <sys/event.h>
+#include <tkDecls.h>
 
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
@@ -16,7 +17,7 @@ namespace client
     return instance_->init(server_address);
   }
 
-  std::string Network::send_token_request(const std::string &id, const std::string &pw) {
+  std::string Network::token_request(const std::string &id, const std::string &pw) {
     std::promise<std::string> p;
     auto thread = std::thread([&p] {
       // ソケットを生成
@@ -31,11 +32,26 @@ namespace client
 
       std::string dummy_data{"hello"};
 
+      // イベント登録
+      network::SocketUtil::add_event(tcp_socket);
+
       // リクエスト送信
       tcp_socket->send(dummy_data.data(), sizeof(dummy_data.data()));
 
-      // レスポンス受信（）
-      tcp_socket->recv();
+      // レスポンス待機
+      std::vector<network::TCPSocketPtr> in_sockets{tcp_socket};
+      std::vector<network::TCPSocketPtr> out_sockets;
+      auto nfds = network::SocketUtil::wait(in_sockets, out_sockets);
+      if (nfds == -1) {
+        // error
+      } else if (nfds == 0) {
+        // timeout
+      } else {
+        // レスポンス受信（）
+        size_t buffer_size = 1500;
+        char buffer[buffer_size];
+        tcp_socket->recv(buffer, buffer_size);
+      }
 
       auto token = "";
 

@@ -11,6 +11,8 @@ namespace network {
 
   class SocketUtil {
   public:
+    static bool static_init();
+
     static void report_error(const char *in_operation_desc);
 
     static int last_error();
@@ -21,12 +23,18 @@ namespace network {
 
     static TCPSocketPtr create_tcp_socket(SocketAddressFamily in_family);
 
+    static void add_event(const TCPSocketPtr socket);
+
+    static int wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
+
   private:
     // inline static fd_set *fill_set_from_vector();
 
     // inline static void fill_vector_from_set();
 
     static std::shared_ptr<spdlog::logger> logger_;
+
+    static int mux_;
   };
 
 }

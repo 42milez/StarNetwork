@@ -1,6 +1,5 @@
 #include <unistd.h>
 
-#include <sys/event.h>
 #include <sys/socket.h>
 
 #include "SocketUtil.h"
@@ -41,32 +40,12 @@ namespace network
     return bytes_sent;
   }
 
-  void TCPSocket::recv() {
-    auto mux = kqueue();
-    if (mux == -1) {
-      return;
+  int32_t TCPSocket::recv(void *data, size_t len) {
+    int bytesReceivedCount = ::recv(socket_, static_cast<char *>(data), len, 0);
+    if (bytesReceivedCount < 0) {
+      SocketUtil::report_error("TCPSocket::Receive");
+      return -SocketUtil::last_error();
     }
-    struct kevent event{(uintptr_t) socket_, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, nullptr};
-    kevent(mux, &event, 1, nullptr, 0, nullptr);
-
-    struct kevent events[10];
-    for (;;) {
-      auto nfds = kevent(mux, nullptr, 0, events, 10, nullptr);
-      if (nfds == -1) {
-        return;
-      } else if (nfds == 0) {
-        continue;
-      } else {
-        char *ptr;
-        for (auto i = 0; i < nfds; i++) {
-          auto soc = (int) events[i].ident;
-          if (soc == socket_) {
-            std::string buf(512, '\0');
-            auto len = recv(soc, &buf[0], sizeof(buf), 0);
-            buf.resize(len);
-          }
-        }
-      }
-    }
+    return bytesReceivedCount;
   }
 }

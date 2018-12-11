@@ -26,7 +26,7 @@ namespace network {
 
     // int32_t receive();
 
-    void recv();
+    int32_t recv(void* buffer, size_t len);
 
   private:
     friend class SocketUtil;

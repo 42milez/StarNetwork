@@ -20,7 +20,7 @@ namespace auth {
     std::string token = "";
 
     auto auth_thread = std::thread([this, &id, &pw, &p] {
-      token_ = client::Network::instance_->send_token_request(id, pw);
+      token_ = client::Network::instance_->token_request(id, pw);
       p.set_value();
     });
 
