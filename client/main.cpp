@@ -1,5 +1,6 @@
 #include <csignal>
 #include <iostream>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -131,10 +132,8 @@ int main(int argc, char **argv) {
       // ...
 
       // ユーザー認証
-      // todo: autoを使っているとリテラル演算子は使えない？
-      std::string id = "";
-      std::string pw = "";
-      auth::Auth::instance_->request_token(id, pw);
+      // OPTIMIZE: 非同期処理にした方がよい？
+      auth::Auth::instance_->request_token(std::string("test_id"), std::string("test_password"));
     }
 
     //  ゲーム開始

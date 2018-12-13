@@ -30,8 +30,8 @@ namespace network
     return NO_ERROR;
   }
 
-  int32_t TCPSocket::send(const void *data, size_t len) {
-    auto bytes_sent = ::send(socket_, static_cast<const char *>(data), len, 0);
+  ssize_t TCPSocket::send(const void *data, size_t len) {
+    ssize_t bytes_sent = ::send(socket_, static_cast<const char *>(data), len, 0);
     if (bytes_sent < 0) {
       SocketUtil::report_error("TCPSocket::send");
       return SocketUtil::last_error();
@@ -40,12 +40,12 @@ namespace network
     return bytes_sent;
   }
 
-  int32_t TCPSocket::recv(void *data, size_t len) {
-    int bytesReceivedCount = ::recv(socket_, static_cast<char *>(data), len, 0);
-    if (bytesReceivedCount < 0) {
+  ssize_t TCPSocket::recv(void *data, size_t len) {
+    ssize_t bytes_received_count = ::recv(socket_, static_cast<char *>(data), len, 0);
+    if (bytes_received_count < 0) {
       SocketUtil::report_error("TCPSocket::Receive");
       return -SocketUtil::last_error();
     }
-    return bytesReceivedCount;
+    return bytes_received_count;
   }
 }

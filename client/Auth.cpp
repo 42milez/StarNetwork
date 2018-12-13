@@ -15,18 +15,7 @@ namespace auth {
   }
 
   void Auth::request_token(const std::string &id, const std::string &pw) {
-    std::promise<void> p;
-
-    std::string token = "";
-
-    auto auth_thread = std::thread([this, &id, &pw, &p] {
-      token_ = client::Network::instance_->token_request(id, pw);
-      p.set_value();
-    });
-
-    p.get_future().wait();
-
-    auth_thread.join();
+    token_ = client::Network::instance_->token_request(id, pw);
   }
 
   bool Auth::token_exists() {

@@ -22,11 +22,11 @@ namespace network {
 
     // std::shared_ptr<TCPSocket> accept();
 
-    int32_t send(const void* data, size_t len);
+    ssize_t send(const void* data, size_t len);
 
     // int32_t receive();
 
-    int32_t recv(void* buffer, size_t len);
+    ssize_t recv(void* buffer, size_t len);
 
   private:
     friend class SocketUtil;
