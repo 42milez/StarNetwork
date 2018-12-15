@@ -23,7 +23,7 @@ namespace client {
 
     network::SocketAddressPtr server_address = network::SocketAddressFactory::create_ipv4_from_string(destination);
 
-    Network::static_init(*server_address);
+    Network::static_init();
   }
 
   Client::~Client() {

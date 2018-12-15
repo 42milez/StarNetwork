@@ -6,10 +6,15 @@
 
 #include "life/buildinfo.h"
 
+#include "engine/base/Singleton.h"
+
+#include "auth_server/AuthServer.h"
+#include "auth_server/Network.h"
+
 namespace po = boost::program_options;
 
-namespace {
-
+namespace
+{
   void version() {
     const auto *buildinfo = life_get_buildinfo();
     std::cout << "life " << buildinfo->project_version << "\n";
@@ -42,12 +47,13 @@ namespace {
 
     sigaction(signum, nullptr, &act);
   }
+
 } // namespace
 
 int main(int argc, char **argv) {
   po::options_description opt_desc("OPTIONS", 160);
   opt_desc.add_options()
-    ("run,r", "Execute the game server")
+    ("run,r", "Execute the game auth_server")
     ("help,h", "Show this help message and exit\n");
 
   po::options_description allowed_options("Allowed options");
@@ -100,6 +106,15 @@ int main(int argc, char **argv) {
 
     // todo: handle exit with std::async (can it?)
     // ...
+
+    auto network = engine::base::Singleton<auth_server::Network>::Instance();
+    network.init();
+
+    auto auth_server = engine::base::Singleton<auth_server::AuthServer>::Instance();
+    auth_server.init();
+    auth_server.run();
+
+    engine::base::SingletonFinalizer::finalize();
 
     return EXIT_SUCCESS;
   }

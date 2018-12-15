@@ -7,17 +7,20 @@
 
 #include "engine/network/TCPSocket.h"
 
-namespace network {
+namespace engine
+{
+  namespace network
+  {
+    class NetworkBase {
+    public:
+      NetworkBase();
+      bool init(uint16_t port);
+    private:
+      std::shared_ptr<spdlog::logger> logger_;
+      ::network::TCPSocketPtr tcp_socket_;
+    };
 
-  class NetworkBase {
-  public:
-    NetworkBase();
-    bool init(uint16_t port);
-  private:
-    std::shared_ptr<spdlog::logger> logger_;
-    TCPSocketPtr tcp_socket_;
-  };
-
-} // namespace network
+  } // namespace network
+} // namespace engine
 
 #endif // LIFE_NETWORKBASE_H

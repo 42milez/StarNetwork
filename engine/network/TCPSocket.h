@@ -6,38 +6,40 @@
 #include "NetworkShared.h"
 #include "SocketAddress.h"
 
-namespace network {
+namespace engine
+{
+  namespace network
+  {
+    class TCPSocket {
+    public:
+      ~TCPSocket();
 
-  class TCPSocket {
-  public:
-    ~TCPSocket();
+      // int connect();
 
-    // int connect();
+      int bind(const SocketAddress &address);
 
-    int bind(const SocketAddress& address);
+      int connect(const SocketAddress &address);
 
-    int connect(const SocketAddress& address);
+      int listen(int backlog);
 
-    int listen();
+      std::shared_ptr<TCPSocket> accept(SocketAddress &address);
 
-    // std::shared_ptr<TCPSocket> accept();
+      ssize_t send(const void *data, size_t len);
 
-    ssize_t send(const void* data, size_t len);
+      // int32_t receive();
 
-    // int32_t receive();
+      ssize_t recv(void *buffer, size_t len);
 
-    ssize_t recv(void* buffer, size_t len);
+    private:
+      friend class SocketUtil;
 
-  private:
-    friend class SocketUtil;
+      explicit TCPSocket(Socket in_socket) : socket_(in_socket) {}
 
-    explicit TCPSocket(Socket in_socket) : socket_(in_socket) {}
+      Socket socket_;
+    };
 
-    Socket socket_;
-  };
-
-  using TCPSocketPtr = std::shared_ptr<TCPSocket>;
-
+    using TCPSocketPtr = std::shared_ptr<TCPSocket>;
+  }
 }
 
 #endif // LIFE_TCPSOCKET_H

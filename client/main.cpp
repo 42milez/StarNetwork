@@ -11,6 +11,7 @@
 #include "engine/base/Singleton.h"
 #include "Auth.h"
 #include "Client.h"
+#include "Network.h"
 
 namespace po = boost::program_options;
 
@@ -118,6 +119,7 @@ int main(int argc, char **argv) {
 
     auth::Auth::static_init();
     client::Client::static_init();
+    client::Network::static_init();
 
     if (!auth::Auth::instance_->token_exists()) {
       //  ユーザー認証

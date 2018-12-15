@@ -30,11 +30,11 @@ namespace network
     return true;
   }
 
-  TCPSocketPtr SocketUtil::create_tcp_socket(SocketAddressFamily in_family) {
-    Socket s = socket(static_cast<int>(in_family), SOCK_STREAM, IPPROTO_TCP);
+  TCPSocketPtr SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily in_family) {
+    int socket = ::socket(static_cast<int>(in_family), SOCK_STREAM, IPPROTO_TCP);
 
-    if (s != INVALID_SOCKET) {
-      return TCPSocketPtr(new TCPSocket(s));
+    if (socket != engine::network::INVALID_SOCKET) {
+      return TCPSocketPtr(new TCPSocket(socket));
     } else {
       report_error("SocketUtil::create_tcp_socket");
       return nullptr;

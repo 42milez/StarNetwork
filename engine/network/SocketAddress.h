@@ -11,42 +11,45 @@
 
 using std::string;
 
-namespace network {
+namespace engine
+{
+  namespace network
+  {
+    class SocketAddress {
+    public:
+      SocketAddress(uint32_t address, uint16_t port);
 
-  class SocketAddress {
-  public:
-    SocketAddress(uint32_t address, uint16_t port);
+      SocketAddress(const sockaddr &sockaddr);
 
-    SocketAddress(const sockaddr &sockaddr);
+      SocketAddress();
 
-    SocketAddress();
+      bool operator==(const SocketAddress &other) const;
 
-    bool operator==(const SocketAddress &other) const;
+      size_t hash();
 
-    size_t hash();
+      uint32_t size() const;
 
-    uint32_t size() const;
+      string to_string();
 
-    string to_string();
+    private:
+      friend class UDPSocket;
 
-  private:
-    friend class UDPSocket;
+      friend class TCPSocket;
 
-    friend class TCPSocket;
+      sockaddr sockaddr_;
 
-    sockaddr sockaddr_;
+      uint32_t &ip4_ref();
 
-    uint32_t &ip4_ref();
+      // const uint32_t &ip4_ref() const;
 
-    // const uint32_t &ip4_ref() const;
+      sockaddr_in *as_sockaddr_in();
 
-    sockaddr_in *as_sockaddr_in();
+      // const sockaddr_in *as_sockaddr_in() const;
+    };
 
-    // const sockaddr_in *as_sockaddr_in() const;
-  };
+    using SocketAddressPtr = std::shared_ptr<SocketAddress>;
 
-  using SocketAddressPtr = std::shared_ptr<SocketAddress>;
-
-} // namespace network
+  } // namespace network
+} // namespace engine
 
 #endif // LIFE_SOCKETADDRESS_H

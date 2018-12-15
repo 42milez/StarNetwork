@@ -10,14 +10,14 @@
 namespace client
 {
 
-  void Network::static_init(const network::SocketAddress &server_address) {
+  void Network::static_init() {
     instance_ = std::make_unique<Network>();
-    return instance_->init(server_address);
+    return instance_->init();
   }
 
   std::string Network::token_request(const std::string &id, const std::string &pw) {
     // ソケットを生成
-    auto tcp_socket = network::SocketUtil::create_tcp_socket(network::SocketAddressFamily::INET);
+    auto tcp_socket = network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
     network::SocketAddress client_address(INADDR_ANY, 42001);
     tcp_socket->bind(client_address);
 
@@ -58,7 +58,7 @@ namespace client
     return token;
   }
 
-  void Network::init(const network::SocketAddress &server_address) {
+  void Network::init() {
     NetworkBase::init(0);
   }
 

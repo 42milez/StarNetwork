@@ -21,9 +21,9 @@ namespace network {
 
     // static UDPSocketPtr create_udp_socket(SocketAddressFamily in_family);
 
-    static TCPSocketPtr create_tcp_socket(SocketAddressFamily in_family);
+    static TCPSocketPtr create_tcp_socket(engine::network::SocketAddressFamily in_family);
 
-    static void add_event(const TCPSocketPtr socket);
+    static void add_event(TCPSocketPtr socket);
 
     static int wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
 
