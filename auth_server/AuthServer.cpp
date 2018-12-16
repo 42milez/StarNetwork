@@ -13,6 +13,9 @@ namespace auth_server {
   }
 
   bool AuthServer::init() {
+    auto network = engine::base::Singleton<auth_server::Network>::Instance();
+    network.init();
+
     return true;
   }
 
@@ -27,11 +30,11 @@ namespace auth_server {
   void AuthServer::do_run_loop() {
     auto network = engine::base::Singleton<Network>::Instance();
     while (should_keep_running_) {
-      auto sockets = network.wait();
+      auto sockets_ready = network.wait();
 
       char buffer[1500];
 
-      for (const auto &socket : sockets) {
+      for (const auto &socket : sockets_ready) {
         auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
         buffer[bytes_received_count] = '\0';
         std::cout << buffer << std::endl;

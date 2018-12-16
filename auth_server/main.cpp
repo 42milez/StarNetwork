@@ -107,9 +107,6 @@ int main(int argc, char **argv) {
     // todo: handle exit with std::async (can it?)
     // ...
 
-    auto network = engine::base::Singleton<auth_server::Network>::Instance();
-    network.init();
-
     auto auth_server = engine::base::Singleton<auth_server::AuthServer>::Instance();
     auth_server.init();
     auth_server.run();

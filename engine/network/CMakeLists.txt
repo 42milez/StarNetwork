@@ -1,7 +1,7 @@
 file(GLOB sources *.cpp)
 file(GLOB headers *.h)
 
-add_library(network STATIC ${sources} ${headers} NetworkBase.cpp NetworkBase.h)
+add_library(network STATIC ${sources} ${headers})
 
 #if (Linux)
 #  add_library(network ${sources} tcp_socket_linux.cpp)

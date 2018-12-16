@@ -4,8 +4,10 @@
 #include <memory>
 #include <string>
 
-#include "engine/network/NetworkBase.h"
+#include <spdlog/spdlog.h>
+
 #include "engine/network/SocketAddress.h"
+#include "engine/network/TCPSocket.h"
 
 namespace client
 {

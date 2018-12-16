@@ -56,12 +56,6 @@ else ()
   message("License file: '${GTest_LICENSES}'")
 endif ()
 
-#  SDL
-# --------------------------------------------------
-
-hunter_add_package(SDL2)
-find_package(SDL2 CONFIG REQUIRED)
-
 #  spdlog
 # --------------------------------------------------
 

@@ -1,6 +1,8 @@
 #ifndef LIFE_AUTHSERVER_NETWORK_H
 #define LIFE_AUTHSERVER_NETWORK_H
 
+#include <spdlog/spdlog.h>
+
 #include "engine/network/TCPSocket.h"
 
 namespace auth_server
