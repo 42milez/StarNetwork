@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 
 #include <spdlog/spdlog.h>
@@ -7,9 +8,11 @@
 
 #include "AuthServer.h"
 
-namespace auth_server {
+namespace auth_server
+{
   AuthServer::AuthServer() : should_keep_running_(true) {
-    logger_ = spdlog::basic_logger_mt("auth_server / Network", "logs/development.log");
+    // TODO Check the existence of the target file
+    logger_ = spdlog::basic_logger_mt("auth_server / AuthServer", "logs/development.log");
   }
 
   bool AuthServer::init() {
