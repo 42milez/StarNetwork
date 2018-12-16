@@ -28,7 +28,9 @@ namespace auth_server
 
     tcp_socket_->listen(5);
 
-    mux_ = engine::network::SocketUtil::create_multiplexer(tcp_socket_);
+    mux_ = engine::network::SocketUtil::create_multiplexer();
+
+    engine::network::SocketUtil::add_event(mux_, tcp_socket_);
 
     return true;
   }

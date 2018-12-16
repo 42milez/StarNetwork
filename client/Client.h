@@ -4,30 +4,20 @@
 #include <memory>
 #include <string>
 
-#include <SDL.h>
-
 namespace client {
 
   class Client {
   public:
-    ~Client();
+    bool init();
 
-    static bool static_init();
-
-    static std::unique_ptr<Client> instance_;
-
-    virtual int run();
+    void run();
 
     void set_should_keep_running(bool should_keep_running);
 
-    virtual void handle_event(SDL_Event *inEvent);
-
   private:
-    Client();
+    void do_run_loop();
 
-    virtual void do_frame();
-
-    int do_run_loop();
+    void do_frame();
 
     bool should_keep_running_;
 

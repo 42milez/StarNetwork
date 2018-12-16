@@ -23,11 +23,11 @@ namespace engine {
 
       static TCPSocketPtr create_tcp_socket(engine::network::SocketAddressFamily in_family);
 
-//      static void add_event(TCPSocketPtr socket);
-
 //      static int wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
 
-      static int create_multiplexer(const TCPSocketPtr &socket);
+      static int create_multiplexer();
+
+      static void add_event(int mux, TCPSocketPtr socket);
 
       static int wait(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
 

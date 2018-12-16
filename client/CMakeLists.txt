@@ -5,8 +5,6 @@ add_executable(client main.cpp ${sources} ${headers})
 
 set(libs
   life-buildinfo
-  Boost::program_options
-  SDL2::SDL2
-  SDL2::SDL2main)
+  Boost::program_options)
 
 target_link_libraries(client PRIVATE ${libs})

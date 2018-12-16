@@ -15,8 +15,6 @@ namespace auth_server
 
     std::vector<TCPSocketPtr> wait();
 
-    static std::unique_ptr<Network> instance_;
-
   private:
     std::shared_ptr<spdlog::logger> logger_;
 

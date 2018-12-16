@@ -5,7 +5,6 @@
 #include <vector>
 
 #include <boost/program_options.hpp>
-#include <SDL2/SDL.h>
 
 #include "life/buildinfo.h"
 #include "engine/base/Singleton.h"
@@ -111,17 +110,16 @@ int main(int argc, char **argv) {
     // auto auth = base::Singleton<auth::auth>::Instance();
     // base::SingletonFinalizer::finalize();
 
-    if (SDL_Init(SDL_INIT_TIMER) != 0) {
-      std::cout << "Error while initializing SDL: " << SDL_GetError() << std::endl;
-      SDL_Quit();
-      return -1;
-    }
+//    auth::Auth::static_init();
+//    client::Client::static_init();
+//    client::Network::static_init();
 
-    auth::Auth::static_init();
-    client::Client::static_init();
-    client::Network::static_init();
+    auto client = engine::base::Singleton<client::Client>::Instance();
+    client.init();
 
-    if (!auth::Auth::instance_->token_exists()) {
+    auto auth = engine::base::Singleton<auth::Auth>::Instance();
+
+    if (!auth.token_exists()) {
       //  ユーザー認証
       // --------------------------------------------------
       //  - Tokenを所持している、かつ、Tokenの有効期限が切れていなければ
@@ -135,7 +133,7 @@ int main(int argc, char **argv) {
 
       // ユーザー認証
       // OPTIMIZE: 非同期処理にした方がよい？
-      auth::Auth::instance_->request_token(std::string("test_id"), std::string("test_password"));
+      auth.request_token(std::string("test_id"), std::string("test_password"));
     }
 
     //  ゲーム開始

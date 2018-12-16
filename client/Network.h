@@ -7,15 +7,26 @@
 #include "engine/network/NetworkBase.h"
 #include "engine/network/SocketAddress.h"
 
-namespace client {
+namespace client
+{
+  using engine::network::TCPSocketPtr;
 
-  class Network : public network::NetworkBase {
+  class Network {
   public:
-    static std::unique_ptr<Network> instance_;
-    static void static_init();
+    Network();
+
+    bool init();
+
+    std::vector<TCPSocketPtr> wait();
+
     std::string token_request(const std::string &id, const std::string &pw);
+
   private:
-    void init();
+    std::shared_ptr<spdlog::logger> logger_;
+
+    engine::network::TCPSocketPtr tcp_socket_;
+
+    int mux_;
   };
 
 } // namespace client

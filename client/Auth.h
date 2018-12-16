@@ -8,13 +8,15 @@ namespace auth {
 
   class Auth {
   public:
-    static bool static_init();
+//    static bool static_init();
+
+    bool init();
 
     void request_token(const std::string &id, const std::string &password);
 
     bool token_exists();
 
-    static std::unique_ptr<Auth> instance_;
+//    static std::unique_ptr<Auth> instance_;
   private:
     Auth() = default;
 

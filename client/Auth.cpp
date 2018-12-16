@@ -5,12 +5,16 @@
 
 namespace auth {
 
-  bool Auth::static_init() {
-    instance_ = std::make_unique<Auth>();
+//  bool Auth::static_init() {
+//    instance_ = std::make_unique<Auth>();
+//
+//    // トークンがあれば読み込む
+//    // ...
+//
+//    return true;
+//  }
 
-    // トークンがあれば読み込む
-    // ...
-
+  bool Auth::init() {
     return true;
   }
 

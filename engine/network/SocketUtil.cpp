@@ -42,18 +42,6 @@ namespace engine {
       }
     }
 
-//    void SocketUtil::add_event(const TCPSocketPtr socket) {
-//      struct kevent event{
-//        (uintptr_t) socket->socket_,
-//        EVFILT_READ,
-//        EV_ADD | EV_DELETE | EV_CLEAR,
-//        0,
-//        0,
-//        nullptr
-//      };
-//      kevent(mux_, &event, 1, nullptr, 0, nullptr);
-//    }
-
 //    int SocketUtil::wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
 //      // TODO Consider the size of events. The size may affect the read throughput from descriptor.
 //      const auto n_events = 10;
@@ -75,13 +63,17 @@ namespace engine {
 //      return nfds;
 //    }
 
-    int SocketUtil::create_multiplexer(const TCPSocketPtr &socket) {
+    int SocketUtil::create_multiplexer() {
       auto mux = kqueue();
 
       if (mux == -1) {
         return -1;
       }
 
+      return mux;
+    }
+
+    void SocketUtil::add_event(int mux, const TCPSocketPtr socket) {
       struct kevent event{
         (uintptr_t) socket->socket_,
         EVFILT_READ,
@@ -91,8 +83,6 @@ namespace engine {
         nullptr
       };
       kevent(mux, &event, 1, nullptr, 0, nullptr);
-
-      return mux;
     }
 
     int SocketUtil::wait(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
