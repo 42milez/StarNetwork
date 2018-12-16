@@ -8,6 +8,7 @@ namespace engine
 {
   namespace network
   {
+    using SocketUtil = engine::network::SocketUtil;
 
     TCPSocket::~TCPSocket() {
       close(socket_);

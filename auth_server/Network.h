@@ -5,13 +5,15 @@
 
 namespace auth_server
 {
+  using TCPSocketPtr = engine::network::TCPSocketPtr;
+
   class Network {
   public:
     Network();
 
     bool init();
 
-    void wait_for_accept();
+    std::vector<TCPSocketPtr> wait();
 
     static std::unique_ptr<Network> instance_;
 
@@ -21,6 +23,8 @@ namespace auth_server
     engine::network::TCPSocketPtr tcp_socket_;
 
     std::array<int, 1024> queue_;
+
+    int mux_;
   };
 } // namespace auth_server
 
