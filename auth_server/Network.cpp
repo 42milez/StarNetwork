@@ -2,13 +2,17 @@
 #include <sys/event.h>
 #include <sys/time.h>
 
+#include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
 
 #include "Network.h"
 
-namespace auth_server
-{
+namespace auth_server {
+  namespace {
+    using SocketAddress = engine::network::SocketAddress;
+  }
+
   Network::Network() {
     logger_ = spdlog::basic_logger_mt("auth_server / Network", "logs/development.log");
   }
@@ -20,11 +24,9 @@ namespace auth_server
       return false;
     }
 
-    auto ipv4 = engine::network::SocketAddressFactory::create_ipv4_from_string("10.0.40.100:8888");
+    SocketAddress server_address(INADDR_ANY, 12345);
 
-    engine::network::SocketAddress tcp_address(*ipv4);
-
-    tcp_socket_->bind(tcp_address);
+    tcp_socket_->bind(server_address);
 
     tcp_socket_->listen(5);
 
@@ -36,7 +38,7 @@ namespace auth_server
   }
 
   std::vector<TCPSocketPtr> Network::wait() {
-    std::vector<TCPSocketPtr> in_sockets{ tcp_socket_ };
+    std::vector<TCPSocketPtr> in_sockets{tcp_socket_};
     std::vector<TCPSocketPtr> out_sockets;
 
     engine::network::SocketUtil::wait(mux_, in_sockets, out_sockets);
