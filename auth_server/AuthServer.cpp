@@ -16,7 +16,7 @@ namespace auth_server
   }
 
   bool AuthServer::init() {
-    auto network = engine::base::Singleton<auth_server::Network>::Instance();
+    auto &network = engine::base::Singleton<Network>::Instance();
     network.init();
 
     return true;
