@@ -8,11 +8,17 @@ namespace client {
 
   class Client {
   public:
+    Client();
+
     bool init();
 
     void run();
 
     void set_should_keep_running(bool should_keep_running);
+
+    void request_token(const std::string &id, const std::string &password);
+
+    bool token_exists();
 
   private:
     void do_run_loop();
@@ -21,7 +27,7 @@ namespace client {
 
     bool should_keep_running_;
 
-    std::string request_token();
+    std::string token_;
   };
 
 } // namespace client

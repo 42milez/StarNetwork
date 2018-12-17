@@ -6,20 +6,18 @@
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
 
-#include "Auth.h"
 #include "Client.h"
 #include "Network.h"
 
 namespace client
 {
+  using SocketAddress = engine::network::SocketAddress;
   using SocketAddressFactory = engine::network::SocketAddressFactory;
   using SocketAddressPtr = engine::network::SocketAddressPtr;
+  using SocketUtil = engine::network::SocketUtil;
 
   bool Client::init() {
-    auto auth = engine::base::Singleton<auth::Auth>::Instance();
-    auth.init();
-
-    auto network = engine::base::Singleton<client::Network>::Instance();
+    auto &network = engine::base::Singleton<client::Network>::Instance();
     network.init();
 
     return true;
@@ -27,10 +25,6 @@ namespace client
 
   Client::Client() : should_keep_running_(true) {
     // ...
-  }
-
-  std::string Client::request_token() {
-    return "";
   }
 
   void Client::run() {
@@ -49,6 +43,53 @@ namespace client
 
   void Client::do_frame() {
     // ...
+  }
+
+  void Client::request_token(const std::string &id, const std::string &pw) {
+    auto mux = engine::network::SocketUtil::create_multiplexer();
+
+    // ソケットを生成
+    auto tcp_socket = SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
+
+    // イベント登録
+    SocketUtil::add_event(mux, tcp_socket);
+
+    SocketAddress client_address(INADDR_ANY, 42004);
+    tcp_socket->bind(client_address);
+
+    // サーバーに接続
+    auto server_address = SocketAddressFactory::create_ipv4_from_string("127.0.0.1:12345");
+//    SocketAddress server_address(static_cast<uint32_t>(std::stoi("127.0.0.1")), 12345);
+    auto error = tcp_socket->connect(*server_address);
+
+    std::string dummy_data{"hello"};
+
+    // リクエスト送信
+    auto size = tcp_socket->send(dummy_data.data(), sizeof(dummy_data.data()));
+
+    // レスポンス待機
+    std::vector<TCPSocketPtr> in_sockets{tcp_socket};
+    std::vector<TCPSocketPtr> out_sockets;
+
+    auto nfds = SocketUtil::wait(mux, in_sockets, out_sockets);
+
+    if (nfds == -1) {
+      // error
+    } else if (nfds == 0) {
+      // timeout
+    } else {
+      // レスポンス受信
+      size_t buffer_size = 1500;
+      char buffer[buffer_size];
+      memset(buffer, 0, buffer_size);
+      auto bytes_received_count = out_sockets[0]->recv(buffer, buffer_size);
+      buffer[bytes_received_count] = '\0';
+      token_ = std::string(buffer);
+    }
+  }
+
+  bool Client::token_exists() {
+    return !token_.empty();
   }
 
 } // namespace client

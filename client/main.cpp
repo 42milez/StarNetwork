@@ -8,7 +8,6 @@
 
 #include "life/buildinfo.h"
 #include "engine/base/Singleton.h"
-#include "Auth.h"
 #include "Client.h"
 #include "Network.h"
 
@@ -107,19 +106,10 @@ int main(int argc, char **argv) {
     // todo: handle exit with std::async (can it?)
     // ...
 
-    // auto auth = base::Singleton<auth::auth>::Instance();
-    // base::SingletonFinalizer::finalize();
-
-//    auth::Auth::static_init();
-//    client::Client::static_init();
-//    client::Network::static_init();
-
-    auto client = engine::base::Singleton<client::Client>::Instance();
+    auto &client = engine::base::Singleton<client::Client>::Instance();
     client.init();
 
-    auto auth = engine::base::Singleton<auth::Auth>::Instance();
-
-    if (!auth.token_exists()) {
+    if (!client.token_exists()) {
       //  ユーザー認証
       // --------------------------------------------------
       //  - Tokenを所持している、かつ、Tokenの有効期限が切れていなければ
@@ -133,7 +123,7 @@ int main(int argc, char **argv) {
 
       // ユーザー認証
       // OPTIMIZE: 非同期処理にした方がよい？
-      auth.request_token(std::string("test_id"), std::string("test_password"));
+      client.request_token(std::string("test_id"), std::string("test_password"));
     }
 
     //  ゲーム開始

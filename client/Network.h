@@ -21,8 +21,6 @@ namespace client
 
     std::vector<TCPSocketPtr> wait();
 
-    std::string token_request(const std::string &id, const std::string &pw);
-
   private:
     std::shared_ptr<spdlog::logger> logger_;
 
