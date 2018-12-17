@@ -20,7 +20,7 @@ namespace auth_server
       return false;
     }
 
-    auto ipv4 = engine::network::SocketAddressFactory::create_ipv4_from_string("192.168.1.100:8888");
+    auto ipv4 = engine::network::SocketAddressFactory::create_ipv4_from_string("10.0.40.100:8888");
 
     engine::network::SocketAddress tcp_address(*ipv4);
 

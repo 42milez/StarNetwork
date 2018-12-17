@@ -18,7 +18,7 @@ namespace engine
       int error = ::bind(socket_, &address.sockaddr_, address.size());
       if (error != 0) {
         SocketUtil::report_error("TCPSocket::bind");
-        return SocketUtil::last_error();
+        return -SocketUtil::last_error();
       }
 
       return NO_ERROR;
@@ -28,7 +28,7 @@ namespace engine
       int err = ::connect(socket_, &address.sockaddr_, address.size());
       if (err < 0) {
         SocketUtil::report_error("TCPSocket::Connect");
-        return SocketUtil::last_error();
+        return -SocketUtil::last_error();
       }
       return NO_ERROR;
     }
@@ -37,7 +37,7 @@ namespace engine
       ssize_t bytes_sent = ::send(socket_, static_cast<const char *>(data), len, 0);
       if (bytes_sent < 0) {
         SocketUtil::report_error("TCPSocket::send");
-        return SocketUtil::last_error();
+        return -SocketUtil::last_error();
       }
       // TODO using suitable data type for platform
       return bytes_sent;
