@@ -31,7 +31,7 @@ namespace auth_server
   }
 
   void AuthServer::do_run_loop() {
-    auto network = engine::base::Singleton<Network>::Instance();
+    auto &network = engine::base::Singleton<Network>::Instance();
     while (should_keep_running_) {
       auto sockets_ready = network.wait();
 
