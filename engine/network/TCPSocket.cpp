@@ -11,7 +11,7 @@ namespace engine
     using SocketUtil = engine::network::SocketUtil;
 
     TCPSocket::~TCPSocket() {
-      close(socket_);
+      ::close(socket_);
     }
 
     int TCPSocket::bind(const SocketAddress &address) {

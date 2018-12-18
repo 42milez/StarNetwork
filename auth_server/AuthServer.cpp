@@ -39,8 +39,14 @@ namespace auth_server
 
       for (const auto &socket : sockets_ready) {
         auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
-        buffer[bytes_received_count] = '\0';
-        std::cout << buffer << std::endl;
+
+        if (bytes_received_count == -1) {
+          // handle error
+          // ...
+        } else {
+          buffer[bytes_received_count] = '\0';
+          std::cout << buffer << std::endl;
+        }
       }
     }
   }

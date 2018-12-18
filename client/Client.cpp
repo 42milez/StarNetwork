@@ -1,4 +1,5 @@
 #include <ctime>
+#include <iostream>
 #include <string>
 #include <engine/base/Singleton.h>
 
@@ -71,7 +72,7 @@ namespace client
     std::vector<TCPSocketPtr> in_sockets{tcp_socket};
     std::vector<TCPSocketPtr> out_sockets;
 
-    auto nfds = SocketUtil::wait(mux, in_sockets, out_sockets);
+    auto nfds = SocketUtil::wait_for_receiving(mux, in_sockets, out_sockets);
 
     if (nfds == -1) {
       // error
@@ -85,6 +86,7 @@ namespace client
       auto bytes_received_count = out_sockets[0]->recv(buffer, buffer_size);
       buffer[bytes_received_count] = '\0';
       token_ = std::string(buffer);
+      std::cout << token_ << std::endl;
     }
   }
 

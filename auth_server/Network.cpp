@@ -26,6 +26,7 @@ namespace auth_server {
 
     SocketAddress server_address(INADDR_ANY, 12345);
 
+    // TODO: Retry when bind() fails
     tcp_socket_->bind(server_address);
 
     tcp_socket_->listen(5);
@@ -41,7 +42,7 @@ namespace auth_server {
     std::vector<TCPSocketPtr> in_sockets{tcp_socket_};
     std::vector<TCPSocketPtr> out_sockets;
 
-    engine::network::SocketUtil::wait(mux_, in_sockets, out_sockets);
+    engine::network::SocketUtil::wait_for_accepting(mux_, in_sockets, out_sockets);
 
     return std::move(out_sockets);
   }
