@@ -16,7 +16,7 @@ namespace client {
 
     void set_should_keep_running(bool should_keep_running);
 
-    void request_token(const std::string &id, const std::string &password);
+    int request_token(const std::string &id, const std::string &password);
 
     bool token_exists();
 

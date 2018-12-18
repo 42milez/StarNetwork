@@ -20,7 +20,7 @@ namespace auth_server
   private:
     std::shared_ptr<spdlog::logger> logger_;
 
-    engine::network::TCPSocketPtr tcp_socket_;
+    engine::network::TCPSocketPtr server_socket_;
 
     std::array<int, 1024> queue_;
 

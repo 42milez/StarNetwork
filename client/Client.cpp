@@ -46,7 +46,7 @@ namespace client
     // ...
   }
 
-  void Client::request_token(const std::string &id, const std::string &pw) {
+  int Client::request_token(const std::string &id, const std::string &pw) {
     auto mux = engine::network::SocketUtil::create_multiplexer();
 
     // ソケットを生成
@@ -72,22 +72,38 @@ namespace client
     std::vector<TCPSocketPtr> in_sockets{tcp_socket};
     std::vector<TCPSocketPtr> out_sockets;
 
-    auto nfds = SocketUtil::wait_for_receiving(mux, in_sockets, out_sockets);
+    for (;;) {
+      auto nfds = SocketUtil::wait_for_receiving(mux, in_sockets, out_sockets);
 
-    if (nfds == -1) {
-      // error
-    } else if (nfds == 0) {
-      // timeout
-    } else {
-      // レスポンス受信
-      size_t buffer_size = 1500;
-      char buffer[buffer_size];
-      memset(buffer, 0, buffer_size);
-      auto bytes_received_count = out_sockets[0]->recv(buffer, buffer_size);
-      buffer[bytes_received_count] = '\0';
-      token_ = std::string(buffer);
-      std::cout << token_ << std::endl;
+      if (nfds == -1) {
+        return -1;
+      } else if (nfds == 0) {
+        // timeout
+        // retry
+        // TODO: retry count
+        // ...
+        continue;
+      } else {
+        // レスポンス受信
+        size_t buffer_size = 1500;
+        char buffer[buffer_size];
+        memset(buffer, 0, buffer_size);
+        auto bytes_received_count = out_sockets[0]->recv(buffer, buffer_size);
+
+        if (bytes_received_count < 0) {
+          return -1;
+        } else if (bytes_received_count == 0) {
+          std::cout << "a" << std::endl;
+          continue;
+        } else {
+          buffer[bytes_received_count] = '\0';
+          token_ = std::string(buffer);
+          break;
+        }
+      }
     }
+
+    return 0;
   }
 
   bool Client::token_exists() {

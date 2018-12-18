@@ -18,28 +18,28 @@ namespace auth_server {
   }
 
   bool Network::init() {
-    tcp_socket_ = engine::network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
+    server_socket_ = engine::network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
 
-    if (tcp_socket_ == nullptr) {
+    if (server_socket_ == nullptr) {
       return false;
     }
 
     SocketAddress server_address(INADDR_ANY, 12345);
 
     // TODO: Retry when bind() fails
-    tcp_socket_->bind(server_address);
+    server_socket_->bind(server_address);
 
-    tcp_socket_->listen(5);
+    server_socket_->listen(5);
 
     mux_ = engine::network::SocketUtil::create_multiplexer();
 
-    auto error = engine::network::SocketUtil::add_event(mux_, tcp_socket_);
+    auto error = engine::network::SocketUtil::add_event(mux_, server_socket_);
 
     return true;
   }
 
   std::vector<TCPSocketPtr> Network::wait() {
-    std::vector<TCPSocketPtr> in_sockets{tcp_socket_};
+    std::vector<TCPSocketPtr> in_sockets{server_socket_};
     std::vector<TCPSocketPtr> out_sockets;
 
     engine::network::SocketUtil::wait_for_accepting(mux_, in_sockets, out_sockets);
