@@ -54,7 +54,7 @@ namespace client
     // イベント登録
     SocketUtil::add_event(mux, tcp_socket);
 
-    SocketAddress client_address(INADDR_ANY, 42004);
+    SocketAddress client_address{};
     tcp_socket->bind(client_address);
 
     // サーバーに接続

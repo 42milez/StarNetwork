@@ -73,16 +73,16 @@ namespace engine {
       return mux;
     }
 
-    void SocketUtil::add_event(int mux, const TCPSocketPtr socket) {
+    int SocketUtil::add_event(int mux, const TCPSocketPtr &socket) {
       struct kevent event{
         (uintptr_t) socket->socket_,
         EVFILT_READ,
-        EV_ADD | EV_DELETE | EV_CLEAR,
+        EV_ADD | EV_CLEAR,
         0,
         0,
         nullptr
       };
-      kevent(mux, &event, 1, nullptr, 0, nullptr);
+      return kevent(mux, &event, 1, nullptr, 0, nullptr);
     }
 
     int SocketUtil::wait(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
@@ -92,8 +92,6 @@ namespace engine {
 
       if (nfds == -1) {
         return -1;
-      } else if (nfds == 0) {
-        return 0;
       } else {
         for (auto i = 0; i < nfds; i++) {
           auto soc = (int) events[i].ident;
@@ -108,7 +106,7 @@ namespace engine {
               struct kevent event{
                 (uintptr_t) fd,
                 EVFILT_READ,
-                EV_ADD | EV_DELETE | EV_CLEAR,
+                EV_ADD | EV_CLEAR,
                 0,
                 0,
                 nullptr

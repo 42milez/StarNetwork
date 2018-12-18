@@ -32,7 +32,7 @@ namespace auth_server {
 
     mux_ = engine::network::SocketUtil::create_multiplexer();
 
-    engine::network::SocketUtil::add_event(mux_, tcp_socket_);
+    auto error = engine::network::SocketUtil::add_event(mux_, tcp_socket_);
 
     return true;
   }
