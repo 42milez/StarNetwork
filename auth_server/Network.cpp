@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
@@ -38,12 +40,75 @@ namespace auth_server {
     return true;
   }
 
-  std::vector<TCPSocketPtr> Network::wait() {
-    std::vector<TCPSocketPtr> in_sockets{server_socket_};
-    std::vector<TCPSocketPtr> out_sockets;
+  int Network::process_incoming_packets() {
+    struct kevent events[10];
 
-    engine::network::SocketUtil::wait_for_accepting(mux_, in_sockets, out_sockets);
+    // TODO: set timeout
+    auto nfds = kevent(mux_, nullptr, 0, events, 10, nullptr);
 
-    return std::move(out_sockets);
+    if (nfds == -1) {
+      return -1;
+    } else if (nfds == 0) {
+      // timeout
+      // ...
+      return 0;
+    } else {
+      std::vector<TCPSocketPtr> ready_sockets;
+
+      for (auto i = 0; i < nfds; i++) {
+        auto soc = (int) events[i].ident;
+
+        if (server_socket_->is_same_descriptor(soc)) {
+          accept_incoming_packets();
+        } else {
+          ready_sockets.push_back(client_sockets_.at(soc));
+        }
+      }
+
+      read_incoming_packets_into_queue(ready_sockets);
+    }
+
+    return 0;
+  }
+
+  void Network::accept_incoming_packets() {
+    auto tcp_socket = server_socket_->accept();
+
+    client_sockets_.insert(std::make_pair(tcp_socket->descriptor(), tcp_socket));
+
+    struct kevent event{
+      (uintptr_t) tcp_socket->descriptor(),
+      EVFILT_READ,
+      EV_ADD | EV_CLEAR,
+      0,
+      0,
+      nullptr
+    };
+
+    auto error = kevent(mux_, &event, 1, nullptr, 0, nullptr);
+
+    if (error == -1) {
+      // error handling
+      // ...
+    }
+  }
+
+  void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {
+    char buffer[1500];
+
+    for (const auto &socket : ready_sockets) {
+      auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
+
+      if (bytes_received_count == -1) {
+        // handle error
+        // ...
+      } else if (bytes_received_count == 0) {
+        auto fd = socket->close();
+        client_sockets_.erase(fd);
+      } else {
+        buffer[bytes_received_count] = '\0';
+        std::cout << buffer << std::endl;
+      }
+    }
   }
 } // namespace auth_server

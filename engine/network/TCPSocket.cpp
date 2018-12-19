@@ -11,7 +11,7 @@ namespace engine
     using SocketUtil = engine::network::SocketUtil;
 
     TCPSocket::~TCPSocket() {
-      ::close(socket_);
+      close();
     }
 
     int TCPSocket::bind(const SocketAddress &address) {
@@ -61,16 +61,31 @@ namespace engine
       return NO_ERROR;
     }
 
-    TCPSocketPtr TCPSocket::accept(SocketAddress &address) {
-      socklen_t len = address.size();
-      Socket socket = ::accept(socket_, &address.sockaddr_, &len);
+    TCPSocketPtr TCPSocket::accept() {
+      struct sockaddr_storage addr{};
+      socklen_t length = sizeof(addr);
+      int new_socket = ::accept(socket_, (struct sockaddr *) &addr, &length );
 
-      if (socket != INVALID_SOCKET) {
-        return TCPSocketPtr(new TCPSocket(socket));
-      } else {
+      if (new_socket != INVALID_SOCKET ) {
+        return TCPSocketPtr(new TCPSocket(new_socket));
+      }
+      else {
         SocketUtil::report_error("TCPSocket::Accept");
         return nullptr;
       }
+    }
+
+    bool TCPSocket::is_same_descriptor(int fd) {
+      return fd == socket_;
+    }
+
+    int TCPSocket::close() {
+      ::close(socket_);
+      return socket_;
+    }
+
+    int TCPSocket::descriptor() {
+      return socket_;
     }
   }
 }

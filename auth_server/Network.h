@@ -1,6 +1,8 @@
 #ifndef LIFE_AUTHSERVER_NETWORK_H
 #define LIFE_AUTHSERVER_NETWORK_H
 
+#include <map>
+
 #include <spdlog/spdlog.h>
 
 #include "engine/network/TCPSocket.h"
@@ -15,12 +17,18 @@ namespace auth_server
 
     bool init();
 
-    std::vector<TCPSocketPtr> wait();
+    int process_incoming_packets();
 
   private:
+    void accept_incoming_packets();
+
+    void read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets);
+
     std::shared_ptr<spdlog::logger> logger_;
 
-    engine::network::TCPSocketPtr server_socket_;
+    TCPSocketPtr server_socket_;
+
+    std::map<int, TCPSocketPtr> client_sockets_;
 
     std::array<int, 1024> queue_;
 

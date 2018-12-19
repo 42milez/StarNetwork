@@ -93,8 +93,8 @@ namespace client
         if (bytes_received_count < 0) {
           return -1;
         } else if (bytes_received_count == 0) {
-          std::cout << "a" << std::endl;
-          continue;
+          // peer closed
+          // ...
         } else {
           buffer[bytes_received_count] = '\0';
           token_ = std::string(buffer);

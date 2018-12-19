@@ -10,6 +10,9 @@ namespace engine
 {
   namespace network
   {
+    class TCPSocket;
+    using TCPSocketPtr = std::shared_ptr<TCPSocket>;
+
     class TCPSocket {
     public:
       ~TCPSocket();
@@ -22,13 +25,19 @@ namespace engine
 
       int listen(int backlog);
 
-      std::shared_ptr<TCPSocket> accept(SocketAddress &address);
+      TCPSocketPtr accept();
 
       ssize_t send(const void *data, size_t len);
 
       // int32_t receive();
 
       ssize_t recv(void *buffer, size_t len);
+
+      bool is_same_descriptor(int fd);
+
+      int close();
+
+      int descriptor();
 
     private:
       friend class SocketUtil;
@@ -37,8 +46,6 @@ namespace engine
 
       Socket socket_;
     };
-
-    using TCPSocketPtr = std::shared_ptr<TCPSocket>;
   }
 }
 

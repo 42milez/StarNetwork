@@ -33,21 +33,7 @@ namespace auth_server
   void AuthServer::do_run_loop() {
     auto &network = engine::base::Singleton<Network>::Instance();
     while (should_keep_running_) {
-      auto sockets_ready = network.wait();
-
-      char buffer[1500];
-
-      for (const auto &socket : sockets_ready) {
-        auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
-
-        if (bytes_received_count == -1) {
-          // handle error
-          // ...
-        } else {
-          buffer[bytes_received_count] = '\0';
-          std::cout << buffer << std::endl;
-        }
-      }
+      auto error = network.process_incoming_packets();
     }
   }
 } // namespace auth_server

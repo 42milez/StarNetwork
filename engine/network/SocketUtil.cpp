@@ -85,48 +85,6 @@ namespace engine {
       return kevent(mux, &event, 1, nullptr, 0, nullptr);
     }
 
-
-    int SocketUtil::wait_for_accepting(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
-      struct kevent events[10];
-
-      auto nfds = kevent(mux, nullptr, 0, events, 10, nullptr);
-
-      if (nfds == -1) {
-        return -1;
-      } else if (nfds == 0) {
-        // timeout
-        // ...
-        return 0;
-      } else {
-        for (auto i = 0; i < nfds; i++) {
-          auto soc = (int) events[i].ident;
-          for (const auto &socket : in_sockets) {
-            if (soc == socket->socket_) {
-              struct sockaddr_storage addr{};
-              socklen_t socklen = sizeof(addr);
-              auto fd = ::accept(soc, (struct sockaddr *) &addr, &socklen);
-              if (fd == -1) {
-                return -1;
-              }
-              struct kevent event{
-                (uintptr_t) fd,
-                EVFILT_READ,
-                EV_ADD | EV_CLEAR,
-                0,
-                0,
-                nullptr
-              };
-              kevent(mux, &event, 1, nullptr, 0, nullptr);
-            } else {
-              out_sockets.push_back(TCPSocketPtr(new TCPSocket(soc)));
-            }
-          }
-        }
-      }
-
-      return nfds;
-    }
-
     int SocketUtil::wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
       struct kevent events[10];
 
