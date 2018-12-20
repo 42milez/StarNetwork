@@ -42,27 +42,6 @@ namespace engine {
       }
     }
 
-//    int SocketUtil::wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
-//      // TODO Consider the size of events. The size may affect the read throughput from descriptor.
-//      const auto n_events = 10;
-//      struct kevent events[n_events];
-//      auto nfds = kevent(mux_, nullptr, 0, events, n_events, nullptr);
-//
-//      if (nfds == -1) {
-//        return -1;
-//      } else if (nfds == 0) {
-//        return 0;
-//      } else {
-//        for (const auto &socket : in_sockets) {
-//          if (is_socket_ready(socket->socket_, events, nfds)) {
-//            out_sockets.push_back(socket);
-//          }
-//        }
-//      }
-//
-//      return nfds;
-//    }
-
     int SocketUtil::create_multiplexer() {
       auto mux = kqueue();
 
@@ -71,6 +50,10 @@ namespace engine {
       }
 
       return mux;
+    }
+
+    void SocketUtil::add_socket(std::map<int, TCPSocketPtr> &sockets, const TCPSocketPtr &socket) {
+      sockets.insert(std::make_pair(socket->socket_, socket));
     }
 
     int SocketUtil::add_event(int mux, const TCPSocketPtr &socket) {
@@ -86,6 +69,7 @@ namespace engine {
     }
 
     int SocketUtil::wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {
+      // TODO Consider the size of events. The size may affect the read throughput from descriptor.
       struct kevent events[10];
 
       auto nfds = kevent(mux, nullptr, 0, events, 10, nullptr);

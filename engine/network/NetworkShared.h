@@ -9,8 +9,10 @@ namespace engine
 
     using Socket = int;
 
-    const int INVALID_SOCKET = -1;
     const int NO_ERROR = 0;
+    const int INVALID_SOCKET = -1;
+    const int WSAECONNRESET = ECONNRESET;
+    const int WSAEWOULDBLOCK = EAGAIN;
     const int SOCKET_ERROR = -1;
 
     enum class SocketAddressFamily {

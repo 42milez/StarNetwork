@@ -4,6 +4,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 
+#include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
@@ -13,6 +14,7 @@
 namespace auth_server {
   namespace {
     using SocketAddress = engine::network::SocketAddress;
+    using SocketUtil = engine::network::SocketUtil;
   }
 
   Network::Network() {
@@ -35,7 +37,9 @@ namespace auth_server {
 
     mux_ = engine::network::SocketUtil::create_multiplexer();
 
-    auto error = engine::network::SocketUtil::add_event(mux_, server_socket_);
+    if (engine::network::SocketUtil::add_event(mux_, server_socket_) < 0) {
+      return false;
+    }
 
     return true;
   }
@@ -73,24 +77,8 @@ namespace auth_server {
 
   void Network::accept_incoming_packets() {
     auto tcp_socket = server_socket_->accept();
-
-    client_sockets_.insert(std::make_pair(tcp_socket->descriptor(), tcp_socket));
-
-    struct kevent event{
-      (uintptr_t) tcp_socket->descriptor(),
-      EVFILT_READ,
-      EV_ADD | EV_CLEAR,
-      0,
-      0,
-      nullptr
-    };
-
-    auto error = kevent(mux_, &event, 1, nullptr, 0, nullptr);
-
-    if (error == -1) {
-      // error handling
-      // ...
-    }
+    SocketUtil::add_socket(client_sockets_, tcp_socket);
+    SocketUtil::add_event(mux_, tcp_socket);
   }
 
   void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {
@@ -98,17 +86,43 @@ namespace auth_server {
     memset(buffer, 0, 1500);
 
     for (const auto &socket : ready_sockets) {
-      auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
+      auto read_byte_count = socket->recv(buffer, sizeof(buffer));
 
-      if (bytes_received_count == -1) {
-        // handle error
-        // ...
-      } else if (bytes_received_count == 0) {
+      if (read_byte_count == 0) {
+        // For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
+        //HandleConnectionReset( fromAddress );
         auto fd = socket->close();
         client_sockets_.erase(fd);
-      } else {
-        buffer[bytes_received_count] = '\0';
+      } else if(read_byte_count == -engine::network::WSAECONNRESET) {
+        //HandleConnectionReset( fromAddress );
+        auto fd = socket->close();
+        client_sockets_.erase(fd);
+      } else if (read_byte_count > 0) {
+        buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
+//        inputStream.ResetToCapacity( readByteCount );
+//        ++receivedPackedCount;
+//        totalReadByteCount += readByteCount;
+//
+//        //now, should we drop the packet?
+//        if( RoboMath::GetRandomFloat() >= mDropPacketChance )
+//        {
+//          //we made it
+//          //shove the packet into the queue and we'll handle it as soon as we should...
+//          //we'll pretend it wasn't received until simulated latency from now
+//          //this doesn't sim jitter, for that we would need to.....
+//
+//          float simulatedReceivedTime = Timing::sInstance.GetTimef() + mSimulatedLatency;
+//          mPacketQueue.emplace( simulatedReceivedTime, inputStream, fromAddress );
+//        }
+//        else
+//        {
+//          LOG( "Dropped packet!", 0 );
+//          //dropped!
+//        }
+      }
+      else {
+        // uhoh, error? exit or just keep going?
       }
     }
   }

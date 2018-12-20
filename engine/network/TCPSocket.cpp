@@ -83,9 +83,5 @@ namespace engine
       ::close(socket_);
       return socket_;
     }
-
-    int TCPSocket::descriptor() {
-      return socket_;
-    }
-  }
-}
+  } // namespace network
+} // namespace engine

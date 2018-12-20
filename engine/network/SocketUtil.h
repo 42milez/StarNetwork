@@ -27,6 +27,8 @@ namespace engine {
 
       static int create_multiplexer();
 
+      static void add_socket(std::map<int, TCPSocketPtr> &sockets, const TCPSocketPtr &socket);
+
       static int add_event(int mux, const TCPSocketPtr &socket);
 
       static int wait_for_accepting(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
