@@ -95,6 +95,7 @@ namespace auth_server {
 
   void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {
     char buffer[1500];
+    memset(buffer, 0, 1500);
 
     for (const auto &socket : ready_sockets) {
       auto bytes_received_count = socket->recv(buffer, sizeof(buffer));
