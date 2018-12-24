@@ -5,7 +5,7 @@
 
 namespace engine
 {
-  namespace util
+  namespace base
   {
     class ExitHandler {
     public:
@@ -21,7 +21,7 @@ namespace engine
 
       static bool should_exit_;
     };
-  }
-}
+  } // namespace base
+} // namespace engine
 
 #endif // LIFE_EXIT_HANDLER_H

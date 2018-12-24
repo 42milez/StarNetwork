@@ -70,6 +70,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(engine/base)
 add_subdirectory(engine/network)
-add_subdirectory(engine/util)
 add_subdirectory(client)
 add_subdirectory(auth_server)

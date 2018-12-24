@@ -2,7 +2,7 @@
 
 namespace engine
 {
-  namespace util
+  namespace base
   {
     bool ExitHandler::should_exit_ = false;
 
@@ -39,5 +39,5 @@ namespace engine
     bool ExitHandler::should_exit() const {
       return should_exit_;
     }
-  } // namespace util
+  } // namespace base
 } // namespace engine
