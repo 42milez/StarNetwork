@@ -100,26 +100,6 @@ namespace auth_server {
       } else if (read_byte_count > 0) {
         buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
-//        inputStream.ResetToCapacity( readByteCount );
-//        ++receivedPackedCount;
-//        totalReadByteCount += readByteCount;
-//
-//        //now, should we drop the packet?
-//        if( RoboMath::GetRandomFloat() >= mDropPacketChance )
-//        {
-//          //we made it
-//          //shove the packet into the queue and we'll handle it as soon as we should...
-//          //we'll pretend it wasn't received until simulated latency from now
-//          //this doesn't sim jitter, for that we would need to.....
-//
-//          float simulatedReceivedTime = Timing::sInstance.GetTimef() + mSimulatedLatency;
-//          mPacketQueue.emplace( simulatedReceivedTime, inputStream, fromAddress );
-//        }
-//        else
-//        {
-//          LOG( "Dropped packet!", 0 );
-//          //dropped!
-//        }
       }
       else {
         // uhoh, error? exit or just keep going?
