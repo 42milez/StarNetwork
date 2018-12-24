@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include <engine/base/Singleton.h>
+#include <engine/util/ExitHandler.h>
 #include "auth_server/Network.h"
 
 #include "AuthServer.h"
@@ -31,8 +32,9 @@ namespace auth_server
   }
 
   void AuthServer::do_run_loop() {
+    engine::util::ExitHandler eh;
     auto &network = engine::base::Singleton<Network>::Instance();
-    while (should_keep_running_) {
+    while (!eh.should_exit()) {
       auto error = network.process_incoming_packets();
     }
   }

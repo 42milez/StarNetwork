@@ -8,6 +8,7 @@ set(libs
   Boost::program_options
   spdlog::spdlog
   base
-  network)
+  network
+  util)
 
 target_link_libraries(auth_server PRIVATE ${libs})
