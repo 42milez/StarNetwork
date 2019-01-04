@@ -29,17 +29,13 @@ namespace client
   }
 
   void Client::run() {
-    do_run_loop();
+    while (should_keep_running_) {
+      do_frame();
+    }
   }
 
   void Client::set_should_keep_running(bool should_keep_running) {
     should_keep_running_ = should_keep_running;
-  }
-
-  void Client::do_run_loop() {
-    while (should_keep_running_) {
-      do_frame();
-    }
   }
 
   void Client::do_frame() {

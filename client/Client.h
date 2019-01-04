@@ -21,8 +21,6 @@ namespace client {
     bool token_exists();
 
   private:
-    void do_run_loop();
-
     void do_frame();
 
     bool should_keep_running_;

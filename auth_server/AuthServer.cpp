@@ -24,18 +24,14 @@ namespace auth_server
   }
 
   void AuthServer::run() {
-    do_run_loop();
-  }
-
-  void AuthServer::set_should_keep_running(bool should_keep_running) {
-    should_keep_running_ = should_keep_running;
-  }
-
-  void AuthServer::do_run_loop() {
     engine::base::ExitHandler eh;
     auto &network = engine::base::Singleton<Network>::Instance();
     while (!eh.should_exit()) {
       auto error = network.process_incoming_packets();
     }
+  }
+
+  void AuthServer::set_should_keep_running(bool should_keep_running) {
+    should_keep_running_ = should_keep_running;
   }
 } // namespace auth_server
