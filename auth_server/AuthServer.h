@@ -1,5 +1,5 @@
-#ifndef LIFE_AUTHSERVER_AUTHSERVER_H
-#define LIFE_AUTHSERVER_AUTHSERVER_H
+#ifndef P2P_TECHDEMO_AUTHSERVER_AUTHSERVER_H
+#define P2P_TECHDEMO_AUTHSERVER_AUTHSERVER_H
 
 #include <memory>
 
@@ -24,4 +24,4 @@ namespace auth_server
   };
 } // namespace auth_server
 
-#endif // LIFE_AUTHSERVER_AUTHSERVER_H
+#endif // P2P_TECHDEMO_AUTHSERVER_AUTHSERVER_H

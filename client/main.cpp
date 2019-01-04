@@ -6,7 +6,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "life/buildinfo.h"
+#include "p2p_techdemo/buildinfo.h"
 #include "engine/base/Singleton.h"
 #include "Client.h"
 #include "Network.h"
@@ -16,8 +16,8 @@ namespace po = boost::program_options;
 namespace {
 
   void version() {
-    const auto *buildinfo = life_get_buildinfo();
-    std::cout << "life " << buildinfo->project_version << "\n";
+    const auto *buildinfo = p2p_techdemo_get_buildinfo();
+    std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
   if (argc <= 1) {
     std::cout << "Requires at least 1 argument." << std::endl << std::endl;
     std::cout << "USAGE:" << std::endl
-              << "  life [options]" << std::endl << std::endl;
+              << "  p2p_techdemo [options]" << std::endl << std::endl;
     std::cout << opt_desc;
     return EXIT_FAILURE;
   }
@@ -86,9 +86,9 @@ int main(int argc, char **argv) {
 
   if (vmap.count("h") || vmap.count("help")) {
     std::cout << "NAME: " << std::endl
-              << "  life " << life_get_buildinfo()->project_version << std::endl << std::endl
+              << "  p2p_techdemo " << p2p_techdemo_get_buildinfo()->project_version << std::endl << std::endl
               << "USAGE:" << std::endl
-              << "  life [options]" << std::endl << std::endl;
+              << "  p2p_techdemo [options]" << std::endl << std::endl;
     std::cout << opt_desc;
     return EXIT_SUCCESS;
   } else if (vmap.count("r") || vmap.count("run")) {

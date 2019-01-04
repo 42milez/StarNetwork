@@ -4,7 +4,7 @@ file(GLOB headers *.h)
 add_executable(client main.cpp ${sources} ${headers})
 
 set(libs
-  life-buildinfo
+  p2p_techdemo-buildinfo
   Boost::program_options
   spdlog::spdlog
   base

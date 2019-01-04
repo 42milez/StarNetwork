@@ -3,7 +3,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "life/buildinfo.h"
+#include "p2p_techdemo/buildinfo.h"
 
 #include "engine/base/Singleton.h"
 
@@ -15,8 +15,8 @@ namespace po = boost::program_options;
 namespace
 {
   void version() {
-    const auto *buildinfo = life_get_buildinfo();
-    std::cout << "life " << buildinfo->project_version << "\n";
+    const auto *buildinfo = p2p_techdemo_get_buildinfo();
+    std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
 } // namespace
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
   if (vmap.count("h") || vmap.count("help")) {
     std::cout << "NAME: " << std::endl
-              << "  auth_server " << life_get_buildinfo()->project_version << std::endl << std::endl
+              << "  auth_server " << p2p_techdemo_get_buildinfo()->project_version << std::endl << std::endl
               << "USAGE:" << std::endl
               << "  auth_server [options]" << std::endl << std::endl;
     std::cout << opt_desc;

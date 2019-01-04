@@ -21,13 +21,13 @@ HunterGate(
   LOCAL
 )
 
-project(life)
+project(p2p_techdemo)
 
 set(PROJECT_VERSION 0.0.1)
 
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
-cable_add_buildinfo_library(PROJECT_NAME life)
+cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 
 #  OpenSSL
 # --------------------------------------------------

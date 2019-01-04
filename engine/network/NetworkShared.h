@@ -1,5 +1,5 @@
-#ifndef LIFE_NETWORKSHARED_H
-#define LIFE_NETWORKSHARED_H
+#ifndef P2P_TECHDEMO_NETWORKSHARED_H
+#define P2P_TECHDEMO_NETWORKSHARED_H
 
 #include <netdb.h>
 
@@ -22,4 +22,4 @@ namespace engine
   }
 }
 
-#endif // LIFE_NETWORKSHARED_H
+#endif // P2P_TECHDEMO_NETWORKSHARED_H

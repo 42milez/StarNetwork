@@ -1,5 +1,5 @@
-#ifndef LIFE_AUTHSERVER_NETWORK_H
-#define LIFE_AUTHSERVER_NETWORK_H
+#ifndef P2P_TECHDEMO_AUTHSERVER_NETWORK_H
+#define P2P_TECHDEMO_AUTHSERVER_NETWORK_H
 
 #include <map>
 
@@ -38,4 +38,4 @@ namespace auth_server
   };
 } // namespace auth_server
 
-#endif // LIFE_AUTHSERVER_NETWORK_H
+#endif // P2P_TECHDEMO_AUTHSERVER_NETWORK_H

@@ -1,5 +1,5 @@
-#ifndef LIFE_WORKER_H
-#define LIFE_WORKER_H
+#ifndef P2P_TECHDEMO_WORKER_H
+#define P2P_TECHDEMO_WORKER_H
 
 #include <functional>
 #include <memory>
@@ -23,4 +23,4 @@ namespace base {
 
 } // namespace base
 
-#endif // LIFE_WORKER_H
+#endif // P2P_TECHDEMO_WORKER_H

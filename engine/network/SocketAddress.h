@@ -1,5 +1,5 @@
-#ifndef LIFE_SOCKETADDRESS_H
-#define LIFE_SOCKETADDRESS_H
+#ifndef P2P_TECHDEMO_SOCKETADDRESS_H
+#define P2P_TECHDEMO_SOCKETADDRESS_H
 
 #include <cstddef>
 #include <cstdint>
@@ -52,4 +52,4 @@ namespace engine
   } // namespace network
 } // namespace engine
 
-#endif // LIFE_SOCKETADDRESS_H
+#endif // P2P_TECHDEMO_SOCKETADDRESS_H

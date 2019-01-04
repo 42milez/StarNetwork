@@ -1,5 +1,5 @@
-#ifndef LIFE_SOCKETADDRESSFACTORY_H
-#define LIFE_SOCKETADDRESSFACTORY_H
+#ifndef P2P_TECHDEMO_SOCKETADDRESSFACTORY_H
+#define P2P_TECHDEMO_SOCKETADDRESSFACTORY_H
 
 #include "SocketAddress.h"
 
@@ -14,4 +14,4 @@ namespace engine
   } // namespace network
 } // namespace engine
 
-#endif // LIFE_SOCKETADDRESSFACTORY_H
+#endif // P2P_TECHDEMO_SOCKETADDRESSFACTORY_H

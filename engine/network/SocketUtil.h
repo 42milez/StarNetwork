@@ -1,5 +1,5 @@
-#ifndef LIFE_SOCKETUTIL_H
-#define LIFE_SOCKETUTIL_H
+#ifndef P2P_TECHDEMO_SOCKETUTIL_H
+#define P2P_TECHDEMO_SOCKETUTIL_H
 
 #include <memory>
 
@@ -44,4 +44,4 @@ namespace engine {
   } // namespace network
 } // namespace engine
 
-#endif // LIFE_SOCKETUTIL_H
+#endif // P2P_TECHDEMO_SOCKETUTIL_H

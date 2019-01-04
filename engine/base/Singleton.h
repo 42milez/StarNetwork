@@ -1,5 +1,5 @@
-#ifndef LIFE_SINGLETON_H
-#define LIFE_SINGLETON_H
+#ifndef P2P_TECHDEMO_SINGLETON_H
+#define P2P_TECHDEMO_SINGLETON_H
 
 #include <mutex>
 
@@ -49,4 +49,4 @@ namespace engine
   } // namespace base
 } // namespace engine
 
-#endif // LIFE_SINGLETON_H
+#endif // P2P_TECHDEMO_SINGLETON_H

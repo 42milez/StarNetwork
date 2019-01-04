@@ -1,5 +1,5 @@
-#ifndef LIFE_TCPSOCKET_H
-#define LIFE_TCPSOCKET_H
+#ifndef P2P_TECHDEMO_TCPSOCKET_H
+#define P2P_TECHDEMO_TCPSOCKET_H
 
 #include <memory>
 
@@ -49,4 +49,4 @@ namespace engine
   }
 }
 
-#endif // LIFE_TCPSOCKET_H
+#endif // P2P_TECHDEMO_TCPSOCKET_H

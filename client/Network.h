@@ -1,5 +1,5 @@
-#ifndef LIFE_NETWORK_H
-#define LIFE_NETWORK_H
+#ifndef P2P_TECHDEMO_NETWORK_H
+#define P2P_TECHDEMO_NETWORK_H
 
 #include <memory>
 #include <string>
@@ -31,4 +31,4 @@ namespace client
 
 } // namespace client
 
-#endif // LIFE_NETWORK_H
+#endif // P2P_TECHDEMO_NETWORK_H
