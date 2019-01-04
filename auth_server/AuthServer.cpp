@@ -30,8 +30,4 @@ namespace auth_server
       auto error = network.process_incoming_packets();
     }
   }
-
-  void AuthServer::set_should_keep_running(bool should_keep_running) {
-    should_keep_running_ = should_keep_running;
-  }
 } // namespace auth_server

@@ -16,8 +16,6 @@ namespace auth_server
     void run();
 
   private:
-    void set_should_keep_running(bool should_keep_running);
-
     bool should_keep_running_;
 
     std::shared_ptr<spdlog::logger> logger_;
