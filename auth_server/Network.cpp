@@ -72,12 +72,12 @@ namespace auth_server {
       read_incoming_packets_into_queue(ready_sockets);
     }
 
-    return 0;
+    return nfds;
   }
 
   void Network::accept_incoming_packets() {
     auto tcp_socket = server_socket_->accept();
-    SocketUtil::add_socket(client_sockets_, tcp_socket);
+    store_client(tcp_socket);
     SocketUtil::add_event(mux_, tcp_socket);
   }
 
@@ -105,5 +105,9 @@ namespace auth_server {
         // uhoh, error? exit or just keep going?
       }
     }
+  }
+
+  void Network::store_client(const engine::network::TCPSocketPtr &tcp_socket) {
+    client_sockets_.insert(std::make_pair(tcp_socket->descriptor(), tcp_socket));
   }
 } // namespace auth_server

@@ -37,6 +37,8 @@ namespace engine
 
       int close();
 
+      int descriptor();
+
     private:
       friend class SocketUtil;
 
