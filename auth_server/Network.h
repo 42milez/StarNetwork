@@ -21,6 +21,8 @@ namespace auth_server
 
     void store_client(const engine::network::TCPSocketPtr &tcp_socket);
 
+    void delete_client(const int key);
+
   private:
     void accept_incoming_packets();
 

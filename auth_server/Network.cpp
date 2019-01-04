@@ -90,13 +90,13 @@ namespace auth_server {
 
       if (read_byte_count == 0) {
         // For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
+        // TODO
         //HandleConnectionReset( fromAddress );
-        auto fd = socket->close();
-        client_sockets_.erase(fd);
+        delete_client(socket->descriptor());
       } else if(read_byte_count == -engine::network::WSAECONNRESET) {
+        // TODO
         //HandleConnectionReset( fromAddress );
-        auto fd = socket->close();
-        client_sockets_.erase(fd);
+        delete_client(socket->descriptor());
       } else if (read_byte_count > 0) {
         buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
@@ -109,5 +109,9 @@ namespace auth_server {
 
   void Network::store_client(const engine::network::TCPSocketPtr &tcp_socket) {
     client_sockets_.insert(std::make_pair(tcp_socket->descriptor(), tcp_socket));
+  }
+
+  void Network::delete_client(const int key) {
+    client_sockets_.erase(key);
   }
 } // namespace auth_server
