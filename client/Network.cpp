@@ -14,10 +14,6 @@ namespace client
   using SocketUtil = engine::network::SocketUtil;
   using TCPSocketPtr = engine::network::TCPSocketPtr;
 
-  Network::Network() {
-    logger_ = spdlog::basic_logger_mt("client / Network", "logs/development.log");
-  }
-
   bool Network::init() {
     return true;
   }

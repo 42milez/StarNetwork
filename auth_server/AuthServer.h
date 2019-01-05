@@ -9,15 +9,11 @@ namespace auth_server
 {
   class AuthServer {
   public:
-    AuthServer();
-
     bool init();
 
     void run();
 
   private:
-    bool should_keep_running_;
-
     std::shared_ptr<spdlog::logger> logger_;
   };
 } // namespace auth_server

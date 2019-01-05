@@ -11,6 +11,8 @@
 
 #include "engine/network/TCPSocket.h"
 
+#include "Logger.h"
+
 namespace auth_server
 {
   namespace {
@@ -20,8 +22,6 @@ namespace auth_server
 
   class Network {
   public:
-    Network();
-
     bool init();
 
     void process_incoming_packets();
@@ -37,8 +37,6 @@ namespace auth_server
 
     void read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets);
 
-    std::shared_ptr<spdlog::logger> logger_;
-
     TCPSocketPtr server_socket_;
 
     std::map<int, TCPSocketPtr> client_sockets_;
@@ -46,6 +44,8 @@ namespace auth_server
     struct kevent events_[N_KEVENTS];
 
     int mux_;
+
+    Logger logger_;
   };
 } // namespace auth_server
 

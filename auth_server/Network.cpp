@@ -1,14 +1,18 @@
 #include <iostream>
 
+#include "engine/base/Singleton.h"
 #include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
 
+#include "Logger.h"
 #include "Network.h"
 
-namespace auth_server {
-  namespace {
+namespace auth_server
+{
+  namespace
+  {
     using KEVENT_REGISTER_STATUS = engine::network::KEVENT_REGISTER_STATUS;
     using SocketAddress = engine::network::SocketAddress;
     using SocketUtil = engine::network::SocketUtil;
@@ -17,14 +21,13 @@ namespace auth_server {
     const uint16_t SERVER_PORT = 12345;
   }
 
-  Network::Network() {
-    logger_ = spdlog::basic_logger_mt("auth_server / Network", "logs/development.log");
-  }
-
   bool Network::init() {
+    logger_ = engine::base::Singleton<Logger>::Instance();
+
     server_socket_ = engine::network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
 
     if (server_socket_ == nullptr) {
+      logger_.critical("Cannot create server socket.");
       return false;
     }
 
@@ -36,6 +39,7 @@ namespace auth_server {
     mux_ = SocketUtil::create_multiplexer();
 
     if (SocketUtil::register_event(mux_, server_socket_) == KEVENT_REGISTER_STATUS::FAIL) {
+      logger_.critical("Cannot register kernel event.");
       return false;
     }
 
@@ -101,15 +105,14 @@ namespace auth_server {
         // TODO
         //HandleConnectionReset( fromAddress );
         delete_client(socket->descriptor());
-      } else if(read_byte_count == -engine::network::WSAECONNRESET) {
+      } else if (read_byte_count == -engine::network::WSAECONNRESET) {
         // TODO
         //HandleConnectionReset( fromAddress );
         delete_client(socket->descriptor());
       } else if (read_byte_count > 0) {
         buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
-      }
-      else {
+      } else {
         // uhoh, error? exit or just keep going?
       }
     }

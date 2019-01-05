@@ -25,6 +25,8 @@ project(p2p_techdemo)
 
 set(PROJECT_VERSION 0.0.1)
 
+set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG")
+
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
 cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)

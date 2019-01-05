@@ -15,8 +15,6 @@ namespace client
 
   class Network {
   public:
-    Network();
-
     bool init();
 
     std::vector<TCPSocketPtr> wait();
