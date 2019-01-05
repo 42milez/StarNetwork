@@ -27,7 +27,7 @@ namespace auth_server
     engine::base::ExitHandler eh;
     auto &network = engine::base::Singleton<Network>::Instance();
     while (!eh.should_exit()) {
-      auto error = network.process_incoming_packets();
+      network.process_incoming_packets();
     }
   }
 } // namespace auth_server

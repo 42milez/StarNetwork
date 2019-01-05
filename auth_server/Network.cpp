@@ -1,9 +1,5 @@
 #include <iostream>
 
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-
 #include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
@@ -44,23 +40,24 @@ namespace auth_server {
     return true;
   }
 
-  int Network::process_incoming_packets() {
-    struct kevent events[10];
-
-    // TODO: set timeout
-    auto nfds = kevent(mux_, nullptr, 0, events, 10, nullptr);
+  void Network::process_incoming_packets() {
+    // MEMO: Don't initialize events_ as the nfds indicates the number of the events.
+    auto nfds = check_kernel_event(events_);
 
     if (nfds == -1) {
-      return -1;
+      // error
+      // TODO: Output logs
+      return;
     } else if (nfds == 0) {
       // timeout
-      // ...
-      return 0;
+      // TODO: Output logs
+      return;
     } else {
+      // TODO: Use queue
       std::vector<TCPSocketPtr> ready_sockets;
 
       for (auto i = 0; i < nfds; i++) {
-        auto soc = (int) events[i].ident;
+        auto soc = (int) events_[i].ident;
 
         if (server_socket_->is_same_descriptor(soc)) {
           accept_incoming_packets();
@@ -71,8 +68,17 @@ namespace auth_server {
 
       read_incoming_packets_into_queue(ready_sockets);
     }
+  }
 
-    return nfds;
+  int Network::check_kernel_event(struct kevent events[]) {
+    /*
+      The kevent(), kevent64() and kevent_qos() system calls return the number of events placed in the eventlist, up to
+      the value given by nevents.  If an error occurs while processing an element of the changelist and there is enough
+      room in the eventlist, then the event will be placed in the eventlist with EV_ERROR set in flags and the system
+      error in data.  Otherwise, -1 will be returned, and errno will be set to indicate the error condition.  If the
+      time limit expires, then kevent(), kevent64() and kevent_qos() return 0.
+    */
+    return kevent(mux_, nullptr, 0, events, N_KEVENTS, nullptr);
   }
 
   void Network::accept_incoming_packets() {
@@ -107,11 +113,11 @@ namespace auth_server {
     }
   }
 
-  void Network::store_client(const engine::network::TCPSocketPtr &tcp_socket) {
+  void Network::store_client(const TCPSocketPtr &tcp_socket) {
     client_sockets_.insert(std::make_pair(tcp_socket->descriptor(), tcp_socket));
   }
 
-  void Network::delete_client(const int key) {
+  void Network::delete_client(int key) {
     client_sockets_.erase(key);
   }
 } // namespace auth_server
