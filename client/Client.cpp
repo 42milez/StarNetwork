@@ -49,7 +49,7 @@ namespace client
     auto tcp_socket = SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
 
     // イベント登録
-    SocketUtil::add_event(mux, tcp_socket);
+    SocketUtil::register_event(mux, tcp_socket);
 
     SocketAddress client_address{};
     tcp_socket->bind(client_address);

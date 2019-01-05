@@ -56,7 +56,7 @@ namespace engine {
       sockets.insert(std::make_pair(socket->socket_, socket));
     }
 
-    int SocketUtil::add_event(int mux, const TCPSocketPtr &socket) {
+    KEVENT_REGISTER_STATUS SocketUtil::register_event(int mux, const TCPSocketPtr &socket) {
       struct kevent event{
         (uintptr_t) socket->socket_,
         EVFILT_READ,
@@ -65,7 +65,7 @@ namespace engine {
         0,
         nullptr
       };
-      return kevent(mux, &event, 1, nullptr, 0, nullptr);
+      return static_cast<KEVENT_REGISTER_STATUS>(kevent(mux, &event, 1, nullptr, 0, nullptr));
     }
 
     int SocketUtil::wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {

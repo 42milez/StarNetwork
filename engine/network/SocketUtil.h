@@ -7,8 +7,15 @@
 
 #include "TCPSocket.h"
 
-namespace engine {
-  namespace network {
+namespace engine
+{
+  namespace network
+  {
+    enum class KEVENT_REGISTER_STATUS : int {
+      SUCCESS = 1,
+      FAIL = -1
+    };
+
     class SocketUtil {
     public:
       static bool static_init();
@@ -29,7 +36,7 @@ namespace engine {
 
       static void add_socket(std::map<int, TCPSocketPtr> &sockets, const TCPSocketPtr &socket);
 
-      static int add_event(int mux, const TCPSocketPtr &socket);
+      static KEVENT_REGISTER_STATUS register_event(int mux, const TCPSocketPtr &socket);
 
       static int wait_for_accepting(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
       static int wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);

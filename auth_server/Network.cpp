@@ -9,8 +9,12 @@
 
 namespace auth_server {
   namespace {
+    using KEVENT_REGISTER_STATUS = engine::network::KEVENT_REGISTER_STATUS;
     using SocketAddress = engine::network::SocketAddress;
     using SocketUtil = engine::network::SocketUtil;
+
+    const uint32_t SERVER_ADDRESS = INADDR_ANY;
+    const uint16_t SERVER_PORT = 12345;
   }
 
   Network::Network() {
@@ -24,16 +28,14 @@ namespace auth_server {
       return false;
     }
 
-    SocketAddress server_address(INADDR_ANY, 12345);
+    SocketAddress server_address(SERVER_ADDRESS, SERVER_PORT);
 
     // TODO: Retry when bind() fails
     server_socket_->bind(server_address);
-
     server_socket_->listen(5);
+    mux_ = SocketUtil::create_multiplexer();
 
-    mux_ = engine::network::SocketUtil::create_multiplexer();
-
-    if (engine::network::SocketUtil::add_event(mux_, server_socket_) < 0) {
+    if (SocketUtil::register_event(mux_, server_socket_) == KEVENT_REGISTER_STATUS::FAIL) {
       return false;
     }
 
@@ -84,7 +86,7 @@ namespace auth_server {
   void Network::accept_incoming_packets() {
     auto tcp_socket = server_socket_->accept();
     store_client(tcp_socket);
-    SocketUtil::add_event(mux_, tcp_socket);
+    SocketUtil::register_event(mux_, tcp_socket);
   }
 
   void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {
