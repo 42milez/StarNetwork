@@ -28,7 +28,7 @@ namespace
 int main(int argc, char **argv) {
   po::options_description opt_desc("OPTIONS", 160);
   opt_desc.add_options()
-    ("run,r", "Execute the game auth_server")
+    ("run,r", "Execute the server")
     ("help,h", "Show this help message and exit\n");
 
   po::options_description allowed_options("Allowed options");
@@ -71,10 +71,20 @@ int main(int argc, char **argv) {
     // todo: handle exit with std::async (can it?)
     // ...
 
-    engine::base::Singleton<engine::base::Logger>::Instance().init(LOGGER_NAME, PATH_LOG);
+    auto &logger = engine::base::Singleton<engine::base::Logger>::Instance();
+
+    if (!logger.init(LOGGER_NAME, PATH_LOG)) {
+      std::cout << "Initialization failed." << std::endl;
+      return EXIT_FAILURE;
+    }
 
     auto &auth_server = engine::base::Singleton<auth_server::AuthServer>::Instance();
-    auth_server.init();
+
+    if (!auth_server.init()) {
+      std::cout << "Initialization failed." << std::endl;
+      return EXIT_FAILURE;
+    }
+
     auth_server.run();
 
     engine::base::SingletonFinalizer::finalize();

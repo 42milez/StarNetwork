@@ -25,6 +25,10 @@ project(p2p_techdemo)
 
 set(PROJECT_VERSION 0.0.1)
 
+# https://stackoverflow.com/questions/6077414/how-to-set-the-ldflags-in-cmakelists-txt
+# TODO: Indicate suitable path for each platform.
+set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
+
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG")
 
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
