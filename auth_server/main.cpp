@@ -5,6 +5,7 @@
 
 #include "p2p_techdemo/buildinfo.h"
 
+#include "engine/base/Logger.h"
 #include "engine/base/Singleton.h"
 
 #include "auth_server/AuthServer.h"
@@ -19,6 +20,9 @@ namespace
     std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
+
+  const std::string LOGGER_NAME = "AuthServer";
+  const std::string PATH_LOG = "/var/log/p2p_techdemo/server.log";
 } // namespace
 
 int main(int argc, char **argv) {
@@ -66,6 +70,8 @@ int main(int argc, char **argv) {
   } else if (vmap.count("r") || vmap.count("run")) {
     // todo: handle exit with std::async (can it?)
     // ...
+
+    engine::base::Singleton<engine::base::Logger>::Instance().init(LOGGER_NAME, PATH_LOG);
 
     auto &auth_server = engine::base::Singleton<auth_server::AuthServer>::Instance();
     auth_server.init();

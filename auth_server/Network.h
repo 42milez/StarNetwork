@@ -11,8 +11,6 @@
 
 #include "engine/network/TCPSocket.h"
 
-#include "Logger.h"
-
 namespace auth_server
 {
   namespace {
@@ -44,8 +42,6 @@ namespace auth_server
     struct kevent events_[N_KEVENTS];
 
     int mux_;
-
-    Logger logger_;
   };
 } // namespace auth_server
 

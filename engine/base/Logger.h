@@ -10,8 +10,10 @@ namespace engine
 {
   namespace base
   {
-    class LoggerBase {
+    class Logger {
     public:
+      void init(const std::string &logger_name, const std::string &filename);
+
       template<class... Args>
       void info(Args... args) { logger_->info(args...); };
 
@@ -23,9 +25,6 @@ namespace engine
 
       template<class... Args>
       void critical(Args... args) { logger_->critical(args...); };
-
-    protected:
-      LoggerBase(const std::string &logger_name, const std::string &filename);
 
     private:
       std::shared_ptr<spdlog::logger> logger_;

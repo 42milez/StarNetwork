@@ -12,9 +12,6 @@ namespace auth_server
     bool init();
 
     void run();
-
-  private:
-    std::shared_ptr<spdlog::logger> logger_;
   };
 } // namespace auth_server
 

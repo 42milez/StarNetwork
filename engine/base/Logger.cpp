@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include "LoggerBase.h"
+#include "Logger.h"
 
 namespace engine
 {
   namespace base
   {
-    LoggerBase::LoggerBase(const std::string &logger_name, const std::string &filename) {
+    void Logger::init(const std::string &logger_name, const std::string &filename) {
       // TODO: ログファイルの存在確認
       // ...
 

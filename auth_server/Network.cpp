@@ -1,12 +1,12 @@
 #include <iostream>
 
 #include "engine/base/Singleton.h"
+#include "engine/base/Logger.h"
 #include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
 
-#include "Logger.h"
 #include "Network.h"
 
 namespace auth_server
@@ -14,6 +14,8 @@ namespace auth_server
   namespace
   {
     using KEVENT_REGISTER_STATUS = engine::network::KEVENT_REGISTER_STATUS;
+
+    using Logger = engine::base::Singleton<engine::base::Logger>;
     using SocketAddress = engine::network::SocketAddress;
     using SocketUtil = engine::network::SocketUtil;
 
@@ -22,12 +24,10 @@ namespace auth_server
   }
 
   bool Network::init() {
-    logger_ = engine::base::Singleton<Logger>::Instance();
-
     server_socket_ = engine::network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
 
     if (server_socket_ == nullptr) {
-      logger_.critical("Cannot create server socket.");
+      Logger::Instance().critical("Cannot create server socket.");
       return false;
     }
 
@@ -39,7 +39,7 @@ namespace auth_server
     mux_ = SocketUtil::create_multiplexer();
 
     if (SocketUtil::register_event(mux_, server_socket_) == KEVENT_REGISTER_STATUS::FAIL) {
-      logger_.critical("Cannot register kernel event.");
+      Logger::Instance().critical("Cannot register kernel event.");
       return false;
     }
 
