@@ -12,7 +12,7 @@ namespace engine
   {
     class Logger {
     public:
-      void init(const std::string &logger_name, const std::string &filename);
+      bool init(const std::string &logger_name, const std::string &filename);
 
       template<class... Args>
       void info(Args... args) { logger_->info(args...); };
