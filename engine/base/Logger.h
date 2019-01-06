@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LOGGERBASE_H
-#define P2P_TECHDEMO_LOGGERBASE_H
+#ifndef P2P_TECHDEMO_ENGINE_BASE_LOGGERBASE_H
+#define P2P_TECHDEMO_ENGINE_BASE_LOGGERBASE_H
 
 #include <memory>
 #include <string>
@@ -32,4 +32,4 @@ namespace engine
   } // namespace base
 } // namespace engine
 
-#endif // P2P_TECHDEMO_LOGGERBASE_H
+#endif // P2P_TECHDEMO_ENGINE_BASE_LOGGERBASE_H

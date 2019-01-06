@@ -8,9 +8,12 @@
 #include "SocketUtil.h"
 #include "TCPSocket.h"
 
-namespace engine {
-  namespace network {
-    namespace {
+namespace engine
+{
+  namespace network
+  {
+    namespace
+    {
       bool is_socket_ready(int socket, struct kevent events[], int nfds) {
         for (auto i = 0; i < nfds; i++) {
           if (events[i].ident == socket) return true;
@@ -101,6 +104,5 @@ namespace engine {
     int SocketUtil::last_error() {
       return errno;
     }
-
   } // namespace network
-}
+} // namespace engine

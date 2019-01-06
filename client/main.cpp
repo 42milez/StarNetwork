@@ -13,8 +13,8 @@
 
 namespace po = boost::program_options;
 
-namespace {
-
+namespace
+{
   void version() {
     const auto *buildinfo = p2p_techdemo_get_buildinfo();
     std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";

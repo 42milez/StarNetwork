@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_EXIT_HANDLER_H
-#define P2P_TECHDEMO_EXIT_HANDLER_H
+#ifndef P2P_TECHDEMO_ENGINE_BASE_EXIT_HANDLER_H
+#define P2P_TECHDEMO_ENGINE_BASE_EXIT_HANDLER_H
 
 #include <csignal>
 
@@ -24,4 +24,4 @@ namespace engine
   } // namespace base
 } // namespace engine
 
-#endif // P2P_TECHDEMO_EXIT_HANDLER_H
+#endif // P2P_TECHDEMO_ENGINE_BASE_EXIT_HANDLER_H

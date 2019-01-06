@@ -13,7 +13,8 @@
 
 namespace auth_server
 {
-  namespace {
+  namespace
+  {
     using TCPSocketPtr = engine::network::TCPSocketPtr;
     const int N_KEVENTS = 1024;
   }

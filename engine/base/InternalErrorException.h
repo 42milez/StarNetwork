@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_INTERNAL_ERROR_EXCEPTION_H
-#define P2P_TECHDEMO_INTERNAL_ERROR_EXCEPTION_H
+#ifndef P2P_TECHDEMO_ENGINE_BASE_INTERNAL_ERROR_EXCEPTION_H
+#define P2P_TECHDEMO_ENGINE_BASE_INTERNAL_ERROR_EXCEPTION_H
 
 #include <string>
 
@@ -16,7 +16,7 @@ namespace engine
     private:
       std::string msg_;
     };
-  } // namespace util
-}
+  } // namespace base
+} // namespace engine
 
-#endif // P2P_TECHDEMO_INTERNAL_ERROR_EXCEPTION_H
+#endif // P2P_TECHDEMO_ENGINE_BASE_INTERNAL_ERROR_EXCEPTION_H

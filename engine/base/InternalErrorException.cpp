@@ -11,5 +11,5 @@ namespace engine
     const char *InternalErrorException::what() const noexcept {
       return msg_.c_str();
     }
-  }
-}
+  } // namespace base
+} // namespace engine

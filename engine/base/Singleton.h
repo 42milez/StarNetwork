@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_SINGLETON_H
-#define P2P_TECHDEMO_SINGLETON_H
+#ifndef P2P_TECHDEMO_ENGINE_BASE_SINGLETON_H
+#define P2P_TECHDEMO_ENGINE_BASE_SINGLETON_H
 
 #include <mutex>
 
@@ -49,4 +49,4 @@ namespace engine
   } // namespace base
 } // namespace engine
 
-#endif // P2P_TECHDEMO_SINGLETON_H
+#endif // P2P_TECHDEMO_ENGINE_BASE_SINGLETON_H
