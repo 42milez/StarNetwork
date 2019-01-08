@@ -29,7 +29,7 @@ set(PROJECT_VERSION 0.0.1)
 # TODO: Indicate suitable path for each platform.
 set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
 
-set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG")
 
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
