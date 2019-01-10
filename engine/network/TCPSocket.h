@@ -19,11 +19,11 @@ namespace engine
 
       // int connect();
 
-      int bind(const SocketAddress &address);
+      SOCKET_STATUS bind(const SocketAddress &address);
 
       int connect(const SocketAddress &address);
 
-      int listen(int backlog);
+      SOCKET_STATUS listen(int backlog);
 
       TCPSocketPtr accept();
 

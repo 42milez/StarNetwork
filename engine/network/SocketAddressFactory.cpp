@@ -32,7 +32,6 @@ namespace engine
       addrinfo *result;
       int error = getaddrinfo(host.c_str(), service.c_str(), &hint, &result);
       if (error != 0 && result != nullptr) {
-        SocketUtil::report_error("SocketAddressFactory::create_ipv4");
         return nullptr;
       }
 

@@ -43,10 +43,14 @@ namespace client
   }
 
   int Client::request_token(const std::string &id, const std::string &pw) {
-    auto mux = engine::network::SocketUtil::create_multiplexer();
+    auto mux = engine::network::SocketUtil::create_event_interface();
 
     // ソケットを生成
     auto tcp_socket = SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
+
+    if (tcp_socket == nullptr) {
+      return SocketUtil::last_error();
+    }
 
     // イベント登録
     SocketUtil::register_event(mux, tcp_socket);

@@ -9,13 +9,16 @@
 
 #include <spdlog/spdlog.h>
 
+#include "engine/network/NetworkShared.h"
 #include "engine/network/TCPSocket.h"
 
 namespace auth_server
 {
   namespace
   {
+    using KEVENT_STATUS = engine::network::KEVENT_STATUS;
     using TCPSocketPtr = engine::network::TCPSocketPtr;
+
     const int N_KEVENTS = 1024;
   }
 
@@ -30,9 +33,9 @@ namespace auth_server
     void delete_client(int key);
 
   private:
-    int check_kernel_event(struct kevent events[]);
+    int retrieve_kernel_event(struct kevent events[]);
 
-    void accept_incoming_packets();
+    bool accept_incoming_packets();
 
     void read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets);
 
@@ -42,7 +45,7 @@ namespace auth_server
 
     struct kevent events_[N_KEVENTS];
 
-    int mux_;
+    int kernel_event_queue_fd_;
   };
 } // namespace auth_server
 

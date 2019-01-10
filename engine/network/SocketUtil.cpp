@@ -1,9 +1,13 @@
 #include <vector>
 
+#include <fcntl.h>
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+
+#include "engine/base/Logger.h"
+#include "engine/base/Singleton.h"
 
 #include "SocketUtil.h"
 #include "TCPSocket.h"
@@ -14,6 +18,8 @@ namespace engine
   {
     namespace
     {
+      using Logger = engine::base::Singleton<engine::base::Logger>;
+
       bool is_socket_ready(int socket, struct kevent events[], int nfds) {
         for (auto i = 0; i < nfds; i++) {
           if (events[i].ident == socket) return true;
@@ -25,9 +31,9 @@ namespace engine
     std::shared_ptr<spdlog::logger> SocketUtil::logger_ = spdlog::stdout_color_mt("SocketUtil");
 
     bool SocketUtil::static_init() {
-      auto mux_ = ::kqueue();
+      auto kernel_event_queue_fd_ = ::kqueue();
 
-      if (mux_ == -1) {
+      if (kernel_event_queue_fd_ == -1) {
         return -1;
       }
 
@@ -37,21 +43,25 @@ namespace engine
     TCPSocketPtr SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily in_family) {
       int socket = ::socket(static_cast<int>(in_family), SOCK_STREAM, IPPROTO_TCP);
 
+      int flags;
+
+      if ((flags = fcntl(socket, F_GETFL, 0)) == -1) {
+        return nullptr;
+      }
+
       if (socket != engine::network::INVALID_SOCKET) {
         return TCPSocketPtr(new TCPSocket(socket));
       } else {
-        report_error("SocketUtil::create_tcp_socket");
         return nullptr;
       }
     }
 
-    int SocketUtil::create_multiplexer() {
+    int SocketUtil::create_event_interface() {
       auto mux = kqueue();
-
-      if (mux == -1) {
-        return -1;
+      if (mux < FAIL_CREATE_EVENT_PIPELINE) {
+        Logger::Instance().critical("Failed to create event pipeline [{0}]", SocketUtil::last_error());
+        return FAIL_CREATE_EVENT_PIPELINE;
       }
-
       return mux;
     }
 
@@ -59,7 +69,7 @@ namespace engine
       sockets.insert(std::make_pair(socket->socket_, socket));
     }
 
-    KEVENT_REGISTER_STATUS SocketUtil::register_event(int mux, const TCPSocketPtr &socket) {
+    KEVENT_STATUS SocketUtil::register_event(int mux, const TCPSocketPtr &socket) {
       struct kevent event{
         (uintptr_t) socket->socket_,
         EVFILT_READ,
@@ -68,7 +78,7 @@ namespace engine
         0,
         nullptr
       };
-      return static_cast<KEVENT_REGISTER_STATUS>(kevent(mux, &event, 1, nullptr, 0, nullptr));
+      return static_cast<KEVENT_STATUS>(kevent(mux, &event, 1, nullptr, 0, nullptr));
     }
 
     int SocketUtil::wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets) {

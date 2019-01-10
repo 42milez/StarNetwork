@@ -13,18 +13,22 @@ namespace auth_server
 {
   namespace
   {
-    using KEVENT_REGISTER_STATUS = engine::network::KEVENT_REGISTER_STATUS;
-
     using Logger = engine::base::Singleton<engine::base::Logger>;
     using SocketAddress = engine::network::SocketAddress;
+    using SocketAddressFamily = engine::network::SocketAddressFamily;
     using SocketUtil = engine::network::SocketUtil;
 
+    using KEVENT_STATUS = engine::network::KEVENT_STATUS;
+    using KQUEUE_STATUS = engine::network::KQUEUE_STATUS;
+    using SOCKET_STATUS = engine::network::SOCKET_STATUS;
+
+    const int LISTEN_BACKLOG = 5;
     const uint32_t SERVER_ADDRESS = INADDR_ANY;
     const uint16_t SERVER_PORT = 12345;
   }
 
   bool Network::init() {
-    server_socket_ = engine::network::SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
+    server_socket_ = SocketUtil::create_tcp_socket(SocketAddressFamily::INET);
 
     if (server_socket_ == nullptr) {
       Logger::Instance().critical("Cannot create server socket.");
@@ -33,13 +37,25 @@ namespace auth_server
 
     SocketAddress server_address(SERVER_ADDRESS, SERVER_PORT);
 
-    // TODO: Retry when bind() fails
-    server_socket_->bind(server_address);
-    server_socket_->listen(5);
-    mux_ = SocketUtil::create_multiplexer();
+    if (server_socket_->bind(server_address) == SOCKET_STATUS::FAIL) {
+      Logger::Instance().critical("bind() failed [{0}]", SocketUtil::last_error());
+      return false;
+    }
 
-    if (SocketUtil::register_event(mux_, server_socket_) == KEVENT_REGISTER_STATUS::FAIL) {
-      Logger::Instance().critical("Cannot register kernel event.");
+    if (server_socket_->listen(LISTEN_BACKLOG) == SOCKET_STATUS::FAIL) {
+      Logger::Instance().critical("listen() failed [{0}]", SocketUtil::last_error());
+      return false;
+    }
+
+    kernel_event_queue_fd_ = SocketUtil::create_event_interface();
+
+    if (static_cast<KQUEUE_STATUS>(kernel_event_queue_fd_) == KQUEUE_STATUS::FAIL) {
+      Logger::Instance().critical("create_event_interface() failed [{0}]", SocketUtil::last_error());
+      return false;
+    }
+
+    if (SocketUtil::register_event(kernel_event_queue_fd_, server_socket_) == KEVENT_STATUS::FAIL) {
+      Logger::Instance().critical("register_event() failed [{0}]", SocketUtil::last_error());
       return false;
     }
 
@@ -48,13 +64,13 @@ namespace auth_server
 
   void Network::process_incoming_packets() {
     // MEMO: Don't initialize events_ as the nfds indicates the number of the events.
-    auto nfds = check_kernel_event(events_);
+    auto nfds = retrieve_kernel_event(events_);
 
-    if (nfds == -1) {
+    if (static_cast<KEVENT_STATUS>(nfds) == KEVENT_STATUS::FAIL) {
       // error
       // TODO: Output logs
       return;
-    } else if (nfds == 0) {
+    } else if (static_cast<KEVENT_STATUS>(nfds) == KEVENT_STATUS::TIMEOUT) {
       // timeout
       // TODO: Output logs
       return;
@@ -63,12 +79,14 @@ namespace auth_server
       std::vector<TCPSocketPtr> ready_sockets;
 
       for (auto i = 0; i < nfds; i++) {
-        auto soc = (int) events_[i].ident;
+        auto fd = static_cast<int>(events_[i].ident);
 
-        if (server_socket_->is_same_descriptor(soc)) {
-          accept_incoming_packets();
+        if (server_socket_->is_same_descriptor(fd)) {
+          if (!accept_incoming_packets()) {
+            Logger::Instance().error("accept_incoming_packets() failed [{0}]", SocketUtil::last_error());
+          }
         } else {
-          ready_sockets.push_back(client_sockets_.at(soc));
+          ready_sockets.push_back(client_sockets_.at(fd));
         }
       }
 
@@ -76,21 +94,33 @@ namespace auth_server
     }
   }
 
-  int Network::check_kernel_event(struct kevent events[]) {
+  int Network::retrieve_kernel_event(struct kevent events[]) {
     /*
-      The kevent(), kevent64() and kevent_qos() system calls return the number of events placed in the eventlist, up to
-      the value given by nevents.  If an error occurs while processing an element of the changelist and there is enough
-      room in the eventlist, then the event will be placed in the eventlist with EV_ERROR set in flags and the system
-      error in data.  Otherwise, -1 will be returned, and errno will be set to indicate the error condition.  If the
-      time limit expires, then kevent(), kevent64() and kevent_qos() return 0.
-    */
-    return kevent(mux_, nullptr, 0, events, N_KEVENTS, nullptr);
+     KQUEUE(2) / BSD System Calls Manual / KQUEUE(2)
+
+     The kevent(), kevent64() and kevent_qos() system calls return the number of events placed in the eventlist, up to
+     the value given by nevents.  If an error occurs while processing an element of the changelist and there is enough
+     room in the eventlist, then the event will be placed in the eventlist with EV_ERROR set in flags and the system
+     error in data.  Otherwise, -1 will be returned, and errno will be set to indicate the error condition.  If the
+     time limit expires, then kevent(), kevent64() and kevent_qos() return 0.
+     */
+    return kevent(kernel_event_queue_fd_, nullptr, 0, events, N_KEVENTS, nullptr);
   }
 
-  void Network::accept_incoming_packets() {
+  bool Network::accept_incoming_packets() {
     auto tcp_socket = server_socket_->accept();
+
+    if (tcp_socket == nullptr) {
+      return false;
+    }
+
     store_client(tcp_socket);
-    SocketUtil::register_event(mux_, tcp_socket);
+
+    if (SocketUtil::register_event(kernel_event_queue_fd_, tcp_socket) == KEVENT_STATUS::FAIL) {
+      return false;
+    }
+
+    return true;
   }
 
   void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {

@@ -24,7 +24,7 @@ namespace client
 
     engine::network::TCPSocketPtr tcp_socket_;
 
-    int mux_;
+    int kernel_event_queue_fd_;
   };
 
 } // namespace client

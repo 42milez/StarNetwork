@@ -11,7 +11,7 @@ namespace engine
 {
   namespace network
   {
-    enum class KEVENT_REGISTER_STATUS : int {
+    enum class KEVENT_STATUS : int {
       SUCCESS = 1,
       FAIL = -1
     };
@@ -32,11 +32,11 @@ namespace engine
 
 //      static int wait(std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
 
-      static int create_multiplexer();
+      static int create_event_interface();
 
       static void add_socket(std::map<int, TCPSocketPtr> &sockets, const TCPSocketPtr &socket);
 
-      static KEVENT_REGISTER_STATUS register_event(int mux, const TCPSocketPtr &socket);
+      static KEVENT_STATUS register_event(int mux, const TCPSocketPtr &socket);
 
       static int wait_for_accepting(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
       static int wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);

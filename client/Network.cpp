@@ -22,7 +22,7 @@ namespace client
     std::vector<TCPSocketPtr> in_sockets{ tcp_socket_ };
     std::vector<TCPSocketPtr> out_sockets;
 
-    engine::network::SocketUtil::wait_for_receiving(mux_, in_sockets, out_sockets);
+    engine::network::SocketUtil::wait_for_receiving(kernel_event_queue_fd_, in_sockets, out_sockets);
 
     return std::move(out_sockets);
   }
