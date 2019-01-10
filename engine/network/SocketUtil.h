@@ -11,11 +11,6 @@ namespace engine
 {
   namespace network
   {
-    enum class KEVENT_STATUS : int {
-      SUCCESS = 1,
-      FAIL = -1
-    };
-
     class SocketUtil {
     public:
       static bool static_init();
@@ -40,6 +35,9 @@ namespace engine
 
       static int wait_for_accepting(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
       static int wait_for_receiving(int mux, const std::vector<TCPSocketPtr> &in_sockets, std::vector<TCPSocketPtr> &out_sockets);
+
+      static bool is_connection_reset_on_recv(ssize_t read_byte_count);
+      static bool is_no_messages_to_read(ssize_t read_byte_count);
 
     private:
       // inline static fd_set *fill_set_from_vector();

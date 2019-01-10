@@ -22,7 +22,7 @@ namespace engine
     }
 
     SOCKET_STATUS TCPSocket::bind(const SocketAddress &address) {
-      return static_cast<SOCKET_STATUS>(::bind(socket_, &address.sockaddr_, address.size());
+      return static_cast<SOCKET_STATUS>(::bind(socket_, &address.sockaddr_, address.size()));
     }
 
     int TCPSocket::connect(const SocketAddress &address) {
@@ -51,7 +51,7 @@ namespace engine
     }
 
     SOCKET_STATUS TCPSocket::listen(int backlog) {
-      return ::listen(socket_, backlog);
+      return static_cast<SOCKET_STATUS>(::listen(socket_, backlog));
     }
 
     TCPSocketPtr TCPSocket::accept() {

@@ -25,6 +25,8 @@ namespace auth_server
     const int LISTEN_BACKLOG = 5;
     const uint32_t SERVER_ADDRESS = INADDR_ANY;
     const uint16_t SERVER_PORT = 12345;
+
+    const int READ_BUFFER_SIZE = 1500;
   }
 
   bool Network::init() {
@@ -124,21 +126,21 @@ namespace auth_server
   }
 
   void Network::read_incoming_packets_into_queue(const std::vector<TCPSocketPtr> &ready_sockets) {
-    char buffer[1500];
-    memset(buffer, 0, 1500);
+    char buffer[READ_BUFFER_SIZE];
+    memset(buffer, 0, READ_BUFFER_SIZE);
 
     for (const auto &socket : ready_sockets) {
-      auto read_byte_count = socket->recv(buffer, sizeof(buffer));
+      auto read_byte_count = socket->recv(buffer, READ_BUFFER_SIZE);
 
-      if (read_byte_count == 0) {
-        // For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
-        // TODO
-        //HandleConnectionReset( fromAddress );
+      if (SocketUtil::is_connection_reset_on_recv(read_byte_count)) {
+        // Memo: For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
+
+        // TODO: Handle connection reset
+        // ...
+
         delete_client(socket->descriptor());
-      } else if (read_byte_count == -engine::network::WSAECONNRESET) {
-        // TODO
-        //HandleConnectionReset( fromAddress );
-        delete_client(socket->descriptor());
+      } else if (SocketUtil::is_no_messages_to_read(read_byte_count)) {
+        // Memo: no messages are available.
       } else if (read_byte_count > 0) {
         buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
