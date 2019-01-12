@@ -130,22 +130,16 @@ namespace auth_server
     memset(buffer, 0, READ_BUFFER_SIZE);
 
     for (const auto &socket : ready_sockets) {
+      // Memo: For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
       auto read_byte_count = socket->recv(buffer, READ_BUFFER_SIZE);
 
       if (SocketUtil::is_connection_reset_on_recv(read_byte_count)) {
-        // Memo: For TCP sockets, the return value 0 means the peer has closed its half side of the connection.
-
-        // TODO: Handle connection reset
-        // ...
-
         delete_client(socket->descriptor());
       } else if (SocketUtil::is_no_messages_to_read(read_byte_count)) {
-        // Memo: no messages are available.
-      } else if (read_byte_count > 0) {
+        // no messages are available.
+      } else {
         buffer[read_byte_count] = '\0';
         std::cout << buffer << std::endl;
-      } else {
-        // uhoh, error? exit or just keep going?
       }
     }
   }
