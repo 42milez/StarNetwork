@@ -17,8 +17,6 @@ namespace engine
     public:
       ~TCPSocket();
 
-      // int connect();
-
       SOCKET_STATUS bind(const SocketAddress &address);
 
       int connect(const SocketAddress &address);
@@ -28,8 +26,6 @@ namespace engine
       TCPSocketPtr accept();
 
       ssize_t send(const void *data, size_t len);
-
-      // int32_t receive();
 
       ssize_t recv(void *buffer, size_t len);
 

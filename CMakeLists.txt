@@ -16,8 +16,8 @@ set(HUNTER_JOBS_NUMBER 4 CACHE STRING "Hunter jobs number")
 include(HunterGate)
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.23.34.tar.gz"
-  SHA1 "70287b1ffa810ee4e952052a9adff9b4856d0d54"
+  URL "https://github.com/ruslo/hunter/archive/v0.23.88.tar.gz"
+  SHA1 "b7b40b35f96fc06d5f027001160c4e83f7576859"
   LOCAL
 )
 
@@ -68,6 +68,13 @@ endif ()
 hunter_add_package(spdlog)
 
 find_package(spdlog CONFIG REQUIRED)
+
+#  FlatBuffers
+# --------------------------------------------------
+
+hunter_add_package(flatbuffers)
+
+find_package(Flatbuffers CONFIG REQUIRED)
 
 #  Directories
 # --------------------------------------------------
