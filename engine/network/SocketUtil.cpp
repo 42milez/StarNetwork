@@ -28,8 +28,6 @@ namespace engine
       }
     }
 
-    std::shared_ptr<spdlog::logger> SocketUtil::logger_ = spdlog::stdout_color_mt("SocketUtil");
-
     bool SocketUtil::static_init() {
       auto kernel_event_queue_fd_ = ::kqueue();
 
@@ -105,10 +103,6 @@ namespace engine
       }
 
       return nfds;
-    }
-
-    void SocketUtil::report_error(const char *in_operation_desc) {
-      logger_->error("Error: {0}", in_operation_desc);
     }
 
     int SocketUtil::last_error() {

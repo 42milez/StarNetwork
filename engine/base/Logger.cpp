@@ -1,6 +1,8 @@
 #include <filesystem>
 #include <iostream>
 
+#include "spdlog/sinks/basic_file_sink.h"
+
 #include "Logger.h"
 
 namespace engine

@@ -1,9 +1,8 @@
-#include "SocketAddressFactory.h"
-
 #include <string>
 
 #include <netdb.h>
 
+#include "SocketAddressFactory.h"
 #include "SocketUtil.h"
 
 using std::string;

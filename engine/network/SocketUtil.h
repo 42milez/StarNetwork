@@ -1,6 +1,7 @@
 #ifndef P2P_TECHDEMO_SOCKETUTIL_H
 #define P2P_TECHDEMO_SOCKETUTIL_H
 
+#include <map>
 #include <memory>
 
 #include <spdlog/spdlog.h>
@@ -43,8 +44,6 @@ namespace engine
       // inline static fd_set *fill_set_from_vector();
 
       // inline static void fill_vector_from_set();
-
-      static std::shared_ptr<spdlog::logger> logger_;
     };
   } // namespace network
 } // namespace engine
