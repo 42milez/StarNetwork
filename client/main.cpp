@@ -6,6 +6,8 @@
 
 #include <boost/program_options.hpp>
 
+#include "credential_generated.h"
+
 #include "p2p_techdemo/buildinfo.h"
 #include "engine/base/Singleton.h"
 #include "Client.h"
@@ -123,7 +125,26 @@ int main(int argc, char **argv) {
 
       // ユーザー認証
       // OPTIMIZE: 非同期処理にした方がよい？
-      client.request_token(std::string("test_id"), std::string("test_password"));
+
+      using namespace flatbuffers::credential;
+
+      flatbuffers::FlatBufferBuilder builder(1024);
+
+      auto id = builder.CreateString("test_id");
+      auto password = builder.CreateString("test_password");
+      auto credential = CreateCredential(builder, id, password);
+
+      builder.Finish(credential);
+
+      auto *buf = builder.GetBufferPointer();
+      auto size = builder.GetSize();
+
+      std::cout << "id: " << sizeof("test_id") << std::endl;
+      std::cout << "password: " << sizeof("test_password") << std::endl;
+
+      std::cout << "serialized id & pw: " << size << std::endl;
+
+      //client.request_token(std::string("test_id"), std::string("test_password"));
     }
 
     //  ゲーム開始

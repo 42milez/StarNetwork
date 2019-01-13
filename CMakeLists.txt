@@ -69,6 +69,8 @@ hunter_add_package(flatbuffers)
 
 find_package(Flatbuffers CONFIG REQUIRED)
 
+include_directories(${CMAKE_SOURCE_DIR}/flatbuffers/include)
+
 #  Directories
 # --------------------------------------------------
 
