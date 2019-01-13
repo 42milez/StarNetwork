@@ -48,19 +48,12 @@ hunter_add_package(Boost COMPONENTS program_options)
 
 find_package(Boost CONFIG REQUIRED COMPONENTS program_options)
 
-#  GTest
+#  Catch2
 # --------------------------------------------------
 
-hunter_add_package(GTest)
+hunter_add_package(Catch)
 
-find_package(GTest CONFIG REQUIRED)
-find_package(GMock CONFIG REQUIRED)
-
-if (NOT EXISTS "${GTest_LICENSES}")
-  message(FATAL_ERROR "File not found: '${GTest_LICENSES}")
-else ()
-  message("License file: '${GTest_LICENSES}'")
-endif ()
+find_package(Catch2 CONFIG REQUIRED)
 
 #  spdlog
 # --------------------------------------------------
