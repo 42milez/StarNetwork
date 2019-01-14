@@ -130,8 +130,21 @@ int main(int argc, char **argv) {
 
       flatbuffers::FlatBufferBuilder builder(1024);
 
-      auto id = builder.CreateString("test_id");
-      auto password = builder.CreateString("test_password");
+      std::string in_id;
+      std::string in_pw;
+
+      std::cout << "username: ";
+      std::cin >> in_id;
+
+      std::cout << "password: ";
+      std::cin >> in_pw;
+      std::cout << std::endl;
+
+      // validation
+      // ...
+
+      auto id = builder.CreateString(in_id);
+      auto password = builder.CreateString(in_pw);
       auto credential = CreateCredential(builder, id, password);
 
       builder.Finish(credential);
@@ -139,12 +152,7 @@ int main(int argc, char **argv) {
       auto *buf = builder.GetBufferPointer();
       auto size = builder.GetSize();
 
-      std::cout << "id: " << sizeof("test_id") << std::endl;
-      std::cout << "password: " << sizeof("test_password") << std::endl;
-
-      std::cout << "serialized id & pw: " << size << std::endl;
-
-      //client.request_token(std::string("test_id"), std::string("test_password"));
+      client.request_token(buf, size);
     }
 
     //  ゲーム開始

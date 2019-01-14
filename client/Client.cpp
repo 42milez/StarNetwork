@@ -3,6 +3,7 @@
 #include <string>
 #include <engine/base/Singleton.h>
 
+#include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
@@ -16,6 +17,8 @@ namespace client
   using SocketAddressFactory = engine::network::SocketAddressFactory;
   using SocketAddressPtr = engine::network::SocketAddressPtr;
   using SocketUtil = engine::network::SocketUtil;
+
+  using SOCKET_STATUS = engine::network::SOCKET_STATUS;
 
   bool Client::init() {
     auto &network = engine::base::Singleton<client::Network>::Instance();
@@ -42,10 +45,9 @@ namespace client
     // ...
   }
 
-  int Client::request_token(const std::string &id, const std::string &pw) {
+  int Client::request_token(const uint8_t *buf, uint32_t size) {
     auto mux = engine::network::SocketUtil::create_event_interface();
 
-    // ソケットを生成
     auto tcp_socket = SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);
 
     if (tcp_socket == nullptr) {
@@ -58,17 +60,18 @@ namespace client
     SocketAddress client_address{};
     tcp_socket->bind(client_address);
 
-    // サーバーに接続
     auto server_address = SocketAddressFactory::create_ipv4_from_string("127.0.0.1:12345");
 //    SocketAddress server_address(static_cast<uint32_t>(std::stoi("127.0.0.1")), 12345);
     auto error = tcp_socket->connect(*server_address);
 
-    std::string dummy_data{"hello"};
+    auto send_byte_count = tcp_socket->send(buf, size);
 
-    // リクエスト送信
-    auto size = tcp_socket->send(dummy_data.data(), sizeof(dummy_data.data()));
+    if (static_cast<SOCKET_STATUS>(send_byte_count) == SOCKET_STATUS::FAIL) {
+      SocketUtil::last_error();
+      // TODO: Return appropriate status.
+      return -1;
+    }
 
-    // レスポンス待機
     std::vector<TCPSocketPtr> in_sockets{tcp_socket};
     std::vector<TCPSocketPtr> out_sockets;
 

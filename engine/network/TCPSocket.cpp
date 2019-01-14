@@ -34,12 +34,7 @@ namespace engine
     }
 
     ssize_t TCPSocket::send(const void *data, size_t len) {
-      ssize_t bytes_sent = ::send(socket_, static_cast<const char *>(data), len, 0);
-      if (bytes_sent < 0) {
-        return SocketUtil::last_error();
-      }
-      // TODO using suitable data type for platform
-      return bytes_sent;
+      return ::send(socket_, static_cast<const char *>(data), len, 0);
     }
 
     ssize_t TCPSocket::recv(void *data, size_t len) {
