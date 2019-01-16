@@ -20,8 +20,6 @@ namespace client
     std::vector<TCPSocketPtr> wait();
 
   private:
-    std::shared_ptr<spdlog::logger> logger_;
-
     engine::network::TCPSocketPtr tcp_socket_;
 
     int kernel_event_queue_fd_;

@@ -23,8 +23,6 @@ namespace client {
   private:
     void do_frame();
 
-    bool should_keep_running_;
-
     std::string token_;
   };
 

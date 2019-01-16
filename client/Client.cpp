@@ -27,18 +27,8 @@ namespace client
     return true;
   }
 
-  Client::Client() : should_keep_running_(true) {
-    // ...
-  }
-
   void Client::run() {
-    while (should_keep_running_) {
-      do_frame();
-    }
-  }
-
-  void Client::set_should_keep_running(bool should_keep_running) {
-    should_keep_running_ = should_keep_running;
+    do_frame();
   }
 
   void Client::do_frame() {
