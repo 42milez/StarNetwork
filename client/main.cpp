@@ -8,7 +8,10 @@
 #include "credential_generated.h"
 
 #include "p2p_techdemo/buildinfo.h"
+
+#include "engine/base/Logger.h"
 #include "engine/base/Singleton.h"
+
 #include "Client.h"
 #include "Network.h"
 
@@ -23,6 +26,9 @@ namespace
     std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
+
+  const std::string LOGGER_NAME = "CLIENT";
+  const std::string PATH_LOG = "/var/log/p2p_techdemo/client.log";
 } // namespace
 
 int
@@ -77,6 +83,13 @@ main(int argc, char **argv)
   }
   else if (vmap.count("r") || vmap.count("run"))
   {
+    auto &logger = engine::base::Singleton<engine::base::Logger>::Instance();
+
+    if (!logger.init(LOGGER_NAME, PATH_LOG)) {
+      std::cout << "Initialization failed." << std::endl;
+      return EXIT_FAILURE;
+    }
+
     auto &client = engine::base::Singleton<client::Client>::Instance();
     client.init();
 

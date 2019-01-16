@@ -14,6 +14,9 @@
 
 namespace client
 {
+  using s_exit_handler = engine::base::Singleton<engine::base::ExitHandler>;
+  using s_network = engine::base::Singleton<client::Network>;
+
   using SocketAddress = engine::network::SocketAddress;
   using SocketAddressFactory = engine::network::SocketAddressFactory;
   using SocketAddressPtr = engine::network::SocketAddressPtr;
@@ -23,18 +26,21 @@ namespace client
 
   bool Client::init()
   {
-    auto &network = engine::base::Singleton<client::Network>::Instance();
-    network.init();
+    auto &eh = s_exit_handler::Instance();
 
-    auto &eh = engine::base::Singleton<engine::base::ExitHandler>::Instance();
-    eh.init();
+    if (!eh.init()) return false;
+
+    auto &network = s_network::Instance();
+
+    if (!network.init()) return false;
 
     return true;
   }
 
   void Client::run()
   {
-    auto &eh = engine::base::Singleton<engine::base::ExitHandler>::Instance();
+    auto &eh = s_exit_handler::Instance();
+
     while (!eh.should_exit()) {
       // ...
     }

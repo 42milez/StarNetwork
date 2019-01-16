@@ -21,8 +21,8 @@ namespace
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
 
-  const std::string LOGGER_NAME = "AuthServer";
-  const std::string PATH_LOG = "/var/log/p2p_techdemo/server.log";
+  const std::string LOGGER_NAME = "AUTH_SERVER";
+  const std::string PATH_LOG = "/var/log/p2p_techdemo/auth_server.log";
 } // namespace
 
 int main(int argc, char **argv) {
