@@ -3,6 +3,7 @@
 #include <string>
 #include <engine/base/Singleton.h>
 
+#include "engine/base/ExitHandler.h"
 #include "engine/network/NetworkShared.h"
 #include "engine/network/SocketAddress.h"
 #include "engine/network/SocketAddressFactory.h"
@@ -20,22 +21,27 @@ namespace client
 
   using SOCKET_STATUS = engine::network::SOCKET_STATUS;
 
-  bool Client::init() {
+  bool Client::init()
+  {
     auto &network = engine::base::Singleton<client::Network>::Instance();
     network.init();
+
+    auto &eh = engine::base::Singleton<engine::base::ExitHandler>::Instance();
+    eh.init();
 
     return true;
   }
 
-  void Client::run() {
-    do_frame();
+  void Client::run()
+  {
+    auto &eh = engine::base::Singleton<engine::base::ExitHandler>::Instance();
+    while (!eh.should_exit()) {
+      // ...
+    }
   }
 
-  void Client::do_frame() {
-    // ...
-  }
-
-  int Client::request_token(const uint8_t *buf, uint32_t size) {
+  int Client::request_token(const uint8_t *buf, uint32_t size)
+  {
     auto mux = engine::network::SocketUtil::create_event_interface();
 
     auto tcp_socket = SocketUtil::create_tcp_socket(engine::network::SocketAddressFamily::INET);

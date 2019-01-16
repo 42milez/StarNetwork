@@ -7,19 +7,26 @@ namespace engine
 {
   namespace base
   {
+    enum class REGISTER_HANDLER_STATUS {
+      SUCCESS = 0,
+      FAIL = -1
+    };
+
     class ExitHandler {
     public:
-      static void init();
+      ExitHandler();
 
-      static void exit();
+      bool init();
+
+      void exit();
 
       bool should_exit() const;
 
     private:
       template<typename Func>
-      static void register_handler(int signum, Func handler);
+      REGISTER_HANDLER_STATUS register_handler(int signum, Func handler);
 
-      static bool should_exit_;
+      bool should_exit_;
     };
   } // namespace base
 } // namespace engine
