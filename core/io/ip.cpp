@@ -7,7 +7,7 @@
 
 namespace core { namespace io
 {
-  struct _IpResolverPrivate
+  struct IpResolver
   {
     struct QueueItem
     {
@@ -32,7 +32,7 @@ namespace core { namespace io
       {
         clear();
       };
-    };
+    }; // struct QueueItem
 
     QueueItem queue[IP::RESOLVER_MAX_QUERIES];
 
@@ -51,9 +51,9 @@ namespace core { namespace io
 
     std::mutex mtx;
 
-    std::thread trd;
+    std::unique_ptr<std::thread> thread;
 
-    bool thread_abort;
+    bool thread_abort = false;
 
     void
     resolve_queues()
@@ -78,15 +78,15 @@ namespace core { namespace io
       }
     }
 
-    static void thread_function(std::shared_ptr<_IpResolverPrivate> resolver)
-    {
-      while (!resolver->thread_abort)
-      {
-        resolver->mtx->lock();
-        resolver->resolve_queues();
-        resolver->mtx.unlock();
-      }
-    }
+//    static void thread_function(std::shared_ptr<IpResolver> &resolver)
+//    {
+//      while (!resolver->thread_abort)
+//      {
+//        resolver->mtx->lock();
+//        resolver->resolve_queues();
+//        resolver->mtx.unlock();
+//      }
+//    }
 
     std::map<std::string, IpAddress> cache;
 
@@ -94,5 +94,27 @@ namespace core { namespace io
     {
       return std::to_string(type) + hostname;
     }
-  };
+  }; // struct IpResolver
+
+  IpAddress IP::resolve_hostname(const std::string &hostname, IP::Type type)
+  {
+
+  }
+
+  IP::IP()
+  {
+    _resolver = std::make_shared<IpResolver>();
+    _resolver->thread = std::make_unique<std::thread>([resolver = _resolver] {
+      while (!resolver->thread_abort)
+      {
+        std::unique_lock(resolver->mtx);
+        resolver->resolve_queues();
+      }
+    });
+  }
+
+  IP::~IP()
+  {
+    _resolver->thread->join();
+  }
 }} // namespace core / io

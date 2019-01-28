@@ -2,12 +2,13 @@
 #define P2P_TECHDEMO_CORE_IO_IP_H
 
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace core { namespace io
 {
-  struct _IpResolverPrivate;
+  struct IpResolver;
 
   class IP
   {
@@ -69,7 +70,7 @@ namespace core { namespace io
     // static IP *(*_create)();
 
   private:
-    _IP_ResolvePrivate *resolver;
+    std::shared_ptr<IpResolver> _resolver;
   };
 }} // namespace core / io
 
