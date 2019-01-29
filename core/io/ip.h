@@ -50,24 +50,12 @@ namespace core { namespace io
 
     void clear_cache(const std::string &hostname = "");
 
-    // static IP *get_singleton();
-
-    // static IP *create();
-
     IP();
 
-    ~IP();
-
   protected:
-    // static IP *singleton;
-
-    // static void _bind_methods();
-
     virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::TYPE_ANY) = 0;
 
     std::vector _get_local_addresses() const;
-
-    // static IP *(*_create)();
 
   private:
     std::shared_ptr<IpResolver> _resolver;
