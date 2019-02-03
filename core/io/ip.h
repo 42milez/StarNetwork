@@ -36,9 +36,9 @@ namespace core { namespace io
     using ResolverID = int;
 
   public:
-    IpAddress resolve_hostname(const std::string &hostname, Type type = Type::TYPE_ANY);
+    IpAddress resolve_hostname(const std::string &hostname, Type type = Type::ANY);
 
-    ResolverID resolve_hostname_queue_item(const std::string &hostname, Type type = TYPE_ANY);
+    ResolverID resolve_hostname_queue_item(const std::string &hostname, Type type = Type::ANY);
 
     ResolverStatus get_resolve_item_status(ResolverID id) const;
 
@@ -53,7 +53,7 @@ namespace core { namespace io
     IP();
 
   protected:
-    virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::TYPE_ANY) = 0;
+    virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY) = 0;
 
     std::vector _get_local_addresses() const;
 

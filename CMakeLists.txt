@@ -76,7 +76,13 @@ include_directories(${CMAKE_SOURCE_DIR}/flatbuffers/include)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_subdirectory(core/base)
+add_subdirectory(core/io)
+
+add_subdirectory(platform/unix)
+
 add_subdirectory(engine/base)
 add_subdirectory(engine/network)
+
 add_subdirectory(client)
 add_subdirectory(auth_server)
