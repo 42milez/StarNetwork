@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "ip_address.h"
+
 namespace core { namespace io
 {
   struct IpResolver;
@@ -55,7 +57,7 @@ namespace core { namespace io
   protected:
     virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY) = 0;
 
-    std::vector _get_local_addresses() const;
+    std::vector<IpAddress> _get_local_addresses() const;
 
   private:
     std::shared_ptr<IpResolver> _resolver;
