@@ -228,7 +228,7 @@ namespace core { namespace io
         }
     }
 
-    std::vector
+    std::vector<IpAddress>
     IP::_get_local_addresses() const
     {
         std::vector<IpAddress> addresses;
