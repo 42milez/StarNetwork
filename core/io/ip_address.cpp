@@ -15,10 +15,10 @@ namespace core { namespace io
 
         if (is_ipv4())
         {
-            return std::to_string(static_cast<int>(std::get<IP128_8>(_field)[12])) + "." +
-                   std::to_string(static_cast<int>(std::get<IP128_8>(_field)[13])) + "." +
-                   std::to_string(static_cast<int>(std::get<IP128_8>(_field)[14])) + "." +
-                   std::to_string(static_cast<int>(std::get<IP128_8>(_field)[15]));
+            return std::to_string(_field8[12]) + "." +
+                   std::to_string(_field8[13]) + "." +
+                   std::to_string(_field8[14]) + "." +
+                   std::to_string(_field8[15]);
         }
 
         std::stringstream ret;
@@ -30,8 +30,8 @@ namespace core { namespace io
                 ret << ":";
             }
 
-            // ToDo: Try to use IP128_16
-            uint16_t num = (std::get<IP128_8>(_field)[i * 2] << 8) + std::get<IP128_8>(_field)[i * 2 + 1];
+            // ToDo: Try to use _field16
+            uint16_t num = (_field8[i * 2] << 8) + _field8[i * 2 + 1];
 
             ret << std::hex << num;
         }
@@ -154,20 +154,26 @@ namespace core { namespace io
             {
                 for (auto j = 0; j < parts_extra; j++)
                 {
-                    std::get<IP128_16>(_field)[idx++] = 0;
+                    _field16[idx++] = 0;
                 }
                 continue;
             }
 
             if (part_ipv4 && i == parts_idx - 1)
             {
-                _parse_ipv4(str, parts[i], (uint8_t *)&std::get<IP128_16>(_field)[idx]);
+                _parse_ipv4(str, parts[i], (uint8_t *)&_field16[idx]);
             }
             else
             {
-                _parse_hex(str, parts[i], (uint8_t *)&std::get<IP128_16>(_field)[idx++]);
+                _parse_hex(str, parts[i], (uint8_t *)&_field16[idx++]);
             }
         }
+    }
+
+    void
+    IpAddress::clear()
+    {
+
     }
 
     IpAddress::IpAddress(const std::string &str)
@@ -187,7 +193,8 @@ namespace core { namespace io
         else if (std::count(str.begin(), str.end(), '.') == 4)
         {
             // IPv4 (mapped to IPv6 internally)
-            std::get<IP128_16>(_field)[5] = 0xffff;
+            _field16[5] = 0xffff;
+            _parse_ipv4(str, 0, &_field8[12]);
             _valid = true;
         }
         else

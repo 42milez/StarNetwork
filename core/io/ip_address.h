@@ -8,17 +8,19 @@ namespace core { namespace io
     struct IpAddress
     {
     private:
-        using IP128_8 = uint8_t[16];
-        using IP128_16 = uint16_t[8];
-        using IP128_32 = uint32_t[4];
+        union
+        {
+            uint8_t _field8[16];
+            uint16_t _field16[8];
+            uint32_t _field32[4];
+        };
 
-        std::variant<IP128_8, IP128_16, IP128_32> _field;
         bool _valid;
         bool _wildcard;
 
     protected:
         void _parse_ipv6(const std::string &str);
-        void _parse_ipv4(const std::string &str);
+        void _parse_ipv4(const std::string &str, int start, uint8_t *ret);
 
     public:
         bool operator==(const IpAddress &ip_address) const
@@ -33,12 +35,9 @@ namespace core { namespace io
                 return false;
             }
 
-            auto field_l = std::get<IP128_32>(_field);
-            auto field_r = std::get<IP128_32>(ip_address._field);
-
             for (auto i = 0; i < 4; i++)
             {
-                if (field_l[i] != field_r[i])
+                if (ip_address._field32[i] != _field32[i])
                 {
                     return false;
                 }
@@ -59,12 +58,9 @@ namespace core { namespace io
                 return true;
             }
 
-            auto field_l = std::get<IP128_32>(_field);
-            auto field_r = std::get<IP128_32>(ip_address._field);
-
             for (auto i = 0; i < 4; i++)
             {
-                if (field_l[i] != field_r[i])
+                if (ip_address._field32[i] != _field32[i])
                 {
                     return true;
                 }
