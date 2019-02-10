@@ -173,7 +173,57 @@ namespace core { namespace io
     void
     IpAddress::clear()
     {
+        memset(&_field8[0], 0, sizeof(_field8));
+        _valid = false;
+        _wildcard = false;
+    }
 
+    bool
+    IpAddress::is_ipv4() const
+    {
+        return (_field32[0] == 0 && _field32[1] == 0 && _field16[4] == 0 && _field16[5] == 0xffff);
+    }
+
+    const uint8_t *
+    IpAddress::get_ipv4() const
+    {
+        // ToDo: bounds checking
+        // ...
+
+        return &(_field8[12]);
+    }
+
+    const uint8_t *
+    IpAddress::get_ipv6() const
+    {
+        // ToDo: bounds checking
+        // ...
+
+        return _field8;
+    }
+
+    void
+    IpAddress::set_ipv4(const uint8_t (&ip)[4])
+    {
+        clear();
+
+        _valid = true;
+
+        _field16[5] = 0xffff;
+        _field32[3] = reinterpret_cast<const uint32_t &>(ip);
+    }
+
+    void
+    IpAddress::set_ipv6(const uint8_t (&ip)[16])
+    {
+        clear();
+
+        _valid = true;
+
+        for (auto i = 0; i < 16; i++)
+        {
+            _field8[i] = ip[i];
+        }
     }
 
     IpAddress::IpAddress(const std::string &str)
@@ -201,6 +251,37 @@ namespace core { namespace io
         {
             // ToDo: logging
             // ...
+        }
+    }
+
+    static inline void _32_to_buf(uint8_t *dst, uint32_t n)
+    {
+        dst[0] = (n >> 24) & 0xff;
+        dst[1] = (n >> 16) & 0xff;
+        dst[2] = (n >> 8) & 0xff;
+        dst[3] = (n >> 0) & 0xff;
+    }
+
+    IpAddress::IpAddress(uint32_t a, uint32_t b, uint32_t c, uint32_t d, bool is_v6)
+    {
+        clear();
+
+        _valid = true;
+
+        if (!is_v6)
+        {
+            _field16[5] = 0xffff;
+            _field8[12] = a;
+            _field8[13] = b;
+            _field8[14] = c;
+            _field8[15] = d;
+        }
+        else
+        {
+            _32_to_buf(&_field8[0], a);
+            _32_to_buf(&_field8[4], b);
+            _32_to_buf(&_field8[8], c);
+            _32_to_buf(&_field8[12], d);
         }
     }
 }} // namespace core /io

@@ -77,13 +77,13 @@ namespace core { namespace io
 
         bool is_ipv4() const;
 
-        const uint8_t &get_ipv4() const;
+        const uint8_t *get_ipv4() const;
 
-        void set_ipv4(const uint8_t *ip);
+        const uint8_t *get_ipv6() const;
 
-        const uint16_t &get_ipv6() const;
+        void set_ipv4(const uint8_t (&ip)[4]);
 
-        void set_ipv6(const uint8_t &buf);
+        void set_ipv6(const uint8_t (&ip)[16]);
 
         std::string to_string() const;
 
