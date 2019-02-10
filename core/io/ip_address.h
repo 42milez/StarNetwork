@@ -1,8 +1,6 @@
 #ifndef P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
 #define P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
 
-#include <variant>
-
 namespace core { namespace io
 {
     struct IpAddress

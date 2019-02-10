@@ -86,3 +86,8 @@ add_subdirectory(engine/network)
 
 add_subdirectory(client)
 add_subdirectory(auth_server)
+
+#  Directories (Test)
+# --------------------------------------------------
+
+add_subdirectory(test/core/io)
