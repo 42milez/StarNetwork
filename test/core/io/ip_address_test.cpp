@@ -16,5 +16,20 @@ make_ip_address(const std::string &str)
 
 TEST_CASE("", "")
 {
-    REQUIRE(make_ip_address("::FFFF:129.144.52.38") == "");
+    REQUIRE(make_ip_address("::ffff:129.144.52.38") == "129.144.52.38");
+}
+
+TEST_CASE("", "")
+{
+    REQUIRE(make_ip_address("::FFFF:129.144.52.38") == "129.144.52.38");
+}
+
+TEST_CASE("", "")
+{
+    REQUIRE(make_ip_address("0:0:0:0:0:ffff:129.144.52.38") == "129.144.52.38");
+}
+
+TEST_CASE("", "")
+{
+    REQUIRE(make_ip_address("0:0:0:0:0:FFFF:129.144.52.38") == "129.144.52.38");
 }

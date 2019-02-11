@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <sstream>
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 #include "ip_address.h"
 
 namespace core { namespace io
@@ -74,6 +77,9 @@ namespace core { namespace io
             {
                 // ToDo: logging
                 // ...
+
+                // ToDo: error handling
+                // ...
             }
 
             ret = ret << 4;
@@ -103,7 +109,7 @@ namespace core { namespace io
             {
                 if (i == 0)
                 {
-                    continue;
+                    continue; // next must be a ':'
                 }
 
                 if (!part_found)
@@ -152,7 +158,7 @@ namespace core { namespace io
         {
             if (parts[i] == -1)
             {
-                for (auto j = 0; j < parts_extra; j++)
+                for (auto j = 1; j < parts_extra; j++)
                 {
                     _field16[idx++] = 0;
                 }
@@ -161,12 +167,46 @@ namespace core { namespace io
 
             if (part_ipv4 && i == parts_idx - 1)
             {
-                _parse_ipv4(str, parts[i], (uint8_t *)&_field16[idx]);
+                _parse_ipv4(str, parts[i], reinterpret_cast<uint8_t *>(&_field16[idx])); // should be the last one
             }
             else
             {
-                _parse_hex(str, parts[i], (uint8_t *)&_field16[idx++]);
+                _parse_hex(str, parts[i], reinterpret_cast<uint8_t *>(&_field16[idx++]));
             }
+        }
+    }
+
+    void
+    IpAddress::_parse_ipv4(const std::string &str, int start, uint8_t *ret)
+    {
+        std::string ip;
+
+        if (start != 0)
+        {
+            ip = str.substr(start, str.length() - start);
+        }
+        else
+        {
+            ip = str;
+        }
+
+        auto slices = std::count(ip.begin(), ip.end(), '.');
+
+        if (slices != 3)
+        {
+            // ToDo: logging
+            // ...
+
+            // ToDo: error handling
+            // ...
+        }
+
+        std::vector<std::string> octets;
+        boost::algorithm::split(octets, ip, boost::is_any_of("."));
+
+        for (auto i = 0; i < 4; i++)
+        {
+            ret[i] = std::stoi(octets[i]);
         }
     }
 
@@ -240,7 +280,7 @@ namespace core { namespace io
             _parse_ipv6(str);
             _valid = true;
         }
-        else if (std::count(str.begin(), str.end(), '.') == 4)
+        else if (std::count(str.begin(), str.end(), '.') == 3)
         {
             // IPv4 (mapped to IPv6 internally)
             _field16[5] = 0xffff;
@@ -254,7 +294,8 @@ namespace core { namespace io
         }
     }
 
-    static inline void _32_to_buf(uint8_t *dst, uint32_t n)
+    static inline void
+    _32_to_buf(uint8_t *dst, uint32_t n)
     {
         dst[0] = (n >> 24) & 0xff;
         dst[1] = (n >> 16) & 0xff;
