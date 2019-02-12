@@ -54,6 +54,8 @@ namespace core { namespace io
 
     IP();
 
+    ~IP();
+
   protected:
     virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY) = 0;
 

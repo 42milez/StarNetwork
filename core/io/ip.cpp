@@ -79,20 +79,6 @@ namespace core { namespace io
             }
         }
 
-//        static void _thread_function(void *self) {
-//
-//            IpResolver *ipr = (_IP_ResolverPrivate *)self;
-//
-//            while (!ipr->thread_abort) {
-//
-//                ipr->sem->wait();
-//
-//                ipr->mutex->lock();
-//                ipr->resolve_queues();
-//                ipr->mutex->unlock();
-//            }
-//        }
-
         std::map<std::string, IpAddress> cache;
 
         static std::string get_cache_key(const std::string &hostname, IP::Type type)
@@ -256,5 +242,13 @@ namespace core { namespace io
                 });
             }
         };
+    }
+
+    IP::~IP()
+    {
+        if (_resolver->thread.joinable())
+        {
+            _resolver->thread.join();
+        }
     }
 }} // namespace core / io
