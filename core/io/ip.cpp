@@ -94,7 +94,7 @@ namespace core { namespace io
 
         std::string key = IpResolver::get_cache_key(hostname, type);
 
-        if (_resolver->cache->count(key) && _resolver->cache[key].is_valid())
+        if (_resolver->cache.count(key) && _resolver->cache[key].is_valid())
         {
             IpAddress ip_addr = _resolver->cache[key];
 
@@ -127,7 +127,7 @@ namespace core { namespace io
         _resolver->queue[id].hostname = hostname;
         _resolver->queue[id].type = type;
 
-        if (_resolver->cache->count(key) && _resolver->cache[key].is_valid)
+        if (_resolver->cache.count(key) && _resolver->cache[key].is_valid())
         {
             _resolver->queue[id].response = _resolver->cache[key];
             _resolver->queue[id].status = IP::ResolverStatus::NONE;
