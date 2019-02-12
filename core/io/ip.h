@@ -31,9 +31,8 @@ namespace core { namespace io
       ANY = 3
     };
 
-    constexpr int RESOLVER_MAX_QUERIES = 32;
-
-    constexpr int RESOLVER_INVALID_ID = -1;
+    static constexpr int RESOLVER_MAX_QUERIES = 32;
+    static constexpr int RESOLVER_INVALID_ID = -1;
 
     using ResolverID = int;
 
