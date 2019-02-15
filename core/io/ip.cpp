@@ -59,22 +59,23 @@ namespace core { namespace io
         void
         resolve_queues()
         {
-            for (auto i = 0; i < IP::RESOLVER_MAX_QUERIES; i++)
+            //for (auto i = 0; i < IP::RESOLVER_MAX_QUERIES; i++)
+            for (auto &q : queue)
             {
-                if (queue[i].status != IP::ResolverStatus::WAITING)
+                if (q.status != IP::ResolverStatus::WAITING)
                 {
                     continue;
                 }
 
-                queue[i].response = core::base::Singleton<IP>::Instance().resolve_hostname(queue[i].hostname, queue[i].type);
+                q.response = core::base::Singleton<IP>::Instance().resolve_hostname(q.hostname, q.type);
 
-                if (!queue[i].response.is_valid())
+                if (!q.response.is_valid())
                 {
-                    queue[i].status = IP::ResolverStatus::ERROR;
+                    q.status = IP::ResolverStatus::ERROR;
                 }
                 else
                 {
-                    queue[i].status = IP::ResolverStatus::DONE;
+                    q.status = IP::ResolverStatus::DONE;
                 }
             }
         }
@@ -219,9 +220,9 @@ namespace core { namespace io
         _resolver = std::make_shared<IpResolver>();
 
         _resolver->thread = std::thread{
-            [this]{
+            [this] {
                 auto lk = std::unique_lock<std::mutex>(this->_resolver->mtx);
-                this->_resolver->cv.wait(lk, [this]{
+                this->_resolver->cv.wait(lk, [this] {
                     this->_resolver->resolve_queues();
                 });
             }
