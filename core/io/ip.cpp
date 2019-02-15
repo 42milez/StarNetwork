@@ -214,22 +214,6 @@ namespace core { namespace io
         }
     }
 
-    std::vector<IpAddress>
-    IP::_get_local_addresses() const
-    {
-        std::vector<IpAddress> addresses;
-        std::list<IpAddress> ip_addresses;
-
-        get_local_addresses(ip_addresses);
-
-        for (auto const &ip_address : ip_addresses)
-        {
-            addresses.push_back(ip_address);
-        }
-
-        return addresses;
-    }
-
     IP::IP()
     {
         _resolver = std::make_shared<IpResolver>();
