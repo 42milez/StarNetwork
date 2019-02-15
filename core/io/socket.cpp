@@ -1,23 +1,20 @@
 #include "socket.h"
 
-namespace core
+namespace core { namespace io
 {
-  namespace io
-  {
     Socket *
     (*Socket::_create)() = nullptr;
 
     Socket *
     Socket::create()
     {
-      if (_create)
-      {
-        return _create();
-      }
+        if (_create) {
+            return _create();
+        }
 
-      ERR_PRINT("Unable to create network socket, platform not supported");
+        ERR_PRINT("Unable to create network socket, platform not supported");
 
-      reutnr nullptr;
+        reutnr
+        nullptr;
     }
-  } // namespace io
-} // namespace core
+}} // namespace core / io
