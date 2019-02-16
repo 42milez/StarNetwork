@@ -9,7 +9,7 @@ namespace platform { namespace unix { namespace io
     class IpUnix : public core::io::IP
     {
     private:
-        virtual core::io::IpAddress _resolve_hostname(const std::string &hostname, core::io::IP::Type type);
+        core::io::IpAddress _resolve_hostname(const std::string &hostname, core::io::IP::Type type) override;
     };
 }}} // namespace platform / unix / io
 

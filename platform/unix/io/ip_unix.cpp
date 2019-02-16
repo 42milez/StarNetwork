@@ -1,9 +1,19 @@
-#include <sys/socket.h>
+#include <netdb.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #include "ip_unix.h"
 
 #include "platform/unix/io/ip_unix.h"
+
+#define INIT_ADDRINFO_AS_HINTS() \
+    { 0, 0, 0, 0, 0, nullptr, nullptr, nullptr }
+
+enum class AddrinfoRetVal : int
+{
+    SUCCESS = 0
+};
 
 namespace platform { namespace unix { namespace io
 {
@@ -29,6 +39,59 @@ namespace platform { namespace unix { namespace io
 
             ip.set_ipv6(addr_in6.sin6_addr.s6_addr);
         }
+
+        return ip;
+    }
+
+    core::io::IpAddress
+    IpUnix::_resolve_hostname(const std::string &hostname, core::io::IP::Type type)
+    {
+        struct addrinfo hints = INIT_ADDRINFO_AS_HINTS();
+        struct addrinfo *results;
+
+        if (type == core::io::IP::Type::IPV4)
+        {
+            hints.ai_family = AF_INET;
+        }
+        else if (type == core::io::IP::Type::IPV6)
+        {
+            hints.ai_family = AF_INET6;
+            hints.ai_flags = 0;
+        }
+        else
+        {
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_flags = AI_ADDRCONFIG;
+        }
+
+        hints.ai_flags &= ~AI_NUMERICHOST;
+
+        auto s = getaddrinfo(hostname.c_str(), nullptr, &hints, &results);
+
+        if (static_cast<AddrinfoRetVal>(s) != AddrinfoRetVal::SUCCESS)
+        {
+            // ToDo: logging
+            // ...
+
+            return core::io::IpAddress();
+        }
+
+        if (results == nullptr || results->ai_addr == nullptr)
+        {
+            // ToDo: logging
+            // ...
+
+            if (results)
+            {
+                freeaddrinfo(results);
+            }
+
+            return core::io::IpAddress();
+        }
+
+        core::io::IpAddress ip = _sockaddr2ip(*(results->ai_addr));
+
+        freeaddrinfo(results);
 
         return ip;
     }
