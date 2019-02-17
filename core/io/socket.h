@@ -3,16 +3,14 @@
 
 #include <memory>
 
+#include "core/base/status.h"
+#include "ip.h"
+
 namespace core { namespace io
 {
     class Socket
     {
-    protected:
-        static Socket *(*_create)();
-
     public:
-        static Socket *create();
-
         enum class PollType
         {
             POLL_TYPE_IN,
@@ -27,25 +25,25 @@ namespace core { namespace io
             TYPE_UDP
         };
 
-        virtual Error open(Type p_type, IP::Type ip_type) = 0;
+        virtual core::base::Status open(Type p_type, IP::Type ip_type) = 0;
 
         virtual void close() = 0;
 
-        virtual Error bind(IpAddress &ip, uint16_t port);
+        virtual core::base::Status bind(IpAddress &ip, uint16_t port) = 0;
 
-        virtual Error listen(int max_pending) = 0;
+        virtual core::base::Status listen(int max_pending) = 0;
 
-        virtual Error connect_to_host(IpAddress &ip, uint16_t port) = 0;
+        virtual core::base::Status connect_to_host(IpAddress &ip, uint16_t port) = 0;
 
-        virtual Error poll(PollType type, int timeout) = 0;
+        virtual core::base::Status poll(PollType type, int timeout) = 0;
 
-        virtual Error recv(uint8_t &buffer, int len, int &read_byte_count) = 0;
+        virtual core::base::Status recv(uint8_t &buffer, int len, int &read_byte_count) = 0;
 
-        virtual Error recvfrom(uint8_t &buffer, int len, int &read_byte_count) = 0;
+        virtual core::base::Status recvfrom(uint8_t &buffer, int len, int &read_byte_count) = 0;
 
-        virtual Error send(const uint8_t &buffer, int len, int send_byte_count) = 0;
+        virtual core::base::Status send(const uint8_t &buffer, int len, int send_byte_count) = 0;
 
-        virtual Error sendto(const uint8_t &buffer, int len, int send_byte_count) = 0;
+        virtual core::base::Status sendto(const uint8_t &buffer, int len, int send_byte_count) = 0;
 
         virtual std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port) = 0;
 

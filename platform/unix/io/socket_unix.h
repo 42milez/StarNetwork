@@ -4,17 +4,36 @@
 #include <sys/socket.h>
 
 #include "core/io/socket.h"
+#include "ip_unix.h"
 
-using SOCKET_TYPE = int;
+using SOCKET = int;
 
-namespace platform { namespace unix { namespace io
+class SocketUnix : public core::io::Socket
 {
-    class SocketUnix : public core::io::Socket
-    {
-    private:
-        SOCKET_TYPE _sock;
+private:
+    SOCKET _sock;
 
+    core::io::IP::Type _ip_type;
+
+    bool _is_stream;
+
+    enum class NetError : int
+    {
+        ERR_NET_WOULD_BLOCK,
+        ERR_NET_IS_CONNECTED,
+        ERR_NET_IN_PROGRESS,
+        ERR_NET_OTHER
     };
-}}} // namespace platform / unix / io
+
+    NetError _get_socket_error();
+
+    void _set_socket(SOCKET sock, core::io::IP::Type ip_type, bool is_stream);
+
+protected:
+    bool _can_use_ip(core::io::IpAddress ip_addr, bool for_bind) const;
+
+public:
+    void cleanup();
+};
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H

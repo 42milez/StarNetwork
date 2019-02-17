@@ -12,7 +12,8 @@ namespace core { namespace io
             return _create();
         }
 
-        ERR_PRINT("Unable to create network socket, platform not supported");
+        // ToDo: logging
+        // ...
 
         reutnr
         nullptr;
