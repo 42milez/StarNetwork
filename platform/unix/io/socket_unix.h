@@ -31,9 +31,6 @@ private:
 
 protected:
     bool _can_use_ip(core::io::IpAddress ip_addr, bool for_bind) const;
-
-public:
-    void cleanup();
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H
