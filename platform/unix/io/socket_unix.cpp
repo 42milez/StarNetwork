@@ -25,3 +25,11 @@ SocketUnix::_get_socket_error()
 
     return NetError::ERR_NET_OTHER;
 }
+
+void
+SocketUnix::_set_socket(SOCKET sock, core::io::IP::Type ip_type, bool is_stream)
+{
+    _sock = sock;
+    _ip_type = ip_type;
+    _is_stream = is_stream;
+}
