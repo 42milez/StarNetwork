@@ -31,6 +31,9 @@ private:
 
 protected:
     bool _can_use_ip(core::io::IpAddress ip_addr, bool for_bind) const;
+
+public:
+    void _set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress ip, uint16_t &port);
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H
