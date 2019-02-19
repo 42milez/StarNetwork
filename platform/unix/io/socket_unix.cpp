@@ -59,7 +59,7 @@ SocketUnix::_can_use_ip(const core::io::IpAddress ip_addr, const bool for_bind) 
 }
 
 void
-SocketUnix::_set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress ip, uint16_t &port)
+SocketUnix::_set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress &ip, uint16_t &port)
 {
     if (addr.ss_family == AF_INET)
     {
@@ -81,5 +81,54 @@ SocketUnix::_set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress ip, 
         ip.set_ipv6(addr6.sin6_addr.s6_addr);
 
         port = ntohs(addr6.sin6_port);
+    }
+}
+
+size_t
+SocketUnix::_set_addr_storage(struct sockaddr_storage &addr, const core::io::IpAddress &ip, uint16_t port, core::io::IP::Type ip_type)
+{
+    memset(&addr, 0, sizeof(struct sockaddr_storage));
+
+    if (ip_type == core::io::IP::Type::IPV6 || ip_type == core::io::IP::Type::ANY) // IPv6 socket
+    {
+        // ToDo: check whether ip is IPv6 only socket with IPv4 address
+        // ...
+
+        auto &addr6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
+
+        addr6.sin6_family = AF_INET6;
+        addr6.sin6_port = htons(port);
+
+        if (ip.is_valid())
+        {
+            memcpy(&addr6.sin6_addr.s6_addr, ip.get_ipv6(), 16); // copy 16 bytes
+        }
+        else
+        {
+            addr6.sin6_addr = in6addr_any;
+        }
+
+        return sizeof(sockaddr_in6);
+    }
+    else // IPv4 socket
+    {
+        // ToDo: check if whether ip is IPv4 socket with IPv6 address
+        // ...
+
+        auto &addr4 = reinterpret_cast<struct sockaddr_in &>(addr);
+
+        addr4.sin_family = AF_INET;
+        addr4.sin_port = htons(port);
+
+        if (ip.is_valid())
+        {
+            memcpy(&addr4.sin_addr.s_addr, ip.get_ipv4(), 4);
+        }
+        else
+        {
+            addr4.sin_addr.s_addr = INADDR_ANY;
+        }
+
+        return sizeof(sockaddr_in);
     }
 }
