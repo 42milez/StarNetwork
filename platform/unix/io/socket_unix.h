@@ -37,7 +37,9 @@ public:
 
     void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
 
-    Error open(Type sock_type, IP::Type ip_type);
+    void set_ipv6_only_enabled(bool enabled) override;
+
+    Error open(Type sock_type, IP::Type ip_type) override;
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H

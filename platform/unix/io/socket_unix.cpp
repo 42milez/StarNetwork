@@ -133,6 +133,20 @@ SocketUnix::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t 
 }
 
 void
+SocketUnix::set_ipv6_only_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(_ip_type == IP::Type::V4);
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0)
+    {
+        WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
+    }
+}
+
+void
 SocketUnix::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
 {
     _sock = sock;
