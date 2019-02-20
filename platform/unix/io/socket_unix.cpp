@@ -28,7 +28,7 @@ SocketUnix::_get_socket_error()
 }
 
 void
-SocketUnix::_set_socket(SOCKET sock, core::io::IP::Type ip_type, bool is_stream)
+SocketUnix::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
 {
     _sock = sock;
     _ip_type = ip_type;
@@ -36,7 +36,7 @@ SocketUnix::_set_socket(SOCKET sock, core::io::IP::Type ip_type, bool is_stream)
 }
 
 bool
-SocketUnix::_can_use_ip(const core::io::IpAddress ip_addr, const bool for_bind) const
+SocketUnix::_can_use_ip(const IpAddress ip_addr, const bool for_bind) const
 {
     if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard()))
     {
@@ -48,9 +48,9 @@ SocketUnix::_can_use_ip(const core::io::IpAddress ip_addr, const bool for_bind) 
     }
 
     // Check if socket support this IP type.
-    core::io::IP::Type ip_type = ip_addr.is_ipv4() ? core::io::IP::Type::IPV4 : core::io::IP::Type::IPV6;
+    IP::Type ip_type = ip_addr.is_ipv4() ? IP::Type::IPV4 : IP::Type::IPV6;
 
-    if (_ip_type != core::io::IP::Type::ANY && !ip_addr.is_wildcard() && _ip_type != ip_type)
+    if (_ip_type != IP::Type::ANY && !ip_addr.is_wildcard() && _ip_type != ip_type)
     {
         return false;
     }
@@ -59,7 +59,7 @@ SocketUnix::_can_use_ip(const core::io::IpAddress ip_addr, const bool for_bind) 
 }
 
 void
-SocketUnix::_set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress &ip, uint16_t &port)
+SocketUnix::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port)
 {
     if (addr.ss_family == AF_INET)
     {
@@ -85,11 +85,11 @@ SocketUnix::_set_ip_port(struct sockaddr_storage &addr, core::io::IpAddress &ip,
 }
 
 size_t
-SocketUnix::_set_addr_storage(struct sockaddr_storage &addr, const core::io::IpAddress &ip, uint16_t port, core::io::IP::Type ip_type)
+SocketUnix::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type)
 {
     memset(&addr, 0, sizeof(struct sockaddr_storage));
 
-    if (ip_type == core::io::IP::Type::IPV6 || ip_type == core::io::IP::Type::ANY) // IPv6 socket
+    if (ip_type == IP::Type::IPV6 || ip_type == IP::Type::ANY) // IPv6 socket
     {
         // ToDo: check whether ip is IPv6 only socket with IPv4 address
         // ...

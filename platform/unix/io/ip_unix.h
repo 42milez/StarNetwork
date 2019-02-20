@@ -6,10 +6,10 @@
 
 namespace platform { namespace unix { namespace io
 {
-    class IpUnix : public core::io::IP
+    class IpUnix : public IP
     {
     private:
-        core::io::IpAddress _resolve_hostname(const std::string &hostname, core::io::IP::Type type) override;
+        IpAddress _resolve_hostname(const std::string &hostname, IP::Type type) override;
     };
 }}} // namespace platform / unix / io
 

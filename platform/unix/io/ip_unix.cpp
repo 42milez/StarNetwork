@@ -17,10 +17,10 @@ enum class AddrinfoRetVal : int
 
 namespace platform { namespace unix { namespace io
 {
-    static core::io::IpAddress
+    static IpAddress
     _sockaddr2ip(struct sockaddr &addr)
     {
-        core::io::IpAddress ip;
+        IpAddress ip;
 
         if (addr.sa_family == AF_INET)
         {
@@ -43,17 +43,17 @@ namespace platform { namespace unix { namespace io
         return ip;
     }
 
-    core::io::IpAddress
-    IpUnix::_resolve_hostname(const std::string &hostname, core::io::IP::Type type)
+    IpAddress
+    IpUnix::_resolve_hostname(const std::string &hostname, IP::Type type)
     {
         struct addrinfo hints = INIT_ADDRINFO_AS_HINTS();
         struct addrinfo *results;
 
-        if (type == core::io::IP::Type::IPV4)
+        if (type == IP::Type::IPV4)
         {
             hints.ai_family = AF_INET;
         }
-        else if (type == core::io::IP::Type::IPV6)
+        else if (type == IP::Type::IPV6)
         {
             hints.ai_family = AF_INET6;
             hints.ai_flags = 0;
@@ -73,7 +73,7 @@ namespace platform { namespace unix { namespace io
             // ToDo: logging
             // ...
 
-            return core::io::IpAddress();
+            return IpAddress();
         }
 
         if (results == nullptr || results->ai_addr == nullptr)
@@ -86,10 +86,10 @@ namespace platform { namespace unix { namespace io
                 freeaddrinfo(results);
             }
 
-            return core::io::IpAddress();
+            return IpAddress();
         }
 
-        core::io::IpAddress ip = _sockaddr2ip(*(results->ai_addr));
+        IpAddress ip = _sockaddr2ip(*(results->ai_addr));
 
         freeaddrinfo(results);
 
