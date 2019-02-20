@@ -33,9 +33,11 @@ protected:
     bool _can_use_ip(IpAddress ip_addr, bool for_bind) const;
 
 public:
+    size_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
+
     void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
 
-    size_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
+    Error open(Type sock_type, IP::Type ip_type);
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H
