@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "core/base/status.h"
+#include "core/base/errors.h"
 #include "ip.h"
 
 class Socket
@@ -18,30 +18,30 @@ public:
 
     enum class Type
     {
-        TYPE_NONE,
-        TYPE_TCP,
-        TYPE_UDP
+        NONE,
+        TCP,
+        UDP
     };
 
-    virtual Status open(Type p_type, IP::Type ip_type) = 0;
+    virtual Error open(Type p_type, IP::Type ip_type) = 0;
 
     virtual void close() = 0;
 
-    virtual Status bind(IpAddress &ip, uint16_t port) = 0;
+    virtual Error bind(IpAddress &ip, uint16_t port) = 0;
 
-    virtual Status listen(int max_pending) = 0;
+    virtual Error listen(int max_pending) = 0;
 
-    virtual Status connect_to_host(IpAddress &ip, uint16_t port) = 0;
+    virtual Error connect_to_host(IpAddress &ip, uint16_t port) = 0;
 
-    virtual Status poll(PollType type, int timeout) = 0;
+    virtual Error poll(PollType type, int timeout) = 0;
 
-    virtual Status recv(uint8_t &buffer, int len, int &read_byte_count) = 0;
+    virtual Error recv(uint8_t &buffer, int len, int &read_byte_count) = 0;
 
-    virtual Status recvfrom(uint8_t &buffer, int len, int &read_byte_count) = 0;
+    virtual Error recvfrom(uint8_t &buffer, int len, int &read_byte_count) = 0;
 
-    virtual Status send(const uint8_t &buffer, int len, int send_byte_count) = 0;
+    virtual Error send(const uint8_t &buffer, int len, int send_byte_count) = 0;
 
-    virtual Status sendto(const uint8_t &buffer, int len, int send_byte_count) = 0;
+    virtual Error sendto(const uint8_t &buffer, int len, int send_byte_count) = 0;
 
     virtual std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port) = 0;
 
@@ -52,6 +52,8 @@ public:
     virtual void set_broadcasting_enabled(bool enabled) = 0;
 
     virtual void set_blocking_enabled(bool enabled) = 0;
+
+    virtual void set_ipv6_only_enabled(bool enabled) = 0;
 
     virtual void set_tcp_no_delay_enabled(bool enabled) = 0;
 

@@ -49,11 +49,11 @@ namespace platform { namespace unix { namespace io
         struct addrinfo hints = INIT_ADDRINFO_AS_HINTS();
         struct addrinfo *results;
 
-        if (type == IP::Type::IPV4)
+        if (type == IP::Type::V4)
         {
             hints.ai_family = AF_INET;
         }
-        else if (type == IP::Type::IPV6)
+        else if (type == IP::Type::V6)
         {
             hints.ai_family = AF_INET6;
             hints.ai_flags = 0;

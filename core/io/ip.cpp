@@ -207,8 +207,8 @@ IP::clear_cache(const std::string &hostname)
     else
     {
         _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::NONE));
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::IPV4));
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::IPV6));
+        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::V4));
+        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::V6));
         _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::ANY));
     }
 }

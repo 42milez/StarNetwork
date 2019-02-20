@@ -24,8 +24,8 @@ public:
     enum class Type : int
     {
         NONE = 0,
-        IPV4 = 1,
-        IPV6 = 2,
+        V4 = 1,
+        V6 = 2,
         ANY = 3
     };
 
