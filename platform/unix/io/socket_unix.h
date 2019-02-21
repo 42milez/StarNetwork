@@ -39,6 +39,8 @@ public:
 
     void set_ipv6_only_enabled(bool enabled) override;
 
+    void set_tcp_no_delay_enabled(bool enabled) override;
+
     Error open(Type sock_type, IP::Type ip_type) override;
 };
 

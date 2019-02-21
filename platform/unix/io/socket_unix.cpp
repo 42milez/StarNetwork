@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <errno.h>
+#include <netinet/tcp.h>
 
 #include "core/base/error_macros.h"
 
@@ -143,6 +144,20 @@ SocketUnix::set_ipv6_only_enabled(bool enabled)
     if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0)
     {
         WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
+    }
+}
+
+void
+SocketUnix::set_tcp_no_delay_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!_is_stream);
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0)
+    {
+        ERR_PRINT("Unable to set TCP no delay option");
     }
 }
 

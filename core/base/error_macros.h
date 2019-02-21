@@ -21,7 +21,11 @@
     }
 
 // ToDo: // ToDo: Add the implementation
+#define ERR_PRINT(str) \
+    {}
+
+// ToDo: // ToDo: Add the implementation
 #define WARN_PRINT(str) \
-    {}                  \
+    {}
 
 #endif // P2P_TECHDEMO_CORE_BASE_ERROR_MACROS_H
