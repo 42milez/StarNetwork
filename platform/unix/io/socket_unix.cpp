@@ -148,6 +148,19 @@ SocketUnix::set_ipv6_only_enabled(bool enabled)
 }
 
 void
+SocketUnix::set_reuse_address_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0)
+    {
+        WARN_PRINT("Unable to socket REUSEADDR option")
+    }
+}
+
+void
 SocketUnix::set_tcp_no_delay_enabled(bool enabled)
 {
     ERR_FAIL_COND(!is_open());
