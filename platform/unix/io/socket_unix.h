@@ -50,6 +50,7 @@ public:
     Error open(Type sock_type, IP::Type ip_type) override;
 
     SocketUnix();
+    ~SocketUnix();
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H
