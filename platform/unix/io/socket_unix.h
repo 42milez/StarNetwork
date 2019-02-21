@@ -47,7 +47,9 @@ public:
 
     Error bind(const IpAddress &ip, uint16_t port) override;
 
-    void close();
+    void close() override;
+
+    Error listen(int max_pending) override;
 
     Error open(Type sock_type, IP::Type ip_type) override;
 

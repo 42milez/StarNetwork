@@ -208,6 +208,7 @@ SocketUnix::bind(const IpAddress &ip, uint16_t port)
     if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
     {
         close();
+
         ERR_FAIL_V(Error::ERR_UNAVAILABLE);
     }
 
@@ -225,6 +226,19 @@ SocketUnix::close()
     _sock = SOCK_EMPTY;
     _ip_type = IP::Type::NONE;
     _is_stream = false;
+}
+
+Error
+SocketUnix::listen(int max_pending)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+
+    if (::listen(_sock, max_pending) == SOCK_EMPTY)
+    {
+        close();
+
+        ERR_FAIL_V(Error::FAILED);
+    }
 }
 
 Error
