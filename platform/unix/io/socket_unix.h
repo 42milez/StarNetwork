@@ -45,6 +45,8 @@ public:
 
     void set_tcp_no_delay_enabled(bool enabled) override;
 
+    void close();
+
     Error open(Type sock_type, IP::Type ip_type) override;
 };
 

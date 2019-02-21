@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/tcp.h>
+#include <unistd.h>
 
 #include "core/base/error_macros.h"
 
@@ -193,6 +194,19 @@ SocketUnix::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
     _sock = sock;
     _ip_type = ip_type;
     _is_stream = is_stream;
+}
+
+void
+SocketUnix::close()
+{
+    if (_sock != SOCK_EMPTY)
+    {
+        ::close(_sock);
+    }
+
+    _sock = SOCK_EMPTY;
+    _ip_type = IP::Type::NONE;
+    _is_stream = false;
 }
 
 Error
