@@ -48,6 +48,8 @@ public:
     void close();
 
     Error open(Type sock_type, IP::Type ip_type) override;
+
+    SocketUnix();
 };
 
 #endif // P2P_TECHDEMO_PLATFORM_UNIX_IO_SOCKETUNIX_H

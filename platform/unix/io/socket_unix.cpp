@@ -246,3 +246,5 @@ SocketUnix::open(Socket::Type sock_type, IP::Type ip_type)
 
     return Error::OK;
 }
+
+SocketUnix::SocketUnix() : _sock(SOCK_EMPTY), _ip_type(IP::Type::NONE), _is_stream(false) {}
