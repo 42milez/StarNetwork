@@ -202,7 +202,7 @@ SocketUnix::bind(const IpAddress &ip, uint16_t port)
     ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
     ERR_FAIL_COND_V(!_can_use_ip(ip, true), Error::ERR_INVALID_PARAMETER);
 
-    sockaddr_storage addr;
+    struct sockaddr_storage addr;
     auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
 
     if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
@@ -226,6 +226,36 @@ SocketUnix::close()
     _sock = SOCK_EMPTY;
     _ip_type = IP::Type::NONE;
     _is_stream = false;
+}
+
+Error
+SocketUnix::connect(const IpAddress &ip, uint16_t port)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!_can_use_ip(ip, false), Error::ERR_INVALID_PARAMETER);
+
+    struct sockaddr_storage addr;
+    auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
+
+    if (::connect(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
+    {
+        NetError err = _get_socket_error();
+
+        switch (err)
+        {
+            case NetError::ERR_NET_IS_CONNECTED:
+                return Error::OK;
+            case NetError::ERR_NET_WOULD_BLOCK:
+            case NetError::ERR_NET_IN_PROGRESS:
+                return Error::ERR_BUSY;
+            default:
+                ERR_PRINT("Connection to remote host failed")
+                close();
+                return Error::FAILED;
+        }
+    }
+
+    return Error::OK;
 }
 
 Error

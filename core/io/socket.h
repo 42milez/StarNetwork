@@ -31,7 +31,7 @@ public:
 
     virtual Error listen(int max_pending) = 0;
 
-    virtual Error connect_to_host(IpAddress &ip, uint16_t port) = 0;
+    virtual Error connect(const IpAddress &ip, uint16_t port) = 0;
 
     virtual Error poll(PollType type, int timeout) = 0;
 

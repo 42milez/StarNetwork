@@ -49,6 +49,8 @@ public:
 
     void close() override;
 
+    Error connect(const IpAddress &ip, uint16_t port) override;
+
     Error listen(int max_pending) override;
 
     Error open(Type sock_type, IP::Type ip_type) override;
