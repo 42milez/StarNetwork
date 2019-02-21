@@ -20,6 +20,12 @@
         }                             \
     }
 
+// ToDo: logging
+#define ERR_FAIL_V(retval) \
+    {                      \
+        return retval;     \
+    }
+
 // ToDo: // ToDo: Add the implementation
 #define ERR_PRINT(str) \
     {}

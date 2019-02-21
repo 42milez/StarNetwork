@@ -13,7 +13,7 @@ namespace
 }
 
 bool
-SocketUnix::_can_use_ip(const IpAddress ip_addr, const bool for_bind) const
+SocketUnix::_can_use_ip(const IpAddress &ip_addr, const bool for_bind) const
 {
     if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard()))
     {
@@ -59,7 +59,7 @@ SocketUnix::_get_socket_error()
     return NetError::ERR_NET_OTHER;
 }
 
-size_t
+socklen_t
 SocketUnix::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type)
 {
     memset(&addr, 0, sizeof(struct sockaddr_storage));
@@ -194,6 +194,24 @@ SocketUnix::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
     _sock = sock;
     _ip_type = ip_type;
     _is_stream = is_stream;
+}
+
+Error
+SocketUnix::bind(const IpAddress &ip, uint16_t port)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V(!_can_use_ip(ip, true), Error::ERR_INVALID_PARAMETER);
+
+    sockaddr_storage addr;
+    auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
+
+    if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
+    {
+        close();
+        ERR_FAIL_V(Error::ERR_UNAVAILABLE);
+    }
+
+    return Error::OK;
 }
 
 void

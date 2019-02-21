@@ -27,7 +27,7 @@ public:
 
     virtual void close() = 0;
 
-    virtual Error bind(IpAddress &ip, uint16_t port) = 0;
+    virtual Error bind(const IpAddress &ip, uint16_t port) = 0;
 
     virtual Error listen(int max_pending) = 0;
 

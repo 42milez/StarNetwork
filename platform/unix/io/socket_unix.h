@@ -30,10 +30,10 @@ private:
     void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
 
 protected:
-    bool _can_use_ip(IpAddress ip_addr, bool for_bind) const;
+    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
 
 public:
-    size_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
+    socklen_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
 
     void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
 
@@ -45,11 +45,14 @@ public:
 
     void set_tcp_no_delay_enabled(bool enabled) override;
 
+    Error bind(const IpAddress &ip, uint16_t port) override;
+
     void close();
 
     Error open(Type sock_type, IP::Type ip_type) override;
 
     SocketUnix();
+
     ~SocketUnix();
 };
 
