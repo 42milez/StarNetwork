@@ -10,28 +10,6 @@ using SOCKET = int;
 
 class Socket
 {
-private:
-    SOCKET _sock;
-
-    IP::Type _ip_type;
-
-    bool _is_stream;
-
-    enum class NetError : int
-    {
-        ERR_NET_WOULD_BLOCK,
-        ERR_NET_IS_CONNECTED,
-        ERR_NET_IN_PROGRESS,
-        ERR_NET_OTHER
-    };
-
-    NetError _get_socket_error();
-
-    void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
-
-protected:
-    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
-
 public:
     enum class PollType
     {
@@ -47,6 +25,7 @@ public:
         UDP
     };
 
+public:
     socklen_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
 
     void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
@@ -92,6 +71,28 @@ public:
     Socket();
 
     ~Socket();
+
+private:
+    SOCKET _sock;
+
+    IP::Type _ip_type;
+
+    bool _is_stream;
+
+    enum class NetError : int
+    {
+        ERR_NET_WOULD_BLOCK,
+        ERR_NET_IS_CONNECTED,
+        ERR_NET_IN_PROGRESS,
+        ERR_NET_OTHER
+    };
+
+private:
+    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
+
+    NetError _get_socket_error();
+
+    void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
 };
 
 #endif // P2P_TECHDEMO_CORE_IO_SOCKET_H
