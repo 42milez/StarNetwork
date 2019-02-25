@@ -6,8 +6,32 @@
 #include "core/base/errors.h"
 #include "ip.h"
 
+using SOCKET = int;
+
 class Socket
 {
+private:
+    SOCKET _sock;
+
+    IP::Type _ip_type;
+
+    bool _is_stream;
+
+    enum class NetError : int
+    {
+        ERR_NET_WOULD_BLOCK,
+        ERR_NET_IS_CONNECTED,
+        ERR_NET_IN_PROGRESS,
+        ERR_NET_OTHER
+    };
+
+    NetError _get_socket_error();
+
+    void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
+
+protected:
+    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
+
 public:
     enum class PollType
     {
@@ -23,41 +47,51 @@ public:
         UDP
     };
 
-    virtual Error open(Type p_type, IP::Type ip_type) = 0;
+    socklen_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
 
-    virtual void close() = 0;
+    void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
 
-    virtual Error bind(const IpAddress &ip, uint16_t port) = 0;
+    Error open(Type p_type, IP::Type ip_type);
 
-    virtual Error listen(int max_pending) = 0;
+    void close();
 
-    virtual Error connect(const IpAddress &ip, uint16_t port) = 0;
+    Error bind(const IpAddress &ip, uint16_t port);
 
-    virtual Error poll(PollType type, int timeout) = 0;
+    Error listen(int max_pending);
 
-    virtual Error recv(uint8_t &buffer, int len, int &read_byte_count) = 0;
+    Error connect(const IpAddress &ip, uint16_t port);
 
-    virtual Error recvfrom(uint8_t &buffer, int len, int &read_byte_count) = 0;
+    Error poll(PollType type, int timeout);
 
-    virtual Error send(const uint8_t &buffer, int len, int send_byte_count) = 0;
+    Error recv(uint8_t &buffer, int len, int &read_byte_count);
 
-    virtual Error sendto(const uint8_t &buffer, int len, int send_byte_count) = 0;
+    Error recvfrom(uint8_t &buffer, int len, int &read_byte_count);
 
-    virtual std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port) = 0;
+    Error send(const uint8_t &buffer, int len, int send_byte_count);
 
-    virtual bool is_open() const = 0;
+    Error sendto(const uint8_t &buffer, int len, int send_byte_count);
 
-    virtual int get_available_bytes() const = 0;
+    std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port);
 
-    virtual void set_broadcasting_enabled(bool enabled) = 0;
+    bool is_open() const;
 
-    virtual void set_blocking_enabled(bool enabled) = 0;
+    int get_available_bytes() const;
 
-    virtual void set_ipv6_only_enabled(bool enabled) = 0;
+    void set_blocking_enabled(bool enabled);
 
-    virtual void set_tcp_no_delay_enabled(bool enabled) = 0;
+    void set_broadcasting_enabled(bool enabled);
 
-    virtual void set_reuse_address_enabled(bool enabled) = 0;
+    void set_ipv6_only_enabled(bool enabled);
+
+    void set_reuse_address_enabled(bool enabled);
+
+    void set_reuse_port_enabled(bool enabled);
+
+    void set_tcp_no_delay_enabled(bool enabled);
+
+    Socket();
+
+    ~Socket();
 };
 
 #endif // P2P_TECHDEMO_CORE_IO_SOCKET_H
