@@ -43,8 +43,6 @@ public:
 
     IpAddress get_resolve_item_address(ResolverID id) const;
 
-    virtual void get_local_addresses(std::list<IpAddress> &addresses) const = 0;
-
     void erase_resolve_item(ResolverID id);
 
     void clear_cache(const std::string &hostname = "");
@@ -54,7 +52,7 @@ public:
     ~IP();
 
 protected:
-    virtual IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY) = 0;
+    IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY);
 
 private:
     std::shared_ptr<IpResolver> _resolver;
