@@ -12,36 +12,15 @@ private:
     };
 
     bool _valid;
+
     bool _wildcard;
 
-protected:
+private:
     void _parse_ipv6(const std::string &str);
+
     void _parse_ipv4(const std::string &str, int start, uint8_t *ret);
 
 public:
-    bool operator==(const IpAddress &ip_address) const
-    {
-        if (_valid != ip_address._valid)
-        {
-            return false;
-        }
-
-        if (!_valid)
-        {
-            return false;
-        }
-
-        for (auto i = 0; i < 4; i++)
-        {
-            if (ip_address._field32[i] != _field32[i])
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     bool operator!=(const IpAddress &ip_address) const
     {
         if (_valid != ip_address._valid)
@@ -65,13 +44,42 @@ public:
         return false;
     }
 
+    bool operator==(const IpAddress &ip_address) const
+    {
+        if (_valid != ip_address._valid)
+        {
+            return false;
+        }
+
+        if (!_valid)
+        {
+            return false;
+        }
+
+        for (auto i = 0; i < 4; i++)
+        {
+            if (ip_address._field32[i] != _field32[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     void clear();
 
-    bool is_wildcard() const { return _wildcard; }
-
-    bool is_valid() const { return _valid; }
-
     bool is_ipv4() const;
+
+    bool is_valid() const
+    {
+        return _valid;
+    }
+
+    bool is_wildcard() const
+    {
+        return _wildcard;
+    }
 
     const uint8_t *get_ipv4() const;
 
@@ -87,7 +95,10 @@ public:
 
     IpAddress(uint32_t a, uint32_t b, uint32_t c, uint32_t d, bool is_v6 = false);
 
-    IpAddress() { clear(); }
+    IpAddress()
+    {
+        clear();
+    }
 };
 
 #endif // P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
