@@ -12,7 +12,12 @@ struct IpResolver;
 
 class IP
 {
+private:
+    std::shared_ptr<IpResolver> _resolver;
+
 public:
+    using ResolverID = int;
+
     enum class ResolverStatus : int
     {
         NONE = 0,
@@ -29,13 +34,13 @@ public:
         ANY = 3
     };
 
-    static constexpr int GETADDRINFO_SUCCESS = 0;
-    static constexpr int RESOLVER_MAX_QUERIES = 32;
     static constexpr int RESOLVER_INVALID_ID = -1;
 
-    using ResolverID = int;
-
 public:
+    void clear_cache(const std::string &hostname = "");
+
+    void erase_resolve_item(ResolverID id);
+
     IpAddress resolve_hostname(const std::string &hostname, Type type = Type::ANY);
 
     ResolverID resolve_hostname_queue_item(const std::string &hostname, Type type = Type::ANY);
@@ -44,19 +49,9 @@ public:
 
     IpAddress get_resolve_item_address(ResolverID id) const;
 
-    void erase_resolve_item(ResolverID id);
-
-    void clear_cache(const std::string &hostname = "");
-
     IP();
 
     ~IP();
-
-protected:
-    IpAddress _resolve_hostname(const std::string &hostname, Type type = Type::ANY);
-
-private:
-    std::shared_ptr<IpResolver> _resolver;
 };
 
 #endif // P2P_TECHDEMO_CORE_IO_IP_H
