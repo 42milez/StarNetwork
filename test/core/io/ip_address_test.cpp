@@ -9,7 +9,7 @@
 std::string
 make_ip_address(const std::string &str)
 {
-    core::io::IpAddress ip_address(str);
+    IpAddress ip_address(str);
 
     return ip_address.to_string();
 }
@@ -36,7 +36,7 @@ TEST_CASE("", "")
 
 TEST_CASE("Set and Get IPv4 address", "")
 {
-    core::io::IpAddress ip_address;
+    IpAddress ip_address;
 
     uint8_t ipv4[4] = {129, 144, 52, 38};
     ip_address.set_ipv4(ipv4);
@@ -51,7 +51,7 @@ TEST_CASE("Set and Get IPv4 address", "")
 
 TEST_CASE("Set and Get IPv6 address", "")
 {
-    core::io::IpAddress ip_address;
+    IpAddress ip_address;
 
     uint8_t ipv6[16] = {
         0xFF, 0xFF, 0xFF, 0xFF,
