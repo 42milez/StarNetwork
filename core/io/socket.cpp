@@ -268,6 +268,17 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
     return Error::OK;
 }
 
+Error
+Socket::poll(Socket::PollType type, int timeout)
+{
+#ifdef __APPLE__
+    // ...
+#else /* linux */
+    // ...
+#endif
+    return Error::OK;
+}
+
 void
 Socket::set_ipv6_only_enabled(bool enabled)
 {
