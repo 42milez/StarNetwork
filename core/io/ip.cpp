@@ -12,14 +12,6 @@
 
 #include "ip.h"
 
-#define INIT_ADDRINFO_AS_HINTS() \
-    { 0, 0, 0, 0, 0, nullptr, nullptr, nullptr }
-
-enum class AddrinfoRetVal : int
-{
-    SUCCESS = 0
-};
-
 struct IpResolver
 {
     struct QueueItem
@@ -127,8 +119,10 @@ _sockaddr2ip(struct sockaddr &addr)
 IpAddress
 IP::_resolve_hostname(const std::string &hostname, IP::Type type)
 {
-    struct addrinfo hints = INIT_ADDRINFO_AS_HINTS();
+    struct addrinfo hints;
     struct addrinfo *results;
+
+    memset(&hints, 0, sizeof(hints));
 
     if (type == IP::Type::V4)
     {
@@ -149,7 +143,7 @@ IP::_resolve_hostname(const std::string &hostname, IP::Type type)
 
     auto s = getaddrinfo(hostname.c_str(), nullptr, &hints, &results);
 
-    if (static_cast<AddrinfoRetVal>(s) != AddrinfoRetVal::SUCCESS)
+    if (s != GETADDRINFO_SUCCESS)
     {
         // ToDo: logging
         // ...

@@ -29,6 +29,7 @@ public:
         ANY = 3
     };
 
+    static constexpr int GETADDRINFO_SUCCESS = 0;
     static constexpr int RESOLVER_MAX_QUERIES = 32;
     static constexpr int RESOLVER_INVALID_ID = -1;
 
