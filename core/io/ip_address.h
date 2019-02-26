@@ -29,6 +29,8 @@ public:
 
     std::string to_string() const;
 
+    bool is_ipv4() const;
+
     bool is_valid() const;
 
     bool is_wildcard() const;
