@@ -9,7 +9,42 @@
 
 namespace
 {
+    enum class NetError : int
+    {
+        ERR_NET_WOULD_BLOCK,
+        ERR_NET_IS_CONNECTED,
+        ERR_NET_IN_PROGRESS,
+        ERR_NET_OTHER
+    };
+
     int SOCK_EMPTY = -1;
+}
+
+namespace
+{
+    NetError
+    _get_socket_error()
+    {
+        if (errno == EISCONN)
+        {
+            return NetError::ERR_NET_IS_CONNECTED;
+        }
+
+        if (errno == EINPROGRESS || errno == EALREADY)
+        {
+            return NetError::ERR_NET_IN_PROGRESS;
+        }
+
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
+            return NetError::ERR_NET_WOULD_BLOCK;
+        }
+
+        // ToDo: logging
+        // ...
+
+        return NetError::ERR_NET_OTHER;
+    }
 }
 
 bool
@@ -33,30 +68,6 @@ Socket::_can_use_ip(const IpAddress &ip_addr, const bool for_bind) const
     }
 
     return true;
-}
-
-Socket::NetError
-Socket::_get_socket_error()
-{
-    if (errno == EISCONN)
-    {
-        return NetError::ERR_NET_IS_CONNECTED;
-    }
-
-    if (errno == EINPROGRESS || errno == EALREADY)
-    {
-        return NetError::ERR_NET_IN_PROGRESS;
-    }
-
-    if (errno == EAGAIN || errno == EWOULDBLOCK)
-    {
-        return NetError::ERR_NET_WOULD_BLOCK;
-    }
-
-    // ToDo: logging
-    // ...
-
-    return NetError::ERR_NET_OTHER;
 }
 
 socklen_t
@@ -131,60 +142,6 @@ Socket::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &por
         ip.set_ipv6(addr6.sin6_addr.s6_addr);
 
         port = ntohs(addr6.sin6_port);
-    }
-}
-
-void
-Socket::set_ipv6_only_enabled(bool enabled)
-{
-    ERR_FAIL_COND(!is_open());
-    ERR_FAIL_COND(_ip_type == IP::Type::V4);
-
-    auto par = enabled ? 1 : 0;
-
-    if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0)
-    {
-        WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
-    }
-}
-
-void
-Socket::set_reuse_address_enabled(bool enabled)
-{
-    ERR_FAIL_COND(!is_open());
-
-    auto par = enabled ? 1 : 0;
-
-    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0)
-    {
-        WARN_PRINT("Unable to socket REUSEADDR option")
-    }
-}
-
-void
-Socket::set_reuse_port_enabled(bool enabled)
-{
-    ERR_FAIL_COND(!is_open());
-
-    auto par = enabled ? 1 : 0;
-
-    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0)
-    {
-        WARN_PRINT("Unable to set socket REUSEPORT option");
-    }
-}
-
-void
-Socket::set_tcp_no_delay_enabled(bool enabled)
-{
-    ERR_FAIL_COND(!is_open());
-    ERR_FAIL_COND(!_is_stream);
-
-    auto par = enabled ? 1 : 0;
-
-    if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0)
-    {
-        ERR_PRINT("Unable to set TCP no delay option");
     }
 }
 
@@ -269,6 +226,8 @@ Socket::listen(int max_pending)
 
         ERR_FAIL_V(Error::FAILED);
     }
+
+    return Error::OK;
 }
 
 Error
@@ -307,6 +266,60 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
     _is_stream = sock_type == Type::TCP;
 
     return Error::OK;
+}
+
+void
+Socket::set_ipv6_only_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(_ip_type == IP::Type::V4);
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0)
+    {
+        WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
+    }
+}
+
+void
+Socket::set_reuse_address_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0)
+    {
+        WARN_PRINT("Unable to socket REUSEADDR option")
+    }
+}
+
+void
+Socket::set_reuse_port_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0)
+    {
+        WARN_PRINT("Unable to set socket REUSEPORT option");
+    }
+}
+
+void
+Socket::set_tcp_no_delay_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!_is_stream);
+
+    auto par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0)
+    {
+        ERR_PRINT("Unable to set TCP no delay option");
+    }
 }
 
 Socket::Socket() : _sock(SOCK_EMPTY), _ip_type(IP::Type::NONE), _is_stream(false) {}

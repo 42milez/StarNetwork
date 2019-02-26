@@ -17,20 +17,14 @@ private:
 
     bool _is_stream;
 
-    enum class NetError : int
-    {
-        ERR_NET_WOULD_BLOCK,
-        ERR_NET_IS_CONNECTED,
-        ERR_NET_IN_PROGRESS,
-        ERR_NET_OTHER
-    };
+private:
+    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
 
-    NetError _get_socket_error();
+    socklen_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
+
+    void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
 
     void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
-
-protected:
-    bool _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
 
 public:
     enum class PollType
@@ -47,19 +41,17 @@ public:
         UDP
     };
 
-    socklen_t _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
-
-    void _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
-
-    Error open(Type p_type, IP::Type ip_type);
-
-    void close();
+    std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port);
 
     Error bind(const IpAddress &ip, uint16_t port);
 
-    Error listen(int max_pending);
+    void close();
 
     Error connect(const IpAddress &ip, uint16_t port);
+
+    Error listen(int max_pending);
+
+    Error open(Type p_type, IP::Type ip_type);
 
     Error poll(PollType type, int timeout);
 
@@ -70,8 +62,6 @@ public:
     Error send(const uint8_t &buffer, int len, int send_byte_count);
 
     Error sendto(const uint8_t &buffer, int len, int send_byte_count);
-
-    std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port);
 
     bool is_open() const;
 
