@@ -1,6 +1,11 @@
 #ifndef P2P_TECHDEMO_CORE_IO_SOCKET_UTIL_H
 #define P2P_TECHDEMO_CORE_IO_SOCKET_UTIL_H
 
+#include <memory>
+
+#include "ip.h"
+#include "socket.h"
+
 class SocketUtil
 {
 public:
@@ -10,15 +15,13 @@ public:
 
     static int create_event_queue();
 
-    static TCPSocketPtr create_tcp_socket(/* some arguments may be required */);
+    static SOCKET_PTR create_socket(Socket::Type sock_type, IP::Type ip_type);
 
-    static UDPSocketPtr create_udp_socket(/* some arguments may be required */);
+    static wait_for_accepting(int fd, const std::vector<SOCKET_PTR> &in_sockets, std::vector<SOCKET_PTR> &out_sockets);
 
-    static wait_for_accepting(int fd, const std::vector <TCPSocketPtr> &in_sockets, std::vector <TCPSocketPtr> &out_sockets);
+    static wait_for_receiving(int fd, const std::vector<SOCKET_PTR> &in_sockets, std::vector<SOCKET_PTR> &out_sockets);
 
-    static wait_for_receiving(int fd, const std::vector <TCPSocketPtr> &in_sockets, std::vector <TCPSocketPtr> &out_sockets);
-
-    static Error register_event(int fd, const TCPSocketPtr &socket);
+    static Error register_event(int fd, const SOCKET_PTR &socket);
 
     static int last_error();
 };

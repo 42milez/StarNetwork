@@ -6,7 +6,10 @@
 #include "core/base/errors.h"
 #include "ip.h"
 
+class Socket;
+
 using SOCKET = int;
+using SOCKET_PTR =  std::shared_ptr<Socket>;
 
 class Socket
 {
@@ -41,7 +44,7 @@ public:
         UDP
     };
 
-    std::shared_ptr<Socket> accept(IpAddress &ip, uint16_t port);
+    SOCKET_PTR accept(IpAddress &ip, uint16_t port);
 
     Error bind(const IpAddress &ip, uint16_t port);
 
