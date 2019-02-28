@@ -1,28 +1,6 @@
 #include <errno.h>
-#include <fcntl.h>
-#include <sys/event.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
 
 #include "socket_util.h"
-
-namespace
-{
-    bool
-    is_socket_read(int sock, struct kevent events[], int nfds)
-    {
-        for (auto i = 0; i < nfds; i++)
-        {
-            if (events[i].ident == sock)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
 
 std::shared_ptr<Socket>
 SocketUtil::create_socket(Socket::Type sock_type, IP::Type ip_type)

@@ -6,10 +6,12 @@
 #include "core/base/errors.h"
 #include "ip.h"
 
+class EventPoll;
 class Socket;
 
 using SOCKET = int;
-using SOCKET_PTR =  std::shared_ptr<Socket>;
+using SOCKET_PTR = std::shared_ptr<Socket>;
+using SOCKET_PTRS = std::vector<SOCKET_PTR>;
 
 class Socket
 {
@@ -30,6 +32,8 @@ private:
     void _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
 
 public:
+    friend class EventPoll;
+
     enum class PollType
     {
         POLL_TYPE_IN,
