@@ -7,6 +7,23 @@
 
 #include "socket_util.h"
 
+namespace
+{
+    bool
+    is_socket_read(int sock, struct kevent events[], int nfds)
+    {
+        for (auto i = 0; i < nfds; i++)
+        {
+            if (events[i].ident == sock)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 std::shared_ptr<Socket>
 SocketUtil::create_socket(Socket::Type sock_type, IP::Type ip_type)
 {
