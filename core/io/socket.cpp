@@ -326,6 +326,48 @@ Socket::recv(uint8_t &buffer, size_t len, ssize_t &bytes_read)
     return Error::OK;
 }
 
+Error
+Socket::recvfrom(uint8_t &buffer, socklen_t len, ssize_t &bytes_read, IpAddress &ip, uint16_t &port)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+
+    struct sockaddr_storage addr;
+    memset(&addr, 0, sizeof(addr));
+
+    bytes_read = ::recvfrom(_sock, &buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
+
+    if (bytes_read < 0)
+    {
+        SocketError err = _get_socket_error();
+
+        if (err == SocketError::ERR_NET_WOULD_BLOCK)
+        {
+            return Error::ERR_BUSY;
+        }
+
+        return Error::FAILED;
+    }
+
+    if (addr.ss_family == AF_INET)
+    {
+        auto sin = reinterpret_cast<struct sockaddr_in *>(&addr);
+        ip.set_ipv4(reinterpret_cast<uint8_t *>(&sin->sin_addr));
+        port = ntohs(sin->sin_port);
+    }
+    else if (addr.ss_family == AF_INET6)
+    {
+        auto sin6 = reinterpret_cast<struct sockaddr_in6 *>(&addr);
+        ip.set_ipv6(reinterpret_cast<uint8_t *>(&sin6->sin6_addr));
+        port = ntohs(sin6->sin6_port);
+    }
+    else
+    {
+        return Error::FAILED;
+    }
+
+    return Error::OK;
+}
+
 void
 Socket::set_ipv6_only_enabled(bool enabled)
 {
