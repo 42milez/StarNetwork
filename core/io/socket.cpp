@@ -153,6 +153,30 @@ Socket::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
     _is_stream = is_stream;
 }
 
+SOCKET_PTR
+Socket::accept(IpAddress &ip, uint16_t &port)
+{
+    SOCKET_PTR empty;
+
+    ERR_FAIL_COND_V(!is_open(), empty);
+
+    struct sockaddr_storage addr;
+    memset(&addr, 0, sizeof(addr));
+    socklen_t size = sizeof(addr);
+
+    auto fd = ::accept(_sock, (struct sockaddr *) &addr, &size);
+
+    ERR_FAIL_COND_V(fd == SOCK_EMPTY, empty);
+
+    _set_ip_port(addr, ip, port);
+
+    SOCKET_PTR sock = std::make_shared<Socket>();
+    sock->_set_socket(fd, _ip_type, _is_stream);
+    sock->set_blocking_enabled(false);
+
+    return sock;
+}
+
 Error
 Socket::bind(const IpAddress &ip, uint16_t port)
 {
@@ -160,6 +184,7 @@ Socket::bind(const IpAddress &ip, uint16_t port)
     ERR_FAIL_COND_V(!_can_use_ip(ip, true), Error::ERR_INVALID_PARAMETER);
 
     struct sockaddr_storage addr;
+    memset(&addr, 0, sizeof(addr));
     auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
 
     if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)

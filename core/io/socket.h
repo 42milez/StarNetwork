@@ -48,7 +48,7 @@ public:
         UDP
     };
 
-    SOCKET_PTR accept(IpAddress &ip, uint16_t port);
+    SOCKET_PTR accept(IpAddress &ip, uint16_t &port);
 
     Error bind(const IpAddress &ip, uint16_t port);
 
