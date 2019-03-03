@@ -8,6 +8,14 @@
 
 #include "ip_address.h"
 
+#define SPLIT_IPV4_TO_OCTET_INIT_LIST(sin_addr)      \
+    {                                                \
+        static_cast<uint8_t>(sin_addr.s_addr >> 24), \
+        static_cast<uint8_t>(sin_addr.s_addr >> 16), \
+        static_cast<uint8_t>(sin_addr.s_addr >> 8),  \
+        static_cast<uint8_t>(sin_addr.s_addr)        \
+    }
+
 struct IpResolver;
 
 class IP

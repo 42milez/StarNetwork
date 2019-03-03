@@ -351,13 +351,13 @@ Socket::recvfrom(uint8_t &buffer, socklen_t len, ssize_t &bytes_read, IpAddress 
     if (addr.ss_family == AF_INET)
     {
         auto sin = reinterpret_cast<struct sockaddr_in *>(&addr);
-        ip.set_ipv4(reinterpret_cast<uint8_t *>(&sin->sin_addr));
+        ip.set_ipv4(SPLIT_IPV4_TO_OCTET_INIT_LIST(sin->sin_addr));
         port = ntohs(sin->sin_port);
     }
     else if (addr.ss_family == AF_INET6)
     {
         auto sin6 = reinterpret_cast<struct sockaddr_in6 *>(&addr);
-        ip.set_ipv6(reinterpret_cast<uint8_t *>(&sin6->sin6_addr));
+        ip.set_ipv6(sin6->sin6_addr.s6_addr);
         port = ntohs(sin6->sin6_port);
     }
     else
