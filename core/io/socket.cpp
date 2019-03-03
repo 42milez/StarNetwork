@@ -9,7 +9,7 @@
 
 namespace
 {
-    enum class NetError : int
+    enum class SocketError : int
     {
         ERR_NET_WOULD_BLOCK,
         ERR_NET_IS_CONNECTED,
@@ -22,28 +22,28 @@ namespace
 
 namespace
 {
-    NetError
+    SocketError
     _get_socket_error()
     {
         if (errno == EISCONN)
         {
-            return NetError::ERR_NET_IS_CONNECTED;
+            return SocketError::ERR_NET_IS_CONNECTED;
         }
 
         if (errno == EINPROGRESS || errno == EALREADY)
         {
-            return NetError::ERR_NET_IN_PROGRESS;
+            return SocketError::ERR_NET_IN_PROGRESS;
         }
 
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            return NetError::ERR_NET_WOULD_BLOCK;
+            return SocketError::ERR_NET_WOULD_BLOCK;
         }
 
         // ToDo: logging
         // ...
 
-        return NetError::ERR_NET_OTHER;
+        return SocketError::ERR_NET_OTHER;
     }
 }
 
@@ -221,14 +221,14 @@ Socket::connect(const IpAddress &ip, uint16_t port)
 
     if (::connect(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
     {
-        NetError err = _get_socket_error();
+        SocketError err = _get_socket_error();
 
         switch (err)
         {
-            case NetError::ERR_NET_IS_CONNECTED:
+            case SocketError::ERR_NET_IS_CONNECTED:
                 return Error::OK;
-            case NetError::ERR_NET_WOULD_BLOCK:
-            case NetError::ERR_NET_IN_PROGRESS:
+            case SocketError::ERR_NET_WOULD_BLOCK:
+            case SocketError::ERR_NET_IN_PROGRESS:
                 return Error::ERR_BUSY;
             default:
             ERR_PRINT("Connection to remote host failed")
@@ -301,6 +301,28 @@ Socket::poll(Socket::PollType type, int timeout)
 #else /* linux */
     // ...
 #endif
+    return Error::OK;
+}
+
+Error
+Socket::recv(uint8_t &buffer, size_t len, ssize_t &bytes_read)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED)
+
+    bytes_read = ::recv(_sock, &buffer, len, 0);
+
+    if (bytes_read < 0)
+    {
+        SocketError err = _get_socket_error();
+
+        if (err == SocketError::ERR_NET_WOULD_BLOCK)
+        {
+            return Error::ERR_BUSY;
+        }
+
+        return Error::FAILED;
+    }
+
     return Error::OK;
 }
 

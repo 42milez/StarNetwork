@@ -9,9 +9,9 @@
 class SocketUtil
 {
 public:
-    static bool is_connection_reset_on_recv(ssize_t read_byte_count);
+    static bool is_connection_reset_on_recv(ssize_t bytes_read);
 
-    static bool is_no_messages_to_read(ssize_t read_byte_count);
+    static bool is_no_messages_to_read(ssize_t bytes_read);
 
     static int create_event_queue();
 

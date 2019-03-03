@@ -62,9 +62,9 @@ public:
 
     Error poll(PollType type, int timeout);
 
-    Error recv(uint8_t &buffer, int len, int &read_byte_count);
+    Error recv(uint8_t &buffer, size_t len, ssize_t &bytes_read);
 
-    Error recvfrom(uint8_t &buffer, int len, int &read_byte_count);
+    Error recvfrom(uint8_t &buffer, int len, int &bytes_read);
 
     Error send(const uint8_t &buffer, int len, int send_byte_count);
 
