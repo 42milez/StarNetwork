@@ -425,6 +425,12 @@ Socket::sendto(const uint8_t &buffer, size_t len, ssize_t &bytes_sent, const IpA
     return Error::OK;
 }
 
+bool
+Socket::is_open() const
+{
+    return _sock != SOCK_EMPTY;
+}
+
 void
 Socket::set_ipv6_only_enabled(bool enabled)
 {
