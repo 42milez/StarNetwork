@@ -17,7 +17,10 @@ namespace
         ERR_NET_OTHER
     };
 
-    int SOCK_EMPTY = -1;
+#if defined(__APPLE__)
+    const int MSG_NOSIGNAL = SO_NOSIGPIPE;
+#endif
+    const int SOCK_EMPTY = -1;
 }
 
 namespace
@@ -362,6 +365,60 @@ Socket::recvfrom(uint8_t &buffer, socklen_t len, ssize_t &bytes_read, IpAddress 
     }
     else
     {
+        return Error::FAILED;
+    }
+
+    return Error::OK;
+}
+
+Error
+Socket::send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+
+    auto flags = 0;
+
+    if (_is_stream)
+    {
+        flags = MSG_NOSIGNAL;
+    }
+
+    bytes_sent = ::send(_sock, &buffer, len, flags);
+
+    if (bytes_sent < 0)
+    {
+        SocketError err = _get_socket_error();
+
+        if (err == SocketError::ERR_NET_WOULD_BLOCK)
+        {
+            return Error::ERR_BUSY;
+        }
+
+        return Error::FAILED;
+    }
+
+    return Error::OK;
+}
+
+Error
+Socket::sendto(const uint8_t &buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port)
+{
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
+
+    struct sockaddr_storage addr;
+    size_t addr_size = _set_addr_storage(addr, ip, port, _ip_type);
+
+    bytes_sent = ::sendto(_sock, &buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
+
+    if (bytes_sent < 0)
+    {
+        SocketError err = _get_socket_error();
+
+        if (err == SocketError::ERR_NET_WOULD_BLOCK)
+        {
+            return Error::ERR_BUSY;
+        }
+
         return Error::FAILED;
     }
 

@@ -66,9 +66,9 @@ public:
 
     Error recvfrom(uint8_t &buffer, socklen_t len, ssize_t &bytes_read, IpAddress &ip, uint16_t &port);
 
-    Error send(const uint8_t &buffer, int len, int send_byte_count);
+    Error send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent);
 
-    Error sendto(const uint8_t &buffer, int len, int send_byte_count);
+    Error sendto(const uint8_t &buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
     bool is_open() const;
 
