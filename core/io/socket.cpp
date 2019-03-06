@@ -469,6 +469,20 @@ Socket::set_blocking_enabled(bool enabled)
 }
 
 void
+Socket::set_broadcasting_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(_ip_type == IP::Type::V6); // IPv6 has no broadcast support.
+
+    int par = enabled ? 1 : 0;
+
+    if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0)
+    {
+        WARN_PRINT("Unable to change broadcast setting");
+    }
+}
+
+void
 Socket::set_ipv6_only_enabled(bool enabled)
 {
     ERR_FAIL_COND(!is_open());
