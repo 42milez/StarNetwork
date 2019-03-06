@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
@@ -442,6 +443,29 @@ int Socket::get_available_bytes() const
     ERR_FAIL_COND_V(ret == -1, 0)
 
     return len;
+}
+
+void
+Socket::set_blocking_enabled(bool enabled)
+{
+    ERR_FAIL_COND(!is_open());
+
+    int ret = 0;
+    int opts = ::fcntl(_sock, F_GETFL);
+
+    if (enabled)
+    {
+        ret = ::fcntl(_sock, F_SETFL, opts & ~O_NONBLOCK);
+    }
+    else
+    {
+        ret = ::fcntl(_sock, F_SETFL, opts | O_NONBLOCK);
+    }
+
+    if (ret != 0)
+    {
+        WARN_PRINT("Unable to change non-block mode");
+    }
 }
 
 void
