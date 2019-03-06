@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/tcp.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include "core/base/error_macros.h"
@@ -429,6 +430,18 @@ bool
 Socket::is_open() const
 {
     return _sock != SOCK_EMPTY;
+}
+
+int Socket::get_available_bytes() const
+{
+    ERR_FAIL_COND_V(_sock == SOCK_EMPTY, -1);
+
+    int len;
+    auto ret = ::ioctl(_sock, FIONREAD, &len);
+
+    ERR_FAIL_COND_V(ret == -1, 0)
+
+    return len;
 }
 
 void
