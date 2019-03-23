@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_IO_IP_H
-#define P2P_TECHDEMO_CORE_IO_IP_H
+#ifndef P2P_TECHDEMO_CORE_IP_H
+#define P2P_TECHDEMO_CORE_IP_H
 
 #include <list>
 #include <memory>
@@ -62,4 +62,4 @@ public:
     ~IP();
 };
 
-#endif // P2P_TECHDEMO_CORE_IO_IP_H
+#endif // P2P_TECHDEMO_CORE_IP_H

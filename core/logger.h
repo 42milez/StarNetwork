@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_BASE_LOGGER_H
-#define P2P_TECHDEMO_CORE_BASE_LOGGER_H
+#ifndef P2P_TECHDEMO_CORE_LOGGER_H
+#define P2P_TECHDEMO_CORE_LOGGER_H
 
 class Logger
 {
@@ -34,4 +34,4 @@ public:
     Logger(const std::string &logger_name, const std::string &filename);
 };
 
-#endif // P2P_TECHDEMO_CORE_BASE_LOGGER_H
+#endif // P2P_TECHDEMO_CORE_LOGGER_H

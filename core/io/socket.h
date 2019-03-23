@@ -1,9 +1,9 @@
-#ifndef P2P_TECHDEMO_CORE_IO_SOCKET_H
-#define P2P_TECHDEMO_CORE_IO_SOCKET_H
+#ifndef P2P_TECHDEMO_CORE_SOCKET_H
+#define P2P_TECHDEMO_CORE_SOCKET_H
 
 #include <memory>
 
-#include "core/base/errors.h"
+#include "core/errors.h"
 #include "ip.h"
 
 class EventPoll;
@@ -91,4 +91,4 @@ public:
     ~Socket();
 };
 
-#endif // P2P_TECHDEMO_CORE_IO_SOCKET_H
+#endif // P2P_TECHDEMO_CORE_SOCKET_H

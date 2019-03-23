@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_BASE_SINGLETON_H
-#define P2P_TECHDEMO_CORE_BASE_SINGLETON_H
+#ifndef P2P_TECHDEMO_CORE_SINGLETON_H
+#define P2P_TECHDEMO_CORE_SINGLETON_H
 
 #include <mutex>
 
@@ -48,4 +48,4 @@ std::once_flag Singleton<T>::init_flag;
 template<typename T>
 T *Singleton<T>::instance_ = nullptr;
 
-#endif // P2P_TECHDEMO_CORE_BASE_SINGLETON_H
+#endif // P2P_TECHDEMO_CORE_SINGLETON_H

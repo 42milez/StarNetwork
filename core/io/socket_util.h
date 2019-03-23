@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_IO_SOCKET_UTIL_H
-#define P2P_TECHDEMO_CORE_IO_SOCKET_UTIL_H
+#ifndef P2P_TECHDEMO_CORE_SOCKET_UTIL_H
+#define P2P_TECHDEMO_CORE_SOCKET_UTIL_H
 
 #include <memory>
 
@@ -26,4 +26,4 @@ public:
     static int last_error();
 };
 
-#endif // P2P_TECHDEMO_CORE_IO_SOCKET_UTIL_H
+#endif // P2P_TECHDEMO_CORE_SOCKET_UTIL_H

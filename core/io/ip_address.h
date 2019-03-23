@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
-#define P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
+#ifndef P2P_TECHDEMO_CORE_IP_ADDRESS_H
+#define P2P_TECHDEMO_CORE_IP_ADDRESS_H
 
 struct IpAddress
 {
@@ -50,4 +50,4 @@ public:
     IpAddress();
 };
 
-#endif // P2P_TECHDEMO_CORE_IO_IP_ADDRESS_H
+#endif // P2P_TECHDEMO_CORE_IP_ADDRESS_H

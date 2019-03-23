@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_BASE_ERRORS_H
-#define P2P_TECHDEMO_CORE_BASE_ERRORS_H
+#ifndef P2P_TECHDEMO_CORE_ERRORS_H
+#define P2P_TECHDEMO_CORE_ERRORS_H
 
 enum class Error : int {
     ERR_ALREADY_IN_USE,
@@ -12,4 +12,4 @@ enum class Error : int {
     OK
 };
 
-#endif // P2P_TECHDEMO_CORE_BASE_ERRORS_H
+#endif // P2P_TECHDEMO_CORE_ERRORS_H

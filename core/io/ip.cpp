@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 
-#include "core/base/singleton.h"
+#include "core/singleton.h"
 
 #include "ip.h"
 

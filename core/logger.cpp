@@ -3,7 +3,7 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
-#include "core/base/initialization_exception.h"
+#include "initialization_exception.h"
 #include "logger.h"
 
 Logger::Logger(const std::string &logger_name, const std::string &filename)
