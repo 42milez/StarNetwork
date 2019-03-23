@@ -35,9 +35,9 @@ private:
         int channel;
     };
 
+    IpAddress _bind_ip;
     CompressionMode _compression_mode;
     ConnectionStatus _connection_status;
-    IpAddress _bind_ip;
     NetCompressor _net_compressor;
     NetEvent _event;
     NetPeer *_peer;
@@ -46,20 +46,22 @@ private:
     TransferMode _transfer_mode;
 
     std::list<Packet> _incoming_packets;
+
     std::map<int, NetPeer *> _peer_map;
+
     std::vector<uint8_t> _src_compressor_mem;
     std::vector<uint8_t> _dst_compressor_mem;
 
     uint32_t _unique_id;
 
-    bool _always_ordered;
     bool _active;
-    bool _server;
+    bool _always_ordered;
     bool _refuse_connections;
+    bool _server;
 
+    int _channel_count;
     int _target_peer;
     int _transfer_channel;
-    int _channel_count;
 
 private:
     static size_t _compress(void *context, const NetBuffer *inBuffers, size_t inBufferCount, size_t inLimit, uint8_t *outData, size_t outLimit);
