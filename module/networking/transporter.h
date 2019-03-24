@@ -1,28 +1,50 @@
-#ifndef P2P_TECHDEMO_TRANSPORTER_H
-#define P2P_TECHDEMO_TRANSPORTER_H
+#ifndef P2P_TECHDEMO_MODULE_TRANSPORTER_H
+#define P2P_TECHDEMO_MODULE_TRANSPORTER_H
 
 #include <list>
 #include <map>
 #include <vector>
 
+#include "core/io/ip_address.h"
+#include "core/errors.h"
+#include "lib/udp/udp.h"
+#include "lib/udp/protocol.h"
+
 class Transporter
 {
 public:
     enum class CompressionMode : int {
-        COMPRESS_NONE,
-        COMPRESS_RANGE_CODER,
-        COMPRESS_FASTLZ,
-        COMPRESS_ZLIB,
-        COMPRESS_ZSTD
+        NONE,
+        RANGE_CODER,
+        FASTLZ,
+        ZLIB,
+        ZSTD
+    };
+
+    enum class TargetPeer : int {
+        BROADCAST,
+        SERVER
+    };
+
+    enum class TransferMode : int {
+        UNRELIABLE,
+        UNRELIABLE_ORDERED,
+        RELIABLE
+    };
+
+    enum class ConnectionStatus : int {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED
     };
 
 private:
-    enum class SYSMSG : int {
+    enum class SysMsg : int {
         ADD_PEER,
         REMOVE_PEER
     };
 
-    enum class SYSCH : int {
+    enum class SysCh : int {
         CONFIG,
         RELIABLE,
         UNRELIABLE,
@@ -30,7 +52,7 @@ private:
     };
 
     struct Packet {
-        NetPacket *packet;
+        UdpPacket *packet;
         int from;
         int channel;
     };
@@ -38,16 +60,16 @@ private:
     IpAddress _bind_ip;
     CompressionMode _compression_mode;
     ConnectionStatus _connection_status;
-    NetCompressor _net_compressor;
-    NetEvent _event;
-    NetPeer *_peer;
-    NetHost *_host;
+    UdpCompressor _compressor;
+    UdpEvent _event;
+    UdpPeer *_peer;
+    UdpHost *_host;
     Packet _current_packet;
     TransferMode _transfer_mode;
 
     std::list<Packet> _incoming_packets;
 
-    std::map<int, NetPeer *> _peer_map;
+    std::map<int, UdpPeer *> _peer_map;
 
     std::vector<uint8_t> _src_compressor_mem;
     std::vector<uint8_t> _dst_compressor_mem;
@@ -59,12 +81,12 @@ private:
     bool _refuse_connections;
     bool _server;
 
-    int _channel_count;
+    SysCh _channel_count;
     int _target_peer;
     int _transfer_channel;
 
 private:
-    static size_t _compress(void *context, const NetBuffer *inBuffers, size_t inBufferCount, size_t inLimit, uint8_t *outData, size_t outLimit);
+    static size_t _compress(void *context, const UdpBuffer *inBuffers, size_t inBufferCount, size_t inLimit, uint8_t *outData, size_t outLimit);
     static size_t _decinoress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData, size_t outLimit);
     static void _compressor_destroy(void *context);
     static void _bind_methods();
@@ -75,7 +97,7 @@ private:
 
 public:
     Error create_client(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0, int client_port = 0);
-    Error create_server(int port, int max_clients = 32; int in_bandwidth = 0, int out_bandwidth = 0);
+    Error create_server(int port, int max_clients = 32, int in_bandwidth = 0, int out_bandwidth = 0);
 
     Error get_packet(const uint8_t **buffer, int &buffer_size);
     Error put_packet(const uint8_t *buffer, int buffer_size);
@@ -93,8 +115,8 @@ public:
     int get_max_packet_size();
     int get_packet_channel() const;
     int get_packet_peer() const;
-    IpAddress get_peer_address(peer_id) const;
-    int get_peer_port(peer_id) const;
+    IpAddress get_peer_address(int peer_id) const;
+    int get_peer_port(int peer_id) const;
     int get_transfer_channel() const;
     TransferMode get_transfer_mode() const;
     int get_unique_id() const;
@@ -116,4 +138,4 @@ public:
     ~Transporter();
 };
 
-#endif // P2P_TECHDEMO_TRANSPORTER_H
+#endif // P2P_TECHDEMO_MODULE_TRANSPORTER_H

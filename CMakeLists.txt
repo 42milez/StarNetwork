@@ -77,6 +77,8 @@ include_directories(${CMAKE_SOURCE_DIR}/flatbuffers/include)
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(core)
+include_directories(lib/udp)
+add_subdirectory(module/networking)
 
 add_subdirectory(engine/base)
 add_subdirectory(engine/network)
