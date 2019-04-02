@@ -8,7 +8,6 @@
 #include "core/io/ip_address.h"
 #include "core/errors.h"
 #include "lib/udp/udp.h"
-#include "lib/udp/protocol.h"
 
 class Transporter
 {
@@ -44,13 +43,6 @@ private:
         REMOVE_PEER
     };
 
-    enum class SysCh : int {
-        CONFIG,
-        RELIABLE,
-        UNRELIABLE,
-        MAX
-    };
-
     struct Packet {
         UdpPacket *packet;
         int from;
@@ -63,7 +55,7 @@ private:
     UdpCompressor _compressor;
     UdpEvent _event;
     UdpPeer *_peer;
-    UdpHost *_host;
+    std::shared_ptr<UdpHost> _host;
     Packet _current_packet;
     TransferMode _transfer_mode;
 
@@ -81,15 +73,16 @@ private:
     bool _refuse_connections;
     bool _server;
 
-    SysCh _channel_count;
+    SysCh _channel_limit;
     int _target_peer;
     int _transfer_channel;
 
+    std::shared_ptr<UdpCompressor> _udp_compressor;
+
 private:
-    static size_t _compress(void *context, const UdpBuffer *inBuffers, size_t inBufferCount, size_t inLimit, uint8_t *outData, size_t outLimit);
-    static size_t _decinoress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData, size_t outLimit);
-    static void _compressor_destroy(void *context);
-    static void _bind_methods();
+    static size_t _udp_compress(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
+    static size_t _udp_decompress(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
+    static void _udp_destroy(void *context);
 
     uint32_t _gen_unique_id() const;
     void _pop_current_packet();
@@ -97,7 +90,7 @@ private:
 
 public:
     Error create_client(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0, int client_port = 0);
-    Error create_server(int port, int max_clients = 32, int in_bandwidth = 0, int out_bandwidth = 0);
+    Error create_server(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
     Error get_packet(const uint8_t **buffer, int &buffer_size);
     Error put_packet(const uint8_t *buffer, int buffer_size);

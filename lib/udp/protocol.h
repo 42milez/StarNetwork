@@ -3,6 +3,8 @@
 
 constexpr int PROTOCOL_MAXIMUM_MTU = 4096;
 constexpr int PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32;
+constexpr int PROTOCOL_MAXIMUM_PEER_ID = 0xFFF;
+constexpr int PROTOCOL_MAXIMUM_WINDOW_SIZE = 65536;
 
 using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader {
     uint8_t command;

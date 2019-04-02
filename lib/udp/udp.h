@@ -2,38 +2,50 @@
 #define P2P_TECHDEMO_LIB_UDP_UDP_H
 
 #include <functional>
+#include <memory>
+#include <vector>
 
+#include "core/io/socket.h"
 #include "protocol.h"
 
-namespace udp
-{
-    struct _UdpBuffer;
-    using UdpBuffer = _UdpBuffer;
+struct UdpBuffer;
+struct UdpEvent;
+struct UdpHost;
+struct UdpIncomingCommand;
+struct UdpPacket;
+struct UdpPeer;
 
-    struct _UdpEvent;
-    using UdpEvent = _UdpEvent;
-
-    struct _UdpHost;
-    using UdpHost = _UdpHost;
-
-    struct _UdpPacket;
-    using UdpPacket = _UdpPacket;
-
-    struct _UdpPeer;
-    using UdpPeer = _UdpPeer;
-}
-
-
-constexpr int PEER_UNSEQUENCED_WINDOW_SIZE = 1024;
+constexpr int HOST_DEFAULT_MAXIMUM_PACKET_SIZE = 32 * 1024 * 1024;
+constexpr int HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024;
+constexpr int HOST_DEFAULT_MTU = 1400;
+constexpr int PEER_DEFAULT_PACKET_THROTTLE = 32;
+constexpr int PEER_DEFAULT_ROUND_TRIP_TIME = 500;
+constexpr int PEER_PACKET_THROTTLE_ACCELERATION = 2;
+constexpr int PEER_PACKET_THROTTLE_DECELERATION = 2;
+constexpr int PEER_PACKET_THROTTLE_INTERVAL = 5000;
+constexpr int PEER_PACKET_THROTTLE_SCALE = 32;
+constexpr int PEER_PING_INTERVAL = 500;
 constexpr int PEER_RELIABLE_WINDOWS = 16;
+constexpr int PEER_TIMEOUT_LIMIT = 32;
+constexpr int PEER_TIMEOUT_MINIMUM = 5000;
+constexpr int PEER_TIMEOUT_MAXIMUM = 30000;
+constexpr int PEER_UNSEQUENCED_WINDOW_SIZE = 1024;
 
 constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
 
 using UdpSocket = void *;
 
-using UdpChecksumCallback = void (*)(const udp::UdpBuffer *, size_t buffer_count);
-using UdpInterceptCallback = void (*)(udp::UdpHost *host, udp::UdpEvent *event);
-using UdpPacketFreeCallback = void (*)(udp::UdpPacket *);
+using UdpChecksumCallback = void (*)(const UdpBuffer *, size_t buffer_count);
+using UdpInterceptCallback = void (*)(UdpHost *host, UdpEvent *event);
+using UdpPacketFreeCallback = void (*)(UdpPacket *);
+
+enum class SysCh : int
+{
+    CONFIG,
+    RELIABLE,
+    UNRELIABLE,
+    MAX
+};
 
 enum class UdpEventType : int
 {
@@ -57,20 +69,30 @@ enum class UdpPeerState : int
     ZOMBIE
 };
 
-using UdpAddress = struct _UdpAddress
-{
-    uint8_t host[16];
-    uint16_t port;
-    uint8_t wildcard;
+struct UdpAcknowledgement {
+    // EnetListNode acknowledgement_list;
+    uint32_t sent_time;
+    UdpProtocol command;
 };
 
-using UdpBuffer = struct _UdpBuffer
+struct UdpAddress
+{
+    uint8_t host[16] = { 0 };
+
+    uint16_t port = 0;
+
+    uint8_t wildcard = 0;
+
+    UdpAddress();
+};
+
+struct UdpBuffer
 {
     void *data;
     size_t data_length;
 };
 
-using UdpChannel = struct _UdpChannel
+struct UdpChannel
 {
     uint16_t outgoing_reliable_sequence_number;
     uint16_t outgoing_unreliable_seaquence_number;
@@ -78,44 +100,46 @@ using UdpChannel = struct _UdpChannel
     uint16_t reliable_windows[PEER_RELIABLE_WINDOWS];
     uint16_t incoming_reliable_sequence_number;
     uint16_t incoming_unreliable_sequence_number;
-    uint16_t incoming_reliable_commands;
-    uint16_t incoming_unreliable_commands;
+    std::list<UdpIncomingCommand> incoming_reliable_commands;
+    std::list<UdpIncomingCommand> incoming_unreliable_commands;
 };
 
-using UdpCompressor = struct _UdpCompressor
+struct UdpCompressor
 {
     void *context;
+    std::function<size_t(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit)> compress;
+    std::function<size_t(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)> decompress;
+    std::function<void(void *context)> destroy;
 
-    size_t
-    (*compress)(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
+//    size_t
+//    (*compress)(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
 
-    size_t (*decompress)(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
+//    size_t (*decompress)(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
 
-    void (*destroy)(void *context);
+//    void (*destroy)(void *context);
 };
 
-using UdpEvent = struct _UdpEvent
+struct UdpEvent
 {
     UdpEventType type;
-    udp::UdpPeer *peer;
+    UdpPeer *peer;
     uint8_t channel_id;
     uint32_t data;
-    udp::UdpPacket *packet;
+    UdpPacket *packet;
 };
 
-using UdpHost = struct _UdpHost
+struct UdpHost
 {
-    UdpSocket socket;
-    UdpAddress address;
+    std::unique_ptr<Socket> socket;
+    std::unique_ptr<UdpAddress> address;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
     uint32_t bandwidth_throttle_epoch;
     uint32_t mtu;
-    uint32_t random_seed;
     int recalculate_bandwidth_limits;
-    udp::UdpPeer *peers;
+    std::vector<UdpPeer> peers;
     size_t peer_count;
-    size_t channel_limit;
+    SysCh channel_limit;
     uint32_t service_time;
 //    UdpList dispatch_queue;
     int continue_sending;
@@ -126,9 +150,9 @@ using UdpHost = struct _UdpHost
     UdpBuffer buffers[BUFFER_MAXIMUM];
     size_t buffer_count;
     UdpChecksumCallback checksum;
-    UdpCompressor compressor;
+    std::shared_ptr<UdpCompressor> compressor;
     uint8_t packet_data[2][PROTOCOL_MAXIMUM_MTU];
-    UdpAddress received_address;
+    std::unique_ptr<UdpAddress> received_address;
     uint8_t *received_data;
     size_t received_data_length;
     uint32_t total_sent_data;
@@ -141,9 +165,38 @@ using UdpHost = struct _UdpHost
     size_t duplicate_peers;
     size_t maximum_packet_size;
     size_t maximum_waiting_data;
+
+    UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count);
 };
 
-using UdpPacket = struct _UdpPacket
+struct UdpIncomingCommand
+{
+    //ENetListNode incoming_command_list;
+    uint16_t reliable_sequence_number;
+    uint16_t unreliable_sequence_number;
+    UdpProtocol command;
+    uint32_t fragment_count;
+    uint32_t fragments_remaining;
+    std::vector<uint32_t> fragments;
+    std::unique_ptr<UdpPacket> packet;
+};
+
+struct UdpOutgoingCommand
+{
+    //ENetListNode outgoing_command_list;
+    uint16_t reliable_sequence_number;
+    uint16_t unreliable_sequence_number;
+    uint32_t sent_time;
+    uint32_t round_trip_timeout;
+    uint32_t round_trip_timeout_limit;
+    uint32_t fragment_offset;
+    uint16_t fragment_length;
+    uint16_t send_attempts;
+    UdpProtocol command;
+    std::unique_ptr<UdpPacket> packet;
+};
+
+struct UdpPacket
 {
     size_t reference_count;
     uint32_t flags;
@@ -153,20 +206,18 @@ using UdpPacket = struct _UdpPacket
     void *user_data;
 };
 
-using UdpPeer = struct _UdpPeer
+struct UdpPeer
 {
-//    UdpListNode dispatch_list;
-    UdpHost *host;
+    std::shared_ptr<UdpHost> host;
     uint16_t outgoing_peer_id;
-    uint16_t incoming_peer_id;
+    uuid_t incoming_peer_id;
     int32_t connect_id;
     uint8_t outgoing_session_id;
     uint8_t incoming_session_id;
     UdpAddress address;
     void *data;
     UdpPeerState state;
-    UdpChannel *channels;
-    size_t channel_count;
+    std::vector<UdpChannel> channels;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
     uint32_t incoming_bandwidth_throttle_epoch;
@@ -194,6 +245,7 @@ using UdpPeer = struct _UdpPeer
     uint32_t timeout_minimum;
     uint32_t timeout_maximum;
     uint32_t last_round_trip_time;
+    uint32_t last_round_trip_time_variance;
     uint32_t lowest_round_trip_time;
     uint32_t highest_round_trip_time_variance;
     uint32_t round_trip_time;
@@ -202,11 +254,12 @@ using UdpPeer = struct _UdpPeer
     uint32_t window_size;
     uint32_t reliable_data_in_transit;
     uint16_t outgoing_reliable_sequence_number;
-//    UdpList acknowledgements;
-//    UdpList sent_reliable_commands;
-//    UdpList outgoing_reliable_commands;
-//    UdpList outgoing_unreliable_commands;
-//    UdpList dispatched_commands;
+    std::list<UdpAcknowledgement> acknowledgements;
+    std::list<UdpOutgoingCommand> sent_reliable_commands;
+    std::list<UdpOutgoingCommand> sent_unreliable_commands;
+    std::list<UdpOutgoingCommand> outgoing_reliable_commands;
+    std::list<UdpOutgoingCommand> outgoing_unreliable_commands;
+    std::list<UdpOutgoingCommand> dispatched_commands;
     int needs_dispatch;
     uint16_t incoming_unsequenced_group;
     uint16_t outgoing_unsequenced_group;
@@ -214,5 +267,17 @@ using UdpPeer = struct _UdpPeer
     uint32_t event_data;
     size_t total_waiting_data;
 };
+
+void
+udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size);
+
+void
+udp_host_compress(std::shared_ptr<UdpHost> &host);
+
+void
+udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
+
+std::shared_ptr<UdpHost>
+udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
