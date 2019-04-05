@@ -5,19 +5,41 @@
 #include "transporter.h"
 
 size_t
-Transporter::_udp_compress(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit)
 {
+    if (_src_compressor_mem.size() < in_limit)
+    {
+        _src_compressor_mem.resize(in_limit);
+    }
 
+    auto total = in_limit;
+    auto offset = 0;
+    auto in_buffer_size = in_buffers.size();
+
+    while (total)
+    {
+        for (auto i = 0; i < in_buffer_size; i++)
+        {
+            auto to_copy = std::min(total, in_buffers[i].data_length);
+            memcpy(&_src_compressor_mem[offset], in_buffers[i].data, to_copy);
+            offset += to_copy;
+            total -= to_copy;
+        }
+    }
+
+    CompressionMode mode = _compression_mode;
+
+    auto req_size =
 }
 
 size_t
-Transporter::_udp_decompress(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Transporter::_udp_decompress(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)
 {
 
 }
 
 void
-Transporter::_udp_destroy(void *context)
+Transporter::_udp_destroy()
 {
     // Nothing to do
 }

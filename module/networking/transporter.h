@@ -80,9 +80,9 @@ private:
     std::shared_ptr<UdpCompressor> _udp_compressor;
 
 private:
-    static size_t _udp_compress(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
-    static size_t _udp_decompress(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
-    static void _udp_destroy(void *context);
+    size_t _udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
+    size_t _udp_decompress(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
+    void _udp_destroy();
 
     uint32_t _gen_unique_id() const;
     void _pop_current_packet();

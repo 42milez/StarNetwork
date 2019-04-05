@@ -62,14 +62,12 @@ hunter_add_package(spdlog)
 
 find_package(spdlog CONFIG REQUIRED)
 
-#  FlatBuffers
+#  zlib
 # --------------------------------------------------
 
-hunter_add_package(flatbuffers)
+hunter_add_package(ZLIB)
 
-find_package(Flatbuffers CONFIG REQUIRED)
-
-include_directories(${CMAKE_SOURCE_DIR}/flatbuffers/include)
+find_package(ZLIB CONFIG REQUIRED)
 
 #  Directories
 # --------------------------------------------------

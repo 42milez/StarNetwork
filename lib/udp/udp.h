@@ -147,7 +147,7 @@ struct UdpHost
     uint16_t header_flags;
     UdpProtocol commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     size_t command_count;
-    UdpBuffer buffers[BUFFER_MAXIMUM];
+    std::vector<UdpBuffer> buffers;
     size_t buffer_count;
     UdpChecksumCallback checksum;
     std::shared_ptr<UdpCompressor> compressor;
