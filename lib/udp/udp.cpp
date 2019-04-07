@@ -36,9 +36,9 @@ udp_socket_bind(std::unique_ptr<Socket> &socket, const std::unique_ptr<UdpAddres
 void
 udp_host_compress(std::shared_ptr<UdpHost> &host)
 {
-    if (host->compressor->context != nullptr && host->compressor->destroy != nullptr)
+    if (host->compressor->destroy != nullptr)
     {
-        host->compressor->destroy(host->compressor->context);
+        host->compressor->destroy();
     }
 }
 
@@ -48,10 +48,6 @@ udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompresso
     if (compressor)
     {
         host->compressor = compressor;
-    }
-    else
-    {
-        host->compressor->context = nullptr;
     }
 }
 
@@ -77,15 +73,12 @@ udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh 
         return nullptr;
     }
 
-    //udp_socket_set_option(host->socket, SOCKOPT_NONBLOCK, 1);
-    //udp_socket_set_option(host->socket, SOCKOPT_BROADCAST, 1);
-    //udp_socket_set_option(host->socket, SOCKOPT_RCVBUF, HOST_RECEIVE_BUFFER_SIZE);
-    //udp_socket_set_option(host->socket, SOCKOPT_SNDBUF, HOST_SEND_BUFFER_SIZE);
-
     for (auto &peer : host->peers)
     {
         peer.host = host;
+
         uuid_generate_time(peer.incoming_peer_id);
+
         peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
         peer.data = nullptr;
 
@@ -127,7 +120,6 @@ UdpHost::UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_limit, uin
     total_sent_data(0),
     total_sent_packets(0)
 {
-    compressor->context = nullptr;
     compressor->compress = nullptr;
     compressor->decompress = nullptr;
     compressor->destroy = nullptr;
