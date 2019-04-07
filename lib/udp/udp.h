@@ -106,17 +106,19 @@ struct UdpChannel
 
 struct UdpCompressor
 {
-    void *context;
-    std::function<size_t(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit)> compress;
-    std::function<size_t(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)> decompress;
-    std::function<void(void *context)> destroy;
+    std::function<size_t(
+        const std::vector<UdpBuffer> &in_buffers,
+        size_t in_limit,
+        std::vector<uint8_t> &out_data,
+        size_t out_limit)> compress;
 
-//    size_t
-//    (*compress)(void *context, const UdpBuffer *in_buffer, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit);
+    std::function<size_t(
+        std::vector<uint8_t> &in_data,
+        size_t in_limit,
+        std::vector<uint8_t> &out_data,
+        size_t out_limit)> decompress;
 
-//    size_t (*decompress)(void *context, const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
-
-//    void (*destroy)(void *context);
+    std::function<void()> destroy;
 };
 
 struct UdpEvent

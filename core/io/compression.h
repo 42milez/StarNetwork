@@ -20,9 +20,9 @@ public:
         GZIP
     };
 
-    static int compress(uint8_t *p_dst, const uint8_t *p_src, int p_src_size, Mode p_mode = Mode::ZSTD);
-    static int get_max_compressed_buffer_size(int p_src_size, Mode p_mode = Mode::ZSTD);
-    static int decompress(uint8_t *p_dst, int p_dst_max_size, const uint8_t *p_src, int p_src_size, Mode p_mode = Mode::ZSTD);
+    static int compress(std::vector<uint8_t> &dst, std::vector<uint8_t> &src, Compression::Mode mode);
+    static int get_max_compressed_buffer_size(int p_src_size, Mode p_mode);
+    static int decompress(std::vector<uint8_t> &dst, int dst_max_size, std::vector<uint8_t> &src, Mode mode);
 
     Compression();
 };

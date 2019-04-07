@@ -1,11 +1,12 @@
 #include <string>
 
 #include "core/error_macros.h"
+#include "core/io/compression.h"
 #include "lib/udp/compress.h"
 #include "transporter.h"
 
 size_t
-Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_buffer_count, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
 {
     if (_src_compressor_mem.size() < in_limit)
     {
@@ -27,15 +28,69 @@ Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_b
         }
     }
 
-    CompressionMode mode = _compression_mode;
+    Compression::Mode mode;
 
-    auto req_size =
+    if (_compression_mode == CompressionMode::ZSTD)
+    {
+        mode = Compression::Mode::ZSTD;
+    }
+    else if (_compression_mode == CompressionMode::ZLIB)
+    {
+        mode = Compression::Mode::DEFLATE;
+    }
+    else
+    {
+        ERR_FAIL_V(0)
+    }
+
+    auto req_size = Compression::get_max_compressed_buffer_size(offset, mode);
+
+    if (_dst_compressor_mem.size() < req_size)
+    {
+        _dst_compressor_mem.resize(req_size);
+    }
+
+    auto ret = Compression::compress(_dst_compressor_mem, _src_compressor_mem, mode);
+
+    if (ret < 0)
+    {
+        return 0; // TODO: Is -1 better?
+    }
+
+    if (ret > out_limit)
+    {
+        return 0; // TODO: Is -1 better?
+    }
+
+    out_data.resize(_dst_compressor_mem.size());
+    out_data = _dst_compressor_mem;
+
+    _src_compressor_mem.clear();
+    _dst_compressor_mem.clear();
+
+    return ret;
 }
 
 size_t
-Transporter::_udp_decompress(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Transporter::_udp_decompress(std::vector<uint8_t> &in_data, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
 {
+    auto ret = -1;
 
+    if (_compression_mode == CompressionMode::ZLIB)
+    {
+        ret = Compression::decompress(out_data, out_limit, in_data, Compression::Mode::DEFLATE);
+    }
+    else if (_compression_mode == CompressionMode::ZSTD)
+    {
+        // ...
+    }
+
+    if (ret < 0)
+    {
+        return 0;
+    }
+
+    return ret;
 }
 
 void
@@ -61,7 +116,8 @@ Transporter::_setup_compressor()
     }
 }
 
-Error Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
+Error
+Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE);
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER);
@@ -119,10 +175,27 @@ Transporter::Transporter() : _bind_ip("*")
     _transfer_mode = TransferMode::RELIABLE;
     _unique_id = 0;
 
-    _compressor.context = this;
-    _compressor.compress = _udp_compress;
-    _compressor.decompress = _udp_decompress;
-    _compressor.destroy = _udp_destroy;
+    _compressor.compress = [this](
+        const std::vector<UdpBuffer> &in_buffers,
+        size_t in_limit,
+        std::vector<uint8_t> &out_data,
+        size_t out_limit
+    ) -> size_t {
+        _udp_compress(in_buffers, in_limit, out_data, out_limit);
+    };
+
+    _compressor.decompress = [this](
+        std::vector<uint8_t> &in_data,
+        size_t in_limit,
+        std::vector<uint8_t> &out_data,
+        size_t out_limit
+    ) -> size_t {
+        _udp_decompress(in_data, in_limit, out_data, out_limit);
+    };
+
+    _compressor.destroy = [this]() -> void {
+        _udp_destroy();
+    };
 }
 
 Transporter::~Transporter()
