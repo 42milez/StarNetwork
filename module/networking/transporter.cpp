@@ -119,11 +119,11 @@ Transporter::_setup_compressor()
 Error
 Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
-    ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE);
-    ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(peer_count < 0, Error::ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(peer_count < 0, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
     std::unique_ptr<UdpAddress> address = std::make_unique<UdpAddress>();
 
@@ -139,7 +139,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 #else
     if (!_bind_ip.is_wildcard())
     {
-        ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
         udp_address_set_ip(address, _bind_ip.get_ipv4(), 8);
     }
 #endif
@@ -148,7 +148,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 
     _host = udp_host_create(std::move(address), peer_count, _channel_limit, in_bandwidth, out_bandwidth);
 
-    ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE);
+    ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
 
     _setup_compressor();
 
