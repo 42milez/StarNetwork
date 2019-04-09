@@ -27,7 +27,7 @@ public:
 
     void clear();
 
-    std::string to_string() const;
+    explicit operator std::string() const;
 
     bool is_ipv4() const;
 

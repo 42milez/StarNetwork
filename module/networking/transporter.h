@@ -81,7 +81,7 @@ private:
 
     std::vector<uint8_t> _dst_compressor_mem;
 
-    uint32_t _unique_id;
+    uuid_t _unique_id;
 
     bool _active;
 

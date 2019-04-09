@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <cstdlib>
 #include <sstream>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include "core/string.h"
 #include "ip_address.h"
 
 namespace
@@ -66,8 +68,7 @@ namespace
     }
 }
 
-std::string
-IpAddress::to_string() const
+IpAddress::operator std::string() const
 {
     if (!_valid)
     {

@@ -1,6 +1,9 @@
 #include <string>
+#include <uuid/uuid.h>
 
 #include "core/error_macros.h"
+#include "core/singleton.h"
+#include "core/string.h"
 #include "core/io/compression.h"
 #include "lib/udp/compress.h"
 #include "transporter.h"
@@ -130,7 +133,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 #ifdef P2P_TECHDEMO_IPV6
     if (_bind_ip.is_wildcard())
     {
-        address.wildcard = 1;
+        address->wildcard = 1;
     }
     else
     {
@@ -154,10 +157,84 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 
     _active = true;
     _server = true;
-    _unique_id = 1;
     _connection_status = ConnectionStatus::CONNECTED;
 
+    uuid_generate_time(_unique_id);
+
     return Error::OK;
+}
+
+Error
+Transporter::create_client(const std::string &address, int port, int in_bandwidth, int out_bandwidth, int client_port)
+{
+    ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(client_port < 0 || client_port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
+
+    if (client_port != 0)
+    {
+        std::unique_ptr<UdpAddress> client = std::make_unique<UdpAddress>();
+
+#ifdef P2P_TECHDEMO_IPV6
+        if (_bind_ip.is_wildcard())
+        {
+            client->wildcard = 1;
+        }
+        else
+        {
+            udp_address_set_ip(client, _bind_ip.get_ipv6(), 16);
+        }
+#else
+        if (!_bind_ip.is_wildcard())
+        {
+            ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+            udp_address_set_ip(client, _bind_ip.get_ipv4(), 8);
+        }
+#endif
+        client->port = client_port;
+
+        _host = udp_host_create(std::move(client), 1, _channel_limit, in_bandwidth, out_bandwidth);
+    }
+    else
+    {
+        _host = udp_host_create(nullptr, 1, _channel_limit, in_bandwidth, out_bandwidth);
+    }
+
+    ERR_FAIL_COND_V(!_host, Error::CANT_CREATE)
+
+    _setup_compressor();
+
+    IpAddress ip;
+
+    if (is_valid_ip_address(address))
+    {
+        ip = IpAddress(address);
+    }
+    else
+    {
+#ifdef P2P_TECHDEMO_IPV6
+        ip = Singleton<IP>::Instance().resolve_hostname(address);
+#else
+        ip = Singleton<IP>::Instance().resolve_hostname(address, IP::Type::V4);
+#endif
+        ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
+    }
+
+    UdpAddress udp_address;
+
+#ifdef P2P_TECHDEMO_IPV6
+    udp_address_set_ip(address, ip.get_ipv6(), 16);
+#else
+    ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+    memcpy(udp_address.host, ip.get_ipv4(), sizeof(udp_address.host));
+#endif
+    udp_address.port = port;
+
+    uuid_generate_time(_unique_id);
+
+    // ...
 }
 
 Transporter::Transporter() : _bind_ip("*")
