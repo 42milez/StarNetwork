@@ -1,6 +1,10 @@
 #ifndef P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
 #define P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
 
+#include <array>
+
+#include <uuid/uuid.h>
+
 constexpr uint8_t PROTOCOL_COMMAND_NONE = 0;
 constexpr uint8_t PROTOCOL_COMMAND_ACKNOWLEDGE = 1;
 constexpr uint8_t PROTOCOL_COMMAND_CONNECT = 2;
@@ -152,5 +156,7 @@ using UdpProtocol = union UdpProtocol {
     UdpProtocolBandwidthLimit bandwidth_limit;
     UdpProtocolThrottleConfigure throttle_configure;
 };
+
+size_t udp_protocol_command_size(uint8_t command_number);
 
 #endif // P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
