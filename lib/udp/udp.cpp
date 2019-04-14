@@ -88,7 +88,7 @@ udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh 
     return host;
 }
 
-std::unique_ptr<UdpPeer>
+Error
 udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data)
 {
     auto current_peer = host->peers.begin();
@@ -101,12 +101,12 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     }
 
     if (current_peer == host->peers.end())
-        return nullptr;
+        return Error::CANT_CREATE;
 
     current_peer->channels = std::move(std::vector<UdpChannel>(static_cast<int>(channel_count)));
 
     if (current_peer->channels.empty())
-        return nullptr;
+        return Error::CANT_CREATE;
 
     current_peer->state = UdpPeerState::CONNECTING;
     current_peer->address = address;
@@ -140,7 +140,10 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     command.connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
     command.connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
 
-    udp_peer_queue_outgoing_command(current_peer, command, nullptr, 0, 0);
+    auto null_packet = std::make_shared<UdpPacket>(nullptr);
+    udp_peer_queue_outgoing_command(*current_peer, command, null_packet, 0, 0);
+
+    return Error::OK;
 }
 
 UdpAddress::UdpAddress() : port(0), wildcard(0)
