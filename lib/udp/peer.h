@@ -3,6 +3,9 @@
 
 #include "udp.h"
 
+constexpr int UDP_PEER_WINDOW_SIZE_SCALE = 64 * 1024;
+
+UdpOutgoingCommand udp_peer_queue_outgoing_command(UdpPeer &peer, const UdpProtocol &command, std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 void udp_peer_reset(UdpPeer &peer);
 
 #endif // P2P_TECHDEMO_LIB_UDP_PEER_H

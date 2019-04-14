@@ -1,4 +1,4 @@
-#include <uuid/uuid.h>
+#include <arpa/inet.h>
 
 #include "peer.h"
 #include "udp.h"
@@ -52,7 +52,7 @@ udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompresso
 }
 
 std::shared_ptr<UdpHost>
-udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth)
+udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     std::shared_ptr<UdpHost> host;
 
@@ -61,7 +61,7 @@ udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh 
         return nullptr;
     }
 
-    host = std::make_shared<UdpHost>(address, channel_limit, in_bandwidth, out_bandwidth, peer_count);
+    host = std::make_shared<UdpHost>(address, channel_count, in_bandwidth, out_bandwidth, peer_count);
 
     if (host == nullptr)
     {
@@ -88,17 +88,80 @@ udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh 
     return host;
 }
 
+std::unique_ptr<UdpPeer>
+udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data)
+{
+    auto current_peer = host->peers.begin();
+    UdpProtocol command;
+
+    for (; current_peer != host->peers.end(); ++current_peer)
+    {
+        if (current_peer->state == UdpPeerState::DISCONNECTED)
+            break;
+    }
+
+    if (current_peer == host->peers.end())
+        return nullptr;
+
+    current_peer->channels = std::move(std::vector<UdpChannel>(static_cast<int>(channel_count)));
+
+    if (current_peer->channels.empty())
+        return nullptr;
+
+    current_peer->state = UdpPeerState::CONNECTING;
+    current_peer->address = address;
+
+    uuid_generate_time(current_peer->connect_id);
+
+    if (host->outgoing_bandwidth == 0)
+        current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    else
+        current_peer->window_size = (host->outgoing_bandwidth / UDP_PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (current_peer->window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
+        current_peer->window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (current_peer->window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+        current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+
+    command.header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    command.header.channel_id = 0xFF;
+
+    uuid_copy(command.connect.outgoing_peer_id, current_peer->incoming_peer_id);
+
+    command.connect.incoming_session_id = current_peer->incoming_session_id;
+    command.connect.outgoing_session_id = current_peer->outgoing_session_id;
+    command.connect.mtu = htonl(current_peer->mtu);
+    command.connect.window_size = htonl(current_peer->window_size);
+    command.connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
+    command.connect.incoming_bandwidth = htonl(host->incoming_bandwidth);
+    command.connect.outgoing_bandwidth = htonl(host->outgoing_bandwidth);
+    command.connect.packet_throttle_interval = htonl(current_peer->packet_throttle_interval);
+    command.connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
+    command.connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
+
+    udp_peer_queue_outgoing_command(current_peer, command, nullptr, 0, 0);
+}
+
 UdpAddress::UdpAddress() : port(0), wildcard(0)
 {
     memset(&host, 0, sizeof(host));
 }
 
-UdpHost::UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
+UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
+                           outgoing_reliable_sequence_number(0),
+                           outgoing_unreliable_seaquence_number(0),
+                           incoming_reliable_sequence_number(0),
+                           incoming_unreliable_sequence_number(0),
+                           used_reliable_windows(0)
+{}
+
+UdpHost::UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
     address(std::move(address)),
     bandwidth_limited_peers(0),
     bandwidth_throttle_epoch(0),
     buffer_count(0),
-    channel_limit(channel_limit),
+    channel_count(channel_count),
     checksum(nullptr),
     command_count(0),
     connected_peers(0),
@@ -127,4 +190,55 @@ UdpHost::UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_limit, uin
     socket = std::make_unique<Socket>();
     socket->open(Socket::Type::UDP, IP::Type::ANY);
     socket->set_blocking_enabled(false);
+}
+
+UdpPeer::UdpPeer() : outgoing_peer_id(0),
+                     outgoing_session_id(0),
+                     incoming_session_id(0),
+                     state(UdpPeerState::DISCONNECTED),
+                     incoming_bandwidth(0),
+                     outgoing_bandwidth(0),
+                     incoming_bandwidth_throttle_epoch(0),
+                     outgoing_bandwidth_throttle_epoch(0),
+                     incoming_data_total(0),
+                     outgoing_data_total(0),
+                     last_send_time(0),
+                     last_receive_time(0),
+                     next_timeout(0),
+                     earliest_timeout(0),
+                     packet_loss_epoch(0),
+                     packets_sent(0),
+                     packets_lost(0),
+                     packet_loss(0),
+                     packet_loss_variance(0),
+                     packet_throttle(0),
+                     packet_throttle_limit(0),
+                     packet_throttle_counter(0),
+                     packet_throttle_epoch(0),
+                     packet_throttle_acceleration(0),
+                     packet_throttle_deceleration(0),
+                     packet_throttle_interval(0),
+                     ping_interval(0),
+                     timeout_limit(0),
+                     timeout_minimum(0),
+                     timeout_maximum(0),
+                     last_round_trip_time(0),
+                     last_round_trip_time_variance(0),
+                     lowest_round_trip_time(0),
+                     highest_round_trip_time_variance(0),
+                     round_trip_time(0),
+                     round_trip_time_variance(0),
+                     mtu(0),
+                     window_size(0),
+                     reliable_data_in_transit(0),
+                     outgoing_reliable_sequence_number(0),
+                     needs_dispatch(0),
+                     incoming_unsequenced_group(0),
+                     outgoing_unsequenced_group(0),
+                     event_data(0),
+                     total_waiting_data(0)
+{
+    uuid_clear(incoming_peer_id);
+    uuid_clear(connect_id);
+    data = nullptr;
 }

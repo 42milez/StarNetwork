@@ -149,7 +149,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 
     address->port = port;
 
-    _host = udp_host_create(std::move(address), peer_count, _channel_limit, in_bandwidth, out_bandwidth);
+    _host = udp_host_create(std::move(address), peer_count, _channel_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
 
@@ -195,11 +195,11 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 #endif
         client->port = client_port;
 
-        _host = udp_host_create(std::move(client), 1, _channel_limit, in_bandwidth, out_bandwidth);
+        _host = udp_host_create(std::move(client), 1, _channel_count, in_bandwidth, out_bandwidth);
     }
     else
     {
-        _host = udp_host_create(nullptr, 1, _channel_limit, in_bandwidth, out_bandwidth);
+        _host = udp_host_create(nullptr, 1, _channel_count, in_bandwidth, out_bandwidth);
     }
 
     ERR_FAIL_COND_V(!_host, Error::CANT_CREATE)
@@ -234,14 +234,14 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
     uuid_generate_time(_unique_id);
 
-    // ...
+    std::unique_ptr<UdpPeer> peer = udp_host_connect(_host, udp_address, _channel_count, _unique_id);
 }
 
 Transporter::Transporter() : _bind_ip("*")
 {
     _active = false;
     _always_ordered = false;
-    _channel_limit = SysCh::MAX;
+    _channel_count = SysCh::MAX;
     _compression_mode = CompressionMode::NONE;
     _connection_status = ConnectionStatus::DISCONNECTED;
     _current_packet.packet = nullptr;

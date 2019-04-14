@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include <uuid/uuid.h>
+
 #include "core/io/socket.h"
 #include "protocol.h"
 
@@ -41,7 +43,7 @@ using UdpPacketFreeCallback = void (*)(UdpPacket *);
 
 enum class SysCh : int
 {
-    CONFIG,
+    CONFIG = 1,
     RELIABLE,
     UNRELIABLE,
     MAX
@@ -97,11 +99,13 @@ struct UdpChannel
     uint16_t outgoing_reliable_sequence_number;
     uint16_t outgoing_unreliable_seaquence_number;
     uint16_t used_reliable_windows;
-    uint16_t reliable_windows[PEER_RELIABLE_WINDOWS];
+    std::vector<uint16_t> reliable_windows;
     uint16_t incoming_reliable_sequence_number;
     uint16_t incoming_unreliable_sequence_number;
     std::list<UdpIncomingCommand> incoming_reliable_commands;
     std::list<UdpIncomingCommand> incoming_unreliable_commands;
+
+    UdpChannel();
 };
 
 struct UdpCompressor
@@ -141,7 +145,7 @@ struct UdpHost
     int recalculate_bandwidth_limits;
     std::vector<UdpPeer> peers;
     size_t peer_count;
-    SysCh channel_limit;
+    SysCh channel_count;
     uint32_t service_time;
 //    UdpList dispatch_queue;
     int continue_sending;
@@ -168,7 +172,7 @@ struct UdpHost
     size_t maximum_packet_size;
     size_t maximum_waiting_data;
 
-    UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count);
+    UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count);
 };
 
 struct UdpIncomingCommand
@@ -180,7 +184,7 @@ struct UdpIncomingCommand
     uint32_t fragment_count;
     uint32_t fragments_remaining;
     std::vector<uint32_t> fragments;
-    std::unique_ptr<UdpPacket> packet;
+    std::shared_ptr<UdpPacket> packet;
 };
 
 struct UdpOutgoingCommand
@@ -195,7 +199,7 @@ struct UdpOutgoingCommand
     uint16_t fragment_length;
     uint16_t send_attempts;
     UdpProtocol command;
-    std::unique_ptr<UdpPacket> packet;
+    std::shared_ptr<UdpPacket> packet;
 };
 
 struct UdpPacket
@@ -213,7 +217,7 @@ struct UdpPeer
     std::shared_ptr<UdpHost> host;
     uint16_t outgoing_peer_id;
     uuid_t incoming_peer_id;
-    int32_t connect_id;
+    uuid_t connect_id;
     uint8_t outgoing_session_id;
     uint8_t incoming_session_id;
     UdpAddress address;
@@ -268,6 +272,8 @@ struct UdpPeer
     uint32_t unsequenced_window[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
     uint32_t event_data;
     size_t total_waiting_data;
+
+    UdpPeer();
 };
 
 void
@@ -280,6 +286,6 @@ void
 udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
 
 std::shared_ptr<UdpHost>
-udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_limit, uint32_t in_bandwidth, uint32_t out_bandwidth);
+udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

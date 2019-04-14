@@ -91,7 +91,7 @@ private:
 
     bool _server;
 
-    SysCh _channel_limit;
+    SysCh _channel_count;
 
     int _target_peer;
 
