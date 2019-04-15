@@ -2,6 +2,7 @@
 #include <uuid/uuid.h>
 
 #include "core/error_macros.h"
+#include "core/hash.h"
 #include "core/singleton.h"
 #include "core/string.h"
 #include "core/io/compression.h"
@@ -159,7 +160,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
     _server = true;
     _connection_status = ConnectionStatus::CONNECTED;
 
-    uuid_generate_time(_unique_id);
+    _unique_id = hash32();
 
     return Error::OK;
 }
@@ -232,25 +233,25 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 #endif
     udp_address.port = port;
 
-    uuid_generate_time(_unique_id);
+    _unique_id = hash32();
 
-    std::unique_ptr<UdpPeer> peer = udp_host_connect(_host, udp_address, _channel_count, _unique_id);
+    return udp_host_connect(_host, udp_address, _channel_count, _unique_id);
 }
 
-Transporter::Transporter() : _bind_ip("*")
+Transporter::Transporter() : _bind_ip("*"),
+                             _active(false),
+                             _always_ordered(false),
+                             _channel_count(SysCh::MAX),
+                             _compression_mode(CompressionMode::NONE),
+                             _connection_status(ConnectionStatus::DISCONNECTED),
+                             _refuse_connections(false),
+                             _server(false),
+                             _target_peer(0),
+                             _transfer_channel(-1),
+                             _transfer_mode(TransferMode::RELIABLE),
+                             _unique_id(0)
 {
-    _active = false;
-    _always_ordered = false;
-    _channel_count = SysCh::MAX;
-    _compression_mode = CompressionMode::NONE;
-    _connection_status = ConnectionStatus::DISCONNECTED;
     _current_packet.packet = nullptr;
-    _refuse_connections = false;
-    _server = false;
-    _target_peer = 0;
-    _transfer_channel = -1;
-    _transfer_mode = TransferMode::RELIABLE;
-    _unique_id = 0;
 
     _compressor.compress = [this](
         const std::vector<UdpBuffer> &in_buffers,

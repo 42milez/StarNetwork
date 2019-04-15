@@ -290,6 +290,6 @@ std::shared_ptr<UdpHost>
 udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
 Error
-udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data)
+udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

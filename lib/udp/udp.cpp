@@ -139,6 +139,7 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     command.connect.packet_throttle_interval = htonl(current_peer->packet_throttle_interval);
     command.connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
     command.connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
+    command.connect.data = data;
 
     auto null_packet = std::make_shared<UdpPacket>(nullptr);
     udp_peer_queue_outgoing_command(*current_peer, command, null_packet, 0, 0);
