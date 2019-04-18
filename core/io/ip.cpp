@@ -14,8 +14,8 @@
 
 namespace
 {
-    const int GETADDRINFO_SUCCESS = 0;
-    const int RESOLVER_MAX_QUERIES = 32;
+    constexpr int GETADDRINFO_SUCCESS = 0;
+    constexpr int RESOLVER_MAX_QUERIES = 32;
 }
 
 namespace
@@ -129,7 +129,8 @@ struct IpResolver
         };
     }; // struct QueueItem
 
-    QueueItem queue[RESOLVER_MAX_QUERIES];
+    std::vector<QueueItem> queue;
+    bool is_queued;
 
     IP::ResolverID
     find_empty_id() const
@@ -169,6 +170,8 @@ struct IpResolver
                 q.status = IP::ResolverStatus::DONE;
             }
         }
+
+        is_queued = false;
     }
 
     std::map<std::string, IpAddress> cache;
@@ -177,6 +180,8 @@ struct IpResolver
     {
         return std::to_string(static_cast<int>(type)) + hostname;
     }
+
+    IpResolver() : queue(RESOLVER_MAX_QUERIES), is_queued(false) {}
 }; // struct IpResolver
 
 IpAddress
@@ -228,6 +233,8 @@ IP::resolve_hostname_queue_item(const std::string &hostname, IP::Type type)
     {
         _resolver->queue[id].response = IpAddress();
         _resolver->queue[id].status = IP::ResolverStatus::WAITING;
+
+        _resolver->is_queued = true;
 
         _resolver->cv.notify_all();
     }
@@ -314,8 +321,10 @@ IP::IP()
         [this] {
             auto lk = std::unique_lock<std::mutex>(this->_resolver->mtx);
             this->_resolver->cv.wait(lk, [this] {
-                this->_resolver->resolve_queues();
+                return this->_resolver->is_queued;
             });
+            this->_resolver->resolve_queues();
+            this->_resolver->is_queued = false;
         }
     };
 }

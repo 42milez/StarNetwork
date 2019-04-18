@@ -11,26 +11,17 @@ udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip
     memcpy(address->host, ip, len); // network byte-order (big endian)
 }
 
-int
+Error
 udp_socket_bind(std::unique_ptr<Socket> &socket, const std::unique_ptr<UdpAddress> &address)
 {
-    IpAddress ip;
+    IpAddress ip{};
 
     if (address->wildcard)
-    {
         ip = IpAddress("*");
-    }
     else
-    {
         ip.set_ipv6(address->host);
-    }
 
-    if (socket->bind(ip, address->port) != Error::OK)
-    {
-        return -1;
-    }
-
-    return 0;
+    return socket->bind(ip, address->port);
 }
 
 void
@@ -52,26 +43,20 @@ udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompresso
 }
 
 std::shared_ptr<UdpHost>
-udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
+udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     std::shared_ptr<UdpHost> host;
 
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
-    {
         return nullptr;
-    }
 
-    host = std::make_shared<UdpHost>(address, channel_count, in_bandwidth, out_bandwidth, peer_count);
+    host = std::make_shared<UdpHost>(channel_count, in_bandwidth, out_bandwidth, peer_count);
 
     if (host == nullptr)
-    {
         return nullptr;
-    }
 
-    if (host->socket == nullptr || (address != nullptr && udp_socket_bind(host->socket, address) < 0))
-    {
+    if (host->socket == nullptr || (address != nullptr && udp_socket_bind(host->socket, address) != Error::OK))
         return nullptr;
-    }
 
     for (auto &peer : host->peers)
     {
@@ -141,8 +126,8 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     command.connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
     command.connect.data = data;
 
-    auto null_packet = std::make_shared<UdpPacket>(nullptr);
-    udp_peer_queue_outgoing_command(*current_peer, command, null_packet, 0, 0);
+    auto empty_packet = std::make_shared<UdpPacket>();
+    udp_peer_queue_outgoing_command(*current_peer, command, empty_packet, 0, 0);
 
     return Error::OK;
 }
@@ -160,8 +145,7 @@ UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
                            used_reliable_windows(0)
 {}
 
-UdpHost::UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
-    address(std::move(address)),
+UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
     bandwidth_limited_peers(0),
     bandwidth_throttle_epoch(0),
     buffer_count(0),

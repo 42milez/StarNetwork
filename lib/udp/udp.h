@@ -138,7 +138,6 @@ struct UdpEvent
 struct UdpHost
 {
     std::unique_ptr<Socket> socket;
-    std::unique_ptr<UdpAddress> address;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
     uint32_t bandwidth_throttle_epoch;
@@ -173,7 +172,7 @@ struct UdpHost
     size_t maximum_packet_size;
     size_t maximum_waiting_data;
 
-    UdpHost(std::unique_ptr<UdpAddress> &&address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count);
+    UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count);
 };
 
 struct UdpIncomingCommand
@@ -287,7 +286,7 @@ void
 udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
 
 std::shared_ptr<UdpHost>
-udp_host_create(std::unique_ptr<UdpAddress> &&address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
+udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
 Error
 udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data);

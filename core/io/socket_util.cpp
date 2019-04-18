@@ -2,10 +2,10 @@
 
 #include "socket_util.h"
 
-std::shared_ptr<Socket>
-SocketUtil::create_socket(Socket::Type sock_type, IP::Type ip_type)
+SOCKET_PTR
+SocketUtil::create_socket()
 {
-    return std::make_shared<Socket>(sock_type, ip_type);
+    return std::make_shared<Socket>();
 }
 
 bool

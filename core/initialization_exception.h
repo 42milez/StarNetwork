@@ -4,7 +4,7 @@
 class InitializationException
 {
 public:
-    explicit InitializationException(std::string msg);
+    explicit InitializationException(std::string &msg);
 
     const char *what() const noexcept;
 

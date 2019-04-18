@@ -6,7 +6,7 @@ InitializationException::InitializationException(std::string &msg) : _msg(std::m
 {}
 
 const char *
-InternalErrorException::what() const noexcept
+InitializationException::what() const noexcept
 {
     return _msg.c_str();
 }

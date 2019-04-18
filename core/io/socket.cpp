@@ -185,8 +185,8 @@ Socket::accept(IpAddress &ip, uint16_t &port)
 Error
 Socket::bind(const IpAddress &ip, uint16_t port)
 {
-    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
-    ERR_FAIL_COND_V(!_can_use_ip(ip, true), Error::ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!_can_use_ip(ip, true), Error::ERR_INVALID_PARAMETER)
 
     struct sockaddr_storage addr;
     memset(&addr, 0, sizeof(addr));
@@ -196,7 +196,7 @@ Socket::bind(const IpAddress &ip, uint16_t port)
     {
         close();
 
-        ERR_FAIL_V(Error::ERR_UNAVAILABLE);
+        ERR_FAIL_V(Error::ERR_UNAVAILABLE)
     }
 
     return Error::OK;

@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <sys/socket.h>
+
 #include "core/errors.h"
 #include "ip.h"
 
