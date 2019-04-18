@@ -1,3 +1,5 @@
+#include <boost/algorithm/string.hpp>
+
 #include "string.h"
 
 bool
