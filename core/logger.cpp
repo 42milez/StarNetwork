@@ -9,9 +9,7 @@
 Logger::Logger(const std::string &logger_name, const std::string &filename)
 {
     if (!std::filesystem::exists(filename))
-    {
         throw InitializationException{"File does not exist: " + filename};
-    }
 
     try
     {
