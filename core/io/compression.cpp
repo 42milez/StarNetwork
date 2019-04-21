@@ -130,3 +130,9 @@ Compression::decompress(std::vector<uint8_t> &dst, int dst_max_size, std::vector
 
     ERR_FAIL_V(-1)
 }
+
+int Compression::zlib_level = Z_DEFAULT_COMPRESSION;
+int Compression::gzip_level = Z_DEFAULT_COMPRESSION;
+int Compression::zstd_level = 3;
+bool Compression::zstd_long_distance_matching = false;
+int Compression::zstd_window_log_size = 27;
