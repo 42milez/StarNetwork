@@ -238,6 +238,12 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
     return udp_host_connect(_host, udp_address, _channel_count, _unique_id);
 }
 
+void
+Transporter::close_connection(uint32_t wait_usec)
+{
+    // ...
+}
+
 Transporter::Transporter() : _bind_ip("*"),
                              _active(false),
                              _always_ordered(false),

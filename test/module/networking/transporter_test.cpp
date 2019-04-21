@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include "lib/udp/udp.h"
 #include "module/networking/transporter.h"
