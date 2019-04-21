@@ -5,4 +5,4 @@ set(sources transporter_test.cpp
 
 add_executable(transporter_test ${headers} ${sources})
 
-target_link_libraries(transporter_test PRIVATE core udp Catch2::Catch)
+target_link_libraries(transporter_test PRIVATE core udp Catch2::Catch2 ZLIB::zlib)

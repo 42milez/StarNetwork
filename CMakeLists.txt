@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13.2)
+cmake_minimum_required(VERSION 3.14.2)
 
 #  Configurations
 # --------------------------------------------------
@@ -16,8 +16,8 @@ set(HUNTER_JOBS_NUMBER 4 CACHE STRING "Hunter jobs number")
 include(HunterGate)
 
 HunterGate(
-  URL "https://github.com/ruslo/hunter/archive/v0.23.88.tar.gz"
-  SHA1 "b7b40b35f96fc06d5f027001160c4e83f7576859"
+  URL "https://github.com/ruslo/hunter/archive/v0.23.155.tar.gz"
+  SHA1 "6421d63cc4fd78b8622e863c6b1dcabce98e1216"
   LOCAL
 )
 
@@ -43,6 +43,9 @@ find_package(OpenSSL REQUIRED)
 
 #  Boost
 # --------------------------------------------------
+
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
 
 hunter_add_package(Boost COMPONENTS program_options)
 
