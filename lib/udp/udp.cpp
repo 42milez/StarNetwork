@@ -145,6 +145,9 @@ UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
                            used_reliable_windows(0)
 {}
 
+UdpCompressor::UdpCompressor() : compress(nullptr), decompress(nullptr), destroy(nullptr)
+{}
+
 UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
     bandwidth_limited_peers(0),
     bandwidth_throttle_epoch(0),
@@ -171,9 +174,7 @@ UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwi
     total_sent_data(0),
     total_sent_packets(0)
 {
-    compressor->compress = nullptr;
-    compressor->decompress = nullptr;
-    compressor->destroy = nullptr;
+    compressor = std::make_shared<UdpCompressor>();
 
     socket = std::make_unique<Socket>();
     socket->open(Socket::Type::UDP, IP::Type::ANY);

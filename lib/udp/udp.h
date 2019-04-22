@@ -124,6 +124,8 @@ struct UdpCompressor
         size_t out_limit)> decompress;
 
     std::function<void()> destroy;
+
+    UdpCompressor();
 };
 
 struct UdpEvent
