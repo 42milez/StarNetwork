@@ -36,7 +36,9 @@ is_valid_hex_number(const std::string &str, bool with_prefix)
 
     for (auto i = from; i < len; i++)
     {
-        if (str[i] < '0' || str[i] > '9')
+        if ((str[i] >= '0' && str[i] <= '9') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= 'A' && str[i] <= 'F'))
+            continue;
+        else
         {
             return false;
         }

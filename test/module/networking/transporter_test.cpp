@@ -15,7 +15,7 @@ TEST_CASE("", "")
     REQUIRE(ret_server == Error::OK);
 
     std::unique_ptr<Transporter> client = std::make_unique<Transporter>();
-    auto ret_client = client->create_client("::127.0.0.1", 8888, 100, 100, 8889);
+    auto ret_client = client->create_client("::FFFF:127.0.0.1", 8888, 100, 100, 8889);
 
     REQUIRE(ret_client == Error::OK);
 }
