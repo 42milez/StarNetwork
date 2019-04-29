@@ -4,7 +4,7 @@
 
 #include "hash.h"
 
-size_t
+uint32_t
 hash32()
 {
     uuid_t in;
