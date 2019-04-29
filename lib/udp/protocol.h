@@ -61,7 +61,7 @@ using UdpProtocolAcknowledge = struct UdpProtocolAcknowledge {
 
 using UdpProtocolConnect = struct UdpProtocolConnect {
     UdpProtocolCommandHeader header;
-    uuid_t outgoing_peer_id;
+    uint32_t outgoing_peer_id;
     uint8_t incoming_session_id;
     uint8_t outgoing_session_id;
     uint32_t mtu;

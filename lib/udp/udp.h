@@ -218,8 +218,8 @@ struct UdpPeer
 {
     std::shared_ptr<UdpHost> host;
     uint16_t outgoing_peer_id;
-    uuid_t incoming_peer_id;
-    uuid_t connect_id;
+    uint16_t incoming_peer_id;
+    uint32_t connect_id;
     uint8_t outgoing_session_id;
     uint8_t incoming_session_id;
     UdpAddress address;
