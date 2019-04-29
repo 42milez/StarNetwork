@@ -3,8 +3,6 @@
 
 #include <array>
 
-#include <uuid/uuid.h>
-
 constexpr uint8_t PROTOCOL_COMMAND_NONE = 0;
 constexpr uint8_t PROTOCOL_COMMAND_ACKNOWLEDGE = 1;
 constexpr uint8_t PROTOCOL_COMMAND_CONNECT = 2;

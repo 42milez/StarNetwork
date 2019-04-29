@@ -3,6 +3,8 @@
 #include "peer.h"
 #include "udp.h"
 
+#include "core/hash.h"
+
 void
 udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size)
 {
@@ -62,7 +64,7 @@ udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, S
     {
         peer.host = host;
 
-        uuid_generate_time(peer.incoming_peer_id);
+        incoming_peer_id = hash32();
 
         peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
         peer.data = nullptr;
@@ -95,8 +97,7 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
 
     current_peer->state = UdpPeerState::CONNECTING;
     current_peer->address = address;
-
-    uuid_generate_time(current_peer->connect_id);
+    current_peer->connect_id = hash32();
 
     if (host->outgoing_bandwidth == 0)
         current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
@@ -112,8 +113,7 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     command.header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     command.header.channel_id = 0xFF;
 
-    uuid_copy(command.connect.outgoing_peer_id, current_peer->incoming_peer_id);
-
+    command.connect.outgoing_peer_id = htons(current_peer->incoming_peer_id);
     command.connect.incoming_session_id = current_peer->incoming_session_id;
     command.connect.outgoing_session_id = current_peer->outgoing_session_id;
     command.connect.mtu = htonl(current_peer->mtu);
@@ -225,9 +225,9 @@ UdpPeer::UdpPeer() : outgoing_peer_id(0),
                      incoming_unsequenced_group(0),
                      outgoing_unsequenced_group(0),
                      event_data(0),
-                     total_waiting_data(0)
+                     total_waiting_data(0),
+                     incoming_peer_id(0),
+                     connect_id(0)
 {
-    uuid_clear(incoming_peer_id);
-    uuid_clear(connect_id);
     data = nullptr;
 }

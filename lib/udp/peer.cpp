@@ -47,9 +47,6 @@ udp_peer_reset(UdpPeer &peer)
     udp_peer_on_disconnect(peer);
 
     peer.outgoing_peer_id = PROTOCOL_MAXIMUM_PEER_ID;
-
-    uuid_clear(peer.connect_id);
-
     peer.state = UdpPeerState::DISCONNECTED;
     peer.incoming_bandwidth = 0;
     peer.outgoing_bandwidth = 0;
@@ -91,6 +88,7 @@ udp_peer_reset(UdpPeer &peer)
     peer.outgoing_unsequenced_group = 0;
     peer.event_data = 0;
     peer.total_waiting_data = 0;
+    peer.connect_id = 0;
 
     memset(peer.unsequenced_window, 0, sizeof(peer.unsequenced_window));
 

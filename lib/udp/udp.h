@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-#include <uuid/uuid.h>
-
 #include "core/errors.h"
 #include "core/io/socket.h"
 #include "protocol.h"

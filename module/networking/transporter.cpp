@@ -1,5 +1,4 @@
 #include <string>
-#include <uuid/uuid.h>
 
 #include "core/error_macros.h"
 #include "core/hash.h"
