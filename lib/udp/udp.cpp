@@ -4,6 +4,20 @@
 #include "udp.h"
 
 #include "core/hash.h"
+#include "core/os.h"
+#include "core/singleton.h"
+
+static uint32_t time_base;
+
+uint32_t udp_time_get()
+{
+    return Singleton<OS>::Instance().get_ticks_msec() - time_base;
+}
+
+void udp_time_set(uint32_t new_time_base)
+{
+    time_base = Singleton<OS>::Instance().get_ticks_msec() - new_time_base;
+}
 
 void
 udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size)
@@ -63,9 +77,7 @@ udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, S
     for (auto &peer : host->peers)
     {
         peer.host = host;
-
-        incoming_peer_id = hash32();
-
+        peer.incoming_peer_id = hash32();
         peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
         peer.data = nullptr;
 
@@ -132,6 +144,96 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     return Error::OK;
 }
 
+void
+udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
+{
+    auto time_current = udp_time_get();
+    auto time_elapsed = time_current - host->bandwidth_throttle_epoch;
+    auto peers_remaining = host->connected_peers;
+    auto data_total = ~0u;
+    auto bandwidth = ~0u;
+    auto throttle = 0;
+    auto bandwidth_limit = 0;
+    auto needs_adjustment = host->bandwidth_limited_peers > 0 ? true : false;
+
+    if (time_elapsed < HOST_BANDWIDTH_THROTTLE_INTERVAL)
+        return;
+}
+
+int
+udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeout)
+{
+    uint32_t wait_condition;
+
+    int ret;
+
+    if (event.type == UdpEventType::NONE)
+    {
+        ret = udp_protocol_dispatch_incoming_commands(host, event);
+
+        if (ret == 1)
+            return 1;
+        else if (ret == -1)
+            return -1;
+    }
+
+    host->service_time = udp_time_get();
+    timeout += host->service_time;
+
+    do
+    {
+        if (UDP_TIME_DIFFERENCE(host->service_time, host->bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
+            udp_host_bandwidth_throttle(host);
+
+        ret = udp_protocol_send_outgoing_commands(host, event, 1);
+
+        if (ret == 1)
+            return 1;
+        else if (ret == -1)
+            return -1;
+
+        ret = udp_protocol_receive_incoming_commands(host, event);
+
+        if (ret == 1)
+            return 1;
+        else if (ret == -1)
+            return -1;
+
+        ret = udp_protocol_send_outgoing_commands(host, event, 1);
+
+        if (ret == 1)
+            return 1;
+        else if (ret == -1)
+            return -1;
+
+        ret = udp_protocol_dispatch_incoming_commands(host, event);
+
+        if (ret == 1)
+            return 1;
+        else if (ret == -1)
+            return -1;
+
+        if (UDP_TIME_GREATER_EQUAL(host->service_time, timeout))
+            return 0;
+
+        do
+        {
+            host->service_time = udp_time_get();
+
+            if (UDP_TIME_GREATER_EQUAL(host->service_time, timeout))
+                return 0;
+
+            wait_condition = SOCKET_WAIT_RECEIVE | SOCKET_WAIT_INTERRUPT;
+        }
+        while (wait_condition & SOCKET_WAIT_INTERRUPT);
+
+        host->service_time = udp_time_get();
+    }
+    while (wait_condition & SOCKET_WAIT_RECEIVE);
+
+    return 0;
+}
+
 UdpAddress::UdpAddress() : port(0), wildcard(0)
 {
     memset(&host, 0, sizeof(host));
@@ -146,6 +248,11 @@ UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
 {}
 
 UdpCompressor::UdpCompressor() : compress(nullptr), decompress(nullptr), destroy(nullptr)
+{}
+
+UdpEvent::UdpEvent() : type(UdpEventType::NONE),
+                       channel_id(-1),
+                       data(0)
 {}
 
 UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :

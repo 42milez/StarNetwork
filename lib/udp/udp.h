@@ -16,6 +16,8 @@ struct UdpIncomingCommand;
 struct UdpPacket;
 struct UdpPeer;
 
+constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
+constexpr int HOST_BANDWIDTH_THROTTLE_INTERVAL = 1000;
 constexpr int HOST_DEFAULT_MAXIMUM_PACKET_SIZE = 32 * 1024 * 1024;
 constexpr int HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024;
 constexpr int HOST_DEFAULT_MTU = 1400;
@@ -31,14 +33,20 @@ constexpr int PEER_TIMEOUT_LIMIT = 32;
 constexpr int PEER_TIMEOUT_MINIMUM = 5000;
 constexpr int PEER_TIMEOUT_MAXIMUM = 30000;
 constexpr int PEER_UNSEQUENCED_WINDOW_SIZE = 1024;
-
-constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
+constexpr uint32_t SOCKET_WAIT_NONE = 0;
+constexpr uint32_t SOCKET_WAIT_SEND = (1u << 0u);
+constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
+constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
 using UdpSocket = void *;
-
 using UdpChecksumCallback = void (*)(const UdpBuffer *, size_t buffer_count);
 using UdpInterceptCallback = void (*)(UdpHost *host, UdpEvent *event);
 using UdpPacketFreeCallback = void (*)(UdpPacket *);
+
+#define UDP_TIME_OVERFLOW 86400000
+#define UDP_TIME_LESS(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW)
+#define UDP_TIME_GREATER_EQUAL(a, b) (!UDP_TIME_LESS(a, b))
+#define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 enum class SysCh : int
 {
@@ -129,10 +137,12 @@ struct UdpCompressor
 struct UdpEvent
 {
     UdpEventType type;
-    UdpPeer *peer;
     uint8_t channel_id;
     uint32_t data;
-    UdpPacket *packet;
+    std::shared_ptr<UdpPeer> peer;
+    std::shared_ptr<UdpPacket> packet;
+
+    UdpEvent();
 };
 
 struct UdpHost
@@ -290,5 +300,13 @@ udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, S
 
 Error
 udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data);
+
+int
+udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeout);
+
+uint32_t udp_time_get();
+void udp_time_set(uint32_t new_time_base);
+
+void udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

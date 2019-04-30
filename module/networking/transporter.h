@@ -132,7 +132,7 @@ public:
 
     void disconnect_peer(int peer, bool now = false);
 
-    void pool();
+    void poll();
 
     int get_available_packet_count() const;
 

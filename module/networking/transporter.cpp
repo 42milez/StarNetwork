@@ -243,6 +243,48 @@ Transporter::close_connection(uint32_t wait_usec)
     // ...
 }
 
+void
+Transporter::_pop_current_packet()
+{
+
+}
+
+void
+Transporter::poll()
+{
+    ERR_FAIL_COND(!_active)
+
+    UdpEvent event;
+
+    while (true)
+    {
+        if (!_host || !_active)
+            return;
+
+        int ret = udp_host_service(_host, event, 0);
+
+        if (ret <= 0)
+            break;
+
+        if (event.type == UdpEventType::CONNECT)
+        {
+            // ...
+        }
+        else if (event.type == UdpEventType::DISCONNECT)
+        {
+            // ...
+        }
+        else if (event.type == UdpEventType::RECEIVE)
+        {
+            // ...
+        }
+        else if (event.type == UdpEventType::NONE)
+        {
+            // ...
+        }
+    }
+}
+
 Transporter::Transporter() : _bind_ip("*"),
                              _active(false),
                              _always_ordered(false),
