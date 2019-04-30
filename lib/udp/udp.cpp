@@ -33,9 +33,13 @@ udp_socket_bind(std::unique_ptr<Socket> &socket, const std::unique_ptr<UdpAddres
     IpAddress ip{};
 
     if (address->wildcard)
+    {
         ip = IpAddress("*");
+    }
     else
+    {
         ip.set_ipv6(address->host);
+    }
 
     return socket->bind(ip, address->port);
 }
@@ -44,18 +48,14 @@ void
 udp_host_compress(std::shared_ptr<UdpHost> &host)
 {
     if (host->compressor->destroy != nullptr)
-    {
         host->compressor->destroy();
-    }
 }
 
 void
 udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor)
 {
     if (compressor)
-    {
         host->compressor = compressor;
-    }
 }
 
 std::shared_ptr<UdpHost>
@@ -112,9 +112,13 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     current_peer->connect_id = hash32();
 
     if (host->outgoing_bandwidth == 0)
+    {
         current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    }
     else
+    {
         current_peer->window_size = (host->outgoing_bandwidth / UDP_PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+    }
 
     if (current_peer->window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
         current_peer->window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
@@ -188,30 +192,46 @@ udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeo
         ret = udp_protocol_send_outgoing_commands(host, event, 1);
 
         if (ret == 1)
+        {
             return 1;
+        }
         else if (ret == -1)
+        {
             return -1;
+        }
 
         ret = udp_protocol_receive_incoming_commands(host, event);
 
         if (ret == 1)
+        {
             return 1;
+        }
         else if (ret == -1)
+        {
             return -1;
+        }
 
         ret = udp_protocol_send_outgoing_commands(host, event, 1);
 
         if (ret == 1)
+        {
             return 1;
+        }
         else if (ret == -1)
+        {
             return -1;
+        }
 
         ret = udp_protocol_dispatch_incoming_commands(host, event);
 
         if (ret == 1)
+        {
             return 1;
+        }
         else if (ret == -1)
+        {
             return -1;
+        }
 
         if (UDP_TIME_GREATER_EQUAL(host->service_time, timeout))
             return 0;

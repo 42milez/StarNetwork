@@ -6,9 +6,7 @@ udp_peer_on_disconnect(UdpPeer &peer)
     if (peer.state == UdpPeerState::CONNECTED || peer.state == UdpPeerState::DISCONNECT_LATER)
     {
         if (peer.incoming_bandwidth != 0)
-        {
             --(peer.host->bandwidth_limited_peers);
-        }
 
         --(peer.host->connected_peers);
     }
@@ -20,14 +18,10 @@ udp_peer_reset_queues(UdpPeer &peer)
     std::unique_ptr<UdpChannel> channel;
 
     if (peer.needs_dispatch)
-    {
         peer.needs_dispatch = 0;
-    }
 
     if (!peer.acknowledgements.empty())
-    {
         peer.acknowledgements.clear();
-    }
 
     peer.sent_reliable_commands.clear();
     peer.sent_unreliable_commands.clear();
@@ -36,9 +30,7 @@ udp_peer_reset_queues(UdpPeer &peer)
     peer.dispatched_commands.clear();
 
     if (!peer.channels.empty())
-    {
         peer.channels.clear();
-    }
 }
 
 void
@@ -150,9 +142,13 @@ udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_comm
     }
 
     if (outgoing_command.command.header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    {
         peer.outgoing_reliable_commands.push_back(outgoing_command);
+    }
     else
+    {
         peer.outgoing_unreliable_commands.push_back(outgoing_command);
+    }
 }
 
 UdpOutgoingCommand

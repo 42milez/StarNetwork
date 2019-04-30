@@ -12,9 +12,7 @@ size_t
 Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
 {
     if (_src_compressor_mem.size() < in_limit)
-    {
         _src_compressor_mem.resize(in_limit);
-    }
 
     auto total = in_limit;
     auto offset = 0;
@@ -49,21 +47,15 @@ Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_l
     auto req_size = Compression::get_max_compressed_buffer_size(offset, mode);
 
     if (_dst_compressor_mem.size() < req_size)
-    {
         _dst_compressor_mem.resize(req_size);
-    }
 
     auto ret = Compression::compress(_dst_compressor_mem, _src_compressor_mem, mode);
 
     if (ret < 0)
-    {
         return 0; // TODO: Is -1 better?
-    }
 
     if (ret > out_limit)
-    {
         return 0; // TODO: Is -1 better?
-    }
 
     out_data.resize(_dst_compressor_mem.size());
     out_data = _dst_compressor_mem;
@@ -89,9 +81,7 @@ Transporter::_udp_decompress(std::vector<uint8_t> &in_data, size_t in_limit, std
     }
 
     if (ret < 0)
-    {
         return 0;
-    }
 
     return ret;
 }
