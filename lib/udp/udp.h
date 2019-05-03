@@ -208,8 +208,8 @@ struct UdpOutgoingCommand
     uint32_t fragment_offset;
     uint16_t fragment_length;
     uint16_t send_attempts;
-    UdpProtocol command;
-    std::shared_ptr<UdpPacket> packet;
+    std::unique_ptr<UdpProtocol> command;
+    UdpPacket packet;
 };
 
 struct UdpPacket

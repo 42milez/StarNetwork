@@ -7,6 +7,9 @@
 #include "core/os.h"
 #include "core/singleton.h"
 
+#define IS_PEER_CONNECTED(peer) \
+    peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER
+
 static uint32_t time_base;
 
 uint32_t udp_time_get()
@@ -178,7 +181,7 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
 
         for (const auto &peer : host->peers)
         {
-            if (peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER)
+            if (IS_PEER_CONNECTED(peer))
                 continue;
 
             data_total += peer.outgoing_data_total;
@@ -201,7 +204,7 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
         {
             uint32_t peer_bandwidth;
 
-            if ((peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER) ||
+            if ((IS_PEER_CONNECTED(peer)) ||
                 peer.incoming_bandwidth == 0 ||
                 peer.outgoing_bandwidth_throttle_epoch == time_current)
             {
@@ -245,7 +248,7 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
 
         for (auto &peer : host->peers)
         {
-            if ((peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER) ||
+            if ((IS_PEER_CONNECTED(peer)) ||
                 peer.outgoing_bandwidth_throttle_epoch == time_current)
             {
                 continue;
@@ -281,7 +284,7 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
 
                 for (auto &peer: host->peers)
                 {
-                    if ((peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER) ||
+                    if ((IS_PEER_CONNECTED(peer)) ||
                         peer.incoming_bandwidth_throttle_epoch == time_current)
                     {
                         continue;
@@ -301,9 +304,23 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
             }
 
 
-        for (const auto &peer : host->peers)
-        {
+        std::unique_ptr<UdpProtocol> cmd;
 
+        for (auto &peer : host->peers)
+        {
+            if (IS_PEER_CONNECTED(peer))
+                continue;
+
+            cmd->header.command = PROTOCOL_COMMAND_BANDWIDTH_LIMIT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+            cmd->header.channel_id = 0xFF;
+            cmd->bandwidth_limit.outgoing_bandwidth = htonl(host->outgoing_bandwidth);
+
+            if (peer.incoming_bandwidth_throttle_epoch == time_current)
+                cmd->bandwidth_limit.incoming_bandwidth = htonl(peer.outgoing_bandwidth);
+            else
+                cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
+
+            udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
         }
     }
 }
