@@ -152,12 +152,12 @@ udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_comm
 }
 
 UdpOutgoingCommand
-udp_peer_queue_outgoing_command(UdpPeer &peer, std::unique_ptr<UdpProtocol> &&command, UdpPacket &&packet, uint32_t offset, uint16_t length)
+udp_peer_queue_outgoing_command(UdpPeer &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
 {
     UdpOutgoingCommand outgoing_command;
 
-    outgoing_command.command = std::move(command);
-    outgoing_command.packet = std::move(packet);
+    outgoing_command.command = command;
+    outgoing_command.packet = packet;
     outgoing_command.fragment_offset = offset;
     outgoing_command.fragment_length = length;
 

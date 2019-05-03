@@ -5,7 +5,7 @@
 
 constexpr int UDP_PEER_WINDOW_SIZE_SCALE = 64 * 1024;
 
-UdpOutgoingCommand udp_peer_queue_outgoing_command(UdpPeer &peer, std::unique_ptr<UdpProtocol> &&command, UdpPacket &&packet, uint32_t offset, uint16_t length);
+UdpOutgoingCommand udp_peer_queue_outgoing_command(UdpPeer &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 
 void udp_peer_reset(UdpPeer &peer);
 

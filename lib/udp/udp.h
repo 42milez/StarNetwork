@@ -197,6 +197,16 @@ struct UdpIncomingCommand
     std::shared_ptr<UdpPacket> packet;
 };
 
+struct UdpPacket
+{
+    size_t reference_count;
+    uint32_t flags;
+    uint8_t data;
+    size_t data_length;
+    UdpPacketFreeCallback free_callback;
+    void *user_data;
+};
+
 struct UdpOutgoingCommand
 {
     //ENetListNode outgoing_command_list;
@@ -208,18 +218,10 @@ struct UdpOutgoingCommand
     uint32_t fragment_offset;
     uint16_t fragment_length;
     uint16_t send_attempts;
-    std::unique_ptr<UdpProtocol> command;
-    UdpPacket packet;
-};
+    std::shared_ptr<UdpProtocol> command;
+    std::shared_ptr<UdpPacket> packet;
 
-struct UdpPacket
-{
-    size_t reference_count;
-    uint32_t flags;
-    uint8_t data;
-    size_t data_length;
-    UdpPacketFreeCallback free_callback;
-    void *user_data;
+    UdpOutgoingCommand();
 };
 
 struct UdpPeer
@@ -286,25 +288,20 @@ struct UdpPeer
     UdpPeer();
 };
 
-void
-udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size);
+void udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size);
 
-void
-udp_host_compress(std::shared_ptr<UdpHost> &host);
+void udp_host_compress(std::shared_ptr<UdpHost> &host);
 
-void
-udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
+void udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
 
-std::shared_ptr<UdpHost>
-udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
+std::shared_ptr<UdpHost> udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
-Error
-udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data);
+Error udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data);
 
-int
-udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeout);
+int udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeout);
 
 uint32_t udp_time_get();
+
 void udp_time_set(uint32_t new_time_base);
 
 void udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host);

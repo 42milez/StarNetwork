@@ -304,7 +304,7 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
             }
 
 
-        std::unique_ptr<UdpProtocol> cmd;
+        std::shared_ptr<UdpProtocol> cmd;
 
         for (auto &peer : host->peers)
         {
@@ -468,6 +468,16 @@ UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwi
     socket->open(Socket::Type::UDP, IP::Type::ANY);
     socket->set_blocking_enabled(false);
 }
+
+UdpOutgoingCommand::UdpOutgoingCommand() : reliable_sequence_number(0),
+                                           unreliable_sequence_number(0),
+                                           sent_time(0),
+                                           round_trip_timeout(0),
+                                           round_trip_timeout_limit(0),
+                                           fragment_offset(0),
+                                           fragment_length(0),
+                                           send_attempts(0)
+{}
 
 UdpPeer::UdpPeer() : outgoing_peer_id(0),
                      outgoing_session_id(0),
