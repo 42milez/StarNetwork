@@ -162,6 +162,104 @@ udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
 
     if (time_elapsed < HOST_BANDWIDTH_THROTTLE_INTERVAL)
         return;
+
+    host->bandwidth_throttle_epoch = time_current;
+
+    if (peers_remaining == 0)
+        return;
+
+    //  Throttle outgoing bandwidth
+    // --------------------------------------------------
+
+    if (host->outgoing_bandwidth != 0)
+    {
+        data_total = 0;
+        bandwidth = host->outgoing_bandwidth * (time_elapsed / 1000);
+
+        for (const auto &peer : host->peers)
+        {
+            if (peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER)
+                continue;
+
+            data_total += peer.outgoing_data_total;
+        }
+    }
+
+    //  Throttle peer bandwidth : Case A ( adjustment is needed )
+    // --------------------------------------------------
+
+    while (peers_remaining > 0 && needs_adjustment != 0)
+    {
+        needs_adjustment = false;
+
+        if (data_total <= bandwidth)
+            throttle = PEER_PACKET_THROTTLE_SCALE;
+        else
+            throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+
+        for (auto &peer : host->peers)
+        {
+            uint32_t peer_bandwidth;
+
+            if ((peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER) ||
+                peer.incoming_bandwidth == 0 ||
+                peer.outgoing_bandwidth_throttle_epoch == time_current)
+            {
+                continue;
+            }
+
+            peer_bandwidth = peer.incoming_bandwidth * (time_elapsed / 1000);
+            if ((throttle * peer.outgoing_data_total) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
+                continue;
+
+            peer.packet_throttle_limit = (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer.outgoing_data_total;
+
+            if (peer.packet_throttle_limit == 0)
+                peer.packet_throttle_limit = 1;
+
+            if (peer.packet_throttle > peer.packet_throttle_limit)
+                peer.packet_throttle = peer.packet_throttle_limit;
+
+            peer.outgoing_bandwidth_throttle_epoch = time_current;
+            peer.incoming_data_total = 0;
+            peer.outgoing_data_total = 0;
+
+            needs_adjustment = true;
+
+            --peers_remaining;
+
+            bandwidth -= peer_bandwidth;
+            data_total -= peer_bandwidth;
+        }
+    }
+
+    //  Throttle peer bandwidth : Case B ( adjustment is NOT needed )
+    // --------------------------------------------------
+
+    if (peers_remaining > 0)
+    {
+        if (data_total <= bandwidth)
+            throttle = PEER_PACKET_THROTTLE_SCALE;
+        else
+            throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+
+        for (auto &peer : host->peers)
+        {
+            if ((peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER) ||
+                peer.outgoing_bandwidth_throttle_epoch == time_current)
+            {
+                continue;
+            }
+
+            peer.packet_throttle_limit = throttle;
+
+            if (peer.packet_throttle > peer.packet_throttle_limit)
+                peer.packet_throttle = peer.packet_throttle_limit;
+
+            peer.incoming_data_total = 0;
+            peer.outgoing_data_total = 0;
+        }
+    }
 }
 
 int
