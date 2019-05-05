@@ -21,9 +21,3 @@ udp_protocol_command_size(uint8_t command_number)
 {
     return command_sizes[command_number & PROTOCOL_COMMAND_MASK];
 }
-
-int
-udp_protocol_dispatch_incoming_commands(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpEvent> &event)
-{
-
-}

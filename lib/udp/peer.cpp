@@ -1,4 +1,6 @@
+#include "command.h"
 #include "peer.h"
+#include "udp.h"
 
 void
 udp_peer_on_disconnect(UdpPeer &peer)
@@ -164,4 +166,55 @@ udp_peer_queue_outgoing_command(UdpPeer &peer, const std::shared_ptr<UdpProtocol
     udp_peer_setup_outgoing_command(peer, outgoing_command);
 
     return outgoing_command;
+}
+
+UdpPeer::UdpPeer() : outgoing_peer_id(0),
+                     outgoing_session_id(0),
+                     incoming_session_id(0),
+                     state(UdpPeerState::DISCONNECTED),
+                     incoming_bandwidth(0),
+                     outgoing_bandwidth(0),
+                     incoming_bandwidth_throttle_epoch(0),
+                     outgoing_bandwidth_throttle_epoch(0),
+                     incoming_data_total(0),
+                     outgoing_data_total(0),
+                     last_send_time(0),
+                     last_receive_time(0),
+                     next_timeout(0),
+                     earliest_timeout(0),
+                     packet_loss_epoch(0),
+                     packets_sent(0),
+                     packets_lost(0),
+                     packet_loss(0),
+                     packet_loss_variance(0),
+                     packet_throttle(0),
+                     packet_throttle_limit(0),
+                     packet_throttle_counter(0),
+                     packet_throttle_epoch(0),
+                     packet_throttle_acceleration(0),
+                     packet_throttle_deceleration(0),
+                     packet_throttle_interval(0),
+                     ping_interval(0),
+                     timeout_limit(0),
+                     timeout_minimum(0),
+                     timeout_maximum(0),
+                     last_round_trip_time(0),
+                     last_round_trip_time_variance(0),
+                     lowest_round_trip_time(0),
+                     highest_round_trip_time_variance(0),
+                     round_trip_time(0),
+                     round_trip_time_variance(0),
+                     mtu(0),
+                     window_size(0),
+                     reliable_data_in_transit(0),
+                     outgoing_reliable_sequence_number(0),
+                     needs_dispatch(0),
+                     incoming_unsequenced_group(0),
+                     outgoing_unsequenced_group(0),
+                     event_data(0),
+                     total_waiting_data(0),
+                     incoming_peer_id(0),
+                     connect_id(0)
+{
+    data = nullptr;
 }
