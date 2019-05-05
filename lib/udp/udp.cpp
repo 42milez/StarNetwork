@@ -94,7 +94,6 @@ Error
 udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data)
 {
     auto current_peer = host->peers.begin();
-    UdpProtocol command;
 
     for (; current_peer != host->peers.end(); ++current_peer)
     {
@@ -129,24 +128,25 @@ udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysC
     if (current_peer->window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
         current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
-    command.header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-    command.header.channel_id = 0xFF;
+    std::shared_ptr<UdpProtocol> cmd;
 
-    command.connect.outgoing_peer_id = htons(current_peer->incoming_peer_id);
-    command.connect.incoming_session_id = current_peer->incoming_session_id;
-    command.connect.outgoing_session_id = current_peer->outgoing_session_id;
-    command.connect.mtu = htonl(current_peer->mtu);
-    command.connect.window_size = htonl(current_peer->window_size);
-    command.connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    command.connect.incoming_bandwidth = htonl(host->incoming_bandwidth);
-    command.connect.outgoing_bandwidth = htonl(host->outgoing_bandwidth);
-    command.connect.packet_throttle_interval = htonl(current_peer->packet_throttle_interval);
-    command.connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
-    command.connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
-    command.connect.data = data;
+    cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.channel_id = 0xFF;
 
-    auto empty_packet = std::make_shared<UdpPacket>();
-    udp_peer_queue_outgoing_command(*current_peer, command, empty_packet, 0, 0);
+    cmd->connect.outgoing_peer_id = htons(current_peer->incoming_peer_id);
+    cmd->connect.incoming_session_id = current_peer->incoming_session_id;
+    cmd->connect.outgoing_session_id = current_peer->outgoing_session_id;
+    cmd->connect.mtu = htonl(current_peer->mtu);
+    cmd->connect.window_size = htonl(current_peer->window_size);
+    cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
+    cmd->connect.incoming_bandwidth = htonl(host->incoming_bandwidth);
+    cmd->connect.outgoing_bandwidth = htonl(host->outgoing_bandwidth);
+    cmd->connect.packet_throttle_interval = htonl(current_peer->packet_throttle_interval);
+    cmd->connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
+    cmd->connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
+    cmd->connect.data = data;
+
+    udp_peer_queue_outgoing_command(*current_peer, cmd, nullptr, 0, 0);
 
     return Error::OK;
 }
