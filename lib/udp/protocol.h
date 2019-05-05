@@ -3,46 +3,12 @@
 
 #include <array>
 
-constexpr uint8_t PROTOCOL_COMMAND_NONE = 0;
-constexpr uint8_t PROTOCOL_COMMAND_ACKNOWLEDGE = 1;
-constexpr uint8_t PROTOCOL_COMMAND_CONNECT = 2;
-constexpr uint8_t PROTOCOL_COMMAND_VERIFY_CONNECT = 3;
-constexpr uint8_t PROTOCOL_COMMAND_DISCONNECT = 4;
-constexpr uint8_t PROTOCOL_COMMAND_PING = 5;
-constexpr uint8_t PROTOCOL_COMMAND_SEND_RELIABLE = 6;
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNRELIABLE = 7;
-constexpr uint8_t PROTOCOL_COMMAND_SEND_FRAGMENT = 8;
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNSEQUENCED = 9;
-constexpr uint8_t PROTOCOL_COMMAND_BANDWIDTH_LIMIT = 10;
-constexpr uint8_t PROTOCOL_COMMAND_THROTTLE_CONFIGURE = 11;
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT = 12;
-constexpr uint8_t PROTOCOL_COMMAND_COUNT = 13;
-constexpr uint8_t PROTOCOL_COMMAND_MASK = 0x0F;
+#include "udp.h"
 
-constexpr uint8_t PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7);
-constexpr uint8_t PROTOCOL_COMMAND_FLAG_UNSEQUENCED = (1 << 6);
-constexpr uint16_t PROTOCOL_HEADER_FLAG_COMPRESSED = (1 << 14);
-constexpr uint16_t PROTOCOL_HEADER_FLAG_SENT_TIME = (1 << 15);
-constexpr uint16_t PROTOCOL_HEADER_FLAG_MASK = PROTOCOL_HEADER_FLAG_COMPRESSED | PROTOCOL_HEADER_FLAG_SENT_TIME;
-constexpr uint16_t PROTOCOL_HEADER_SESSION_MASK = (3 << 12);
-constexpr uint8_t PROTOCOL_HEADER_SESSION_SHIFT = 12;
-
-constexpr uint16_t PROTOCOL_MINIMUM_CHANNEL_COUNT = 1;
-constexpr uint16_t PROTOCOL_MINIMUM_MTU = 576;
-constexpr uint16_t PROTOCOL_MINIMUM_WINDOW_SIZE = 4096;
-
-constexpr uint16_t PROTOCOL_MAXIMUM_CHANNEL_COUNT = 255;
-constexpr uint16_t PROTOCOL_MAXIMUM_MTU = 4096;
-constexpr uint16_t PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32;
-constexpr uint16_t PROTOCOL_MAXIMUM_PEER_ID = 0xFFF;
-constexpr int PROTOCOL_MAXIMUM_WINDOW_SIZE = 65536;
-
-constexpr int PROTOCOL_FRAGMENT_COUNT = 1024 * 1024;
-
-enum class UdpProtocolCommandFlag : int
+enum class UdpProtocolCommandFlag : uint32_t
 {
-    ACKNOWLEDGE = (1 << 7),
-    UNSEQUENCED = (1 << 6)
+    ACKNOWLEDGE = (1u << 7u),
+    UNSEQUENCED = (1u << 6u)
 };
 
 using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader {
@@ -156,5 +122,7 @@ using UdpProtocol = union UdpProtocol {
 };
 
 size_t udp_protocol_command_size(uint8_t command_number);
+
+int udp_protocol_dispatch_incoming_commands(std::shared_ptr<UdpHost> &host, UdpEvent &event);
 
 #endif // P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
