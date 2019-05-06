@@ -177,11 +177,8 @@ UdpHost::_udp_host_bandwidth_throttle()
 
         for (auto &peer : _peers)
         {
-            if ((IS_PEER_CONNECTED(peer)) ||
-                peer.outgoing_bandwidth_throttle_epoch == time_current)
-            {
+            if ((IS_PEER_CONNECTED(peer)) || peer.outgoing_bandwidth_throttle_epoch == time_current)
                 continue;
-            }
 
             peer.packet_throttle_limit = throttle;
 
@@ -213,11 +210,8 @@ UdpHost::_udp_host_bandwidth_throttle()
 
                 for (auto &peer: _peers)
                 {
-                    if ((IS_PEER_CONNECTED(peer)) ||
-                        peer.incoming_bandwidth_throttle_epoch == time_current)
-                    {
+                    if ((IS_PEER_CONNECTED(peer)) || peer.incoming_bandwidth_throttle_epoch == time_current)
                         continue;
-                    }
 
                     if (peer.outgoing_bandwidth > 0 && peer.outgoing_bandwidth >= bandwidth_limit)
                         continue;
