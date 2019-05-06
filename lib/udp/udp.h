@@ -150,37 +150,44 @@ udp_time_set(uint32_t new_time_base);
 class UdpHost
 {
 private:
-    std::unique_ptr<Socket> _socket;
-    uint32_t _incoming_bandwidth;
-    uint32_t _outgoing_bandwidth;
-    uint32_t _bandwidth_throttle_epoch;
-    uint32_t _mtu;
-    int _recalculate_bandwidth_limits;
-    std::vector<UdpPeer> _peers;
-    size_t _peer_count;
-    SysCh _channel_count;
-    uint32_t _service_time;
-    int _continue_sending;
-    size_t _packet_size;
-    uint16_t _header_flags;
-    UdpProtocol _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
-    size_t _command_count;
     std::vector<UdpBuffer> _buffers;
-    size_t _buffer_count;
+    std::vector<UdpProtocol> _commands;
+    std::vector<UdpPeer> _peers;
+    std::vector<uint8_t> _received_data;
+    std::vector<std::vector<uint8_t>> _packet_data;
+
     std::shared_ptr<UdpCompressor> _compressor;
-    uint8_t _packet_data[2][PROTOCOL_MAXIMUM_MTU];
+
     std::unique_ptr<UdpAddress> _received_address;
-    uint8_t *_received_data;
+    std::unique_ptr<Socket> _socket;
+
+    size_t _peer_count;
+    size_t _packet_size;
     size_t _received_data_length;
-    uint32_t _total_sent_data;
-    uint32_t _total_sent_packets;
-    uint32_t _total_received_data;
-    uint32_t _total_received_packets;
     size_t _connected_peers;
     size_t _bandwidth_limited_peers;
     size_t _duplicate_peers;
     size_t _maximum_packet_size;
     size_t _maximum_waiting_data;
+    size_t _command_count;
+    size_t _buffer_count;
+
+    SysCh _channel_count;
+
+    uint32_t _incoming_bandwidth;
+    uint32_t _outgoing_bandwidth;
+    uint32_t _bandwidth_throttle_epoch;
+    uint32_t _mtu;
+    uint32_t _service_time;
+    uint32_t _total_sent_data;
+    uint32_t _total_sent_packets;
+    uint32_t _total_received_data;
+    uint32_t _total_received_packets;
+
+    int _recalculate_bandwidth_limits;
+    int _continue_sending;
+
+    uint16_t _header_flags;
 
 private:
     Error

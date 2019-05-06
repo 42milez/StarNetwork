@@ -317,6 +317,7 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _buffer_count(0),
     _channel_count(channel_count),
     _command_count(0),
+    _commands(PROTOCOL_MAXIMUM_PACKET_COMMANDS),
     _connected_peers(0),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
@@ -328,12 +329,12 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _peers(peer_count),
     _recalculate_bandwidth_limits(0),
     _received_address(std::make_unique<UdpAddress>()),
-    _received_data(nullptr),
     _received_data_length(0),
     _total_received_data(0),
     _total_received_packets(0),
     _total_sent_data(0),
-    _total_sent_packets(0)
+    _total_sent_packets(0),
+    _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {
     _compressor = std::make_shared<UdpCompressor>();
 
