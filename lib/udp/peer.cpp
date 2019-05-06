@@ -89,17 +89,17 @@ udp_peer_reset(UdpPeer &peer)
 }
 
 void
-udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_command)
+udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingCommand &outgoing_command)
 {
     UdpChannel channel;
 
-    peer.outgoing_data_total += udp_protocol_command_size(outgoing_command.command->header.command) + outgoing_command.fragment_length;
+    peer->outgoing_data_total += udp_protocol_command_size(outgoing_command.command->header.command) + outgoing_command.fragment_length;
 
     if (outgoing_command.command->header.channel_id == 0xFF)
     {
-        ++peer.outgoing_reliable_sequence_number;
+        ++peer->outgoing_reliable_sequence_number;
 
-        outgoing_command.reliable_sequence_number = peer.outgoing_reliable_sequence_number;
+        outgoing_command.reliable_sequence_number = peer->outgoing_reliable_sequence_number;
         outgoing_command.unreliable_sequence_number = 0;
     }
     else if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
@@ -112,7 +112,7 @@ udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_comm
     }
     else if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
     {
-        ++peer.outgoing_unsequenced_group;
+        ++peer->outgoing_unsequenced_group;
 
         outgoing_command.reliable_sequence_number = 0;
         outgoing_command.unreliable_sequence_number = 0;
@@ -139,21 +139,21 @@ udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_comm
     }
     else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
     {
-        outgoing_command.command->send_unsequenced.unsequenced_group = htons(peer.outgoing_unsequenced_group);
+        outgoing_command.command->send_unsequenced.unsequenced_group = htons(peer->outgoing_unsequenced_group);
     }
 
     if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
     {
-        peer.outgoing_reliable_commands.push_back(outgoing_command);
+        peer->outgoing_reliable_commands.push_back(outgoing_command);
     }
     else
     {
-        peer.outgoing_unreliable_commands.push_back(outgoing_command);
+        peer->outgoing_unreliable_commands.push_back(outgoing_command);
     }
 }
 
 UdpOutgoingCommand
-udp_peer_queue_outgoing_command(UdpPeer &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
+udp_peer_queue_outgoing_command(std::shared_ptr<UdpPeer> &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
 {
     UdpOutgoingCommand outgoing_command;
 

@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <memory>
+#include <queue>
 #include <vector>
 
 #include "core/errors.h"
@@ -150,9 +151,11 @@ udp_time_set(uint32_t new_time_base);
 class UdpHost
 {
 private:
+    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+
     std::vector<UdpBuffer> _buffers;
     std::vector<UdpProtocol> _commands;
-    std::vector<UdpPeer> _peers;
+    std::vector<std::shared_ptr<UdpPeer>> _peers;
     std::vector<uint8_t> _received_data;
     std::vector<std::vector<uint8_t>> _packet_data;
 
@@ -286,10 +289,10 @@ using UdpPeer = struct UdpPeer
 };
 
 UdpOutgoingCommand
-udp_peer_queue_outgoing_command(UdpPeer &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
+udp_peer_queue_outgoing_command(std::shared_ptr<UdpPeer> &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 
 void
-udp_peer_setup_outgoing_command(UdpPeer &peer, UdpOutgoingCommand &outgoing_command);
+udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingCommand &outgoing_command);
 
 void
 udp_peer_reset(UdpPeer &peer);

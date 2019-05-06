@@ -26,53 +26,49 @@ UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32
 
     for (; current_peer != _peers.end(); ++current_peer)
     {
-        if (current_peer->state == UdpPeerState::DISCONNECTED)
+        if ((*current_peer)->state == UdpPeerState::DISCONNECTED)
             break;
     }
 
     if (current_peer == _peers.end())
         return Error::CANT_CREATE;
 
-    current_peer->channels = std::move(std::vector<UdpChannel>(static_cast<int>(channel_count)));
+    (*current_peer)->channels = std::move(std::vector<UdpChannel>(static_cast<int>(channel_count)));
 
-    if (current_peer->channels.empty())
+    if ((*current_peer)->channels.empty())
         return Error::CANT_CREATE;
 
-    current_peer->state = UdpPeerState::CONNECTING;
-    current_peer->address = address;
-    current_peer->connect_id = hash32();
+    (*current_peer)->state = UdpPeerState::CONNECTING;
+    (*current_peer)->address = address;
+    (*current_peer)->connect_id = hash32();
 
     if (_outgoing_bandwidth == 0)
-    {
-        current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-    }
+        (*current_peer)->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
     else
-    {
-        current_peer->window_size = (_outgoing_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
-    }
+        (*current_peer)->window_size = (_outgoing_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
 
-    if (current_peer->window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
-        current_peer->window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
+    if ((*current_peer)->window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
+        (*current_peer)->window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
 
-    if (current_peer->window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
-        current_peer->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    if ((*current_peer)->window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+        (*current_peer)->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
     std::shared_ptr<UdpProtocol> cmd = std::make_shared<UdpProtocol>();
 
     cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
 
-    cmd->connect.outgoing_peer_id = htons(current_peer->incoming_peer_id);
-    cmd->connect.incoming_session_id = current_peer->incoming_session_id;
-    cmd->connect.outgoing_session_id = current_peer->outgoing_session_id;
-    cmd->connect.mtu = htonl(current_peer->mtu);
-    cmd->connect.window_size = htonl(current_peer->window_size);
+    cmd->connect.outgoing_peer_id = htons((*current_peer)->incoming_peer_id);
+    cmd->connect.incoming_session_id = (*current_peer)->incoming_session_id;
+    cmd->connect.outgoing_session_id = (*current_peer)->outgoing_session_id;
+    cmd->connect.mtu = htonl((*current_peer)->mtu);
+    cmd->connect.window_size = htonl((*current_peer)->window_size);
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
     cmd->connect.incoming_bandwidth = htonl(_incoming_bandwidth);
     cmd->connect.outgoing_bandwidth = htonl(_outgoing_bandwidth);
-    cmd->connect.packet_throttle_interval = htonl(current_peer->packet_throttle_interval);
-    cmd->connect.packet_throttle_acceleration = htonl(current_peer->packet_throttle_acceleration);
-    cmd->connect.packet_throttle_deceleration = htonl(current_peer->packet_throttle_deceleration);
+    cmd->connect.packet_throttle_interval = htonl((*current_peer)->packet_throttle_interval);
+    cmd->connect.packet_throttle_acceleration = htonl((*current_peer)->packet_throttle_acceleration);
+    cmd->connect.packet_throttle_deceleration = htonl((*current_peer)->packet_throttle_deceleration);
     cmd->connect.data = data;
 
     udp_peer_queue_outgoing_command(*current_peer, cmd, nullptr, 0, 0);
@@ -251,7 +247,10 @@ UdpHost::_udp_host_bandwidth_throttle()
 int
 UdpHost::_udp_protocol_dispatch_incoming_commands(UdpEvent &event)
 {
-    // ...
+    while (!_dispatch_queue.empty())
+    {
+
+    }
 
     return 0;
 }
