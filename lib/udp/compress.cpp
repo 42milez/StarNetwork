@@ -9,5 +9,4 @@ udp_host_compress_with_range_coder(std::shared_ptr<UdpHost> &host)
     return 0;
 }
 
-UdpCompressor::UdpCompressor() : compress(nullptr), decompress(nullptr), destroy(nullptr)
-{}
+

@@ -1,7 +1,6 @@
 #include "core/hash.h"
 
-#include "host.h"
-#include "peer.h"
+#include "udp.h"
 
 #define IS_PEER_CONNECTED(peer) \
     peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER
@@ -20,37 +19,8 @@ UdpHost::udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<Udp
         _compressor = compressor;
 }
 
-std::shared_ptr<UdpHost>
-UdpHost::udp_host_create(const std::unique_ptr<UdpAddress> &address, size_t peer_count, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
-{
-    std::shared_ptr<UdpHost> host;
-
-    if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
-        return nullptr;
-
-    host = std::make_shared<UdpHost>(channel_count, in_bandwidth, out_bandwidth, peer_count);
-
-    if (host == nullptr)
-        return nullptr;
-
-    if (_socket == nullptr || (address != nullptr && udp_socket_bind(_socket, address) != Error::OK))
-        return nullptr;
-
-    for (auto &peer : _peers)
-    {
-        peer.host = host;
-        peer.incoming_peer_id = hash32();
-        peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
-        peer.data = nullptr;
-
-        udp_peer_reset(peer);
-    }
-
-    return host;
-}
-
 Error
-UdpHost::udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &address, SysCh channel_count, uint32_t data)
+UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data)
 {
     auto current_peer = _peers.begin();
 
@@ -111,7 +81,7 @@ UdpHost::udp_host_connect(std::shared_ptr<UdpHost> &host, const UdpAddress &addr
 }
 
 void
-UdpHost::udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
+UdpHost::_udp_host_bandwidth_throttle()
 {
     auto time_current = udp_time_get();
     auto time_elapsed = time_current - _bandwidth_throttle_epoch;
@@ -285,7 +255,7 @@ UdpHost::udp_host_bandwidth_throttle(std::shared_ptr<UdpHost> &host)
 }
 
 int
-UdpHost::udp_protocol_dispatch_incoming_commands(std::shared_ptr<UdpEvent> &event)
+UdpHost::_udp_protocol_dispatch_incoming_commands(UdpEvent &event)
 {
     // ...
 
@@ -293,7 +263,7 @@ UdpHost::udp_protocol_dispatch_incoming_commands(std::shared_ptr<UdpEvent> &even
 }
 
 int
-UdpHost::udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint32_t timeout)
+UdpHost::udp_host_service(UdpEvent &event, uint32_t timeout)
 {
 #define CHECK_RETURN_VALUE(val) \
     if (val == 1) \
@@ -305,7 +275,7 @@ UdpHost::udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint3
 
     if (event.type == UdpEventType::NONE)
     {
-        ret = udp_dispatch_incoming_commands(host, event);
+        ret = _udp_protocol_dispatch_incoming_commands(event);
 
         CHECK_RETURN_VALUE(ret)
     }
@@ -315,21 +285,21 @@ UdpHost::udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint3
     timeout += _service_time;
 
     if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
-        udp_host_bandwidth_throttle(host);
+        _udp_host_bandwidth_throttle();
 
-    //ret = udp_protocol_send_outgoing_commands(host, event, 1);
-
-    CHECK_RETURN_VALUE(ret)
-
-    //ret = udp_protocol_receive_incoming_commands(host, event);
+    //ret = protocol_send_outgoing_commands(host, event, 1);
 
     CHECK_RETURN_VALUE(ret)
 
-    //ret = udp_protocol_send_outgoing_commands(host, event, 1);
+    //ret = protocol_receive_incoming_commands(host, event);
 
     CHECK_RETURN_VALUE(ret)
 
-    ret = udp_protocol_dispatch_incoming_commands(host, event);
+    //ret = protocol_send_outgoing_commands(host, event, 1);
+
+    CHECK_RETURN_VALUE(ret)
+
+    ret = _udp_protocol_dispatch_incoming_commands(event);
 
     CHECK_RETURN_VALUE(ret)
 
@@ -341,17 +311,15 @@ UdpHost::udp_host_service(std::shared_ptr<UdpHost> &host, UdpEvent &event, uint3
     return 0;
 }
 
-UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth, size_t peer_count) :
+UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
     _bandwidth_limited_peers(0),
     _bandwidth_throttle_epoch(0),
     _buffer_count(0),
     _channel_count(channel_count),
-    _checksum(nullptr),
     _command_count(0),
     _connected_peers(0),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
-    _intercept(nullptr),
     _maximum_packet_size(HOST_DEFAULT_MAXIMUM_PACKET_SIZE),
     _maximum_waiting_data(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     _mtu(HOST_DEFAULT_MTU),
@@ -372,4 +340,26 @@ UdpHost::UdpHost(SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwi
     _socket = std::make_unique<Socket>();
     _socket->open(Socket::Type::UDP, IP::Type::ANY);
     _socket->set_blocking_enabled(false);
+
+    if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
+    {
+        // throw exception
+        // ...
+    }
+
+    if (_socket == nullptr || (_udp_socket_bind(_socket, address) != Error::OK))
+    {
+        // throw exception
+        // ...
+    }
+
+    for (auto &peer : _peers)
+    {
+        peer.host = this;
+        peer.incoming_peer_id = hash32();
+        peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
+        peer.data = nullptr;
+
+        udp_peer_reset(peer);
+    }
 }

@@ -3,7 +3,6 @@
 #include "core/os.h"
 #include "core/singleton.h"
 
-#include "peer.h"
 #include "udp.h"
 
 static uint32_t time_base;
@@ -19,28 +18,36 @@ void udp_time_set(uint32_t new_time_base)
 }
 
 void
-udp_address_set_ip(const std::unique_ptr<UdpAddress> &address, const uint8_t *ip, size_t size)
+udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size)
 {
     auto len = size > 16 ? 16 : size;
-    memset(address->host, 0, 16);
-    memcpy(address->host, ip, len); // network byte-order (big endian)
+    memset(address.host, 0, 16);
+    memcpy(address.host, ip, len); // network byte-order (big endian)
 }
 
 Error
-udp_socket_bind(std::unique_ptr<Socket> &socket, const std::unique_ptr<UdpAddress> &address)
+UdpHost::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
 {
     IpAddress ip{};
 
-    if (address->wildcard)
-    {
+    if (address.wildcard)
         ip = IpAddress("*");
-    }
     else
-    {
-        ip.set_ipv6(address->host);
-    }
+        ip.set_ipv6(address.host);
 
-    return socket->bind(ip, address->port);
+    return socket->bind(ip, address.port);
+}
+
+void
+UdpHost::decrease_bandwidth_limited_peers()
+{
+    --_bandwidth_limited_peers;
+}
+
+void
+UdpHost::decrease_connected_peers()
+{
+    --_connected_peers;
 }
 
 UdpAddress::UdpAddress() : port(0), wildcard(0)
@@ -54,6 +61,9 @@ UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
                            incoming_reliable_sequence_number(0),
                            incoming_unreliable_sequence_number(0),
                            used_reliable_windows(0)
+{}
+
+UdpCompressor::UdpCompressor() : compress(nullptr), decompress(nullptr), destroy(nullptr)
 {}
 
 UdpEvent::UdpEvent() : type(UdpEventType::NONE),

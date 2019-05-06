@@ -97,15 +97,15 @@ Transporter::_setup_compressor()
 {
     if (_compression_mode == CompressionMode::NONE)
     {
-        udp_host_compress(_host);
+        //udp_host_compress(_host);
     }
     else if (_compression_mode == CompressionMode::RANGE_CODER)
     {
-        udp_host_compress_with_range_coder(_host);
+        //udp_host_compress_with_range_coder(_host);
     }
     else // FASTLZ or ZLIB or ZSTD
     {
-        udp_custom_compress(_host, _udp_compressor);
+        //udp_custom_compress(_host, _udp_compressor);
     }
 }
 
@@ -118,7 +118,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    std::unique_ptr<UdpAddress> address = std::make_unique<UdpAddress>();
+    UdpAddress address;
 
 #ifdef P2P_TECHDEMO_IPV6
     if (_bind_ip.is_wildcard())
@@ -137,9 +137,9 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
     }
 #endif
 
-    address->port = port;
+    address.port = port;
 
-    _host = udp_host_create(std::move(address), peer_count, _channel_count, in_bandwidth, out_bandwidth);
+    _host = std::make_unique<UdpHost>(address, _channel_count, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
 
@@ -165,7 +165,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
     if (client_port != 0)
     {
-        std::unique_ptr<UdpAddress> client = std::make_unique<UdpAddress>();
+        UdpAddress client_address;
 
 #ifdef P2P_TECHDEMO_IPV6
         if (_bind_ip.is_wildcard())
@@ -180,16 +180,17 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
         if (!_bind_ip.is_wildcard())
         {
             ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            udp_address_set_ip(client, _bind_ip.get_ipv4(), 8);
+            udp_address_set_ip(client_address, _bind_ip.get_ipv4(), 8);
         }
 #endif
-        client->port = client_port;
+        client_address.port = client_port;
 
-        _host = udp_host_create(std::move(client), 1, _channel_count, in_bandwidth, out_bandwidth);
+        _host = std::make_unique<UdpHost>(client_address, _channel_count, 1, in_bandwidth, out_bandwidth);
     }
     else
     {
-        _host = udp_host_create(nullptr, 1, _channel_count, in_bandwidth, out_bandwidth);
+        // create a host with random assigned port
+        // ...
     }
 
     ERR_FAIL_COND_V(!_host, Error::CANT_CREATE)
@@ -224,7 +225,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
     _unique_id = hash32();
 
-    return udp_host_connect(_host, udp_address, _channel_count, _unique_id);
+    return _host->udp_host_connect(udp_address, _channel_count, _unique_id);
 }
 
 void
@@ -251,7 +252,7 @@ Transporter::poll()
         if (!_host || !_active)
             return;
 
-        int ret = udp_host_service(_host, event, 0);
+        int ret = _host->udp_host_service(event, 0);
 
         if (ret <= 0)
             break;

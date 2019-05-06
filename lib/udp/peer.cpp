@@ -1,5 +1,4 @@
 #include "command.h"
-#include "peer.h"
 #include "udp.h"
 
 void
@@ -8,9 +7,9 @@ udp_peer_on_disconnect(UdpPeer &peer)
     if (peer.state == UdpPeerState::CONNECTED || peer.state == UdpPeerState::DISCONNECT_LATER)
     {
         if (peer.incoming_bandwidth != 0)
-            --(peer.host->bandwidth_limited_peers);
+            peer.host->decrease_bandwidth_limited_peers();
 
-        --(peer.host->connected_peers);
+        peer.host->decrease_connected_peers();
     }
 }
 
@@ -74,7 +73,7 @@ udp_peer_reset(UdpPeer &peer)
     peer.highest_round_trip_time_variance = 0;
     peer.round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
     peer.round_trip_time_variance = 0;
-    peer.mtu = peer.host->mtu;
+    peer.mtu = HOST_DEFAULT_MTU;
     peer.reliable_data_in_transit = 0;
     peer.outgoing_reliable_sequence_number = 0;
     peer.window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
