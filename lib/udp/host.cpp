@@ -3,7 +3,7 @@
 #include "udp.h"
 
 #define IS_PEER_CONNECTED(peer) \
-    peer.state != UdpPeerState::CONNECTED && peer.state != UdpPeerState::DISCONNECT_LATER
+    peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER
 
 void
 UdpHost::udp_host_compress(std::shared_ptr<UdpHost> &host)
@@ -109,7 +109,7 @@ UdpHost::_udp_host_bandwidth_throttle()
             if (IS_PEER_CONNECTED(peer))
                 continue;
 
-            data_total += peer.outgoing_data_total;
+            data_total += peer->outgoing_data_total;
         }
     }
 
@@ -130,27 +130,27 @@ UdpHost::_udp_host_bandwidth_throttle()
             uint32_t peer_bandwidth;
 
             if ((IS_PEER_CONNECTED(peer)) ||
-                peer.incoming_bandwidth == 0 ||
-                peer.outgoing_bandwidth_throttle_epoch == time_current)
+                peer->incoming_bandwidth == 0 ||
+                peer->outgoing_bandwidth_throttle_epoch == time_current)
             {
                 continue;
             }
 
-            peer_bandwidth = peer.incoming_bandwidth * (time_elapsed / 1000);
-            if ((throttle * peer.outgoing_data_total) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
+            peer_bandwidth = peer->incoming_bandwidth * (time_elapsed / 1000);
+            if ((throttle * peer->outgoing_data_total) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
                 continue;
 
-            peer.packet_throttle_limit = (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer.outgoing_data_total;
+            peer->packet_throttle_limit = (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total;
 
-            if (peer.packet_throttle_limit == 0)
-                peer.packet_throttle_limit = 1;
+            if (peer->packet_throttle_limit == 0)
+                peer->packet_throttle_limit = 1;
 
-            if (peer.packet_throttle > peer.packet_throttle_limit)
-                peer.packet_throttle = peer.packet_throttle_limit;
+            if (peer->packet_throttle > peer->packet_throttle_limit)
+                peer->packet_throttle = peer->packet_throttle_limit;
 
-            peer.outgoing_bandwidth_throttle_epoch = time_current;
-            peer.incoming_data_total = 0;
-            peer.outgoing_data_total = 0;
+            peer->outgoing_bandwidth_throttle_epoch = time_current;
+            peer->incoming_data_total = 0;
+            peer->outgoing_data_total = 0;
 
             needs_adjustment = true;
 
@@ -173,16 +173,16 @@ UdpHost::_udp_host_bandwidth_throttle()
 
         for (auto &peer : _peers)
         {
-            if ((IS_PEER_CONNECTED(peer)) || peer.outgoing_bandwidth_throttle_epoch == time_current)
+            if ((IS_PEER_CONNECTED(peer)) || peer->outgoing_bandwidth_throttle_epoch == time_current)
                 continue;
 
-            peer.packet_throttle_limit = throttle;
+            peer->packet_throttle_limit = throttle;
 
-            if (peer.packet_throttle > peer.packet_throttle_limit)
-                peer.packet_throttle = peer.packet_throttle_limit;
+            if (peer->packet_throttle > peer->packet_throttle_limit)
+                peer->packet_throttle = peer->packet_throttle_limit;
 
-            peer.incoming_data_total = 0;
-            peer.outgoing_data_total = 0;
+            peer->incoming_data_total = 0;
+            peer->outgoing_data_total = 0;
         }
     }
 
@@ -206,19 +206,19 @@ UdpHost::_udp_host_bandwidth_throttle()
 
                 for (auto &peer: _peers)
                 {
-                    if ((IS_PEER_CONNECTED(peer)) || peer.incoming_bandwidth_throttle_epoch == time_current)
+                    if ((IS_PEER_CONNECTED(peer)) || peer->incoming_bandwidth_throttle_epoch == time_current)
                         continue;
 
-                    if (peer.outgoing_bandwidth > 0 && peer.outgoing_bandwidth >= bandwidth_limit)
+                    if (peer->outgoing_bandwidth > 0 && peer->outgoing_bandwidth >= bandwidth_limit)
                         continue;
 
-                    peer.incoming_bandwidth_throttle_epoch = time_current;
+                    peer->incoming_bandwidth_throttle_epoch = time_current;
 
                     needs_adjustment = true;
 
                     --peers_remaining;
 
-                    bandwidth -= peer.outgoing_bandwidth;
+                    bandwidth -= peer->outgoing_bandwidth;
                 }
             }
 
@@ -234,8 +234,8 @@ UdpHost::_udp_host_bandwidth_throttle()
             cmd->header.channel_id = 0xFF;
             cmd->bandwidth_limit.outgoing_bandwidth = htonl(_outgoing_bandwidth);
 
-            if (peer.incoming_bandwidth_throttle_epoch == time_current)
-                cmd->bandwidth_limit.incoming_bandwidth = htonl(peer.outgoing_bandwidth);
+            if (peer->incoming_bandwidth_throttle_epoch == time_current)
+                cmd->bandwidth_limit.incoming_bandwidth = htonl(peer->outgoing_bandwidth);
             else
                 cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
 
@@ -349,10 +349,10 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
 
     for (auto &peer : _peers)
     {
-        peer.host = this;
-        peer.incoming_peer_id = hash32();
-        peer.outgoing_session_id = peer.incoming_session_id = 0xFF;
-        peer.data = nullptr;
+        peer->host = this;
+        peer->incoming_peer_id = hash32();
+        peer->outgoing_session_id = peer->incoming_session_id = 0xFF;
+        peer->data = nullptr;
 
         udp_peer_reset(peer);
     }
