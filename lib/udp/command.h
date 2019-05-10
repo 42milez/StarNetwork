@@ -10,7 +10,7 @@ using UdpIncomingCommand = struct UdpIncomingCommand
 {
     uint16_t reliable_sequence_number;
     uint16_t unreliable_sequence_number;
-    UdpProtocol command;
+    std::shared_ptr<UdpProtocol> command;
     uint32_t fragment_count;
     uint32_t fragments_remaining;
     std::vector<uint32_t> fragments;

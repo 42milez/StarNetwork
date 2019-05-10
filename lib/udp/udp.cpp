@@ -39,6 +39,18 @@ UdpHost::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &add
 }
 
 void
+UdpHost::increase_bandwidth_limited_peers()
+{
+    ++_bandwidth_limited_peers;
+}
+
+void
+UdpHost::increase_connected_peers()
+{
+    ++_connected_peers;
+}
+
+void
 UdpHost::decrease_bandwidth_limited_peers()
 {
     --_bandwidth_limited_peers;

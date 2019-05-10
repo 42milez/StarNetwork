@@ -244,19 +244,290 @@ UdpHost::_udp_host_bandwidth_throttle()
     }
 }
 
+void
+UdpHost::_udp_protocol_change_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+{
+    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
+        udp_peer_on_connect(peer);
+    else
+        udp_peer_on_disconnect(peer);
+
+    peer->state = state;
+}
+
+std::shared_ptr<UdpPeer>
+UdpHost::_dequeue()
+{
+    auto ret = _dispatch_queue.front();
+
+    _dispatch_queue.pop();
+
+    return ret;
+}
+
 int
-UdpHost::_udp_protocol_dispatch_incoming_commands(UdpEvent &event)
+UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     while (!_dispatch_queue.empty())
     {
+        auto peer = _dequeue();
 
+        peer->needs_dispatch = false;
+
+        if (peer->state == UdpPeerState::CONNECTION_PENDING ||
+            peer->state == UdpPeerState::CONNECTION_SUCCEEDED)
+        {
+            _udp_protocol_change_state(peer, UdpPeerState::CONNECTED);
+
+            event->type = UdpEventType::CONNECT;
+            event->peer = peer;
+            event->data = peer->event_data;
+
+            return 1;
+        }
+        else if (peer->state == UdpPeerState::ZOMBIE)
+        {
+            _recalculate_bandwidth_limits = true;
+
+            event->type = UdpEventType::DISCONNECT;
+            event->peer = peer;
+            event->data = peer->event_data;
+
+            udp_peer_reset(peer);
+
+            return 1;
+        }
+        else if (peer->state == UdpPeerState::CONNECTED)
+        {
+            if (peer->dispatched_commands.empty())
+                continue;
+
+            event->packet = udp_peer_receive(peer, event->channel_id);
+
+            if (event->packet == nullptr)
+                continue;
+
+            event->type = UdpEventType::RECEIVE;
+            event->peer = peer;
+
+            if (!peer->dispatched_commands.empty())
+            {
+                peer->needs_dispatch = true;
+
+                _dispatch_queue.push(peer);
+            }
+
+            return 1;
+        }
     }
 
     return 0;
 }
 
+void
+UdpHost::_udp_protocol_send_acknowledgements(const std::shared_ptr<UdpPeer> &peer)
+{
+    auto &command = _commands.at(_command_count);
+    auto &buffer = _buffers.at(_buffer_count);
+
+    for (auto &ack : peer->acknowledgements)
+    {
+        if (&command >= &_commands.back() ||
+            &buffer >= &_buffers.back() ||
+            peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+    }
+}
+
 int
-UdpHost::udp_host_service(UdpEvent &event, uint32_t timeout)
+UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const UdpEvent &event)
+{
+    // ...
+
+    return 0;
+}
+
+bool
+UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
+{
+    // ...
+
+    return true;
+}
+
+void
+UdpHost::_udp_protocol_send_unreliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
+{
+    // ...
+}
+
+void
+UdpHost::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer)
+{
+    // ...
+}
+
+int
+UdpHost::_udp_socket_send(const UdpAddress &address)
+{
+    // ...
+
+    return 0;
+}
+
+int
+UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
+{
+    std::vector<uint8_t> header_data(sizeof(UdpProtocolHeader) + sizeof(uint32_t));
+    _buffers.at(0).data = std::move(header_data);
+    auto *header = reinterpret_cast<UdpProtocolHeader *>(&_buffers.at(0).data);
+
+    _continue_sending = true;
+
+    while (_continue_sending)
+    {
+        for (auto &peer : _peers)
+        {
+            if (peer->state == UdpPeerState::DISCONNECTED || peer->state == UdpPeerState::ZOMBIE)
+                continue;
+
+            _header_flags = 0;
+            _command_count = 0;
+            _buffer_count = 1;
+            _packet_size = sizeof(UdpProtocolHeader);
+
+            //  ???
+            // --------------------------------------------------
+
+            if (!peer->acknowledgements.empty())
+                _udp_protocol_send_acknowledgements(peer);
+
+            //  ???
+            // --------------------------------------------------
+
+            if (check_for_timeouts &&
+                !peer->sent_reliable_commands.empty() &&
+                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
+                _udp_protocol_check_timeouts(peer, event) == 1)
+            {
+                if (event.type != UdpEventType::NONE)
+                    return 1;
+                else
+                    continue;
+            }
+
+            //  ???
+            // --------------------------------------------------
+
+            if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
+                peer->sent_reliable_commands.empty() &&
+                UDP_TIME_DIFFERENCE(_service_time, peer->last_receive_time) >= peer->ping_interval &&
+                peer->mtu - _packet_size >= sizeof(UdpProtocolPing))
+            {
+                udp_peer_ping(peer);
+                _udp_protocol_send_reliable_outgoing_commands(peer);
+            }
+
+            //  ???
+            // --------------------------------------------------
+
+            if (!peer->outgoing_unreliable_commands.empty())
+                _udp_protocol_send_unreliable_outgoing_commands(peer);
+
+            if (_command_count == 0)
+                continue;
+
+            if (peer->packet_loss_epoch == 0)
+            {
+                peer->packet_loss_epoch = _service_time;
+            }
+            else if (UDP_TIME_DIFFERENCE(_service_time, peer->packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL &&
+                     peer->packets_sent > 0)
+            {
+                uint32_t packet_loss = peer->packets_lost * PEER_PACKET_LOSS_SCALE / peer->packets_sent;
+
+                peer->packet_loss_variance -= peer->packet_loss_variance / 4;
+
+                if (packet_loss >= peer->packet_loss)
+                {
+                    peer->packet_loss += (packet_loss - peer->packet_loss) / 8;
+                    peer->packet_loss_variance += (packet_loss - peer->packet_loss) / 4;
+                }
+                else
+                {
+                    peer->packet_loss -= (peer->packet_loss - packet_loss) / 8;
+                    peer->packet_loss_variance += (peer->packet_loss - packet_loss) / 4;
+                }
+
+                peer->packet_loss_epoch = _service_time;
+                peer->packets_sent = 0;
+                peer->packets_lost = 0;
+            }
+
+            if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
+            {
+                header->sent_time = htons(_service_time & 0xFFFF);
+                _buffers.at(0).data_length = sizeof(UdpProtocolHeader);
+            }
+            else
+            {
+                _buffers.at(0).data_length = (size_t) & ((UdpProtocolHeader *) 0) -> sent_time; // ???
+            }
+
+            auto should_compress = false;
+
+            if (_compressor->compress != nullptr)
+            {
+                 // ...
+            }
+
+            if (peer->outgoing_peer_id < PROTOCOL_MAXIMUM_PEER_ID)
+                _header_flags |= peer->outgoing_session_id << PROTOCOL_HEADER_SESSION_SHIFT;
+
+            header->peer_id = htons(peer->outgoing_peer_id | _header_flags);
+
+            if (_checksum != nullptr)
+            {
+                // ...
+            }
+
+            if (should_compress)
+            {
+                // ...
+            }
+
+            peer->last_send_time = _service_time;
+
+            auto sent_length = _udp_socket_send(peer->address);
+
+            _udp_protocol_remove_sent_unreliable_commands(peer);
+
+            if (sent_length < 0)
+                return -1;
+
+            _total_sent_data += sent_length;
+
+            ++_total_sent_packets;
+        }
+    }
+
+    return 0;
+}
+
+static void
+init_event(std::unique_ptr<UdpEvent> &event)
+{
+    event->type = UdpEventType::NONE;
+    event->peer = nullptr;
+    event->packet = nullptr;
+}
+
+int
+UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 {
 #define CHECK_RETURN_VALUE(val) \
     if (val == 1) \
@@ -266,8 +537,10 @@ UdpHost::udp_host_service(UdpEvent &event, uint32_t timeout)
 
     int ret;
 
-    if (event.type == UdpEventType::NONE)
+    if (event != nullptr)
     {
+        init_event(event);
+
         ret = _udp_protocol_dispatch_incoming_commands(event);
 
         CHECK_RETURN_VALUE(ret)
@@ -280,7 +553,7 @@ UdpHost::udp_host_service(UdpEvent &event, uint32_t timeout)
     if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
         _udp_host_bandwidth_throttle();
 
-    //ret = protocol_send_outgoing_commands(host, event, 1);
+    ret = _protocol_send_outgoing_commands(event, true);
 
     CHECK_RETURN_VALUE(ret)
 
@@ -305,6 +578,7 @@ UdpHost::udp_host_service(UdpEvent &event, uint32_t timeout)
 }
 
 UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
+    _checksum(nullptr),
     _bandwidth_limited_peers(0),
     _bandwidth_throttle_epoch(0),
     _buffer_count(0),

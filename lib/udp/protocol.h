@@ -41,6 +41,12 @@ enum class UdpProtocolCommandFlag : uint32_t
     UNSEQUENCED = (1u << 6u)
 };
 
+using UdpProtocolHeader = struct UdpProtocolHeader
+{
+    uint16_t peer_id;
+    uint16_t sent_time;
+};
+
 using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader {
     uint8_t command;
     uint8_t channel_id;

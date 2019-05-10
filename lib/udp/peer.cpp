@@ -2,6 +2,18 @@
 #include "udp.h"
 
 void
+udp_peer_on_connect(std::shared_ptr<UdpPeer> &peer)
+{
+    if (peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER)
+    {
+        if (peer->incoming_bandwidth != 0)
+            peer->host->increase_bandwidth_limited_peers();
+
+        peer->host->increase_connected_peers();
+    }
+}
+
+void
 udp_peer_on_disconnect(std::shared_ptr<UdpPeer> &peer)
 {
     if (peer->state == UdpPeerState::CONNECTED || peer->state == UdpPeerState::DISCONNECT_LATER)
@@ -19,7 +31,7 @@ udp_peer_reset_queues(std::shared_ptr<UdpPeer> &peer)
     std::unique_ptr<UdpChannel> channel;
 
     if (peer->needs_dispatch)
-        peer->needs_dispatch = 0;
+        peer->needs_dispatch = false;
 
     if (!peer->acknowledgements.empty())
         peer->acknowledgements.clear();
@@ -28,7 +40,9 @@ udp_peer_reset_queues(std::shared_ptr<UdpPeer> &peer)
     peer->sent_unreliable_commands.clear();
     peer->outgoing_reliable_commands.clear();
     peer->outgoing_unreliable_commands.clear();
-    peer->dispatched_commands.clear();
+
+    while (!peer->dispatched_commands.empty())
+        peer->dispatched_commands.pop();
 
     if (!peer->channels.empty())
         peer->channels.clear();
@@ -167,6 +181,29 @@ udp_peer_queue_outgoing_command(std::shared_ptr<UdpPeer> &peer, const std::share
     return outgoing_command;
 }
 
+std::shared_ptr<UdpPacket>
+udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id)
+{
+    if (peer->dispatched_commands.empty())
+        return nullptr;
+
+    auto incoming_command = peer->dispatched_commands.front();
+
+    channel_id = incoming_command.command->header.channel_id;
+
+    auto packet = incoming_command.packet;
+
+    peer->total_waiting_data -= packet->data_length;
+
+    return packet;
+}
+
+void
+udp_peer_ping(const std::shared_ptr<UdpPeer> &peer)
+{
+    // ...
+}
+
 UdpPeer::UdpPeer() : outgoing_peer_id(0),
                      outgoing_session_id(0),
                      incoming_session_id(0),
@@ -207,7 +244,7 @@ UdpPeer::UdpPeer() : outgoing_peer_id(0),
                      window_size(0),
                      reliable_data_in_transit(0),
                      outgoing_reliable_sequence_number(0),
-                     needs_dispatch(0),
+                     needs_dispatch(false),
                      incoming_unsequenced_group(0),
                      outgoing_unsequenced_group(0),
                      event_data(0),

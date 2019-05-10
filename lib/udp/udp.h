@@ -23,6 +23,8 @@ constexpr int HOST_DEFAULT_MTU = 1400;
 
 constexpr int PEER_DEFAULT_PACKET_THROTTLE = 32;
 constexpr int PEER_DEFAULT_ROUND_TRIP_TIME = 500;
+constexpr int PEER_PACKET_LOSS_INTERVAL = 10000;
+constexpr int PEER_PACKET_LOSS_SCALE = 32;
 constexpr int PEER_PACKET_THROTTLE_ACCELERATION = 2;
 constexpr int PEER_PACKET_THROTTLE_DECELERATION = 2;
 constexpr int PEER_PACKET_THROTTLE_INTERVAL = 5000;
@@ -40,9 +42,13 @@ constexpr uint32_t SOCKET_WAIT_SEND = (1u << 0u);
 constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
 constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
-#define UDP_TIME_OVERFLOW 86400000
+#define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
+
 #define UDP_TIME_LESS(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW)
+#define UDP_TIME_GREATER(a, b) ((b) - (a) >= UDP_TIME_OVERFLOW)
+#define UDP_TIME_LESS_EQUAL(a, b) (!UDP_TIME_GREATER(a, b))
 #define UDP_TIME_GREATER_EQUAL(a, b) (!UDP_TIME_LESS(a, b))
+
 #define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 enum class SysCh : int
@@ -91,7 +97,7 @@ using UdpAddress = struct UdpAddress
 
 using UdpBuffer = struct UdpBuffer
 {
-    void *data;
+    std::vector<uint8_t> data;
     size_t data_length;
 };
 
@@ -131,13 +137,15 @@ using UdpCompressor = struct UdpCompressor
 using UdpEvent = struct UdpEvent
 {
     UdpEventType type;
-    uint8_t channel_id;
     uint32_t data;
     std::shared_ptr<UdpPeer> peer;
     std::shared_ptr<UdpPacket> packet;
+    uint8_t channel_id;
 
     UdpEvent();
 };
+
+using UdpChecksumCallback = std::function<uint32_t(const std::vector<UdpBuffer> &buffers, size_t buffer_count)>;
 
 void
 udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size);
@@ -152,6 +160,8 @@ class UdpHost
 {
 private:
     std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+
+    UdpChecksumCallback _checksum;
 
     std::vector<UdpBuffer> _buffers;
     std::vector<UdpProtocol> _commands;
@@ -197,10 +207,37 @@ private:
     _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
 
     int
-    _udp_protocol_dispatch_incoming_commands(UdpEvent &event);
+    _udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
+
+    int
+    _protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
 
     void
     _udp_host_bandwidth_throttle();
+
+    void
+    _udp_protocol_change_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+
+    void
+    _udp_protocol_send_acknowledgements(const std::shared_ptr<UdpPeer> &peer);
+
+    int
+    _udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const UdpEvent &event);
+
+    bool
+    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
+
+    void
+    _udp_protocol_send_unreliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
+
+    void
+    _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
+
+    int
+    _udp_socket_send(const UdpAddress &address);
+
+    std::shared_ptr<UdpPeer>
+    _dequeue();
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
@@ -215,7 +252,13 @@ public:
     udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data);
 
     int
-    udp_host_service(UdpEvent &event, uint32_t timeout);
+    udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
+
+    void
+    increase_bandwidth_limited_peers();
+
+    void
+    increase_connected_peers();
 
     void
     decrease_bandwidth_limited_peers();
@@ -277,8 +320,8 @@ using UdpPeer = struct UdpPeer
     std::list<UdpOutgoingCommand> sent_unreliable_commands;
     std::list<UdpOutgoingCommand> outgoing_reliable_commands;
     std::list<UdpOutgoingCommand> outgoing_unreliable_commands;
-    std::list<UdpOutgoingCommand> dispatched_commands;
-    int needs_dispatch;
+    std::queue<UdpIncomingCommand> dispatched_commands;
+    bool needs_dispatch;
     uint16_t incoming_unsequenced_group;
     uint16_t outgoing_unsequenced_group;
     uint32_t unsequenced_window[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
@@ -295,12 +338,21 @@ void
 udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingCommand &outgoing_command);
 
 void
-udp_peer_reset(UdpPeer &peer);
+udp_peer_reset(std::shared_ptr<UdpPeer> &peer);
 
 void
 udp_peer_reset_queues(UdpPeer &peer);
 
 void
-udp_peer_on_disconnect(UdpPeer &peer);
+udp_peer_on_connect(std::shared_ptr<UdpPeer> &peer);
+
+void
+udp_peer_on_disconnect(std::shared_ptr<UdpPeer> &peer);
+
+std::shared_ptr<UdpPacket>
+udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id);
+
+void
+udp_peer_ping(const std::shared_ptr<UdpPeer> &peer);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

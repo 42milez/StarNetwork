@@ -237,7 +237,7 @@ Transporter::close_connection(uint32_t wait_usec)
 void
 Transporter::_pop_current_packet()
 {
-
+    // ...
 }
 
 void
@@ -245,7 +245,9 @@ Transporter::poll()
 {
     ERR_FAIL_COND(!_active)
 
-    UdpEvent event;
+    _pop_current_packet();
+
+    std::unique_ptr<UdpEvent> event;
 
     while (true)
     {
