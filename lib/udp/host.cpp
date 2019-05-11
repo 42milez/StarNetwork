@@ -327,19 +327,38 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
 void
 UdpHost::_udp_protocol_send_acknowledgements(const std::shared_ptr<UdpPeer> &peer)
 {
-    auto &command = _commands.at(_command_count);
-    auto &buffer = _buffers.at(_buffer_count);
+    auto *command = &_commands.at(_command_count);
+    auto *buffer = &_buffers.at(_buffer_count);
 
     for (auto &ack : peer->acknowledgements)
     {
-        if (&command >= &_commands.back() ||
-            &buffer >= &_buffers.back() ||
+        if (&command >= &_commands.at(_commands.size() - 1) ||
+            &buffer >= &_buffers.at(_buffers.size() - 1) ||
             peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
         {
             _continue_sending = true;
 
             break;
         }
+
+        buffer.data = command;
+        buffer.data_length = sizeof(UdpProtocolAcknowledge);
+
+        _packet_size += buffer.data_length;
+
+        auto reliable_sequence_number = htons(ack.command.header.reliable_sequence_number);
+
+        command.header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
+        command.header.channel_id = ack.command.header.channel_id;
+        command.header.reliable_sequence_number = reliable_sequence_number;
+        command.acknowledge.received_reliable_sequence_number = reliable_sequence_number;
+        command.acknowledge.received_sent_time = htons(ack.sent_time);
+
+        if ((ack.command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+            _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+
+        ++_command_count;
+        ++_buffer_count;
     }
 }
 

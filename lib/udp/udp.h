@@ -82,7 +82,6 @@ enum class UdpPeerState : int
 };
 
 using UdpAcknowledgement = struct UdpAcknowledgement {
-    // EnetListNode acknowledgement_list;
     uint32_t sent_time;
     UdpProtocol command;
 };
@@ -97,7 +96,7 @@ using UdpAddress = struct UdpAddress
 
 using UdpBuffer = struct UdpBuffer
 {
-    std::vector<uint8_t> data;
+    void *data;
     size_t data_length;
 };
 
