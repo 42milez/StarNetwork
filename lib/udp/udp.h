@@ -162,8 +162,8 @@ private:
 
     UdpChecksumCallback _checksum;
 
-    std::vector<UdpBuffer> _buffers;
-    std::vector<UdpProtocol> _commands;
+    UdpBuffer _buffers[BUFFER_MAXIMUM];
+    UdpProtocol _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     std::vector<std::shared_ptr<UdpPeer>> _peers;
     std::vector<uint8_t> _received_data;
     std::vector<std::vector<uint8_t>> _packet_data;
@@ -218,7 +218,7 @@ private:
     _udp_protocol_change_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
     void
-    _udp_protocol_send_acknowledgements(const std::shared_ptr<UdpPeer> &peer);
+    _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
     int
     _udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const UdpEvent &event);
@@ -237,6 +237,9 @@ private:
 
     std::shared_ptr<UdpPeer>
     _dequeue();
+
+    void
+    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
