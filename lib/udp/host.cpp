@@ -380,7 +380,7 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 int
-UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const UdpEvent &event)
+UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     // ...
 
@@ -418,9 +418,8 @@ UdpHost::_udp_socket_send(const UdpAddress &address)
 int
 UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
 {
-    std::vector<uint8_t> header_data(sizeof(UdpProtocolHeader) + sizeof(uint32_t));
-    _buffers.at(0).data = std::move(header_data);
-    auto *header = reinterpret_cast<UdpProtocolHeader *>(&_buffers.at(0).data);
+    uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
+    auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
 
     _continue_sending = true;
 
@@ -450,7 +449,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
                 UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
                 _udp_protocol_check_timeouts(peer, event) == 1)
             {
-                if (event.type != UdpEventType::NONE)
+                if (event->type != UdpEventType::NONE)
                     return 1;
                 else
                     continue;
@@ -507,11 +506,11 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
             if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {
                 header->sent_time = htons(_service_time & 0xFFFF);
-                _buffers.at(0).data_length = sizeof(UdpProtocolHeader);
+                _buffers[0].data_length = sizeof(UdpProtocolHeader);
             }
             else
             {
-                _buffers.at(0).data_length = (size_t) & ((UdpProtocolHeader *) 0) -> sent_time; // ???
+                _buffers[0].data_length = (size_t) & ((UdpProtocolHeader *) 0) -> sent_time; // ???
             }
 
             auto should_compress = false;
@@ -601,7 +600,7 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 
     CHECK_RETURN_VALUE(ret)
 
-    ret = _udp_protocol_dispatch_incoming_commands(event);
+    //ret = _udp_protocol_dispatch_incoming_commands(event);
 
     CHECK_RETURN_VALUE(ret)
 

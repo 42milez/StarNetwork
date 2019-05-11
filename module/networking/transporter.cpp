@@ -259,19 +259,19 @@ Transporter::poll()
         if (ret <= 0)
             break;
 
-        if (event.type == UdpEventType::CONNECT)
+        if (event->type == UdpEventType::CONNECT)
         {
             // ...
         }
-        else if (event.type == UdpEventType::DISCONNECT)
+        else if (event->type == UdpEventType::DISCONNECT)
         {
             // ...
         }
-        else if (event.type == UdpEventType::RECEIVE)
+        else if (event->type == UdpEventType::RECEIVE)
         {
             // ...
         }
-        else if (event.type == UdpEventType::NONE)
+        else if (event->type == UdpEventType::NONE)
         {
             // ...
         }

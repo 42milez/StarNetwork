@@ -221,7 +221,7 @@ private:
     _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
     int
-    _udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const UdpEvent &event);
+    _udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
     _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
