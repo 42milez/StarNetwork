@@ -277,6 +277,7 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
         if (peer->state == UdpPeerState::CONNECTION_PENDING ||
             peer->state == UdpPeerState::CONNECTION_SUCCEEDED)
         {
+            // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
             _udp_protocol_change_state(peer, UdpPeerState::CONNECTED);
 
             event->type = UdpEventType::CONNECT;
@@ -293,6 +294,7 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
             event->peer = peer;
             event->data = peer->event_data;
 
+            // ゾンビ状態になったピアはリセットする
             udp_peer_reset(peer);
 
             return 1;
@@ -302,6 +304,7 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
             if (peer->dispatched_commands.empty())
                 continue;
 
+            // 接続済みのピアからはコマンドを受信する
             event->packet = udp_peer_receive(peer, event->channel_id);
 
             if (event->packet == nullptr)
@@ -310,6 +313,7 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
             event->type = UdpEventType::RECEIVE;
             event->peer = peer;
 
+            // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
             if (!peer->dispatched_commands.empty())
             {
                 peer->needs_dispatch = true;
@@ -425,6 +429,8 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
 
     while (_continue_sending)
     {
+        _continue_sending = false;
+
         for (auto &peer : _peers)
         {
             if (peer->state == UdpPeerState::DISCONNECTED || peer->state == UdpPeerState::ZOMBIE)
@@ -576,6 +582,18 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
     {
         init_event(event);
 
+        // - キューから取り出されたパケットは event に格納される
+        // - ピアが取りうるステートは以下の 10 通りだが、この関数で処理されるのは 3,5,6,10 の４つ
+        //  1. ACKNOWLEDGING_CONNECT,
+        //  2. ACKNOWLEDGING_DISCONNECT,
+        //  3. CONNECTED,
+        //  4. CONNECTING,
+        //  5. CONNECTION_PENDING,
+        //  6. CONNECTION_SUCCEEDED,
+        //  7. DISCONNECT_LATER,
+        //  8. DISCONNECTED,
+        //  9. DISCONNECTING,
+        // 10. ZOMBIE
         ret = _udp_protocol_dispatch_incoming_commands(event);
 
         CHECK_RETURN_VALUE(ret)
@@ -619,7 +637,6 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _buffer_count(0),
     _channel_count(channel_count),
     _command_count(0),
-    _commands(PROTOCOL_MAXIMUM_PACKET_COMMANDS),
     _connected_peers(0),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
@@ -638,6 +655,8 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _total_sent_packets(0),
     _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {
+    memset(_commands, 0, sizeof(_commands));
+
     _compressor = std::make_shared<UdpCompressor>();
 
     _socket = std::make_unique<Socket>();
