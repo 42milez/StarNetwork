@@ -386,10 +386,73 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
     _buffer_count = buffer - _buffers;
 }
 
+void
+UdpHost::_udp_protocol_notify_disconnect(std::shared_ptr<UdpPeer> &peer, std::unique_ptr<UdpEvent> &event)
+{
+    if (peer->state >= UdpPeerState::CONNECTION_PENDING)
+        _recalculate_bandwidth_limits = 1;
+
+    if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
+    {
+        udp_peer_reset(peer);
+    }
+    else if (event != nullptr)
+    {
+        event->type = UdpEventType::DISCONNECT;
+        event->peer = peer;
+        event->data = 0;
+
+        udp_peer_reset(peer);
+    }
+    else
+    {
+        peer->event_data = 0;
+
+        _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+    }
+}
+
 int
 UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
-    // ...
+    auto current_command = peer->sent_reliable_commands.begin();
+
+    while (current_command != peer->sent_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        ++current_command;
+
+        if (UDP_TIME_DIFFERENCE(_service_time, outgoing_command->sent_time) < outgoing_command->round_trip_timeout)
+            continue;
+
+        if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
+            peer->earliest_timeout = outgoing_command->sent_time;
+
+        if (peer->earliest_timeout != 0 &&
+            (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
+                (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
+                UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
+        {
+            _udp_protocol_notify_disconnect(peer, event);
+
+            return 1;
+        }
+
+        if (outgoing_command->packet != nullptr)
+            peer->reliable_data_in_transit -= outgoing_command->fragment_length;
+
+        ++peer->packets_lost;
+
+        outgoing_command->round_trip_timeout *= 2;
+
+        peer->outgoing_reliable_commands.push_front(*outgoing_command);
+
+        if (!peer->sent_reliable_commands.empty() && peer->sent_reliable_commands.size() == 1)
+        {
+            peer->next_timeout = current_command->sent_time + current_command->round_trip_timeout;
+        }
+    }
 
     return 0;
 }

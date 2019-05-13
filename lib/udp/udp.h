@@ -70,15 +70,15 @@ enum class UdpEventType : int
 
 enum class UdpPeerState : int
 {
-    ACKNOWLEDGING_CONNECT,
-    ACKNOWLEDGING_DISCONNECT,
-    CONNECTED,
+    DISCONNECTED = 0,
     CONNECTING,
+    ACKNOWLEDGING_CONNECT,
     CONNECTION_PENDING,
     CONNECTION_SUCCEEDED,
+    CONNECTED,
     DISCONNECT_LATER,
-    DISCONNECTED,
     DISCONNECTING,
+    ACKNOWLEDGING_DISCONNECT,
     ZOMBIE
 };
 
@@ -241,6 +241,9 @@ private:
 
     void
     _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+
+    void
+    _udp_protocol_notify_disconnect(std::shared_ptr<UdpPeer> &peer, std::unique_ptr<UdpEvent> &event);
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
