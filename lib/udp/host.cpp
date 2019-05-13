@@ -349,7 +349,10 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 
     for (auto &ack : peer->acknowledgements)
     {
-        //
+        // 送信継続
+        // - コマンドバッファに空きがない
+        // - データバッファに空きがない
+        // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
         if (command >= &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS] ||
             buffer >= &_buffers[BUFFER_MAXIMUM] ||
             peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
@@ -441,7 +444,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
             _buffer_count = 1;
             _packet_size = sizeof(UdpProtocolHeader);
 
-            //  ???
+            //  ACKを返す
             // --------------------------------------------------
 
             if (!peer->acknowledgements.empty())
@@ -603,9 +606,11 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 
     timeout += _service_time;
 
+    // 帯域幅の調整
     if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
         _udp_host_bandwidth_throttle();
 
+    //
     ret = _protocol_send_outgoing_commands(event, true);
 
     CHECK_RETURN_VALUE(ret)
