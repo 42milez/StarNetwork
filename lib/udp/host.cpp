@@ -245,7 +245,7 @@ UdpHost::_udp_host_bandwidth_throttle()
 }
 
 void
-UdpHost::_udp_protocol_change_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+UdpHost::_udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
 {
     if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
         udp_peer_on_connect(peer);
@@ -329,7 +329,7 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
 }
 
 void
-UdpHost::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+UdpHost::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
 {
     _udp_protocol_change_state(peer, state);
 
@@ -387,7 +387,7 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpHost::_udp_protocol_notify_disconnect(std::shared_ptr<UdpPeer> &peer, std::unique_ptr<UdpEvent> &event)
+UdpHost::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     if (peer->state >= UdpPeerState::CONNECTION_PENDING)
         _recalculate_bandwidth_limits = 1;
@@ -413,7 +413,7 @@ UdpHost::_udp_protocol_notify_disconnect(std::shared_ptr<UdpPeer> &peer, std::un
 }
 
 int
-UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     auto current_command = peer->sent_reliable_commands.begin();
 

@@ -216,13 +216,13 @@ private:
     _udp_host_bandwidth_throttle();
 
     void
-    _udp_protocol_change_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+    _udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
     void
     _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
     int
-    _udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+    _udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
     _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
@@ -240,10 +240,10 @@ private:
     _dequeue();
 
     void
-    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+    _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
     void
-    _udp_protocol_notify_disconnect(std::shared_ptr<UdpPeer> &peer, std::unique_ptr<UdpEvent> &event);
+    _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
@@ -344,16 +344,16 @@ void
 udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingCommand &outgoing_command);
 
 void
-udp_peer_reset(std::shared_ptr<UdpPeer> &peer);
+udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
 
 void
-udp_peer_reset_queues(UdpPeer &peer);
+udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer);
 
 void
-udp_peer_on_connect(std::shared_ptr<UdpPeer> &peer);
+udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
 
 void
-udp_peer_on_disconnect(std::shared_ptr<UdpPeer> &peer);
+udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
 
 std::shared_ptr<UdpPacket>
 udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id);

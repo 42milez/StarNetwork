@@ -2,7 +2,7 @@
 #include "udp.h"
 
 void
-udp_peer_on_connect(std::shared_ptr<UdpPeer> &peer)
+udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER)
     {
@@ -14,7 +14,7 @@ udp_peer_on_connect(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-udp_peer_on_disconnect(std::shared_ptr<UdpPeer> &peer)
+udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (peer->state == UdpPeerState::CONNECTED || peer->state == UdpPeerState::DISCONNECT_LATER)
     {
@@ -26,7 +26,7 @@ udp_peer_on_disconnect(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-udp_peer_reset_queues(std::shared_ptr<UdpPeer> &peer)
+udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;
 
@@ -49,7 +49,7 @@ udp_peer_reset_queues(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-udp_peer_reset(std::shared_ptr<UdpPeer> &peer)
+udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 {
     udp_peer_on_disconnect(peer);
 
