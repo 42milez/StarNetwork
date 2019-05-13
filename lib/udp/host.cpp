@@ -448,6 +448,7 @@ UdpHost::_udp_protocol_check_timeouts(const std::shared_ptr<UdpPeer> &peer, cons
 
         peer->outgoing_reliable_commands.push_front(*outgoing_command);
 
+        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
         if (!peer->sent_reliable_commands.empty() && peer->sent_reliable_commands.size() == 1)
         {
             peer->next_timeout = current_command->sent_time + current_command->round_trip_timeout;
