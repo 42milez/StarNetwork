@@ -23,6 +23,7 @@ constexpr int HOST_DEFAULT_MTU = 1400;
 
 constexpr int PEER_DEFAULT_PACKET_THROTTLE = 32;
 constexpr int PEER_DEFAULT_ROUND_TRIP_TIME = 500;
+constexpr int PEER_FREE_RELIABLE_WINDOWS = 8;
 constexpr int PEER_PACKET_LOSS_INTERVAL = 10000;
 constexpr int PEER_PACKET_LOSS_SCALE = 32;
 constexpr int PEER_PACKET_THROTTLE_ACCELERATION = 2;
@@ -30,6 +31,7 @@ constexpr int PEER_PACKET_THROTTLE_DECELERATION = 2;
 constexpr int PEER_PACKET_THROTTLE_INTERVAL = 5000;
 constexpr int PEER_PACKET_THROTTLE_SCALE = 32;
 constexpr int PEER_PING_INTERVAL = 500;
+constexpr int PEER_RELIABLE_WINDOW_SIZE = 0x1000;
 constexpr int PEER_RELIABLE_WINDOWS = 16;
 constexpr int PEER_TIMEOUT_LIMIT = 32;
 constexpr int PEER_TIMEOUT_MINIMUM = 5000;
@@ -236,9 +238,6 @@ private:
     int
     _udp_socket_send(const UdpAddress &address);
 
-    std::shared_ptr<UdpPeer>
-    _dequeue();
-
     void
     _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
@@ -284,7 +283,7 @@ using UdpPeer = struct UdpPeer
     UdpAddress address;
     void *data;
     UdpPeerState state;
-    std::vector<UdpChannel> channels;
+    std::vector<std::shared_ptr<UdpChannel>> channels;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
     uint32_t incoming_bandwidth_throttle_epoch;

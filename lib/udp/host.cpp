@@ -5,6 +5,25 @@
 #define IS_PEER_CONNECTED(peer) \
     peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER
 
+namespace
+{
+    std::vector<size_t> command_sizes{
+        0,
+        sizeof(UdpProtocolAcknowledge),
+        sizeof(UdpProtocolConnect),
+        sizeof(UdpProtocolVerifyConnect),
+        sizeof(UdpProtocolDisconnect),
+        sizeof(UdpProtocolPing),
+        sizeof(UdpProtocolSendReliable),
+        sizeof(UdpProtocolSendUnreliable),
+        sizeof(UdpProtocolSendFragment),
+        sizeof(UdpProtocolSendUnsequenced),
+        sizeof(UdpProtocolBandwidthLimit),
+        sizeof(UdpProtocolThrottleConfigure),
+        sizeof(UdpProtocolSendFragment)
+    };
+}
+
 void
 UdpHost::udp_host_compress(std::shared_ptr<UdpHost> &host)
 {
@@ -255,22 +274,12 @@ UdpHost::_udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, const 
     peer->state = state;
 }
 
-std::shared_ptr<UdpPeer>
-UdpHost::_dequeue()
-{
-    auto ret = _dispatch_queue.front();
-
-    _dispatch_queue.pop();
-
-    return ret;
-}
-
 int
 UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     while (!_dispatch_queue.empty())
     {
-        auto peer = _dequeue();
+        auto peer = _dispatch_queue.front();
 
         peer->needs_dispatch = false;
 
@@ -323,6 +332,8 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
 
             return 1;
         }
+
+        _dispatch_queue.pop();
     }
 
     return 0;
@@ -347,8 +358,11 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
     auto *command = &_commands[_command_count];
     auto *buffer = &_buffers[_buffer_count];
 
-    for (auto &ack : peer->acknowledgements)
+    //for (auto &ack : peer->acknowledgements)
+    while (!peer->acknowledgements.empty())
     {
+        auto ack = peer->acknowledgements.front();
+
         // 送信継続
         // - コマンドバッファに空きがない
         // - データバッファに空きがない
@@ -377,6 +391,8 @@ UdpHost::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 
         if ((ack.command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
             _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+
+        peer->acknowledgements.pop_front();
 
         ++command;
         ++buffer;
@@ -461,9 +477,131 @@ UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std:
 bool
 UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
 {
-    // ...
+    auto *command = &_commands[_command_count];
+    auto *buffer = &_buffers[_buffer_count];
 
-    return true;
+    auto window_exceeded = 0;
+    auto window_wrap = false;
+    auto can_ping = true;
+    auto current_command = peer->outgoing_reliable_commands.begin();
+
+    while (current_command != peer->outgoing_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        auto channel = outgoing_command->command->header.channel_id < peer->channels.size() ?
+                           peer->channels.at(outgoing_command->command->header.channel_id) :
+                           nullptr;
+
+        auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+
+        if (channel != nullptr)
+        {
+            if (!window_wrap &&
+                outgoing_command->send_attempts < 1 &&
+                !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE) &&
+                (channel->reliable_windows.at((reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE ||
+                    channel->used_reliable_windows & ((((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
+                        (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window)))))
+            {
+                window_wrap = true;
+            }
+
+            if (window_wrap)
+            {
+                ++current_command;
+
+                continue;
+            }
+        }
+
+        if (outgoing_command->packet != nullptr)
+        {
+            if (!window_exceeded)
+            {
+                auto window_size = (peer->packet_throttle * peer->window_size) / PEER_PACKET_THROTTLE_SCALE;
+
+                if (peer->reliable_data_in_transit + outgoing_command->fragment_length > std::max(window_size, peer->mtu))
+                    window_exceeded = true;
+            }
+
+            if (window_exceeded)
+            {
+                ++current_command;
+
+                continue;
+            }
+        }
+
+        can_ping = false;
+
+        auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+
+        if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)] ||
+            buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)] ||
+            peer->mtu - _packet_size < command_size ||
+            (outgoing_command->packet != nullptr &&
+                static_cast<uint16_t>(peer->mtu - _packet_size) < static_cast<uint16_t>(command_size + outgoing_command->fragment_length)))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+
+        ++current_command;
+
+        if (channel != nullptr && outgoing_command->send_attempts < 1)
+        {
+            channel->used_reliable_windows |= 1 << reliable_window;
+            ++channel->reliable_windows[reliable_window];
+        }
+
+        ++outgoing_command->send_attempts;
+
+        if (outgoing_command->round_trip_timeout == 0)
+        {
+            outgoing_command->round_trip_timeout = peer->round_trip_time + 4 * peer->round_trip_time_variance;
+            outgoing_command->round_trip_timeout_limit = peer->timeout_limit * outgoing_command->round_trip_timeout;
+        }
+
+        if (peer->sent_reliable_commands.empty())
+            peer->next_timeout = _service_time + outgoing_command->round_trip_timeout;
+
+        outgoing_command->sent_time = _service_time;
+
+        buffer->data = command;
+        buffer->data_length = command_size;
+
+        _packet_size += buffer->data_length;
+        _header_flags |= PROTOCOL_HEADER_FLAG_SENT_TIME;
+
+        *command = *outgoing_command->command;
+
+        if (outgoing_command->packet != nullptr)
+        {
+            ++buffer;
+
+            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
+            buffer->data_length = outgoing_command->fragment_length;
+
+            _packet_size += outgoing_command->fragment_length;
+
+            peer->reliable_data_in_transit += outgoing_command->fragment_length;
+        }
+
+        peer->sent_reliable_commands.push_back(*outgoing_command);
+        peer->outgoing_reliable_commands.erase(outgoing_command);
+
+        ++peer->packets_sent;
+
+        ++command;
+        ++buffer;
+    }
+
+    _command_count = command - _commands;
+    _buffer_count = buffer - _buffers;
+
+    return can_ping;
 }
 
 void

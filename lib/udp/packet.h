@@ -8,7 +8,7 @@ using UdpPacket = struct UdpPacket
 {
     size_t reference_count;
     uint32_t flags;
-    uint8_t data;
+    uint8_t *data;
     size_t data_length;
     void *user_data;
 };
