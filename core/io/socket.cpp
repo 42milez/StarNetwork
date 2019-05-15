@@ -403,7 +403,7 @@ Socket::send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent)
 }
 
 Error
-Socket::sendto(const uint8_t &buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port)
+Socket::sendto(const std::vector<uint8_t> &buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port)
 {
     ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
 

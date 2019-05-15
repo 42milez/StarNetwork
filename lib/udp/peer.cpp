@@ -26,6 +26,12 @@ udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
+udp_peer_disconnect(std::shared_ptr<UdpPeer> &peer)
+{
+    // ...
+}
+
+void
 udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;

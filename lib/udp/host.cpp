@@ -1,3 +1,4 @@
+#include "core/error_macros.h"
 #include "core/hash.h"
 
 #include "udp.h"
@@ -605,23 +606,157 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
 }
 
 void
-UdpHost::_udp_protocol_send_unreliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
+UdpHost::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer)
 {
-    // ...
+    auto *command = &_commands[_command_count];
+    auto *buffer = &_buffers[_buffer_count];
+
+    auto current_command = peer->outgoing_unreliable_commands.begin();
+
+    while (current_command != peer->outgoing_unreliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+        auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+
+        if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)] ||
+            buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)] ||
+            peer->mtu - _packet_size < command_size ||
+            (outgoing_command->packet != nullptr &&
+                peer->mtu - _packet_size < command_size + outgoing_command->fragment_length))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+
+        ++current_command;
+
+        if (outgoing_command->packet != nullptr && outgoing_command->fragment_offset == 0)
+        {
+            peer->packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
+            peer->packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+
+            if (peer->packet_throttle_counter > peer->packet_throttle)
+            {
+                uint16_t reliable_sequence_number = outgoing_command->reliable_sequence_number;
+                uint16_t unreliable_sequence_number = outgoing_command->unreliable_sequence_number;
+
+                for (;;)
+                {
+                    if (current_command == peer->outgoing_unreliable_commands.end())
+                        break;
+
+                    outgoing_command = current_command;
+
+                    if (outgoing_command->reliable_sequence_number != reliable_sequence_number ||
+                        outgoing_command->unreliable_sequence_number != unreliable_sequence_number)
+                    {
+                        break;
+                    }
+
+                    ++current_command;
+                }
+
+                continue;
+            }
+        }
+
+        buffer->data = command;
+        buffer->data_length = command_size;
+
+        _packet_size += buffer->data_length;
+
+        *command = *outgoing_command->command;
+
+        peer->outgoing_unreliable_commands.erase(outgoing_command);
+
+        if (outgoing_command->packet != nullptr)
+        {
+            ++buffer;
+
+            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
+            buffer->data_length = outgoing_command->fragment_length;
+
+            _packet_size += buffer->data_length;
+
+            peer->sent_unreliable_commands.push_back(*outgoing_command);
+        }
+
+        ++command;
+        ++buffer;
+    }
+
+    _command_count = command - _commands;
+    _buffer_count = buffer - _buffers;
+
+    if (peer->state == UdpPeerState::DISCONNECT_LATER &&
+        peer->outgoing_reliable_commands.empty() &&
+        peer->outgoing_unreliable_commands.empty() &&
+        peer->sent_reliable_commands.empty())
+    {
+        udp_peer_disconnect(peer);
+    }
 }
 
 void
 UdpHost::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer)
 {
-    // ...
+    while (!peer->sent_unreliable_commands.empty())
+    {
+        auto outgoing_command = peer->sent_unreliable_commands.begin();
+
+
+        if (outgoing_command->packet != nullptr)
+        {
+            if (outgoing_command->packet.use_count() == 0)
+                outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
+        }
+
+        peer->sent_unreliable_commands.pop_front();
+    }
 }
 
-int
-UdpHost::_udp_socket_send(const UdpAddress &address)
+ssize_t
+UdpHost::_udp_socket_send(const std::unique_ptr<UdpAddress> &address)
 {
-    // ...
+    ERR_FAIL_COND_V(address == nullptr, -1)
 
-    return 0;
+    IpAddress dest;
+
+    dest.set_ipv6(address->host);
+
+    std::vector<uint8_t> out;
+
+    int size = 0;
+
+    for (auto i = 0; i < _buffer_count; ++i)
+    {
+        size += _buffers[i].data_length;
+    }
+
+    out.resize(size);
+
+    int pos = 0;
+
+    for (auto i = 0; i < _buffer_count; ++i)
+    {
+        memcpy(&out[pos], _buffers[i].data, _buffers[i].data_length);
+        pos += _buffers[i].data_length;
+    }
+
+    ssize_t sent = 0;
+
+    auto err = _socket->sendto(out, size, sent, dest, address->port);
+
+    if (err != Error::OK)
+    {
+        if (err == Error::ERR_BUSY)
+            return 0;
+
+        return -1;
+    }
+
+    return sent;
 }
 
 int

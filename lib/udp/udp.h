@@ -29,6 +29,7 @@ constexpr int PEER_PACKET_LOSS_SCALE = 32;
 constexpr int PEER_PACKET_THROTTLE_ACCELERATION = 2;
 constexpr int PEER_PACKET_THROTTLE_DECELERATION = 2;
 constexpr int PEER_PACKET_THROTTLE_INTERVAL = 5000;
+constexpr int PEER_PACKET_THROTTLE_COUNTER = 7;
 constexpr int PEER_PACKET_THROTTLE_SCALE = 32;
 constexpr int PEER_PING_INTERVAL = 500;
 constexpr int PEER_RELIABLE_WINDOW_SIZE = 0x1000;
@@ -68,6 +69,25 @@ enum class UdpEventType : int
     CONNECT,
     DISCONNECT,
     RECEIVE
+};
+
+enum class UdpPacketFlag : uint32_t
+{
+    // packet must be received by the target peer and
+    // resend attempts should be made until the packet is delivered
+    RELIABLE = (1u << 0u),
+
+    // packet will not be sequenced with other packets not supported for reliable packets
+    UNSEQUENCED = (1u << 1u),
+
+    // packet will not allocate data, and user must supply it instead
+    NO_ALLOCATE = (1u << 2u),
+
+    // packet will be fragmented using unreliable (instead of reliable) sends if it exceeds the MTU
+    UNRELIABLE_FRAGMENT = (1u << 3u),
+
+    // whether the packet has been sent from all queues it has been entered into
+    SENT = (1u << 8u)
 };
 
 enum class UdpPeerState : int
@@ -230,13 +250,13 @@ private:
     _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
 
     void
-    _udp_protocol_send_unreliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
+    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer);
 
     void
     _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
 
-    int
-    _udp_socket_send(const UdpAddress &address);
+    ssize_t
+    _udp_socket_send(const std::unique_ptr<UdpAddress> &address);
 
     void
     _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
@@ -353,6 +373,9 @@ udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
 
 void
 udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
+
+void
+udp_peer_disconnect(std::shared_ptr<UdpPeer> &peer);
 
 std::shared_ptr<UdpPacket>
 udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id);
