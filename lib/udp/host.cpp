@@ -53,7 +53,7 @@ UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32
     if (current_peer == _peers.end())
         return Error::CANT_CREATE;
 
-    (*current_peer)->channels = std::move(std::vector<UdpChannel>(static_cast<int>(channel_count)));
+    (*current_peer)->channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
 
     if ((*current_peer)->channels.empty())
         return Error::CANT_CREATE;
@@ -717,13 +717,11 @@ UdpHost::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<Udp
 }
 
 ssize_t
-UdpHost::_udp_socket_send(const std::unique_ptr<UdpAddress> &address)
+UdpHost::_udp_socket_send(const UdpAddress &address)
 {
-    ERR_FAIL_COND_V(address == nullptr, -1)
-
     IpAddress dest;
 
-    dest.set_ipv6(address->host);
+    dest.set_ipv6(address.host);
 
     std::vector<uint8_t> out;
 
@@ -746,7 +744,7 @@ UdpHost::_udp_socket_send(const std::unique_ptr<UdpAddress> &address)
 
     ssize_t sent = 0;
 
-    auto err = _socket->sendto(out, size, sent, dest, address->port);
+    auto err = _socket->sendto(out, size, sent, dest, address.port);
 
     if (err != Error::OK)
     {

@@ -256,7 +256,7 @@ private:
     _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
 
     ssize_t
-    _udp_socket_send(const std::unique_ptr<UdpAddress> &address);
+    _udp_socket_send(const UdpAddress &address);
 
     void
     _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
