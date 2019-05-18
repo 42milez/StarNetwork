@@ -217,8 +217,11 @@ UdpHost::_udp_host_bandwidth_throttle()
         needs_adjustment = true;
 
         if (bandwidth == 0)
+        {
             bandwidth_limit = 0;
+        }
         else
+        {
             while (peers_remaining > 0 && needs_adjustment)
             {
                 needs_adjustment = false;
@@ -241,7 +244,7 @@ UdpHost::_udp_host_bandwidth_throttle()
                     bandwidth -= peer->outgoing_bandwidth;
                 }
             }
-
+        }
 
         std::shared_ptr<UdpProtocol> cmd;
 
@@ -407,12 +410,18 @@ void
 UdpHost::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     if (peer->state >= UdpPeerState::CONNECTION_PENDING)
-        _recalculate_bandwidth_limits = 1;
+        // ピアを切断するのでバンド幅を再計算する
+        _recalculate_bandwidth_limits = true;
 
+    // ピアのステートが以下の３つの内のいずれかである場合
+    // 1. DISCONNECTED,
+    // 2. ACKNOWLEDGING_CONNECT,
+    // 3. CONNECTION_PENDING
     if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
     {
         udp_peer_reset(peer);
     }
+    // ピアが接続済みである場合
     else if (event != nullptr)
     {
         event->type = UdpEventType::DISCONNECT;
@@ -440,12 +449,15 @@ UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std:
 
         ++current_command;
 
+
+        // 処理をスキップ
         if (UDP_TIME_DIFFERENCE(_service_time, outgoing_command->sent_time) < outgoing_command->round_trip_timeout)
             continue;
 
         if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
             peer->earliest_timeout = outgoing_command->sent_time;
 
+        // ?
         if (peer->earliest_timeout != 0 &&
             (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
                 (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
@@ -785,7 +797,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
             if (!peer->acknowledgements.empty())
                 _udp_protocol_send_acknowledgements(peer);
 
-            //  ???
+            //  タイムアウト処理
             // --------------------------------------------------
 
             if (check_for_timeouts &&
@@ -799,7 +811,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
                     continue;
             }
 
-            //  ???
+            //  Send Outgoing Reliable Commands
             // --------------------------------------------------
 
             if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
@@ -811,7 +823,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
                 _udp_protocol_send_reliable_outgoing_commands(peer);
             }
 
-            //  ???
+            //  Send Outgoing Unreliable Commands
             // --------------------------------------------------
 
             if (!peer->outgoing_unreliable_commands.empty())
@@ -897,28 +909,22 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
     return 0;
 }
 
-static void
-init_event(std::unique_ptr<UdpEvent> &event)
-{
-    event->type = UdpEventType::NONE;
-    event->peer = nullptr;
-    event->packet = nullptr;
-}
-
 int
 UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 {
 #define CHECK_RETURN_VALUE(val) \
-    if (val == 1) \
-        return 1; \
-    else if (val == -1) \
+    if (val == 1)               \
+        return 1;               \
+    else if (val == -1)         \
         return -1;
 
     int ret;
 
     if (event != nullptr)
     {
-        init_event(event);
+        event->type = UdpEventType::NONE;
+        event->peer = nullptr;
+        event->packet = nullptr;
 
         // - キューから取り出されたパケットは event に格納される
         // - ピアが取りうるステートは以下の 10 通りだが、この関数で処理されるのは 3,5,6,10 の４つ
@@ -986,7 +992,7 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _outgoing_bandwidth(out_bandwidth),
     _peer_count(peer_count),
     _peers(peer_count),
-    _recalculate_bandwidth_limits(0),
+    _recalculate_bandwidth_limits(false),
     _received_address(std::make_unique<UdpAddress>()),
     _received_data_length(0),
     _total_received_data(0),

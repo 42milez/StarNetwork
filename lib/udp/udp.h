@@ -219,8 +219,8 @@ private:
     uint32_t _total_received_data;
     uint32_t _total_received_packets;
 
-    int _recalculate_bandwidth_limits;
-    int _continue_sending;
+    bool _recalculate_bandwidth_limits;
+    bool _continue_sending;
 
     uint16_t _header_flags;
 

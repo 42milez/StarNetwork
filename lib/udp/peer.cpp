@@ -153,6 +153,7 @@ udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingComma
     outgoing_command.command->header.reliable_sequence_number = htons(outgoing_command.reliable_sequence_number);
 
     auto cmd = outgoing_command.command->header.command & PROTOCOL_COMMAND_MASK;
+
     if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE)
     {
         outgoing_command.command->send_unreliable.unreliable_sequence_number = htons(outgoing_command.unreliable_sequence_number);
@@ -163,13 +164,9 @@ udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingComma
     }
 
     if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
-    {
         peer->outgoing_reliable_commands.push_back(outgoing_command);
-    }
     else
-    {
         peer->outgoing_unreliable_commands.push_back(outgoing_command);
-    }
 }
 
 UdpOutgoingCommand
