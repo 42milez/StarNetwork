@@ -202,9 +202,17 @@ udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id)
 }
 
 void
-udp_peer_ping(const std::shared_ptr<UdpPeer> &peer)
+udp_peer_ping(std::shared_ptr<UdpPeer> &peer)
 {
-    // ...
+    if (peer->state != UdpPeerState::CONNECTED)
+        return;
+
+    std::shared_ptr<UdpProtocol> cmd = std::make_shared<UdpProtocol>();
+
+    cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.channel_id = 0xFF;
+
+    udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
 }
 
 UdpPeer::UdpPeer() : outgoing_peer_id(0),

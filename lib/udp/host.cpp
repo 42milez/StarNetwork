@@ -457,7 +457,7 @@ UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std:
         if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
             peer->earliest_timeout = outgoing_command->sent_time;
 
-        // ?
+        // タイムアウトしたらピアを切断する
         if (peer->earliest_timeout != 0 &&
             (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
                 (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
@@ -492,7 +492,6 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
 {
     auto *command = &_commands[_command_count];
     auto *buffer = &_buffers[_buffer_count];
-
     auto window_exceeded = 0;
     auto window_wrap = false;
     auto can_ping = true;
@@ -506,19 +505,30 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
                            peer->channels.at(outgoing_command->command->header.channel_id) :
                            nullptr;
 
+        // reliable_sequence_number は 4096 までの値を取りうる（はず）
+        // なので、reliable_window は 0 <= n <= 1 の範囲となる
         auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+
+        //
+        // --------------------------------------------------
+
+        // 送信が一度も行われていない
+        auto has_not_sent_once = outgoing_command->send_attempts == 0;
+
+        // 剰余が 0 となるのは reliable_sequence_number が 0 もしくは PEER_RELIABLE_WINDOW_SIZE に等しい場合
+        auto b = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
+
+        // 未使用ウィンドウ？
+        auto c = channel->reliable_windows.at((reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE;
+
+        // 使用済みウィンドウ？
+        auto d = channel->used_reliable_windows & ((((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
+                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window)));
 
         if (channel != nullptr)
         {
-            if (!window_wrap &&
-                outgoing_command->send_attempts < 1 &&
-                !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE) &&
-                (channel->reliable_windows.at((reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE ||
-                    channel->used_reliable_windows & ((((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
-                        (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window)))))
-            {
+            if (!window_wrap && has_not_sent_once && b && (c || d))
                 window_wrap = true;
-            }
 
             if (window_wrap)
             {
@@ -527,6 +537,9 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
                 continue;
             }
         }
+
+        //
+        // --------------------------------------------------
 
         if (outgoing_command->packet != nullptr)
         {
@@ -545,6 +558,9 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
                 continue;
             }
         }
+
+        //
+        // --------------------------------------------------
 
         can_ping = false;
 
@@ -811,7 +827,7 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
                     continue;
             }
 
-            //  Send Outgoing Reliable Commands
+            //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
             if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
@@ -820,10 +836,12 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
                 peer->mtu - _packet_size >= sizeof(UdpProtocolPing))
             {
                 udp_peer_ping(peer);
+
+                // ping コマンドをバッファに転送
                 _udp_protocol_send_reliable_outgoing_commands(peer);
             }
 
-            //  Send Outgoing Unreliable Commands
+            //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------
 
             if (!peer->outgoing_unreliable_commands.empty())

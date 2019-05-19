@@ -381,6 +381,6 @@ std::shared_ptr<UdpPacket>
 udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id);
 
 void
-udp_peer_ping(const std::shared_ptr<UdpPeer> &peer);
+udp_peer_ping(std::shared_ptr<UdpPeer> &peer);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
