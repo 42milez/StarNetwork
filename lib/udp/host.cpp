@@ -505,30 +505,39 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
                            peer->channels.at(outgoing_command->command->header.channel_id) :
                            nullptr;
 
-        // reliable_sequence_number は 4096 までの値を取りうる（はず）
-        // なので、reliable_window は 0 <= n <= 1 の範囲となる
-        auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        // [誤] reliable_sequence_number は 4096 までの値を取りうる（はず）。なので、reliable_window は 0 <= n <= 1 の範囲となる
+        // [正] reliable_sequence_number は際限なく増加する可能性がある。その際にバッファ（reliable_windows）の大きさを
+        //      超えてしまうことがないように作られている（インデックスが循環するようになっている）。
+        auto reliable_window_idx = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
 
         //
         // --------------------------------------------------
 
-        // 送信が一度も行われていない
-        auto has_not_sent_once = outgoing_command->send_attempts == 0;
-
-        // 剰余が 0 となるのは reliable_sequence_number が 0 もしくは PEER_RELIABLE_WINDOW_SIZE に等しい場合
-        auto b = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
-
-        // 未使用ウィンドウ？
-        auto c = channel->reliable_windows.at((reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE;
-
-        // 使用済みウィンドウ？
-        auto d = channel->used_reliable_windows & ((((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
-                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window)));
-
         if (channel != nullptr)
         {
-            if (!window_wrap && has_not_sent_once && b && (c || d))
+            // 送信が一度も行われていない
+            auto has_not_sent_once = outgoing_command->send_attempts == 0;
+
+            // 剰余が 0 となるのは reliable_sequence_number が 0 もしくは PEER_RELIABLE_WINDOW_SIZE の倍数に等しい場合
+            auto is_first_packet_in_buffer = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
+
+            // バッファがフルかどうか確認
+            auto is_buffer_full = channel->reliable_windows.at((reliable_window_idx + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE;
+
+            // ((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) は 255
+            //
+            auto d = channel->used_reliable_windows & (
+                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window_idx) |
+                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window_idx))
+            );
+
+            if (!window_wrap &&
+                has_not_sent_once &&
+                is_first_packet_in_buffer &&
+                (is_buffer_full || d))
+            {
                 window_wrap = true;
+            }
 
             if (window_wrap)
             {
