@@ -421,7 +421,7 @@ UdpHost::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, c
     {
         udp_peer_reset(peer);
     }
-    // ピアが接続済みである場合
+        // ピアが接続済みである場合
     else if (event != nullptr)
     {
         event->type = UdpEventType::DISCONNECT;
@@ -460,8 +460,8 @@ UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std:
         // タイムアウトしたらピアを切断する
         if (peer->earliest_timeout != 0 &&
             (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
-                (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
-                UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
+             (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
+              UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
         {
             _udp_protocol_notify_disconnect(peer, event);
 
@@ -487,6 +487,32 @@ UdpHost::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std:
     return 0;
 }
 
+namespace
+{
+    bool
+    window_wraps(const std::shared_ptr<UdpChannel> &channel,
+                 int reliable_window,
+                 const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
+    {
+        auto has_not_sent_once = outgoing_command->send_attempts == 0;
+
+        auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
+
+        auto all_available_windows_are_in_use = channel->reliable_windows.at(
+            (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
+        ) >= PEER_RELIABLE_WINDOW_SIZE;
+
+        auto existing_commands_are_in_flight = channel->used_reliable_windows & (
+            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
+            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window))
+        );
+
+        return has_not_sent_once &&
+               first_command_in_window &&
+               (all_available_windows_are_in_use || existing_commands_are_in_flight);
+    }
+}
+
 bool
 UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
 {
@@ -502,42 +528,18 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
         auto outgoing_command = current_command;
 
         auto channel = outgoing_command->command->header.channel_id < peer->channels.size() ?
-                           peer->channels.at(outgoing_command->command->header.channel_id) :
-                           nullptr;
+                       peer->channels.at(outgoing_command->command->header.channel_id) :
+                       nullptr;
 
-        // [誤] reliable_sequence_number は 4096 までの値を取りうる（はず）。なので、reliable_window は 0 <= n <= 1 の範囲となる
-        // [正] reliable_sequence_number は際限なく増加する可能性がある。その際にバッファ（reliable_windows）の大きさを
-        //      超えてしまうことがないように作られている（インデックスが循環するようになっている）。
-        auto reliable_window_idx = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
 
-        //
+        //  check reliable window is available
         // --------------------------------------------------
 
         if (channel != nullptr)
         {
-            // 送信が一度も行われていない
-            auto has_not_sent_once = outgoing_command->send_attempts == 0;
-
-            // 剰余が 0 となるのは reliable_sequence_number が 0 もしくは PEER_RELIABLE_WINDOW_SIZE の倍数に等しい場合
-            auto is_first_packet_in_buffer = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
-
-            // バッファがフルかどうか確認
-            auto is_buffer_full = channel->reliable_windows.at((reliable_window_idx + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >= PEER_RELIABLE_WINDOW_SIZE;
-
-            // ((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) は 255
-            //
-            auto d = channel->used_reliable_windows & (
-                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window_idx) |
-                     (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window_idx))
-            );
-
-            if (!window_wrap &&
-                has_not_sent_once &&
-                is_first_packet_in_buffer &&
-                (is_buffer_full || d))
-            {
+            if (!window_wrap && window_wraps(channel, reliable_window, outgoing_command))
                 window_wrap = true;
-            }
 
             if (window_wrap)
             {
@@ -547,7 +549,7 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
             }
         }
 
-        //
+        //  check packet exceeds window size
         // --------------------------------------------------
 
         if (outgoing_command->packet != nullptr)
@@ -556,7 +558,8 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
             {
                 auto window_size = (peer->packet_throttle * peer->window_size) / PEER_PACKET_THROTTLE_SCALE;
 
-                if (peer->reliable_data_in_transit + outgoing_command->fragment_length > std::max(window_size, peer->mtu))
+                if (peer->reliable_data_in_transit + outgoing_command->fragment_length >
+                    std::max(window_size, peer->mtu))
                     window_exceeded = true;
             }
 
@@ -579,7 +582,8 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
             buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)] ||
             peer->mtu - _packet_size < command_size ||
             (outgoing_command->packet != nullptr &&
-                static_cast<uint16_t>(peer->mtu - _packet_size) < static_cast<uint16_t>(command_size + outgoing_command->fragment_length)))
+             static_cast<uint16_t>(peer->mtu - _packet_size) <
+             static_cast<uint16_t>(command_size + outgoing_command->fragment_length)))
         {
             _continue_sending = true;
 
@@ -659,7 +663,7 @@ UdpHost::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer
             buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)] ||
             peer->mtu - _packet_size < command_size ||
             (outgoing_command->packet != nullptr &&
-                peer->mtu - _packet_size < command_size + outgoing_command->fragment_length))
+             peer->mtu - _packet_size < command_size + outgoing_command->fragment_length))
         {
             _continue_sending = true;
 
@@ -893,14 +897,14 @@ UdpHost::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool
             }
             else
             {
-                _buffers[0].data_length = (size_t) & ((UdpProtocolHeader *) 0) -> sent_time; // ???
+                _buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
             }
 
             auto should_compress = false;
 
             if (_compressor->compress != nullptr)
             {
-                 // ...
+                // ...
             }
 
             if (peer->outgoing_peer_id < PROTOCOL_MAXIMUM_PEER_ID)
@@ -1003,7 +1007,8 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
     return 0;
 }
 
-UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
+UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
+    :
     _checksum(nullptr),
     _bandwidth_limited_peers(0),
     _bandwidth_throttle_epoch(0),
