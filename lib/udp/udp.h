@@ -265,10 +265,10 @@ private:
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
-    _aaa(UdpProtocol *command,
-         UdpBuffer *buffer,
-         const std::shared_ptr<UdpPeer> &peer,
-         const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
+    sending_continues(UdpProtocol *command,
+                      UdpBuffer *buffer,
+                      const std::shared_ptr<UdpPeer> &peer,
+                      const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);

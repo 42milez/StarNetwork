@@ -514,7 +514,7 @@ namespace
 
     bool
     window_exceeds(const std::shared_ptr<UdpPeer> &peer,
-                   int window_size,
+                   uint32_t window_size,
                    const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
     {
         return (peer->reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, peer->mtu);
@@ -522,26 +522,42 @@ namespace
 }
 
 bool
-UdpHost::_aaa(UdpProtocol *command,
-             UdpBuffer *buffer,
-             const std::shared_ptr<UdpPeer> &peer,
-             const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
+UdpHost::sending_continues(UdpProtocol *command,
+              UdpBuffer *buffer,
+              const std::shared_ptr<UdpPeer> &peer,
+              const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
 {
-    auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
-
     // MEMO: [誤] _udp_protocol_send_reliable_outgoing_commands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、
     //            command か buffer どちらかでよいのでは？
-    //       [正] コマンドがパケットを持っている際に buffer がインクリメントされるので、
+    //       [正] コマンドがパケットを持っている際に buffer がインクリメントされる（コマンドに続くデータがバッファに投入される）ので、
     //            それぞれで判定する必要がある
-    auto unsent_command_exists = command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)];
-    auto unsent_data_exists = buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)];
-    auto c = peer->mtu - _packet_size < command_size;
-    auto d = outgoing_command->packet != nullptr && (
-                 static_cast<uint16_t>(peer->mtu - _packet_size) <
-                 static_cast<uint16_t>(command_size + outgoing_command->fragment_length));
 
-    return unsent_command_exists || unsent_data_exists || c || d;
+    // unsent command exists
+    if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)])
+        return true;
+
+    // unsent data exists
+    if (buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)])
+        return true;
+
+    auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+
+    // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
+    if (peer->mtu - _packet_size < command_size)
+        return true;
+
+    if (outgoing_command->packet != nullptr)
+        return false;
+
+    // has not enough space for command with payload
+    if (static_cast<uint16_t>(peer->mtu - _packet_size) <
+        static_cast<uint16_t>(command_size + outgoing_command->fragment_length))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool
@@ -606,7 +622,7 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
 
         can_ping = false;
 
-        if (_aaa(command, buffer, peer, outgoing_command))
+        if (sending_continues(command, buffer, peer, outgoing_command))
         {
             _continue_sending = true;
 
@@ -685,11 +701,7 @@ UdpHost::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer
         auto outgoing_command = current_command;
         auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
 
-        if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)] ||
-            buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)] ||
-            peer->mtu - _packet_size < command_size ||
-            (outgoing_command->packet != nullptr &&
-             peer->mtu - _packet_size < command_size + outgoing_command->fragment_length))
+        if (sending_continues(command, buffer, peer, outgoing_command))
         {
             _continue_sending = true;
 
