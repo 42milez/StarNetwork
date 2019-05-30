@@ -104,6 +104,14 @@ enum class UdpPeerState : int
     ZOMBIE
 };
 
+enum class UdpSocketWait : int
+{
+    NONE = 0,
+    SEND = (1u << 0u),
+    RECEIVE = (1u << 1u),
+    INTERRUPT = (1u << 2u)
+};
+
 using UdpAcknowledgement = struct UdpAcknowledgement {
     uint32_t sent_time;
     UdpProtocol command;
@@ -269,6 +277,9 @@ private:
                       UdpBuffer *buffer,
                       const std::shared_ptr<UdpPeer> &peer,
                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
+
+    std::shared_ptr<UdpPeer>
+    _pop_peer_from_dispatch_queue();
 
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);

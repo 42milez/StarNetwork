@@ -278,12 +278,22 @@ UdpHost::_udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, const 
     peer->state = state;
 }
 
+std::shared_ptr<UdpPeer>
+UdpHost::_pop_peer_from_dispatch_queue()
+{
+    std::shared_ptr<UdpPeer> peer = _dispatch_queue.front();
+
+    _dispatch_queue.pop();
+
+    return peer;
+}
+
 int
 UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     while (!_dispatch_queue.empty())
     {
-        auto peer = _dispatch_queue.front();
+        auto peer = _pop_peer_from_dispatch_queue();
 
         peer->needs_dispatch = false;
 
@@ -336,8 +346,6 @@ UdpHost::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &eve
 
             return 1;
         }
-
-        _dispatch_queue.pop();
     }
 
     return 0;
@@ -1016,31 +1024,48 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 
     timeout += _service_time;
 
-    // 帯域幅の調整
-    if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
-        _udp_host_bandwidth_throttle();
+    uint32_t wait_condition;
 
-    //
-    ret = _protocol_send_outgoing_commands(event, true);
+    do
+    {
+        // 帯域幅の調整
+        if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
+            _udp_host_bandwidth_throttle();
 
-    CHECK_RETURN_VALUE(ret)
+        //
+        ret = _protocol_send_outgoing_commands(event, true);
 
-    //ret = protocol_receive_incoming_commands(host, event);
+        CHECK_RETURN_VALUE(ret)
 
-    CHECK_RETURN_VALUE(ret)
+        //ret = protocol_receive_incoming_commands(host, event);
 
-    //ret = protocol_send_outgoing_commands(host, event, 1);
+        CHECK_RETURN_VALUE(ret)
 
-    CHECK_RETURN_VALUE(ret)
+        //ret = protocol_send_outgoing_commands(host, event, 1);
 
-    //ret = _udp_protocol_dispatch_incoming_commands(event);
+        CHECK_RETURN_VALUE(ret)
 
-    CHECK_RETURN_VALUE(ret)
+        //ret = _udp_protocol_dispatch_incoming_commands(event);
 
-    if (UDP_TIME_GREATER_EQUAL(_service_time, timeout))
-        return 0;
+        CHECK_RETURN_VALUE(ret)
 
-    _service_time = udp_time_get();
+        if (UDP_TIME_GREATER_EQUAL(_service_time, timeout))
+            return 0;
+
+        do
+        {
+            _service_time = udp_time_get();
+
+            if (UDP_TIME_GREATER_EQUAL(_service_time, timeout))
+                return 0;
+
+            wait_condition = static_cast<uint32_t>(UdpSocketWait::RECEIVE) | static_cast<uint32_t>(UdpSocketWait::INTERRUPT);
+        }
+        while (wait_condition & static_cast<uint32_t>(UdpSocketWait::INTERRUPT));
+
+        _service_time = udp_time_get();
+    }
+    while (wait_condition & static_cast<uint32_t>(UdpSocketWait::RECEIVE));
 
     return 0;
 }
