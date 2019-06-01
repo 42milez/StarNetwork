@@ -114,7 +114,7 @@ enum class UdpSocketWait : int
 
 using UdpAcknowledgement = struct UdpAcknowledgement {
     uint32_t sent_time;
-    UdpProtocol command;
+    UdpProtocolType command;
 };
 
 using UdpAddress = struct UdpAddress
@@ -194,7 +194,7 @@ private:
     UdpChecksumCallback _checksum;
 
     UdpBuffer _buffers[BUFFER_MAXIMUM];
-    UdpProtocol _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     std::vector<std::shared_ptr<UdpPeer>> _peers;
     std::vector<uint8_t> _received_data;
     std::vector<std::vector<uint8_t>> _packet_data;
@@ -273,7 +273,7 @@ private:
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
-    _sending_continues(UdpProtocol *command,
+    _sending_continues(UdpProtocolType *command,
                       UdpBuffer *buffer,
                       const std::shared_ptr<UdpPeer> &peer,
                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
@@ -374,7 +374,7 @@ using UdpPeer = struct UdpPeer
 };
 
 UdpOutgoingCommand
-udp_peer_queue_outgoing_command(std::shared_ptr<UdpPeer> &peer, const std::shared_ptr<UdpProtocol> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
+udp_peer_queue_outgoing_command(std::shared_ptr<UdpPeer> &peer, const std::shared_ptr<UdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 
 void
 udp_peer_setup_outgoing_command(std::shared_ptr<UdpPeer> &peer, UdpOutgoingCommand &outgoing_command);

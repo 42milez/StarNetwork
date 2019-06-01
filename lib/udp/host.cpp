@@ -73,7 +73,7 @@ UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32
     if ((*current_peer)->window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
         (*current_peer)->window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
 
-    std::shared_ptr<UdpProtocol> cmd = std::make_shared<UdpProtocol>();
+    std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
 
     cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
@@ -246,7 +246,7 @@ UdpHost::_udp_host_bandwidth_throttle()
             }
         }
 
-        std::shared_ptr<UdpProtocol> cmd;
+        std::shared_ptr<UdpProtocolType> cmd;
 
         for (auto &peer : _peers)
         {
@@ -530,7 +530,7 @@ namespace
 }
 
 bool
-UdpHost::_sending_continues(UdpProtocol *command,
+UdpHost::_sending_continues(UdpProtocolType *command,
               UdpBuffer *buffer,
               const std::shared_ptr<UdpPeer> &peer,
               const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)

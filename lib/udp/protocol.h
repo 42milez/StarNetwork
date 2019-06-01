@@ -142,7 +142,7 @@ using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure {
     uint32_t packet_throttle_deceleration;
 };
 
-using UdpProtocol = union UdpProtocol {
+using UdpProtocolType = union UdpProtocolType {
     UdpProtocolCommandHeader header;
     UdpProtocolAcknowledge acknowledge;
     UdpProtocolConnect connect;
