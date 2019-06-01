@@ -630,7 +630,7 @@ UdpHost::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<Udp
 
         can_ping = false;
 
-        if (sending_continues(command, buffer, peer, outgoing_command))
+        if (_sending_continues(command, buffer, peer, outgoing_command))
         {
             _continue_sending = true;
 
@@ -709,7 +709,7 @@ UdpHost::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer
         auto outgoing_command = current_command;
         auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
 
-        if (sending_continues(command, buffer, peer, outgoing_command))
+        if (_sending_continues(command, buffer, peer, outgoing_command))
         {
             _continue_sending = true;
 
