@@ -530,7 +530,7 @@ namespace
 }
 
 bool
-UdpHost::sending_continues(UdpProtocol *command,
+UdpHost::_sending_continues(UdpProtocol *command,
               UdpBuffer *buffer,
               const std::shared_ptr<UdpPeer> &peer,
               const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)

@@ -273,7 +273,7 @@ private:
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
-    sending_continues(UdpProtocol *command,
+    _sending_continues(UdpProtocol *command,
                       UdpBuffer *buffer,
                       const std::shared_ptr<UdpPeer> &peer,
                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
