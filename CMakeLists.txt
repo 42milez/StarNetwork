@@ -91,4 +91,5 @@ add_subdirectory(auth_server)
 # --------------------------------------------------
 
 add_subdirectory(test/core/io)
+add_subdirectory(test/lib/udp)
 add_subdirectory(test/module/networking)
