@@ -25,19 +25,6 @@ udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size)
     memcpy(address.host, ip, len); // network byte-order (big endian)
 }
 
-Error
-UdpHost::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
-{
-    IpAddress ip{};
-
-    if (address.wildcard)
-        ip = IpAddress("*");
-    else
-        ip.set_ipv6(address.host);
-
-    return socket->bind(ip, address.port);
-}
-
 void
 UdpHost::increase_bandwidth_limited_peers()
 {
