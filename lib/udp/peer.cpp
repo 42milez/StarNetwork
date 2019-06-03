@@ -738,3 +738,25 @@ UdpPeer::needs_dispatch(bool val)
 {
     _needs_dispatch = val;
 }
+
+bool
+UdpPeer::acknowledgement_exists()
+{
+    return !_acknowledgements.empty();
+}
+
+std::shared_ptr<UdpAcknowledgement>
+UdpPeer::pop_acknowledgement()
+{
+    auto acknowledgement = _acknowledgements.front();
+
+    _acknowledgements.pop_front();
+
+    return acknowledgement;
+}
+
+uint32_t
+UdpPeer::mtu()
+{
+    return _mtu;
+}

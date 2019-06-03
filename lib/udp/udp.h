@@ -215,9 +215,6 @@ private:
 
     UdpChecksumCallback _checksum;
 
-    UdpBuffer _buffers[BUFFER_MAXIMUM];
-    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
-
     std::vector<uint8_t> _received_data;
     std::vector<std::vector<uint8_t>> _packet_data;
 
@@ -226,13 +223,10 @@ private:
     std::unique_ptr<UdpAddress> _received_address;
     std::unique_ptr<Socket> _socket;
 
-    size_t _packet_size;
     size_t _received_data_length;
     size_t _duplicate_peers;
     size_t _maximum_packet_size;
     size_t _maximum_waiting_data;
-    size_t _command_count;
-    size_t _buffer_count;
 
     SysCh _channel_count;
 
@@ -246,7 +240,6 @@ private:
     uint32_t _total_received_packets;
 
     bool _recalculate_bandwidth_limits;
-    bool _continue_sending;
 
     uint16_t _header_flags;
 
@@ -343,7 +336,7 @@ private:
     uint32_t _mtu;
     uint32_t _window_size;
     uint32_t _reliable_data_in_transit;
-    std::list<UdpAcknowledgement> _acknowledgements;
+    std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
     std::list<UdpOutgoingCommand> _sent_reliable_commands;
     std::list<UdpOutgoingCommand> _sent_unreliable_commands;
     std::queue<UdpIncomingCommand> _dispatched_commands;
@@ -383,6 +376,12 @@ public:
     bool needs_dispatch();
 
     bool needs_dispatch(bool val);
+
+    bool acknowledgement_exists();
+
+    std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
+
+    uint32_t mtu();
 };
 
 class UdpHostCore
@@ -409,9 +408,16 @@ class UdpProtocol
 private:
     std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
 
+    UdpBuffer _buffers[BUFFER_MAXIMUM];
+    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+
+    size_t _command_count;
+    size_t _buffer_count;
+    size_t _packet_size;
+    bool _continue_sending;
+
 public:
-    void
-    _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
+    void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
     int
     _udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);

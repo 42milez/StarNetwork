@@ -37,15 +37,15 @@ UdpProtocol::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, 
 }
 
 void
-UdpProtocol::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 {
     auto *command = &_commands[_command_count];
     auto *buffer = &_buffers[_buffer_count];
 
-    //for (auto &ack : peer->acknowledgements)
-    while (!peer->acknowledgements.empty())
+    while (peer->acknowledgement_exists())
     {
-        auto ack = peer->acknowledgements.front();
+        // auto ack = peer->acknowledgements.front();
+        auto ack = peer->pop_acknowledgement();
 
         // 送信継続
         // - コマンドバッファに空きがない
@@ -53,7 +53,7 @@ UdpProtocol::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
         if (command >= &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS] ||
             buffer >= &_buffers[BUFFER_MAXIMUM] ||
-            peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
+            peer->mtu() - _packet_size < sizeof(UdpProtocolAcknowledge))
         {
             _continue_sending = true;
 
@@ -65,18 +65,16 @@ UdpProtocol::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 
         _packet_size += buffer->data_length;
 
-        auto reliable_sequence_number = htons(ack.command.header.reliable_sequence_number);
+        auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 
         command->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
-        command->header.channel_id = ack.command.header.channel_id;
+        command->header.channel_id = ack->command.header.channel_id;
         command->header.reliable_sequence_number = reliable_sequence_number;
         command->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
-        command->acknowledge.received_sent_time = htons(ack.sent_time);
+        command->acknowledge.received_sent_time = htons(ack->sent_time);
 
-        if ((ack.command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+        if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
             _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
-
-        peer->acknowledgements.pop_front();
 
         ++command;
         ++buffer;
