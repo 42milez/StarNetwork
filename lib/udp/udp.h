@@ -202,6 +202,8 @@ public:
     std::shared_ptr<UdpPeer> available_peer_exists();
 
     void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
+
+    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
 };
 
 
@@ -291,8 +293,7 @@ private:
 public:
     UdpCommandPod();
 
-    void
-    setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
+    void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
 };
 
 class UdpPeer
@@ -368,9 +369,6 @@ class UdpHostCore
 public:
     Error
     _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
-
-    int
-    _udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
     int
     _protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);

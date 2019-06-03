@@ -283,7 +283,7 @@ UdpHostCore::_pop_peer_from_dispatch_queue()
 }
 
 int
-UdpHostCore::_udp_protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
+UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
 {
     while (!_dispatch_queue.empty())
     {
