@@ -364,7 +364,7 @@ public:
 
     Error setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
-    void change_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+    void change_state(UdpPeerState state);
 
     void
     _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
