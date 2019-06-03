@@ -186,29 +186,6 @@ udp_time_get();
 void
 udp_time_set(uint32_t new_time_base);
 
-class UdpPeerPod
-{
-private:
-    std::vector<std::shared_ptr<UdpPeer>> _peers;
-
-    uint32_t _bandwidth_throttle_epoch;
-    size_t _bandwidth_limited_peers;
-    size_t _connected_peers;
-    size_t _peer_count;
-
-public:
-    UdpPeerPod(size_t peer_count);
-
-    std::shared_ptr<UdpPeer> available_peer_exists();
-
-    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
-
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
-
-    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
-};
-
-
 class UdpHost
 {
 private:
@@ -298,6 +275,28 @@ public:
     void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
 };
 
+class UdpPeerPod
+{
+private:
+    std::vector<std::shared_ptr<UdpPeer>> _peers;
+
+    uint32_t _bandwidth_throttle_epoch;
+    size_t _bandwidth_limited_peers;
+    size_t _connected_peers;
+    size_t _peer_count;
+
+public:
+    UdpPeerPod(size_t peer_count);
+
+    std::shared_ptr<UdpPeer> available_peer_exists();
+
+    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
+
+    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
+
+    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
+};
+
 class UdpPeer
 {
 private:
@@ -364,13 +363,6 @@ public:
     bool is_disconnected();
 
     Error setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
-};
-
-class UdpHostCore
-{
-public:
-    Error
-    _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
 
     void
     _udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
@@ -390,14 +382,21 @@ public:
     void
     _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
 
-    ssize_t
-    _udp_socket_send(const UdpAddress &address);
-
     void
     _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
     void
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+};
+
+class UdpHostCore
+{
+public:
+    Error
+    _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
+
+    ssize_t
+    _udp_socket_send(const UdpAddress &address);
 
     bool
     _sending_continues(UdpProtocolType *command,

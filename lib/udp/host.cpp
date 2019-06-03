@@ -23,6 +23,37 @@ namespace
         sizeof(UdpProtocolThrottleConfigure),
         sizeof(UdpProtocolSendFragment)
     };
+
+    bool
+    window_wraps(const std::shared_ptr<UdpChannel> &channel,
+                 int reliable_window,
+                 const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
+    {
+        auto has_not_sent_once = outgoing_command->send_attempts == 0;
+
+        auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
+
+        auto all_available_windows_are_in_use = channel->reliable_windows.at(
+            (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
+        ) >= PEER_RELIABLE_WINDOW_SIZE;
+
+        auto existing_commands_are_in_flight = channel->used_reliable_windows & (
+            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
+            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window))
+        );
+
+        return has_not_sent_once &&
+               first_command_in_window &&
+               (all_available_windows_are_in_use || existing_commands_are_in_flight);
+    }
+
+    bool
+    window_exceeds(const std::shared_ptr<UdpPeer> &peer,
+                   uint32_t window_size,
+                   const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
+    {
+        return (peer->reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, peer->mtu);
+    }
 }
 
 void
@@ -261,17 +292,6 @@ UdpHostCore::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress 
     return socket->bind(ip, address.port);
 }
 
-void
-UdpHostCore::_udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
-{
-    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
-        udp_peer_on_connect(peer);
-    else
-        udp_peer_on_disconnect(peer);
-
-    peer->state = state;
-}
-
 std::shared_ptr<UdpPeer>
 UdpHostCore::_pop_peer_from_dispatch_queue()
 {
@@ -282,252 +302,11 @@ UdpHostCore::_pop_peer_from_dispatch_queue()
     return peer;
 }
 
-int
-UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
-{
-    while (!_dispatch_queue.empty())
-    {
-        auto peer = _pop_peer_from_dispatch_queue();
-
-        peer->needs_dispatch = false;
-
-        if (peer->state == UdpPeerState::CONNECTION_PENDING ||
-            peer->state == UdpPeerState::CONNECTION_SUCCEEDED)
-        {
-            // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
-            _udp_protocol_change_state(peer, UdpPeerState::CONNECTED);
-
-            event->type = UdpEventType::CONNECT;
-            event->peer = peer;
-            event->data = peer->event_data;
-
-            return 1;
-        }
-        else if (peer->state == UdpPeerState::ZOMBIE)
-        {
-            _recalculate_bandwidth_limits = true;
-
-            event->type = UdpEventType::DISCONNECT;
-            event->peer = peer;
-            event->data = peer->event_data;
-
-            // ゾンビ状態になったピアはリセットする
-            udp_peer_reset(peer);
-
-            return 1;
-        }
-        else if (peer->state == UdpPeerState::CONNECTED)
-        {
-            if (peer->dispatched_commands.empty())
-                continue;
-
-            // 接続済みのピアからはコマンドを受信する
-            event->packet = udp_peer_receive(peer, event->channel_id);
-
-            if (event->packet == nullptr)
-                continue;
-
-            event->type = UdpEventType::RECEIVE;
-            event->peer = peer;
-
-            // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
-            if (!peer->dispatched_commands.empty())
-            {
-                peer->needs_dispatch = true;
-
-                _dispatch_queue.push(peer);
-            }
-
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-void
-UdpHostCore::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
-{
-    _udp_protocol_change_state(peer, state);
-
-    if (!peer->needs_dispatch)
-    {
-        peer->needs_dispatch = true;
-
-        _dispatch_queue.push(peer);
-    }
-}
-
-void
-UdpHostCore::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
-{
-    auto *command = &_commands[_command_count];
-    auto *buffer = &_buffers[_buffer_count];
-
-    //for (auto &ack : peer->acknowledgements)
-    while (!peer->acknowledgements.empty())
-    {
-        auto ack = peer->acknowledgements.front();
-
-        // 送信継続
-        // - コマンドバッファに空きがない
-        // - データバッファに空きがない
-        // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
-        if (command >= &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS] ||
-            buffer >= &_buffers[BUFFER_MAXIMUM] ||
-            peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
-        {
-            _continue_sending = true;
-
-            break;
-        }
-
-        buffer->data = command;
-        buffer->data_length = sizeof(UdpProtocolAcknowledge);
-
-        _packet_size += buffer->data_length;
-
-        auto reliable_sequence_number = htons(ack.command.header.reliable_sequence_number);
-
-        command->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
-        command->header.channel_id = ack.command.header.channel_id;
-        command->header.reliable_sequence_number = reliable_sequence_number;
-        command->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
-        command->acknowledge.received_sent_time = htons(ack.sent_time);
-
-        if ((ack.command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-            _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
-
-        peer->acknowledgements.pop_front();
-
-        ++command;
-        ++buffer;
-    }
-
-    _command_count = command - _commands;
-    _buffer_count = buffer - _buffers;
-}
-
-void
-UdpHostCore::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
-{
-    if (peer->state >= UdpPeerState::CONNECTION_PENDING)
-        // ピアを切断するのでバンド幅を再計算する
-        _recalculate_bandwidth_limits = true;
-
-    // ピアのステートが以下の３つの内のいずれかである場合
-    // 1. DISCONNECTED,
-    // 2. ACKNOWLEDGING_CONNECT,
-    // 3. CONNECTION_PENDING
-    if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
-    {
-        udp_peer_reset(peer);
-    }
-        // ピアが接続済みである場合
-    else if (event != nullptr)
-    {
-        event->type = UdpEventType::DISCONNECT;
-        event->peer = peer;
-        event->data = 0;
-
-        udp_peer_reset(peer);
-    }
-    else
-    {
-        peer->event_data = 0;
-
-        _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
-    }
-}
-
-int
-UdpHostCore::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
-{
-    auto current_command = peer->sent_reliable_commands.begin();
-
-    while (current_command != peer->sent_reliable_commands.end())
-    {
-        auto outgoing_command = current_command;
-
-        ++current_command;
-
-
-        // 処理をスキップ
-        if (UDP_TIME_DIFFERENCE(_service_time, outgoing_command->sent_time) < outgoing_command->round_trip_timeout)
-            continue;
-
-        if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
-            peer->earliest_timeout = outgoing_command->sent_time;
-
-        // タイムアウトしたらピアを切断する
-        if (peer->earliest_timeout != 0 &&
-            (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
-             (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
-              UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
-        {
-            _udp_protocol_notify_disconnect(peer, event);
-
-            return 1;
-        }
-
-        if (outgoing_command->packet != nullptr)
-            peer->reliable_data_in_transit -= outgoing_command->fragment_length;
-
-        ++peer->packets_lost;
-
-        outgoing_command->round_trip_timeout *= 2;
-
-        peer->outgoing_reliable_commands.push_front(*outgoing_command);
-
-        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
-        if (!peer->sent_reliable_commands.empty() && peer->sent_reliable_commands.size() == 1)
-        {
-            peer->next_timeout = current_command->sent_time + current_command->round_trip_timeout;
-        }
-    }
-
-    return 0;
-}
-
-namespace
-{
-    bool
-    window_wraps(const std::shared_ptr<UdpChannel> &channel,
-                 int reliable_window,
-                 const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
-    {
-        auto has_not_sent_once = outgoing_command->send_attempts == 0;
-
-        auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
-
-        auto all_available_windows_are_in_use = channel->reliable_windows.at(
-            (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
-        ) >= PEER_RELIABLE_WINDOW_SIZE;
-
-        auto existing_commands_are_in_flight = channel->used_reliable_windows & (
-            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
-            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window))
-        );
-
-        return has_not_sent_once &&
-               first_command_in_window &&
-               (all_available_windows_are_in_use || existing_commands_are_in_flight);
-    }
-
-    bool
-    window_exceeds(const std::shared_ptr<UdpPeer> &peer,
-                   uint32_t window_size,
-                   const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
-    {
-        return (peer->reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, peer->mtu);
-    }
-}
-
 bool
 UdpHostCore::_sending_continues(UdpProtocolType *command,
-                            UdpBuffer *buffer,
-                            const std::shared_ptr<UdpPeer> &peer,
-                            const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
+                                UdpBuffer *buffer,
+                                const std::shared_ptr<UdpPeer> &peer,
+                                const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
 {
     // MEMO: [誤] _udp_protocol_send_reliable_outgoing_commands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、
@@ -560,241 +339,6 @@ UdpHostCore::_sending_continues(UdpProtocolType *command,
     }
 
     return false;
-}
-
-bool
-UdpHostCore::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
-{
-    auto *command = &_commands[_command_count];
-    auto *buffer = &_buffers[_buffer_count];
-    auto window_exceeded = 0;
-    auto window_wrap = false;
-    auto can_ping = true;
-    auto current_command = peer->outgoing_reliable_commands.begin();
-
-    while (current_command != peer->outgoing_reliable_commands.end())
-    {
-        auto outgoing_command = current_command;
-
-        auto channel = outgoing_command->command->header.channel_id < peer->channels.size() ?
-                       peer->channels.at(outgoing_command->command->header.channel_id) :
-                       nullptr;
-
-        auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
-
-        //  check reliable window is available
-        // --------------------------------------------------
-
-        if (channel != nullptr)
-        {
-            if (!window_wrap && window_wraps(channel, reliable_window, outgoing_command))
-                window_wrap = true;
-
-            if (window_wrap)
-            {
-                ++current_command;
-
-                continue;
-            }
-        }
-
-        //  check packet exceeds window size
-        // --------------------------------------------------
-
-        if (outgoing_command->packet != nullptr)
-        {
-            if (!window_exceeded)
-            {
-                auto window_size = (peer->packet_throttle * peer->window_size) / PEER_PACKET_THROTTLE_SCALE;
-
-                if (window_exceeds(peer, window_size, outgoing_command))
-                    window_exceeded = true;
-            }
-
-            if (window_exceeded)
-            {
-                ++current_command;
-
-                continue;
-            }
-        }
-
-        //
-        // --------------------------------------------------
-
-        can_ping = false;
-
-        if (_sending_continues(command, buffer, peer, outgoing_command))
-        {
-            _continue_sending = true;
-
-            break;
-        }
-
-        ++current_command;
-
-        if (channel != nullptr && outgoing_command->send_attempts < 1)
-        {
-            channel->used_reliable_windows |= 1 << reliable_window;
-            ++channel->reliable_windows[reliable_window];
-        }
-
-        ++outgoing_command->send_attempts;
-
-        if (outgoing_command->round_trip_timeout == 0)
-        {
-            outgoing_command->round_trip_timeout = peer->round_trip_time + 4 * peer->round_trip_time_variance;
-            outgoing_command->round_trip_timeout_limit = peer->timeout_limit * outgoing_command->round_trip_timeout;
-        }
-
-        if (peer->sent_reliable_commands.empty())
-            peer->next_timeout = _service_time + outgoing_command->round_trip_timeout;
-
-        outgoing_command->sent_time = _service_time;
-
-        buffer->data = command;
-        buffer->data_length = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
-
-        _packet_size += buffer->data_length;
-        _header_flags |= PROTOCOL_HEADER_FLAG_SENT_TIME;
-
-        // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
-        //       これは受信側でパケットを正しく識別するための基本
-
-        *command = *outgoing_command->command;
-
-        if (outgoing_command->packet != nullptr)
-        {
-            ++buffer;
-
-            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
-            buffer->data_length = outgoing_command->fragment_length;
-
-            _packet_size += outgoing_command->fragment_length;
-
-            peer->reliable_data_in_transit += outgoing_command->fragment_length;
-        }
-
-        peer->sent_reliable_commands.push_back(*outgoing_command);
-        peer->outgoing_reliable_commands.erase(outgoing_command);
-
-        ++peer->packets_sent;
-
-        ++command;
-        ++buffer;
-    }
-
-    _command_count = command - _commands;
-    _buffer_count = buffer - _buffers;
-
-    return can_ping;
-}
-
-void
-UdpHostCore::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer)
-{
-    auto *command = &_commands[_command_count];
-    auto *buffer = &_buffers[_buffer_count];
-
-    auto current_command = peer->outgoing_unreliable_commands.begin();
-
-    while (current_command != peer->outgoing_unreliable_commands.end())
-    {
-        auto outgoing_command = current_command;
-        auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
-
-        if (_sending_continues(command, buffer, peer, outgoing_command))
-        {
-            _continue_sending = true;
-
-            break;
-        }
-
-        ++current_command;
-
-        if (outgoing_command->packet != nullptr && outgoing_command->fragment_offset == 0)
-        {
-            peer->packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
-            peer->packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
-
-            if (peer->packet_throttle_counter > peer->packet_throttle)
-            {
-                uint16_t reliable_sequence_number = outgoing_command->reliable_sequence_number;
-                uint16_t unreliable_sequence_number = outgoing_command->unreliable_sequence_number;
-
-                for (;;)
-                {
-                    if (current_command == peer->outgoing_unreliable_commands.end())
-                        break;
-
-                    outgoing_command = current_command;
-
-                    if (outgoing_command->reliable_sequence_number != reliable_sequence_number ||
-                        outgoing_command->unreliable_sequence_number != unreliable_sequence_number)
-                    {
-                        break;
-                    }
-
-                    ++current_command;
-                }
-
-                continue;
-            }
-        }
-
-        buffer->data = command;
-        buffer->data_length = command_size;
-
-        _packet_size += buffer->data_length;
-
-        *command = *outgoing_command->command;
-
-        peer->outgoing_unreliable_commands.erase(outgoing_command);
-
-        if (outgoing_command->packet != nullptr)
-        {
-            ++buffer;
-
-            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
-            buffer->data_length = outgoing_command->fragment_length;
-
-            _packet_size += buffer->data_length;
-
-            peer->sent_unreliable_commands.push_back(*outgoing_command);
-        }
-
-        ++command;
-        ++buffer;
-    }
-
-    _command_count = command - _commands;
-    _buffer_count = buffer - _buffers;
-
-    if (peer->state == UdpPeerState::DISCONNECT_LATER &&
-        peer->outgoing_reliable_commands.empty() &&
-        peer->outgoing_unreliable_commands.empty() &&
-        peer->sent_reliable_commands.empty())
-    {
-        udp_peer_disconnect(peer);
-    }
-}
-
-void
-UdpHostCore::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer)
-{
-    while (!peer->sent_unreliable_commands.empty())
-    {
-        auto outgoing_command = peer->sent_unreliable_commands.begin();
-
-
-        if (outgoing_command->packet != nullptr)
-        {
-            if (outgoing_command->packet.use_count() == 0)
-                outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
-        }
-
-        peer->sent_unreliable_commands.pop_front();
-    }
 }
 
 ssize_t
@@ -837,207 +381,6 @@ UdpHostCore::_udp_socket_send(const UdpAddress &address)
 
     return sent;
 }
-
-int
-UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
-{
-    uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
-    auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
-
-    _continue_sending = true;
-
-    while (_continue_sending)
-    {
-        _continue_sending = false;
-
-        for (auto &peer : _peers)
-        {
-            if (peer->state == UdpPeerState::DISCONNECTED || peer->state == UdpPeerState::ZOMBIE)
-                continue;
-
-            _header_flags = 0;
-            _command_count = 0;
-            _buffer_count = 1;
-            _packet_size = sizeof(UdpProtocolHeader);
-
-            //  ACKを返す
-            // --------------------------------------------------
-
-            if (!peer->acknowledgements.empty())
-                _udp_protocol_send_acknowledgements(peer);
-
-            //  タイムアウト処理
-            // --------------------------------------------------
-
-            if (check_for_timeouts &&
-                !peer->sent_reliable_commands.empty() &&
-                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
-                _udp_protocol_check_timeouts(peer, event) == 1)
-            {
-                if (event->type != UdpEventType::NONE)
-                    return 1;
-                else
-                    continue;
-            }
-
-            //  送信バッファに Reliable Command を転送する
-            // --------------------------------------------------
-
-            if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
-                peer->sent_reliable_commands.empty() &&
-                UDP_TIME_DIFFERENCE(_service_time, peer->last_receive_time) >= peer->ping_interval &&
-                peer->mtu - _packet_size >= sizeof(UdpProtocolPing))
-            {
-                udp_peer_ping(peer);
-
-                // ping コマンドをバッファに転送
-                _udp_protocol_send_reliable_outgoing_commands(peer);
-            }
-
-            //  送信バッファに Unreliable Command を転送する
-            // --------------------------------------------------
-
-            if (!peer->outgoing_unreliable_commands.empty())
-                _udp_protocol_send_unreliable_outgoing_commands(peer);
-
-            if (_command_count == 0)
-                continue;
-
-            if (peer->packet_loss_epoch == 0)
-            {
-                peer->packet_loss_epoch = _service_time;
-            }
-            else if (UDP_TIME_DIFFERENCE(_service_time, peer->packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL &&
-                     peer->packets_sent > 0)
-            {
-                uint32_t packet_loss = peer->packets_lost * PEER_PACKET_LOSS_SCALE / peer->packets_sent;
-
-                peer->packet_loss_variance -= peer->packet_loss_variance / 4;
-
-                if (packet_loss >= peer->packet_loss)
-                {
-                    peer->packet_loss += (packet_loss - peer->packet_loss) / 8;
-                    peer->packet_loss_variance += (packet_loss - peer->packet_loss) / 4;
-                }
-                else
-                {
-                    peer->packet_loss -= (peer->packet_loss - packet_loss) / 8;
-                    peer->packet_loss_variance += (peer->packet_loss - packet_loss) / 4;
-                }
-
-                peer->packet_loss_epoch = _service_time;
-                peer->packets_sent = 0;
-                peer->packets_lost = 0;
-            }
-
-            if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
-            {
-                header->sent_time = htons(_service_time & 0xFFFF);
-                _buffers[0].data_length = sizeof(UdpProtocolHeader);
-            }
-            else
-            {
-                _buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
-            }
-
-            auto should_compress = false;
-
-            if (_compressor->compress != nullptr)
-            {
-                // ...
-            }
-
-            if (peer->outgoing_peer_id < PROTOCOL_MAXIMUM_PEER_ID)
-                _header_flags |= peer->outgoing_session_id << PROTOCOL_HEADER_SESSION_SHIFT;
-
-            header->peer_id = htons(peer->outgoing_peer_id | _header_flags);
-
-            if (_checksum != nullptr)
-            {
-                // ...
-            }
-
-            if (should_compress)
-            {
-                // ...
-            }
-
-            peer->last_send_time = _service_time;
-
-            auto sent_length = _udp_socket_send(peer->address);
-
-            _udp_protocol_remove_sent_unreliable_commands(peer);
-
-            if (sent_length < 0)
-                return -1;
-
-            _total_sent_data += sent_length;
-
-            ++_total_sent_packets;
-        }
-    }
-
-    return 0;
-}
-
-bool UdpPeer::is_disconnected()
-{
-    return state == UdpPeerState::DISCONNECTED ? true : false;
-}
-
-Error
-UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
-{
-    _channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
-
-    if (_channels.empty())
-        return Error::CANT_CREATE;
-
-    _state = UdpPeerState::CONNECTING;
-    _address = address;
-    _connect_id = hash32();
-
-    if (_outgoing_bandwidth == 0)
-        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-    else
-        _window_size = (_outgoing_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
-
-    if (_window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
-        _window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
-
-    if (_window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
-        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-
-    std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
-
-    cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-    cmd->header.channel_id = 0xFF;
-
-    cmd->connect.outgoing_peer_id = htons(_incoming_peer_id);
-    cmd->connect.incoming_session_id = _incoming_session_id;
-    cmd->connect.outgoing_session_id = _outgoing_session_id;
-    cmd->connect.mtu = htonl(_mtu);
-    cmd->connect.window_size = htonl(_window_size);
-    cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    cmd->connect.incoming_bandwidth = htonl(_incoming_bandwidth);
-    cmd->connect.outgoing_bandwidth = htonl(_outgoing_bandwidth);
-    cmd->connect.packet_throttle_interval = htonl(_packet_throttle_interval);
-    cmd->connect.packet_throttle_acceleration = htonl(_packet_throttle_acceleration);
-    cmd->connect.packet_throttle_deceleration = htonl(_packet_throttle_deceleration);
-    cmd->connect.data = data;
-
-    queue_outgoing_command(cmd, nullptr, 0, 0);
-
-    return Error::OK;
-}
-
-UdpPeerPod::UdpPeerPod(size_t peer_count) :
-    _bandwidth_limited_peers(0),
-    _bandwidth_throttle_epoch(0),
-    _connected_peers(0),
-    _peers(peer_count),
-    _peer_count(peer_count)
-{}
 
 std::shared_ptr<UdpPeer>
 UdpPeerPod::available_peer_exists()
@@ -1220,4 +563,658 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
             udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
         }
     }
+}
+
+UdpPeerPod::UdpPeerPod(size_t peer_count) :
+    _bandwidth_limited_peers(0),
+    _bandwidth_throttle_epoch(0),
+    _connected_peers(0),
+    _peers(peer_count),
+    _peer_count(peer_count)
+{}
+
+int
+UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
+{
+    uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
+    auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
+
+    _continue_sending = true;
+
+    while (_continue_sending)
+    {
+        _continue_sending = false;
+
+        for (auto &peer : _peers)
+        {
+            if (peer->state == UdpPeerState::DISCONNECTED || peer->state == UdpPeerState::ZOMBIE)
+                continue;
+
+            _header_flags = 0;
+            _command_count = 0;
+            _buffer_count = 1;
+            _packet_size = sizeof(UdpProtocolHeader);
+
+            //  ACKを返す
+            // --------------------------------------------------
+
+            if (!peer->acknowledgements.empty())
+                _udp_protocol_send_acknowledgements(peer);
+
+            //  タイムアウト処理
+            // --------------------------------------------------
+
+            if (check_for_timeouts &&
+                !peer->sent_reliable_commands.empty() &&
+                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
+                _udp_protocol_check_timeouts(peer, event) == 1)
+            {
+                if (event->type != UdpEventType::NONE)
+                    return 1;
+                else
+                    continue;
+            }
+
+            //  送信バッファに Reliable Command を転送する
+            // --------------------------------------------------
+
+            if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
+                peer->sent_reliable_commands.empty() &&
+                UDP_TIME_DIFFERENCE(_service_time, peer->last_receive_time) >= peer->ping_interval &&
+                peer->mtu - _packet_size >= sizeof(UdpProtocolPing))
+            {
+                udp_peer_ping(peer);
+
+                // ping コマンドをバッファに転送
+                _udp_protocol_send_reliable_outgoing_commands(peer);
+            }
+
+            //  送信バッファに Unreliable Command を転送する
+            // --------------------------------------------------
+
+            if (!peer->outgoing_unreliable_commands.empty())
+                _udp_protocol_send_unreliable_outgoing_commands(peer);
+
+            if (_command_count == 0)
+                continue;
+
+            if (peer->packet_loss_epoch == 0)
+            {
+                peer->packet_loss_epoch = _service_time;
+            }
+            else if (UDP_TIME_DIFFERENCE(_service_time, peer->packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL &&
+                     peer->packets_sent > 0)
+            {
+                uint32_t packet_loss = peer->packets_lost * PEER_PACKET_LOSS_SCALE / peer->packets_sent;
+
+                peer->packet_loss_variance -= peer->packet_loss_variance / 4;
+
+                if (packet_loss >= peer->packet_loss)
+                {
+                    peer->packet_loss += (packet_loss - peer->packet_loss) / 8;
+                    peer->packet_loss_variance += (packet_loss - peer->packet_loss) / 4;
+                }
+                else
+                {
+                    peer->packet_loss -= (peer->packet_loss - packet_loss) / 8;
+                    peer->packet_loss_variance += (peer->packet_loss - packet_loss) / 4;
+                }
+
+                peer->packet_loss_epoch = _service_time;
+                peer->packets_sent = 0;
+                peer->packets_lost = 0;
+            }
+
+            if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
+            {
+                header->sent_time = htons(_service_time & 0xFFFF);
+                _buffers[0].data_length = sizeof(UdpProtocolHeader);
+            }
+            else
+            {
+                _buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
+            }
+
+            auto should_compress = false;
+
+            if (_compressor->compress != nullptr)
+            {
+                // ...
+            }
+
+            if (peer->outgoing_peer_id < PROTOCOL_MAXIMUM_PEER_ID)
+                _header_flags |= peer->outgoing_session_id << PROTOCOL_HEADER_SESSION_SHIFT;
+
+            header->peer_id = htons(peer->outgoing_peer_id | _header_flags);
+
+            if (_checksum != nullptr)
+            {
+                // ...
+            }
+
+            if (should_compress)
+            {
+                // ...
+            }
+
+            peer->last_send_time = _service_time;
+
+            auto sent_length = _udp_socket_send(peer->address);
+
+            _udp_protocol_remove_sent_unreliable_commands(peer);
+
+            if (sent_length < 0)
+                return -1;
+
+            _total_sent_data += sent_length;
+
+            ++_total_sent_packets;
+        }
+    }
+
+    return 0;
+}
+
+int
+UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
+{
+    while (!_dispatch_queue.empty())
+    {
+        auto peer = _pop_peer_from_dispatch_queue();
+
+        peer->needs_dispatch = false;
+
+        if (peer->state == UdpPeerState::CONNECTION_PENDING ||
+            peer->state == UdpPeerState::CONNECTION_SUCCEEDED)
+        {
+            // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
+            _udp_protocol_change_state(peer, UdpPeerState::CONNECTED);
+
+            event->type = UdpEventType::CONNECT;
+            event->peer = peer;
+            event->data = peer->event_data;
+
+            return 1;
+        }
+        else if (peer->state == UdpPeerState::ZOMBIE)
+        {
+            _recalculate_bandwidth_limits = true;
+
+            event->type = UdpEventType::DISCONNECT;
+            event->peer = peer;
+            event->data = peer->event_data;
+
+            // ゾンビ状態になったピアはリセットする
+            udp_peer_reset(peer);
+
+            return 1;
+        }
+        else if (peer->state == UdpPeerState::CONNECTED)
+        {
+            if (peer->dispatched_commands.empty())
+                continue;
+
+            // 接続済みのピアからはコマンドを受信する
+            event->packet = udp_peer_receive(peer, event->channel_id);
+
+            if (event->packet == nullptr)
+                continue;
+
+            event->type = UdpEventType::RECEIVE;
+            event->peer = peer;
+
+            // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
+            if (!peer->dispatched_commands.empty())
+            {
+                peer->needs_dispatch = true;
+
+                _dispatch_queue.push(peer);
+            }
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+void
+UdpPeer::_udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+{
+    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
+        udp_peer_on_connect(peer);
+    else
+        udp_peer_on_disconnect(peer);
+
+    peer->state = state;
+}
+
+void
+UdpPeer::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+{
+    _udp_protocol_change_state(peer, state);
+
+    if (!peer->needs_dispatch)
+    {
+        peer->needs_dispatch = true;
+
+        _dispatch_queue.push(peer);
+    }
+}
+
+void
+UdpPeer::_udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
+{
+    auto *command = &_commands[_command_count];
+    auto *buffer = &_buffers[_buffer_count];
+
+    //for (auto &ack : peer->acknowledgements)
+    while (!peer->acknowledgements.empty())
+    {
+        auto ack = peer->acknowledgements.front();
+
+        // 送信継続
+        // - コマンドバッファに空きがない
+        // - データバッファに空きがない
+        // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
+        if (command >= &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS] ||
+            buffer >= &_buffers[BUFFER_MAXIMUM] ||
+            peer->mtu - _packet_size < sizeof(UdpProtocolAcknowledge))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+
+        buffer->data = command;
+        buffer->data_length = sizeof(UdpProtocolAcknowledge);
+
+        _packet_size += buffer->data_length;
+
+        auto reliable_sequence_number = htons(ack.command.header.reliable_sequence_number);
+
+        command->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
+        command->header.channel_id = ack.command.header.channel_id;
+        command->header.reliable_sequence_number = reliable_sequence_number;
+        command->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
+        command->acknowledge.received_sent_time = htons(ack.sent_time);
+
+        if ((ack.command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+            _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+
+        peer->acknowledgements.pop_front();
+
+        ++command;
+        ++buffer;
+    }
+
+    _command_count = command - _commands;
+    _buffer_count = buffer - _buffers;
+}
+
+void
+UdpPeer::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+{
+    if (peer->state >= UdpPeerState::CONNECTION_PENDING)
+        // ピアを切断するのでバンド幅を再計算する
+        _recalculate_bandwidth_limits = true;
+
+    // ピアのステートが以下の３つの内のいずれかである場合
+    // 1. DISCONNECTED,
+    // 2. ACKNOWLEDGING_CONNECT,
+    // 3. CONNECTION_PENDING
+    if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
+    {
+        udp_peer_reset(peer);
+    }
+        // ピアが接続済みである場合
+    else if (event != nullptr)
+    {
+        event->type = UdpEventType::DISCONNECT;
+        event->peer = peer;
+        event->data = 0;
+
+        udp_peer_reset(peer);
+    }
+    else
+    {
+        peer->event_data = 0;
+
+        _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+    }
+}
+
+int
+UdpPeer::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+{
+    auto current_command = peer->sent_reliable_commands.begin();
+
+    while (current_command != peer->sent_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        ++current_command;
+
+
+        // 処理をスキップ
+        if (UDP_TIME_DIFFERENCE(_service_time, outgoing_command->sent_time) < outgoing_command->round_trip_timeout)
+            continue;
+
+        if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
+            peer->earliest_timeout = outgoing_command->sent_time;
+
+        // タイムアウトしたらピアを切断する
+        if (peer->earliest_timeout != 0 &&
+            (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
+             (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
+              UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
+        {
+            _udp_protocol_notify_disconnect(peer, event);
+
+            return 1;
+        }
+
+        if (outgoing_command->packet != nullptr)
+            peer->reliable_data_in_transit -= outgoing_command->fragment_length;
+
+        ++peer->packets_lost;
+
+        outgoing_command->round_trip_timeout *= 2;
+
+        peer->outgoing_reliable_commands.push_front(*outgoing_command);
+
+        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
+        if (!peer->sent_reliable_commands.empty() && peer->sent_reliable_commands.size() == 1)
+        {
+            peer->next_timeout = current_command->sent_time + current_command->round_trip_timeout;
+        }
+    }
+
+    return 0;
+}
+
+bool
+UdpPeer::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
+{
+    auto *command = &_commands[_command_count];
+    auto *buffer = &_buffers[_buffer_count];
+    auto window_exceeded = 0;
+    auto window_wrap = false;
+    auto can_ping = true;
+    auto current_command = peer->outgoing_reliable_commands.begin();
+
+    while (current_command != peer->outgoing_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        auto channel = outgoing_command->command->header.channel_id < peer->channels.size() ?
+                       peer->channels.at(outgoing_command->command->header.channel_id) :
+                       nullptr;
+
+        auto reliable_window = outgoing_command->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+
+        //  check reliable window is available
+        // --------------------------------------------------
+
+        if (channel != nullptr)
+        {
+            if (!window_wrap && window_wraps(channel, reliable_window, outgoing_command))
+                window_wrap = true;
+
+            if (window_wrap)
+            {
+                ++current_command;
+
+                continue;
+            }
+        }
+
+        //  check packet exceeds window size
+        // --------------------------------------------------
+
+        if (outgoing_command->packet != nullptr)
+        {
+            if (!window_exceeded)
+            {
+                auto window_size = (peer->packet_throttle * peer->window_size) / PEER_PACKET_THROTTLE_SCALE;
+
+                if (window_exceeds(peer, window_size, outgoing_command))
+                    window_exceeded = true;
+            }
+
+            if (window_exceeded)
+            {
+                ++current_command;
+
+                continue;
+            }
+        }
+
+        //
+        // --------------------------------------------------
+
+        can_ping = false;
+
+        if (_sending_continues(command, buffer, peer, outgoing_command))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+
+        ++current_command;
+
+        if (channel != nullptr && outgoing_command->send_attempts < 1)
+        {
+            channel->used_reliable_windows |= 1 << reliable_window;
+            ++channel->reliable_windows[reliable_window];
+        }
+
+        ++outgoing_command->send_attempts;
+
+        if (outgoing_command->round_trip_timeout == 0)
+        {
+            outgoing_command->round_trip_timeout = peer->round_trip_time + 4 * peer->round_trip_time_variance;
+            outgoing_command->round_trip_timeout_limit = peer->timeout_limit * outgoing_command->round_trip_timeout;
+        }
+
+        if (peer->sent_reliable_commands.empty())
+            peer->next_timeout = _service_time + outgoing_command->round_trip_timeout;
+
+        outgoing_command->sent_time = _service_time;
+
+        buffer->data = command;
+        buffer->data_length = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+
+        _packet_size += buffer->data_length;
+        _header_flags |= PROTOCOL_HEADER_FLAG_SENT_TIME;
+
+        // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
+        //       これは受信側でパケットを正しく識別するための基本
+
+        *command = *outgoing_command->command;
+
+        if (outgoing_command->packet != nullptr)
+        {
+            ++buffer;
+
+            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
+            buffer->data_length = outgoing_command->fragment_length;
+
+            _packet_size += outgoing_command->fragment_length;
+
+            peer->reliable_data_in_transit += outgoing_command->fragment_length;
+        }
+
+        peer->sent_reliable_commands.push_back(*outgoing_command);
+        peer->outgoing_reliable_commands.erase(outgoing_command);
+
+        ++peer->packets_sent;
+
+        ++command;
+        ++buffer;
+    }
+
+    _command_count = command - _commands;
+    _buffer_count = buffer - _buffers;
+
+    return can_ping;
+}
+
+void
+UdpPeer::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer)
+{
+    auto *command = &_commands[_command_count];
+    auto *buffer = &_buffers[_buffer_count];
+
+    auto current_command = peer->outgoing_unreliable_commands.begin();
+
+    while (current_command != peer->outgoing_unreliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+        auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+
+        if (_sending_continues(command, buffer, peer, outgoing_command))
+        {
+            _continue_sending = true;
+
+            break;
+        }
+
+        ++current_command;
+
+        if (outgoing_command->packet != nullptr && outgoing_command->fragment_offset == 0)
+        {
+            peer->packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
+            peer->packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+
+            if (peer->packet_throttle_counter > peer->packet_throttle)
+            {
+                uint16_t reliable_sequence_number = outgoing_command->reliable_sequence_number;
+                uint16_t unreliable_sequence_number = outgoing_command->unreliable_sequence_number;
+
+                for (;;)
+                {
+                    if (current_command == peer->outgoing_unreliable_commands.end())
+                        break;
+
+                    outgoing_command = current_command;
+
+                    if (outgoing_command->reliable_sequence_number != reliable_sequence_number ||
+                        outgoing_command->unreliable_sequence_number != unreliable_sequence_number)
+                    {
+                        break;
+                    }
+
+                    ++current_command;
+                }
+
+                continue;
+            }
+        }
+
+        buffer->data = command;
+        buffer->data_length = command_size;
+
+        _packet_size += buffer->data_length;
+
+        *command = *outgoing_command->command;
+
+        peer->outgoing_unreliable_commands.erase(outgoing_command);
+
+        if (outgoing_command->packet != nullptr)
+        {
+            ++buffer;
+
+            buffer->data = outgoing_command->packet->data + outgoing_command->fragment_offset;
+            buffer->data_length = outgoing_command->fragment_length;
+
+            _packet_size += buffer->data_length;
+
+            peer->sent_unreliable_commands.push_back(*outgoing_command);
+        }
+
+        ++command;
+        ++buffer;
+    }
+
+    _command_count = command - _commands;
+    _buffer_count = buffer - _buffers;
+
+    if (peer->state == UdpPeerState::DISCONNECT_LATER &&
+        peer->outgoing_reliable_commands.empty() &&
+        peer->outgoing_unreliable_commands.empty() &&
+        peer->sent_reliable_commands.empty())
+    {
+        udp_peer_disconnect(peer);
+    }
+}
+
+void
+UdpPeer::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer)
+{
+    while (!peer->sent_unreliable_commands.empty())
+    {
+        auto outgoing_command = peer->sent_unreliable_commands.begin();
+
+
+        if (outgoing_command->packet != nullptr)
+        {
+            if (outgoing_command->packet.use_count() == 0)
+                outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
+        }
+
+        peer->sent_unreliable_commands.pop_front();
+    }
+}
+
+bool UdpPeer::is_disconnected()
+{
+    return state == UdpPeerState::DISCONNECTED ? true : false;
+}
+
+Error
+UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
+{
+    _channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
+
+    if (_channels.empty())
+        return Error::CANT_CREATE;
+
+    _state = UdpPeerState::CONNECTING;
+    _address = address;
+    _connect_id = hash32();
+
+    if (_outgoing_bandwidth == 0)
+        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    else
+        _window_size = (_outgoing_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (_window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
+        _window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (_window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+
+    std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
+
+    cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.channel_id = 0xFF;
+
+    cmd->connect.outgoing_peer_id = htons(_incoming_peer_id);
+    cmd->connect.incoming_session_id = _incoming_session_id;
+    cmd->connect.outgoing_session_id = _outgoing_session_id;
+    cmd->connect.mtu = htonl(_mtu);
+    cmd->connect.window_size = htonl(_window_size);
+    cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
+    cmd->connect.incoming_bandwidth = htonl(_incoming_bandwidth);
+    cmd->connect.outgoing_bandwidth = htonl(_outgoing_bandwidth);
+    cmd->connect.packet_throttle_interval = htonl(_packet_throttle_interval);
+    cmd->connect.packet_throttle_acceleration = htonl(_packet_throttle_acceleration);
+    cmd->connect.packet_throttle_deceleration = htonl(_packet_throttle_deceleration);
+    cmd->connect.data = data;
+
+    queue_outgoing_command(cmd, nullptr, 0, 0);
+
+    return Error::OK;
 }
