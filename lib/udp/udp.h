@@ -211,8 +211,6 @@ public:
 class UdpHost
 {
 private:
-
-
     UdpChecksumCallback _checksum;
 
     std::vector<uint8_t> _received_data;
@@ -271,12 +269,14 @@ public:
 
     void
     decrease_connected_peers();
+
+    uint32_t service_time();
 };
 
 class UdpCommandPod
 {
 private:
-    std::list<UdpOutgoingCommand> _outgoing_reliable_commands;
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_reliable_commands;
     std::list<UdpOutgoingCommand> _outgoing_unreliable_commands;
     uint32_t _incoming_data_total;
     uint32_t _outgoing_data_total;
@@ -288,6 +288,8 @@ public:
     UdpCommandPod();
 
     void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
+
+    void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 };
 
 class UdpPeer
@@ -337,7 +339,7 @@ private:
     uint32_t _window_size;
     uint32_t _reliable_data_in_transit;
     std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
-    std::list<UdpOutgoingCommand> _sent_reliable_commands;
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
     std::list<UdpOutgoingCommand> _sent_unreliable_commands;
     std::queue<UdpIncomingCommand> _dispatched_commands;
     bool _needs_dispatch;
@@ -382,6 +384,8 @@ public:
     std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
 
     uint32_t mtu();
+
+    int check_timeouts(const std::unique_ptr<UdpEvent> &event);
 };
 
 class UdpHostCore
@@ -418,9 +422,6 @@ private:
 
 public:
     void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
-
-    int
-    _udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool
     _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);

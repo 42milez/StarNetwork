@@ -70,6 +70,12 @@ UdpCommandPod::setup_outgoing_command(UdpOutgoingCommand &outgoing_command)
         _outgoing_unreliable_commands.push_back(outgoing_command);
 }
 
+void
+UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+{
+    _outgoing_reliable_commands.push_front(command);
+}
+
 std::shared_ptr<UdpPeer>
 UdpPeerPod::available_peer_exists()
 {
@@ -759,4 +765,54 @@ uint32_t
 UdpPeer::mtu()
 {
     return _mtu;
+}
+
+int
+UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
+{
+    auto current_command = _sent_reliable_commands.begin();
+
+    while (current_command != _sent_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        ++current_command;
+
+        auto service_time = _host->service_time();
+
+        // 処理をスキップ
+        if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time) < (*outgoing_command)->round_trip_timeout)
+            continue;
+
+        if (_earliest_timeout == 0 || UDP_TIME_LESS((*outgoing_command)->sent_time, _earliest_timeout))
+            _earliest_timeout = (*outgoing_command)->sent_time;
+
+        // タイムアウトしたらピアを切断する
+        if (_earliest_timeout != 0 &&
+            (UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_maximum ||
+             ((*outgoing_command)->round_trip_timeout >= (*outgoing_command)->round_trip_timeout_limit &&
+              UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_minimum)))
+        {
+            _udp_protocol_notify_disconnect(peer, event);
+
+            return 1;
+        }
+
+        if ((*outgoing_command)->packet != nullptr)
+            _reliable_data_in_transit -= (*outgoing_command)->fragment_length;
+
+        ++_packets_lost;
+
+        (*outgoing_command)->round_trip_timeout *= 2;
+
+        _command_pod->push_outgoing_reliable_command(*outgoing_command);
+
+        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
+        if (!_sent_reliable_commands.empty() && _sent_reliable_commands.size() == 1)
+        {
+            _next_timeout = (*current_command)->sent_time + (*current_command)->round_trip_timeout;
+        }
+    }
+
+    return 0;
 }

@@ -116,55 +116,6 @@ UdpProtocol::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &pee
     }
 }
 
-int
-UdpProtocol::_udp_protocol_check_timeouts(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
-{
-    auto current_command = peer->sent_reliable_commands.begin();
-
-    while (current_command != peer->sent_reliable_commands.end())
-    {
-        auto outgoing_command = current_command;
-
-        ++current_command;
-
-
-        // 処理をスキップ
-        if (UDP_TIME_DIFFERENCE(_service_time, outgoing_command->sent_time) < outgoing_command->round_trip_timeout)
-            continue;
-
-        if (peer->earliest_timeout == 0 || UDP_TIME_LESS(outgoing_command->sent_time, peer->earliest_timeout))
-            peer->earliest_timeout = outgoing_command->sent_time;
-
-        // タイムアウトしたらピアを切断する
-        if (peer->earliest_timeout != 0 &&
-            (UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_maximum ||
-             (outgoing_command->round_trip_timeout >= outgoing_command->round_trip_timeout_limit &&
-              UDP_TIME_DIFFERENCE(_service_time, peer->earliest_timeout) >= peer->timeout_minimum)))
-        {
-            _udp_protocol_notify_disconnect(peer, event);
-
-            return 1;
-        }
-
-        if (outgoing_command->packet != nullptr)
-            peer->reliable_data_in_transit -= outgoing_command->fragment_length;
-
-        ++peer->packets_lost;
-
-        outgoing_command->round_trip_timeout *= 2;
-
-        peer->outgoing_reliable_commands.push_front(*outgoing_command);
-
-        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
-        if (!peer->sent_reliable_commands.empty() && peer->sent_reliable_commands.size() == 1)
-        {
-            peer->next_timeout = current_command->sent_time + current_command->round_trip_timeout;
-        }
-    }
-
-    return 0;
-}
-
 bool
 UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
 {

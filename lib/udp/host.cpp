@@ -279,6 +279,12 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     }
 }
 
+uint32_t
+UdpHost::service_time()
+{
+    return _service_time;
+}
+
 Error
 UdpHostCore::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
 {
