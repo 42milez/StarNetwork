@@ -364,8 +364,7 @@ public:
 
     Error setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
-    void
-    _udp_protocol_change_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+    void change_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
 
     void
     _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
@@ -387,6 +386,20 @@ public:
 
     void
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+
+    void udp_peer_reset();
+
+    void udp_peer_reset_queues();
+
+    void udp_peer_on_connect();
+
+    void udp_peer_on_disconnect();
+
+    void udp_peer_disconnect();
+
+    std::shared_ptr<UdpPacket> udp_peer_receive(uint8_t &channel_id);
+
+    void udp_peer_ping();
 };
 
 class UdpHostCore
@@ -407,26 +420,5 @@ public:
     std::shared_ptr<UdpPeer>
     _pop_peer_from_dispatch_queue();
 };
-
-void
-udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
-
-void
-udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer);
-
-void
-udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
-
-void
-udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
-
-void
-udp_peer_disconnect(std::shared_ptr<UdpPeer> &peer);
-
-std::shared_ptr<UdpPacket>
-udp_peer_receive(std::shared_ptr<UdpPeer> &peer, uint8_t &channel_id);
-
-void
-udp_peer_ping(std::shared_ptr<UdpPeer> &peer);
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
