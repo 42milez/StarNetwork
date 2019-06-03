@@ -211,7 +211,7 @@ public:
 class UdpHost
 {
 private:
-    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+
 
     UdpChecksumCallback _checksum;
 
@@ -366,6 +366,50 @@ public:
 
     void change_state(UdpPeerState state);
 
+    void udp_peer_reset();
+
+    void udp_peer_reset_queues();
+
+    void udp_peer_on_connect();
+
+    void udp_peer_on_disconnect();
+
+    void udp_peer_disconnect();
+
+    std::shared_ptr<UdpPacket> udp_peer_receive(uint8_t &channel_id);
+
+    void udp_peer_ping();
+
+    bool needs_dispatch();
+
+    bool needs_dispatch(bool val);
+};
+
+class UdpHostCore
+{
+public:
+    Error
+    _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
+
+    ssize_t
+    _udp_socket_send(const UdpAddress &address);
+
+    bool
+    _sending_continues(UdpProtocolType *command,
+                       UdpBuffer *buffer,
+                       const std::shared_ptr<UdpPeer> &peer,
+                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
+
+    std::shared_ptr<UdpPeer>
+    _pop_peer_from_dispatch_queue();
+};
+
+class UdpProtocol
+{
+private:
+    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+
+public:
     void
     _udp_protocol_send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
@@ -386,39 +430,6 @@ public:
 
     void
     _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
-
-    void udp_peer_reset();
-
-    void udp_peer_reset_queues();
-
-    void udp_peer_on_connect();
-
-    void udp_peer_on_disconnect();
-
-    void udp_peer_disconnect();
-
-    std::shared_ptr<UdpPacket> udp_peer_receive(uint8_t &channel_id);
-
-    void udp_peer_ping();
-};
-
-class UdpHostCore
-{
-public:
-    Error
-    _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
-
-    ssize_t
-    _udp_socket_send(const UdpAddress &address);
-
-    bool
-    _sending_continues(UdpProtocolType *command,
-                       UdpBuffer *buffer,
-                       const std::shared_ptr<UdpPeer> &peer,
-                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
-
-    std::shared_ptr<UdpPeer>
-    _pop_peer_from_dispatch_queue();
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
