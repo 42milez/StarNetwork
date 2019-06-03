@@ -186,6 +186,28 @@ udp_time_get();
 void
 udp_time_set(uint32_t new_time_base);
 
+class UdpPeerPod
+{
+private:
+    std::vector<std::shared_ptr<UdpPeer>> _peers;
+
+    uint32_t _bandwidth_throttle_epoch;
+    size_t _bandwidth_limited_peers;
+    size_t _connected_peers;
+    size_t _peer_count;
+
+public:
+    UdpPeerPod(size_t peer_count);
+
+    std::shared_ptr<UdpPeer> available_peer_exists();
+
+    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
+
+    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
+
+    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
+};
+
 class UdpHost
 {
 private:
@@ -273,28 +295,6 @@ public:
     UdpCommandPod();
 
     void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
-};
-
-class UdpPeerPod
-{
-private:
-    std::vector<std::shared_ptr<UdpPeer>> _peers;
-
-    uint32_t _bandwidth_throttle_epoch;
-    size_t _bandwidth_limited_peers;
-    size_t _connected_peers;
-    size_t _peer_count;
-
-public:
-    UdpPeerPod(size_t peer_count);
-
-    std::shared_ptr<UdpPeer> available_peer_exists();
-
-    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
-
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
-
-    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
 };
 
 class UdpPeer
