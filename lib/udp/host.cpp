@@ -839,7 +839,7 @@ UdpHostCore::_udp_socket_send(const UdpAddress &address)
 }
 
 int
-UdpHostCore::_protocol_send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
+UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
 {
     uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
     auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
