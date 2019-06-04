@@ -87,7 +87,8 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 void
 UdpProtocol::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
-    if (peer->state >= UdpPeerState::CONNECTION_PENDING)
+    //if (peer->state >= UdpPeerState::CONNECTION_PENDING)
+    if (peer->state_is_ge(UdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
         _recalculate_bandwidth_limits = true;
 
@@ -95,9 +96,10 @@ UdpProtocol::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &pee
     // 1. DISCONNECTED,
     // 2. ACKNOWLEDGING_CONNECT,
     // 3. CONNECTION_PENDING
-    if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
+    //if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
+    if (!peer->state_is(UdpPeerState::CONNECTING) && peer->state_is_lt(UdpPeerState::CONNECTION_SUCCEEDED))
     {
-        udp_peer_reset(peer);
+        peer->udp_peer_reset();
     }
         // ピアが接続済みである場合
     else if (event != nullptr)
@@ -106,11 +108,11 @@ UdpProtocol::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &pee
         event->peer = peer;
         event->data = 0;
 
-        udp_peer_reset(peer);
+        peer->udp_peer_reset();
     }
     else
     {
-        peer->event_data = 0;
+        peer->event_data(0);
 
         _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
     }

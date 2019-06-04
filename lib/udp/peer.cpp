@@ -1,6 +1,9 @@
 #include "command.h"
 #include "udp.h"
 
+#define IS_PEER_NOT_CONNECTED(peer) \
+    !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
+
 UdpCommandPod::UdpCommandPod() :
     _incoming_data_total(0),
     _outgoing_data_total(0),
@@ -118,7 +121,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
 
         for (const auto &peer : _peers)
         {
-            if (IS_PEER_CONNECTED(peer))
+            if (IS_PEER_NOT_CONNECTED(peer))
                 continue;
 
             data_total += peer->outgoing_data_total;
@@ -141,7 +144,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
         {
             uint32_t peer_bandwidth;
 
-            if ((IS_PEER_CONNECTED(peer)) ||
+            if ((IS_PEER_NOT_CONNECTED(peer)) ||
                 peer->incoming_bandwidth == 0 ||
                 peer->outgoing_bandwidth_throttle_epoch == time_current)
             {
@@ -185,7 +188,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
 
         for (auto &peer : _peers)
         {
-            if ((IS_PEER_CONNECTED(peer)) || peer->outgoing_bandwidth_throttle_epoch == time_current)
+            if ((IS_PEER_NOT_CONNECTED(peer)) || peer->outgoing_bandwidth_throttle_epoch == time_current)
                 continue;
 
             peer->packet_throttle_limit = throttle;
@@ -221,7 +224,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
 
                 for (auto &peer: _peers)
                 {
-                    if ((IS_PEER_CONNECTED(peer)) || peer->incoming_bandwidth_throttle_epoch == time_current)
+                    if ((IS_PEER_NOT_CONNECTED(peer)) || peer->incoming_bandwidth_throttle_epoch == time_current)
                         continue;
 
                     if (peer->outgoing_bandwidth > 0 && peer->outgoing_bandwidth >= bandwidth_limit)
@@ -242,7 +245,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
 
         for (auto &peer : _peers)
         {
-            if (IS_PEER_CONNECTED(peer))
+            if (IS_PEER_NOT_CONNECTED(peer))
                 continue;
 
             cmd->header.command = PROTOCOL_COMMAND_BANDWIDTH_LIMIT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
@@ -269,7 +272,7 @@ UdpPeerPod::UdpPeerPod(size_t peer_count) :
 {}
 
 int
-UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts)
+UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
     auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
@@ -299,16 +302,46 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_
             //  タイムアウト処理
             // --------------------------------------------------
 
-            if (check_for_timeouts &&
-                !peer->sent_reliable_commands.empty() &&
-                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
-                _udp_protocol_check_timeouts(peer, event) == 1)
+#define IS_EVENT_TYPE_NONE() \
+    if (event->type != UdpEventType::NONE) \
+        return 1; \
+    else \
+        continue;
+
+            if (check_for_timeouts)
             {
-                if (event->type != UdpEventType::NONE)
-                    return 1;
-                else
-                    continue;
+                IS_EVENT_TYPE_NONE()
             }
+
+            if (!peer->sent_reliable_commands.empty())
+            {
+                IS_EVENT_TYPE_NONE()
+            }
+
+            if (UDP_TIME_GREATER_EQUAL(service_time, peer->next_timeout))
+            {
+                IS_EVENT_TYPE_NONE()
+            }
+
+            bool timed_out = peer->check_timeouts(event);
+
+            if (timed_out == 1)
+            {
+                _udp_protocol_notify_disconnect(peer, event);
+
+                IS_EVENT_TYPE_NONE()
+            }
+
+//            if (check_for_timeouts &&
+//                !peer->sent_reliable_commands.empty() &&
+//                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
+//                _udp_protocol_check_timeouts(peer, event) == 1)
+//            {
+//                if (event->type != UdpEventType::NONE)
+//                    return 1;
+//                else
+//                    continue;
+//            }
 
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
@@ -685,7 +718,7 @@ UdpPeer::change_state(const UdpPeerState state)
 
 bool UdpPeer::is_disconnected()
 {
-    return state == UdpPeerState::DISCONNECTED ? true : false;
+    return _state == UdpPeerState::DISCONNECTED;
 }
 
 Error
@@ -794,8 +827,6 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
              ((*outgoing_command)->round_trip_timeout >= (*outgoing_command)->round_trip_timeout_limit &&
               UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_minimum)))
         {
-            _udp_protocol_notify_disconnect(peer, event);
-
             return 1;
         }
 
@@ -816,4 +847,28 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
     }
 
     return 0;
+}
+
+bool
+UdpPeer::state_is(UdpPeerState state)
+{
+    return _state == state;
+}
+
+bool
+UdpPeer::state_is_ge(UdpPeerState state)
+{
+    return _state >= state;
+}
+
+bool
+UdpPeer::state_is_lt(UdpPeerState state)
+{
+    return _state < state;
+}
+
+void
+UdpPeer::event_data(uint32_t val)
+{
+    _event_data = val;
 }

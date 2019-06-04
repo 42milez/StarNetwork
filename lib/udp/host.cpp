@@ -3,9 +3,6 @@
 
 #include "udp.h"
 
-#define IS_PEER_CONNECTED(peer) \
-    peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER
-
 namespace
 {
     std::vector<size_t> command_sizes{

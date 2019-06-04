@@ -206,7 +206,7 @@ public:
 
     int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
 
-    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, bool check_for_timeouts);
+    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 };
 
 class UdpHost
@@ -385,6 +385,14 @@ public:
     uint32_t mtu();
 
     int check_timeouts(const std::unique_ptr<UdpEvent> &event);
+
+    bool state_is(UdpPeerState state);
+
+    bool state_is_ge(UdpPeerState state);
+
+    bool state_is_lt(UdpPeerState state);
+
+    void event_data(uint32_t val);
 };
 
 class UdpHostCore
