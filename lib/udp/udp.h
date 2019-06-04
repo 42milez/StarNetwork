@@ -186,25 +186,64 @@ udp_time_get();
 void
 udp_time_set(uint32_t new_time_base);
 
+class UdpProtocol
+{
+private:
+    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+
+    UdpBuffer _buffers[BUFFER_MAXIMUM];
+    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+
+    size_t _command_count;
+    size_t _buffer_count;
+    size_t _packet_size;
+    bool _continue_sending;
+    bool _recalculate_bandwidth_limits;
+
+public:
+    UdpProtocol();
+
+    void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
+
+    bool
+    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
+
+    void
+    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer);
+
+    void
+    _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
+
+    void
+    _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+
+    void
+    notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+
+    bool recalculate_bandwidth_limits();
+
+    void recalculate_bandwidth_limits(bool val);
+};
+
 class UdpPeerPod
 {
 private:
     std::vector<std::shared_ptr<UdpPeer>> _peers;
+    std::unique_ptr<UdpProtocol> _protocol;
 
     uint32_t _bandwidth_throttle_epoch;
     size_t _bandwidth_limited_peers;
     size_t _connected_peers;
     size_t _peer_count;
-    bool _recalculate_bandwidth_limits;
 
 public:
     UdpPeerPod(size_t peer_count);
 
     std::shared_ptr<UdpPeer> available_peer_exists();
 
-    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits);
+    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth);
 
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits);
+    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 };
@@ -412,38 +451,6 @@ public:
 
     std::shared_ptr<UdpPeer>
     _pop_peer_from_dispatch_queue();
-};
-
-class UdpProtocol
-{
-private:
-    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
-
-    UdpBuffer _buffers[BUFFER_MAXIMUM];
-    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
-
-    size_t _command_count;
-    size_t _buffer_count;
-    size_t _packet_size;
-    bool _continue_sending;
-
-public:
-    void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
-
-    bool
-    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
-
-    void
-    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer);
-
-    void
-    _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
-
-    void
-    _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
-
-    void
-    _udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

@@ -92,7 +92,7 @@ UdpPeerPod::available_peer_exists()
 }
 
 void
-UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth, bool &_recalculate_bandwidth_limits)
+UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth)
 {
     auto time_current = udp_time_get();
     auto time_elapsed = time_current - _bandwidth_throttle_epoch;
@@ -204,9 +204,9 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
     //  Recalculate Bandwidth Limits
     // --------------------------------------------------
 
-    if (_recalculate_bandwidth_limits)
+    if (_protocol->recalculate_bandwidth_limits())
     {
-        _recalculate_bandwidth_limits = false;
+        _protocol->recalculate_bandwidth_limits(false);
         peers_remaining = _connected_peers;
         bandwidth = _incoming_bandwidth;
         needs_adjustment = true;
@@ -267,7 +267,6 @@ UdpPeerPod::UdpPeerPod(size_t peer_count) :
     _bandwidth_throttle_epoch(0),
     _connected_peers(0),
     _peers(peer_count),
-    _recalculate_bandwidth_limits(false),
     _peer_count(peer_count)
 {}
 
@@ -327,7 +326,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             if (timed_out == 1)
             {
-                _udp_protocol_notify_disconnect(peer, event);
+                _protocol->notify_disconnect(peer, event);
 
                 IS_EVENT_TYPE_NONE()
             }
@@ -444,7 +443,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 }
 
 int
-UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_recalculate_bandwidth_limits)
+UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     while (!_dispatch_queue.empty())
     {
@@ -466,7 +465,7 @@ UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event, bool &_
         }
         else if (peer->state == UdpPeerState::ZOMBIE)
         {
-            _recalculate_bandwidth_limits = true;
+            _protocol->recalculate_bandwidth_limits(true);
 
             event->type = UdpEventType::DISCONNECT;
             event->peer = peer;

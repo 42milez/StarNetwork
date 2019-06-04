@@ -85,9 +85,8 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::_udp_protocol_notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+UdpProtocol::notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
-    //if (peer->state >= UdpPeerState::CONNECTION_PENDING)
     if (peer->state_is_ge(UdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
         _recalculate_bandwidth_limits = true;
@@ -352,3 +351,18 @@ UdpProtocol::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr
         peer->sent_unreliable_commands.pop_front();
     }
 }
+
+bool
+UdpProtocol::recalculate_bandwidth_limits()
+{
+    return _recalculate_bandwidth_limits;
+}
+
+void
+UdpProtocol::recalculate_bandwidth_limits(bool val)
+{
+    _recalculate_bandwidth_limits = val;
+}
+
+UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
+{}
