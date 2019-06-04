@@ -239,7 +239,6 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _mtu(HOST_DEFAULT_MTU),
     _outgoing_bandwidth(out_bandwidth),
     _peer_pod(peer_count),
-    _recalculate_bandwidth_limits(false),
     _received_address(std::make_unique<UdpAddress>()),
     _received_data_length(0),
     _total_received_data(0),

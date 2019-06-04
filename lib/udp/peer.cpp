@@ -264,6 +264,7 @@ UdpPeerPod::UdpPeerPod(size_t peer_count) :
     _bandwidth_throttle_epoch(0),
     _connected_peers(0),
     _peers(peer_count),
+    _recalculate_bandwidth_limits(false),
     _peer_count(peer_count)
 {}
 

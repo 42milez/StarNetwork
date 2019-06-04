@@ -195,6 +195,7 @@ private:
     size_t _bandwidth_limited_peers;
     size_t _connected_peers;
     size_t _peer_count;
+    bool _recalculate_bandwidth_limits;
 
 public:
     UdpPeerPod(size_t peer_count);
@@ -236,8 +237,6 @@ private:
     uint32_t _total_sent_packets;
     uint32_t _total_received_data;
     uint32_t _total_received_packets;
-
-    bool _recalculate_bandwidth_limits;
 
     uint16_t _header_flags;
 
