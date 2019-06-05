@@ -89,6 +89,12 @@ UdpChamber::push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &comm
 }
 
 void
+UdpChamber::push_sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+{
+    _sent_unreliable_commands.push_back(command);
+}
+
+void
 UdpChamber::update_command_count(const UdpProtocolType *command)
 {
     _command_count = command - _commands;

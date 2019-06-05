@@ -233,7 +233,7 @@ UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr
     return can_ping;
     */
 
-    auto can_ping = peer->load_commands_into_chamber(_chamber, service_time);
+    auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
 
     return can_ping;
 }
@@ -241,8 +241,9 @@ UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr
 void
 UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer)
 {
-    auto *command = &_commands[_command_count];
-    auto *buffer = &_buffers[_buffer_count];
+    /*
+    auto *command = _chamber->command_insert_pos();
+    auto *buffer = _chamber->buffer_insert_pos();
 
     auto current_command = peer->outgoing_unreliable_commands.begin();
 
@@ -325,6 +326,9 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
     {
         udp_peer_disconnect(peer);
     }
+    */
+
+    peer->load_unreliable_commands_into_chamber(_chamber, service_time);
 }
 
 void

@@ -230,6 +230,7 @@ private:
     size_t _packet_size;
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
+    std::list<UdpOutgoingCommand> _sent_unreliable_commands;
 
     uint16_t _header_flags;
 
@@ -262,6 +263,8 @@ public:
     void add_header_flags(uint16_t flag);
 
     void push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+
+    void push_sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
     void update_command_count(const UdpProtocolType *command);
 
@@ -446,11 +449,17 @@ public:
 
     void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
-    bool load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                    uint32_t mtu,
-                                    uint32_t packet_throttle,
-                                    uint32_t window_size,
-                                    uint32_t service_time);
+    bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+                                             uint32_t mtu,
+                                             uint32_t packet_throttle,
+                                             uint32_t window_size,
+                                             uint32_t service_time);
+
+    bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+                                               uint32_t mtu,
+                                               uint32_t packet_throttle,
+                                               uint32_t window_size,
+                                               uint32_t service_time);
 };
 
 class UdpPeer
@@ -530,8 +539,6 @@ private:
 
     std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
 
-    std::list<UdpOutgoingCommand> _sent_unreliable_commands;
-
     std::queue<UdpIncomingCommand> _dispatched_commands;
 
     bool _needs_dispatch;
@@ -591,7 +598,9 @@ public:
 
     void event_data(uint32_t val);
 
-    bool load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+    bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+
+    bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
 };
 
 class UdpHostCore

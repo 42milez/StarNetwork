@@ -127,7 +127,7 @@ UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand
 }
 
 bool
-UdpCommandPod::load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                           uint32_t mtu,
                                           uint32_t packet_throttle,
                                           uint32_t window_size,
@@ -257,4 +257,101 @@ UdpCommandPod::load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
     chamber->update_buffer_count(buffer);
 
     return can_ping;
+}
+
+bool
+UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+                                                     uint32_t mtu,
+                                                     uint32_t packet_throttle,
+                                                     uint32_t window_size,
+                                                     uint32_t service_time)
+{
+    auto *command = chamber->command_insert_pos();
+    auto *buffer = chamber->buffer_insert_pos();
+
+    auto current_command = _outgoing_unreliable_commands.begin();
+
+    while (current_command != _outgoing_unreliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+        auto command_size = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
+
+        if (chamber->sending_continues(command, buffer, mtu, (*outgoing_command)))
+        {
+            chamber->continue_sending(true);
+
+            break;
+        }
+
+        ++current_command;
+
+        if ((*outgoing_command)->packet != nullptr && (*outgoing_command)->fragment_offset == 0)
+        {
+            peer->packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
+            peer->packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+
+            if (peer->packet_throttle_counter > peer->packet_throttle)
+            {
+                uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number;
+                uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number;
+
+                for (;;)
+                {
+                    if (current_command == _outgoing_unreliable_commands.end())
+                        break;
+
+                    outgoing_command = current_command;
+
+                    if ((*outgoing_command)->reliable_sequence_number != reliable_sequence_number ||
+                        (*outgoing_command)->unreliable_sequence_number != unreliable_sequence_number)
+                    {
+                        break;
+                    }
+
+                    ++current_command;
+                }
+
+                continue;
+            }
+        }
+
+        buffer->data = command;
+        buffer->data_length = command_size;
+
+        chamber->increase_packet_size(buffer->data_length);
+
+        *command = *(*outgoing_command)->command;
+
+        _outgoing_unreliable_commands.erase(outgoing_command);
+
+        if ((*outgoing_command)->packet != nullptr)
+        {
+            ++buffer;
+
+            buffer->data = (*outgoing_command)->packet->data + (*outgoing_command)->fragment_offset;
+            buffer->data_length = (*outgoing_command)->fragment_length;
+
+            chamber->increase_packet_size(buffer->data_length);
+
+            chamber->push_sent_unreliable_command(*outgoing_command);
+        }
+
+        ++command;
+        ++buffer;
+    }
+
+    chamber->update_command_count(command);
+    chamber->update_buffer_count(buffer);
+
+    if (peer->state_is(UdpPeerState::DISCONNECT_LATER) &&
+        _outgoing_reliable_commands.empty() &&
+        _outgoing_unreliable_commands.empty() &&
+        !chamber->sent_reliable_command_exists())
+    {
+        peer->udp_peer_disconnect();
+    }
+
+    // ↑のロジックの結果次第でtrue/falseを返す
+    // udp_peer_disconnect() はUdpPeerPodから呼ぶ
+    return false;
 }
