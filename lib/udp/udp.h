@@ -337,6 +337,14 @@ public:
     int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+
+    void increase_bandwidth_limited_peers();
+
+    void increase_connected_peers();
+
+    void decrease_bandwidth_limited_peers();
+
+    void decrease_connected_peers();
 };
 
 class UdpHost
@@ -396,18 +404,6 @@ public:
 
     int
     udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
-
-    void
-    increase_bandwidth_limited_peers();
-
-    void
-    increase_connected_peers();
-
-    void
-    decrease_bandwidth_limited_peers();
-
-    void
-    decrease_connected_peers();
 
     uint32_t service_time();
 };

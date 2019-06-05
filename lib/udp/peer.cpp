@@ -431,6 +431,30 @@ UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 }
 
 void
+UdpPeerPod::increase_bandwidth_limited_peers()
+{
+    ++_bandwidth_limited_peers;
+}
+
+void
+UdpPeerPod::increase_connected_peers()
+{
+    ++_connected_peers;
+}
+
+void
+UdpPeerPod::decrease_bandwidth_limited_peers()
+{
+    --_bandwidth_limited_peers;
+}
+
+void
+UdpPeerPod::decrease_connected_peers()
+{
+    --_connected_peers;
+}
+
+void
 UdpPeer::udp_peer_on_connect()
 {
     if (peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER)
