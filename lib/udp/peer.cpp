@@ -4,81 +4,6 @@
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
 
-UdpCommandPod::UdpCommandPod() :
-    _incoming_data_total(0),
-    _outgoing_data_total(0),
-    _outgoing_reliable_sequence_number(0),
-    _incoming_unsequenced_group(0),
-    _outgoing_unsequenced_group(0)
-{}
-
-void
-UdpCommandPod::setup_outgoing_command(UdpOutgoingCommand &outgoing_command)
-{
-    UdpChannel channel;
-
-    _outgoing_data_total += udp_protocol_command_size(outgoing_command.command->header.command) + outgoing_command.fragment_length;
-
-    if (outgoing_command.command->header.channel_id == 0xFF)
-    {
-        ++_outgoing_reliable_sequence_number;
-
-        outgoing_command.reliable_sequence_number = _outgoing_reliable_sequence_number;
-        outgoing_command.unreliable_sequence_number = 0;
-    }
-    else if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
-    {
-        ++channel.outgoing_reliable_sequence_number;
-        channel.outgoing_unreliable_seaquence_number = 0;
-
-        outgoing_command.reliable_sequence_number = channel.outgoing_reliable_sequence_number;
-        outgoing_command.unreliable_sequence_number = 0;
-    }
-    else if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
-    {
-        ++_outgoing_unsequenced_group;
-
-        outgoing_command.reliable_sequence_number = 0;
-        outgoing_command.unreliable_sequence_number = 0;
-    }
-    else
-    {
-        if (outgoing_command.fragment_offset == 0)
-            ++channel.outgoing_unreliable_seaquence_number;
-
-        outgoing_command.reliable_sequence_number = channel.outgoing_reliable_sequence_number;
-        outgoing_command.unreliable_sequence_number = channel.outgoing_unreliable_seaquence_number;
-    }
-
-    outgoing_command.send_attempts = 0;
-    outgoing_command.sent_time = 0;
-    outgoing_command.round_trip_timeout = 0;
-    outgoing_command.round_trip_timeout_limit = 0;
-    outgoing_command.command->header.reliable_sequence_number = htons(outgoing_command.reliable_sequence_number);
-
-    auto cmd = outgoing_command.command->header.command & PROTOCOL_COMMAND_MASK;
-
-    if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE)
-    {
-        outgoing_command.command->send_unreliable.unreliable_sequence_number = htons(outgoing_command.unreliable_sequence_number);
-    }
-    else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
-    {
-        outgoing_command.command->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
-    }
-
-    if (outgoing_command.command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
-        _outgoing_reliable_commands.push_back(outgoing_command);
-    else
-        _outgoing_unreliable_commands.push_back(outgoing_command);
-}
-
-void
-UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
-{
-    _outgoing_reliable_commands.push_front(command);
-}
-
 std::shared_ptr<UdpPeer>
 UdpPeerPod::available_peer_exists()
 {
@@ -276,15 +201,15 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
     uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
     auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
 
-    _continue_sending = true;
+    _protocol->continue_sending(true);
 
-    while (_continue_sending)
+    while (_protocol->continue_sending())
     {
-        _continue_sending = false;
+        _protocol->continue_sending(false);
 
         for (auto &peer : _peers)
         {
-            if (peer->state == UdpPeerState::DISCONNECTED || peer->state == UdpPeerState::ZOMBIE)
+            if (peer->state_is(UdpPeerState::DISCONNECTED) || peer->state_is(UdpPeerState::ZOMBIE))
                 continue;
 
             _header_flags = 0;
@@ -653,10 +578,8 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _outgoing_bandwidth_throttle_epoch(0),
                      _last_send_time(0),
                      _last_receive_time(0),
-                     _next_timeout(0),
                      _earliest_timeout(0),
                      _packet_loss_epoch(0),
-                     _packets_sent(0),
                      _packets_lost(0),
                      _packet_loss(0),
                      _packet_loss_variance(0),
@@ -668,15 +591,12 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _packet_throttle_deceleration(0),
                      _packet_throttle_interval(0),
                      _ping_interval(0),
-                     _timeout_limit(0),
                      _timeout_minimum(0),
                      _timeout_maximum(0),
                      _last_round_trip_time(0),
                      _last_round_trip_time_variance(0),
                      _lowest_round_trip_time(0),
                      _highest_round_trip_time_variance(0),
-                     _round_trip_time(0),
-                     _round_trip_time_variance(0),
                      _mtu(0),
                      _window_size(0),
                      _reliable_data_in_transit(0),
@@ -870,4 +790,16 @@ void
 UdpPeer::event_data(uint32_t val)
 {
     _event_data = val;
+}
+
+bool
+UdpPeer::load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time)
+{
+    auto can_ping = _command_pod->load_commands_into_chamber(chamber,
+                                                             _mtu,
+                                                             _packet_throttle,
+                                                             _window_size,
+                                                             service_time);
+
+    return can_ping;
 }

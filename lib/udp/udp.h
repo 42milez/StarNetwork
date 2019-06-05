@@ -45,6 +45,22 @@ constexpr uint32_t SOCKET_WAIT_SEND = (1u << 0u);
 constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
 constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
+constexpr std::array<size_t, 13> command_sizes{
+    0,
+    sizeof(UdpProtocolAcknowledge),
+    sizeof(UdpProtocolConnect),
+    sizeof(UdpProtocolVerifyConnect),
+    sizeof(UdpProtocolDisconnect),
+    sizeof(UdpProtocolPing),
+    sizeof(UdpProtocolSendReliable),
+    sizeof(UdpProtocolSendUnreliable),
+    sizeof(UdpProtocolSendFragment),
+    sizeof(UdpProtocolSendUnsequenced),
+    sizeof(UdpProtocolBandwidthLimit),
+    sizeof(UdpProtocolThrottleConfigure),
+    sizeof(UdpProtocolSendFragment)
+};
+
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
 // TODO: 引数が「A is less than B」の順序になるようにする
@@ -186,18 +202,46 @@ udp_time_get();
 void
 udp_time_set(uint32_t new_time_base);
 
+class UdpChamber
+{
+private:
+    UdpBuffer _buffers[BUFFER_MAXIMUM];
+    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    size_t _command_count;
+    size_t _buffer_count;
+    size_t _packet_size;
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
+    uint16_t _header_flags;
+    uint32_t _reliable_data_in_transit;
+    uint32_t _packets_sent;
+    bool _continue_sending;
+
+public:
+    UdpChamber();
+    UdpBuffer * buffer_insert_pos();
+    UdpProtocolType * command_insert_pos();
+    size_t packet_size();
+    void increase_packet_size(size_t val);
+    void increse_reliable_data_in_transit(uint32_t val);
+    bool sending_continues(UdpProtocolType *command,
+                           UdpBuffer *buffer,
+                           uint32_t mtu,
+                           const std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
+    bool sent_reliable_command_exists();
+    void add_header_flags(uint16_t flag);
+    void push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+    void update_command_count(const UdpProtocolType *command);
+    void update_buffer_count(const UdpBuffer *buffer);
+    uint32_t reliable_data_in_transit();
+    bool continue_sending();
+    void continue_sending(bool val);
+};
+
 class UdpProtocol
 {
 private:
     std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
-
-    UdpBuffer _buffers[BUFFER_MAXIMUM];
-    UdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
-
-    size_t _command_count;
-    size_t _buffer_count;
-    size_t _packet_size;
-    bool _continue_sending;
+    std::unique_ptr<UdpChamber> _chamber;
     bool _recalculate_bandwidth_limits;
 
 public:
@@ -206,7 +250,7 @@ public:
     void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 
     bool
-    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer);
+    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
 
     void
     _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer);
@@ -223,6 +267,10 @@ public:
     bool recalculate_bandwidth_limits();
 
     void recalculate_bandwidth_limits(bool val);
+
+    bool continue_sending();
+
+    void continue_sending(bool val);
 };
 
 class UdpPeerPod
@@ -277,8 +325,6 @@ private:
     uint32_t _total_received_data;
     uint32_t _total_received_packets;
 
-    uint16_t _header_flags;
-
     std::unique_ptr<UdpPeerPod> _peer_pod;
 
 public:
@@ -321,6 +367,11 @@ private:
     uint16_t _outgoing_reliable_sequence_number;
     uint16_t _incoming_unsequenced_group;
     uint16_t _outgoing_unsequenced_group;
+    std::vector<std::shared_ptr<UdpChannel>> _channels;
+    uint32_t _round_trip_time;
+    uint32_t _round_trip_time_variance;
+    uint32_t _timeout_limit;
+    uint32_t _next_timeout;
 
 public:
     UdpCommandPod();
@@ -328,6 +379,12 @@ public:
     void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
 
     void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+
+    bool load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+                                    uint32_t mtu,
+                                    uint32_t packet_throttle,
+                                    uint32_t window_size,
+                                    uint32_t service_time);
 };
 
 class UdpPeer
@@ -342,17 +399,14 @@ private:
     UdpAddress _address;
     void *_data;
     UdpPeerState _state;
-    std::vector<std::shared_ptr<UdpChannel>> _channels;
     uint32_t _incoming_bandwidth;
     uint32_t _outgoing_bandwidth;
     uint32_t _incoming_bandwidth_throttle_epoch;
     uint32_t _outgoing_bandwidth_throttle_epoch;
     uint32_t _last_send_time;
     uint32_t _last_receive_time;
-    uint32_t _next_timeout;
     uint32_t _earliest_timeout;
     uint32_t _packet_loss_epoch;
-    uint32_t _packets_sent;
     uint32_t _packets_lost;
     uint32_t _packet_loss;
     uint32_t _packet_loss_variance;
@@ -364,20 +418,15 @@ private:
     uint32_t _packet_throttle_deceleration;
     uint32_t _packet_throttle_interval;
     uint32_t _ping_interval;
-    uint32_t _timeout_limit;
     uint32_t _timeout_minimum;
     uint32_t _timeout_maximum;
     uint32_t _last_round_trip_time;
     uint32_t _last_round_trip_time_variance;
     uint32_t _lowest_round_trip_time;
     uint32_t _highest_round_trip_time_variance;
-    uint32_t _round_trip_time;
-    uint32_t _round_trip_time_variance;
     uint32_t _mtu;
     uint32_t _window_size;
-    uint32_t _reliable_data_in_transit;
     std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
     std::list<UdpOutgoingCommand> _sent_unreliable_commands;
     std::queue<UdpIncomingCommand> _dispatched_commands;
     bool _needs_dispatch;
@@ -432,6 +481,8 @@ public:
     bool state_is_lt(UdpPeerState state);
 
     void event_data(uint32_t val);
+
+    bool load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
 };
 
 class UdpHostCore
@@ -442,12 +493,6 @@ public:
 
     ssize_t
     _udp_socket_send(const UdpAddress &address);
-
-    bool
-    _sending_continues(UdpProtocolType *command,
-                       UdpBuffer *buffer,
-                       const std::shared_ptr<UdpPeer> &peer,
-                       const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command);
 
     std::shared_ptr<UdpPeer>
     _pop_peer_from_dispatch_queue();

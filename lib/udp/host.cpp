@@ -20,37 +20,6 @@ namespace
         sizeof(UdpProtocolThrottleConfigure),
         sizeof(UdpProtocolSendFragment)
     };
-
-    bool
-    window_wraps(const std::shared_ptr<UdpChannel> &channel,
-                 int reliable_window,
-                 const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
-    {
-        auto has_not_sent_once = outgoing_command->send_attempts == 0;
-
-        auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
-
-        auto all_available_windows_are_in_use = channel->reliable_windows.at(
-            (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
-        ) >= PEER_RELIABLE_WINDOW_SIZE;
-
-        auto existing_commands_are_in_flight = channel->used_reliable_windows & (
-            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
-            (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window))
-        );
-
-        return has_not_sent_once &&
-               first_command_in_window &&
-               (all_available_windows_are_in_use || existing_commands_are_in_flight);
-    }
-
-    bool
-    window_exceeds(const std::shared_ptr<UdpPeer> &peer,
-                   uint32_t window_size,
-                   const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
-    {
-        return (peer->reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, peer->mtu);
-    }
 }
 
 void
@@ -302,45 +271,6 @@ UdpHostCore::_pop_peer_from_dispatch_queue()
     _dispatch_queue.pop();
 
     return peer;
-}
-
-bool
-UdpHostCore::_sending_continues(UdpProtocolType *command,
-                                UdpBuffer *buffer,
-                                const std::shared_ptr<UdpPeer> &peer,
-                                const std::__list_iterator<UdpOutgoingCommand, void *> &outgoing_command)
-{
-    // MEMO: [誤] _udp_protocol_send_reliable_outgoing_commands() では
-    //            buffer に command が挿入されたら同時にインクリメントされるので、
-    //            command か buffer どちらかでよいのでは？
-    //       [正] コマンドがパケットを持っている際に buffer がインクリメントされる（コマンドに続くデータがバッファに投入される）ので、
-    //            それぞれで判定する必要がある
-
-    // unsent command exists
-    if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)])
-        return true;
-
-    // unsent data exists
-    if (buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)])
-        return true;
-
-    auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
-
-    // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
-    if (peer->mtu - _packet_size < command_size)
-        return true;
-
-    if (outgoing_command->packet != nullptr)
-        return false;
-
-    // has not enough space for command with payload
-    if (static_cast<uint16_t>(peer->mtu - _packet_size) <
-        static_cast<uint16_t>(command_size + outgoing_command->fragment_length))
-    {
-        return true;
-    }
-
-    return false;
 }
 
 ssize_t

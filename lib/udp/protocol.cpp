@@ -1,27 +1,14 @@
 #include "protocol.h"
 #include "udp.h"
 
-constexpr std::array<size_t, 13> command_sizes{
-    0,
-    sizeof(UdpProtocolAcknowledge),
-    sizeof(UdpProtocolConnect),
-    sizeof(UdpProtocolVerifyConnect),
-    sizeof(UdpProtocolDisconnect),
-    sizeof(UdpProtocolPing),
-    sizeof(UdpProtocolSendReliable),
-    sizeof(UdpProtocolSendUnreliable),
-    sizeof(UdpProtocolSendFragment),
-    sizeof(UdpProtocolSendUnsequenced),
-    sizeof(UdpProtocolBandwidthLimit),
-    sizeof(UdpProtocolThrottleConfigure),
-    sizeof(UdpProtocolSendFragment)
-};
-
 size_t
 udp_protocol_command_size(uint8_t command_number)
 {
     return command_sizes[command_number & PROTOCOL_COMMAND_MASK];
 }
+
+UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
+{}
 
 void
 UdpProtocol::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
@@ -55,7 +42,7 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
             buffer >= &_buffers[BUFFER_MAXIMUM] ||
             peer->mtu() - _packet_size < sizeof(UdpProtocolAcknowledge))
         {
-            _continue_sending = true;
+            _chamber->continue_sending(true);
 
             break;
         }
@@ -118,8 +105,9 @@ UdpProtocol::notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::
 }
 
 bool
-UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
 {
+    /*
     auto *command = &_commands[_command_count];
     auto *buffer = &_buffers[_buffer_count];
     auto window_exceeded = 0;
@@ -243,6 +231,11 @@ UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr
     _buffer_count = buffer - _buffers;
 
     return can_ping;
+    */
+
+    auto can_ping = peer->load_commands_into_chamber(_chamber, service_time);
+
+    return can_ping;
 }
 
 void
@@ -260,7 +253,7 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
 
         if (_sending_continues(command, buffer, peer, outgoing_command))
         {
-            _continue_sending = true;
+            _chamber->continue_sending(true);
 
             break;
         }
@@ -364,5 +357,14 @@ UdpProtocol::recalculate_bandwidth_limits(bool val)
     _recalculate_bandwidth_limits = val;
 }
 
-UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
-{}
+bool
+UdpProtocol::continue_sending()
+{
+    return _chamber->continue_sending();
+}
+
+void
+UdpProtocol::continue_sending(bool val)
+{
+    _chamber->continue_sending(val);
+}
