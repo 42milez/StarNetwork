@@ -417,7 +417,7 @@ class UdpCommandPod
 private:
     std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_reliable_commands;
 
-    std::list<UdpOutgoingCommand> _outgoing_unreliable_commands;
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_unreliable_commands;
 
     uint32_t _incoming_data_total;
 
@@ -442,7 +442,7 @@ private:
 public:
     UdpCommandPod();
 
-    void setup_outgoing_command(UdpOutgoingCommand &outgoing_command);
+    void setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
 
     void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
