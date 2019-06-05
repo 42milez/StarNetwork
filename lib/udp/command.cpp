@@ -63,7 +63,8 @@ UdpCommandPod::setup_outgoing_command(UdpOutgoingCommand &outgoing_command)
 {
     UdpChannel channel;
 
-    _outgoing_data_total += udp_protocol_command_size(outgoing_command.command->header.command) + outgoing_command.fragment_length;
+    _outgoing_data_total +=
+        udp_protocol_command_size(outgoing_command.command->header.command) + outgoing_command.fragment_length;
 
     if (outgoing_command.command->header.channel_id == 0xFF)
     {
@@ -144,8 +145,8 @@ UdpCommandPod::load_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
         auto outgoing_command = current_command;
 
         auto channel = (*outgoing_command)->command->header.channel_id < _channels.size() ?
-                           _channels.at((*outgoing_command)->command->header.channel_id) :
-                           nullptr;
+                       _channels.at((*outgoing_command)->command->header.channel_id) :
+                       nullptr;
 
         auto reliable_window = (*outgoing_command)->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
 

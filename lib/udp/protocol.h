@@ -47,19 +47,22 @@ using UdpProtocolHeader = struct UdpProtocolHeader
     uint16_t sent_time;
 };
 
-using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader {
+using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader
+{
     uint8_t command;
     uint8_t channel_id;
     uint16_t reliable_sequence_number;
 };
 
-using UdpProtocolAcknowledge = struct UdpProtocolAcknowledge {
+using UdpProtocolAcknowledge = struct UdpProtocolAcknowledge
+{
     UdpProtocolCommandHeader header;
     uint16_t received_reliable_sequence_number;
     uint16_t received_sent_time;
 };
 
-using UdpProtocolConnect = struct UdpProtocolConnect {
+using UdpProtocolConnect = struct UdpProtocolConnect
+{
     UdpProtocolCommandHeader header;
     uint32_t outgoing_peer_id;
     uint8_t incoming_session_id;
@@ -76,7 +79,8 @@ using UdpProtocolConnect = struct UdpProtocolConnect {
     uint32_t data;
 };
 
-using UdpProtocolVerifyConnect = struct UdpProtocolVerifyConnect {
+using UdpProtocolVerifyConnect = struct UdpProtocolVerifyConnect
+{
     UdpProtocolCommandHeader header;
     uint16_t outgoing_peer_id;
     uint8_t incoming_session_id;
@@ -92,21 +96,25 @@ using UdpProtocolVerifyConnect = struct UdpProtocolVerifyConnect {
     uint32_t connect_id;
 };
 
-using UdpProtocolDisconnect = struct UdpProtocolDisconnect {
+using UdpProtocolDisconnect = struct UdpProtocolDisconnect
+{
     UdpProtocolCommandHeader header;
     uint32_t data;
 };
 
-using UdpProtocolPing = struct UdpProtocolPing {
+using UdpProtocolPing = struct UdpProtocolPing
+{
     UdpProtocolCommandHeader header;
 };
 
-using UdpProtocolSendReliable = struct UdpProtocolSendReliable {
+using UdpProtocolSendReliable = struct UdpProtocolSendReliable
+{
     UdpProtocolCommandHeader header;
     uint16_t data_length;
 };
 
-using UdpProtocolSendUnreliable = struct UdpProtocolSendUnreliable {
+using UdpProtocolSendUnreliable = struct UdpProtocolSendUnreliable
+{
     UdpProtocolCommandHeader header;
     uint16_t unreliable_sequence_number;
     uint16_t data_length;
@@ -119,7 +127,8 @@ using UdpProtocolSendUnsequenced = struct UdpProtocolSendUnsequenced
     uint16_t data_length;
 };
 
-using UdpProtocolSendFragment = struct UdpProtocolSendFragment {
+using UdpProtocolSendFragment = struct UdpProtocolSendFragment
+{
     UdpProtocolCommandHeader header;
     uint16_t start_sequence_number;
     uint16_t data_length;
@@ -129,20 +138,23 @@ using UdpProtocolSendFragment = struct UdpProtocolSendFragment {
     uint32_t fragment_offset;
 };
 
-using UdpProtocolBandwidthLimit = struct UdpProtocolBandwidthLimit {
+using UdpProtocolBandwidthLimit = struct UdpProtocolBandwidthLimit
+{
     UdpProtocolCommandHeader header;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
 };
 
-using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure {
+using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure
+{
     UdpProtocolCommandHeader header;
     uint32_t packet_throttle_interval;
     uint32_t packet_throttle_acceleration;
     uint32_t packet_throttle_deceleration;
 };
 
-using UdpProtocolType = union UdpProtocolType {
+using UdpProtocolType = union UdpProtocolType
+{
     UdpProtocolCommandHeader header;
     UdpProtocolAcknowledge acknowledge;
     UdpProtocolConnect connect;
@@ -157,6 +169,7 @@ using UdpProtocolType = union UdpProtocolType {
     UdpProtocolThrottleConfigure throttle_configure;
 };
 
-size_t udp_protocol_command_size(uint8_t command_number);
+size_t
+udp_protocol_command_size(uint8_t command_number);
 
 #endif // P2P_TECHDEMO_LIB_UDP_PROTOCOL_H

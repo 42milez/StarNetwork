@@ -181,13 +181,12 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
             if (UDP_TIME_GREATER_EQUAL(_service_time, timeout))
                 return 0;
 
-            wait_condition = static_cast<uint32_t>(UdpSocketWait::RECEIVE) | static_cast<uint32_t>(UdpSocketWait::INTERRUPT);
-        }
-        while (wait_condition & static_cast<uint32_t>(UdpSocketWait::INTERRUPT));
+            wait_condition =
+                static_cast<uint32_t>(UdpSocketWait::RECEIVE) | static_cast<uint32_t>(UdpSocketWait::INTERRUPT);
+        } while (wait_condition & static_cast<uint32_t>(UdpSocketWait::INTERRUPT));
 
         _service_time = udp_time_get();
-    }
-    while (wait_condition & static_cast<uint32_t>(UdpSocketWait::RECEIVE));
+    } while (wait_condition & static_cast<uint32_t>(UdpSocketWait::RECEIVE));
 
     return 0;
 }

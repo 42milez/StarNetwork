@@ -635,7 +635,8 @@ UdpPeer::change_state(const UdpPeerState state)
     _state = state;
 }
 
-bool UdpPeer::is_disconnected()
+bool
+UdpPeer::is_disconnected()
 {
     return _state == UdpPeerState::DISCONNECTED;
 }

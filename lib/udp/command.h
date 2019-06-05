@@ -20,14 +20,23 @@ using UdpIncomingCommand = struct UdpIncomingCommand
 using UdpOutgoingCommand = struct UdpOutgoingCommand
 {
     uint16_t reliable_sequence_number;
+
     uint16_t unreliable_sequence_number;
+
     uint32_t sent_time;
+
     uint32_t round_trip_timeout;
+
     uint32_t round_trip_timeout_limit;
+
     uint32_t fragment_offset;
+
     uint16_t fragment_length;
+
     uint16_t send_attempts;
+
     std::shared_ptr<UdpProtocolType> command;
+
     std::shared_ptr<UdpPacket> packet;
 
     UdpOutgoingCommand();
