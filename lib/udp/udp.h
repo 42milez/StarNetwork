@@ -272,6 +272,10 @@ public:
     bool continue_sending();
 
     void continue_sending(bool val);
+
+    bool command_buffer_have_enough_space();
+
+    bool data_buffer_have_enough_space();
 };
 
 class UdpProtocol

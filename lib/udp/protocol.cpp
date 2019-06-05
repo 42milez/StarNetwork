@@ -26,8 +26,8 @@ UdpProtocol::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, 
 void
 UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 {
-    auto *command = &_commands[_command_count];
-    auto *buffer = &_buffers[_buffer_count];
+    auto *command = _chamber->command_insert_pos();
+    auto *buffer = _chamber->buffer_insert_pos();
 
     while (peer->acknowledgement_exists())
     {
@@ -38,9 +38,9 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         // - コマンドバッファに空きがない
         // - データバッファに空きがない
         // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
-        if (command >= &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS] ||
-            buffer >= &_buffers[BUFFER_MAXIMUM] ||
-            peer->mtu() - _packet_size < sizeof(UdpProtocolAcknowledge))
+        if (!_chamber->command_buffer_have_enough_space() ||
+            !_chamber->data_buffer_have_enough_space() ||
+            peer->mtu() - _chamber->packet_size() < sizeof(UdpProtocolAcknowledge))
         {
             _chamber->continue_sending(true);
 
@@ -50,7 +50,7 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         buffer->data = command;
         buffer->data_length = sizeof(UdpProtocolAcknowledge);
 
-        _packet_size += buffer->data_length;
+        _chamber->increase_packet_size(buffer->data_length);
 
         auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 
@@ -67,8 +67,8 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         ++buffer;
     }
 
-    _command_count = command - _commands;
-    _buffer_count = buffer - _buffers;
+    _chamber->update_command_count(command);
+    _chamber->update_buffer_count(buffer);
 }
 
 void

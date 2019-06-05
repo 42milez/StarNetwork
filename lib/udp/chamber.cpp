@@ -117,3 +117,15 @@ UdpChamber::continue_sending(bool val)
 {
     _continue_sending = val;
 }
+
+bool
+UdpChamber::command_buffer_have_enough_space(UdpProtocolType *command)
+{
+    return command < _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+}
+
+bool
+UdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
+{
+    return buffer < _buffers[BUFFER_MAXIMUM];
+}
