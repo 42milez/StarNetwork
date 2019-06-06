@@ -38,8 +38,8 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         // - コマンドバッファに空きがない
         // - データバッファに空きがない
         // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
-        if (!_chamber->command_buffer_have_enough_space() ||
-            !_chamber->data_buffer_have_enough_space() ||
+        if (!_chamber->command_buffer_have_enough_space(command) ||
+            !_chamber->data_buffer_have_enough_space(buffer) ||
             peer->mtu() - _chamber->packet_size() < sizeof(UdpProtocolAcknowledge))
         {
             _chamber->continue_sending(true);
