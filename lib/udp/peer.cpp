@@ -353,7 +353,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             auto sent_length = _udp_socket_send(peer->address);
 
-            _udp_protocol_remove_sent_unreliable_commands(peer);
+            _udp_protocol_remove_sent_unreliable_commands();
 
             if (sent_length < 0)
                 return -1;

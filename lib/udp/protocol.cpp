@@ -332,20 +332,11 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
 }
 
 void
-UdpProtocol::_udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::_udp_protocol_remove_sent_unreliable_commands()
 {
-    while (!peer->sent_unreliable_commands.empty())
+    while (_chamber->sent_reliable_command_exists())
     {
-        auto outgoing_command = peer->sent_unreliable_commands.begin();
-
-
-        if (outgoing_command->packet != nullptr)
-        {
-            if (outgoing_command->packet.use_count() == 0)
-                outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
-        }
-
-        peer->sent_unreliable_commands.pop_front();
+        _chamber->remove_sent_unreliable_commands();
     }
 }
 

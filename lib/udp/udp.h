@@ -230,7 +230,7 @@ private:
     size_t _packet_size;
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
-    std::list<UdpOutgoingCommand> _sent_unreliable_commands;
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
 
     uint16_t _header_flags;
 
@@ -260,6 +260,8 @@ public:
 
     bool sent_reliable_command_exists();
 
+    bool sent_unreliable_command_exists();
+
     void add_header_flags(uint16_t flag);
 
     void push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
@@ -276,9 +278,11 @@ public:
 
     void continue_sending(bool val);
 
-    bool command_buffer_have_enough_space();
+    bool command_buffer_have_enough_space(UdpProtocolType *command);
 
-    bool data_buffer_have_enough_space();
+    bool data_buffer_have_enough_space(UdpBuffer *buffer);
+
+    void remove_sent_unreliable_commands();
 };
 
 class UdpProtocol
@@ -302,7 +306,7 @@ public:
     _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
 
     void
-    _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);
+    _udp_protocol_remove_sent_unreliable_commands();
 
     void
     _udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, UdpPeerState state);

@@ -62,6 +62,12 @@ UdpChamber::sent_reliable_command_exists()
     return !_sent_reliable_commands.empty();
 }
 
+bool
+UdpChamber::sent_unreliable_command_exists()
+{
+    return !_sent_unreliable_commands.empty();
+}
+
 void
 UdpChamber::add_header_flags(uint16_t flag)
 {
@@ -127,11 +133,26 @@ UdpChamber::continue_sending(bool val)
 bool
 UdpChamber::command_buffer_have_enough_space(UdpProtocolType *command)
 {
-    return command < _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    return command < &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
 }
 
 bool
 UdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
 {
-    return buffer < _buffers[BUFFER_MAXIMUM];
+    return buffer < &_buffers[BUFFER_MAXIMUM];
+}
+
+void
+UdpChamber::remove_sent_unreliable_commands()
+{
+    auto outgoing_command = _sent_unreliable_commands.begin();
+
+
+    if (outgoing_command->packet != nullptr)
+    {
+        if (outgoing_command->packet.use_count() == 0)
+            outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
+    }
+
+    _sent_unreliable_commands.pop_front();
 }
