@@ -299,7 +299,7 @@ public:
     _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
 
     void
-    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer);
+    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
 
     void
     _udp_protocol_remove_sent_unreliable_commands(const std::shared_ptr<UdpPeer> &peer);

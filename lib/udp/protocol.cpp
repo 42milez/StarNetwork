@@ -239,7 +239,7 @@ UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr
 }
 
 void
-UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
 {
     /*
     auto *command = _chamber->command_insert_pos();
@@ -328,7 +328,7 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
     }
     */
 
-    peer->load_unreliable_commands_into_chamber(_chamber, service_time);
+    auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber, service_time);
 }
 
 void
