@@ -268,7 +268,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();
-
+    auto can_disconnect = false;
     auto current_command = _outgoing_unreliable_commands.begin();
 
     while (current_command != _outgoing_unreliable_commands.end())
@@ -343,6 +343,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     chamber->update_command_count(command);
     chamber->update_buffer_count(buffer);
 
+    // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはUdpPeerが所有する）
     if (peer->state_is(UdpPeerState::DISCONNECT_LATER) &&
         _outgoing_reliable_commands.empty() &&
         _outgoing_unreliable_commands.empty() &&
@@ -353,5 +354,5 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
 
     // ↑のロジックの結果次第でtrue/falseを返す
     // udp_peer_disconnect() はUdpPeerPodから呼ぶ
-    return false;
+    return can_disconnect;
 }
