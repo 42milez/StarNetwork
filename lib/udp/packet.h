@@ -1,16 +1,24 @@
 #ifndef P2P_TECHDEMO_UDP_PACKET_H
 #define P2P_TECHDEMO_UDP_PACKET_H
 
+#include <functional>
+
 #include <cstddef>
 #include <cstdint>
 
-using UdpPacket = struct UdpPacket
+class UdpPacket
 {
-    size_t reference_count;
-    uint32_t flags;
-    uint8_t *data;
-    size_t data_length;
-    void *user_data;
+private:
+    std::function<void(UdpPacket *)> _free_callback;
+    uint32_t _flags;
+    uint8_t *_data;
+    size_t _data_length;
+    void *_user_data;
+
+public:
+    uint32_t add_flag(uint32_t flag);
+
+    void destroy();
 };
 
 #endif // P2P_TECHDEMO_UDP_PACKET_H

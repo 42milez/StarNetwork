@@ -145,13 +145,14 @@ UdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
 void
 UdpChamber::remove_sent_unreliable_commands()
 {
-    auto outgoing_command = _sent_unreliable_commands.begin();
-
+    auto &outgoing_command = _sent_unreliable_commands.front();
 
     if (outgoing_command->packet != nullptr)
     {
-        if (outgoing_command->packet.use_count() == 0)
-            outgoing_command->packet->flags |= static_cast<uint32_t >(UdpPacketFlag::SENT);
+        if (outgoing_command->packet.use_count() == 1)
+            outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+
+        outgoing_command->packet->destroy();
     }
 
     _sent_unreliable_commands.pop_front();
