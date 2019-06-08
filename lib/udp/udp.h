@@ -244,6 +244,8 @@ public:
 
     void packet_size(size_t val);
 
+    size_t packet_size();
+
     void command_count(size_t val);
 
     void buffer_count(size_t val);
@@ -466,6 +468,10 @@ public:
 
     void incoming_data_total(uint32_t val);
 
+    uint32_t next_timeout();
+
+    bool outgoing_reliable_command_exists();
+    bool outgoing_unreliable_command_exists();
 };
 
 class UdpPeerNet
@@ -686,6 +692,10 @@ public:
     bool sent_unreliable_command_exists();
 
     void remove_sent_unreliable_commands();
+
+    bool exceeds_ping_interval(uint32_t service_time);
+
+    bool exceeds_mtu(size_t packet_size);
 };
 
 class UdpHostCore

@@ -238,12 +238,12 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 IS_EVENT_TYPE_NONE()
             }
 
-            if (!peer->sent_reliable_commands.empty())
+            if (peer->sent_reliable_command_exists())
             {
                 IS_EVENT_TYPE_NONE()
             }
 
-            if (UDP_TIME_GREATER_EQUAL(service_time, peer->next_timeout))
+            if (UDP_TIME_GREATER_EQUAL(service_time, peer->command()->next_timeout()))
             {
                 IS_EVENT_TYPE_NONE()
             }
@@ -271,12 +271,12 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((!peer->outgoing_reliable_commands.empty() || _udp_protocol_send_reliable_outgoing_commands(peer)) &&
-                peer->sent_reliable_commands.empty() &&
-                UDP_TIME_DIFFERENCE(_service_time, peer->last_receive_time) >= peer->ping_interval &&
-                peer->mtu - _packet_size >= sizeof(UdpProtocolPing))
+            if ((peer->command()->outgoing_reliable_command_exists() || _protocol->_udp_protocol_send_reliable_outgoing_commands(peer, service_time)) &&
+                !peer->sent_reliable_command_exists() &&
+                peer->exceeds_ping_interval(service_time) &&
+                peer->exceeds_mtu(_protocol->chamber()->packet_size()))
             {
-                udp_peer_ping(peer);
+                peer->udp_peer_ping();
 
                 // ping コマンドをバッファに転送
                 _udp_protocol_send_reliable_outgoing_commands(peer);
@@ -582,7 +582,7 @@ UdpPeer::udp_peer_receive(uint8_t &channel_id)
 void
 UdpPeer::udp_peer_ping()
 {
-    if (peer->state != UdpPeerState::CONNECTED)
+    if (!_net->state_is(UdpPeerState::CONNECTED))
         return;
 
     std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
@@ -590,7 +590,7 @@ UdpPeer::udp_peer_ping()
     cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
 
-    udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
+    queue_outgoing_command(cmd, nullptr, 0, 0);
 }
 
 UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
@@ -602,16 +602,16 @@ UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
                            _packet_throttle_deceleration(0),
                            _packet_throttle_interval(0),
                            _mtu(0),
-                           _window_size(0)
+                           _window_size(0),
+                           _incoming_bandwidth(0),
+                           _outgoing_bandwidth(0),
+                           _incoming_bandwidth_throttle_epoch(0),
+                           _outgoing_bandwidth_throttle_epoch(0)
 {}
 
 UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _outgoing_session_id(0),
                      _incoming_session_id(0),
-                     _incoming_bandwidth(0),
-                     _outgoing_bandwidth(0),
-                     _incoming_bandwidth_throttle_epoch(0),
-                     _outgoing_bandwidth_throttle_epoch(0),
                      _last_send_time(0),
                      _last_receive_time(0),
                      _earliest_timeout(0),
@@ -1040,4 +1040,16 @@ UdpPeer::remove_sent_unreliable_commands()
     }
 
     _sent_unreliable_commands.pop_front();
+}
+
+bool
+UdpPeer::exceeds_ping_interval(uint32_t service_time)
+{
+    return UDP_TIME_DIFFERENCE(service_time, _last_receive_time) >= _ping_interval;
+}
+
+bool
+UdpPeer::exceeds_mtu(size_t packet_size)
+{
+    return _net->mtu() - packet_size >= sizeof(UdpProtocolPing);
 }

@@ -140,3 +140,9 @@ UdpChamber::packet_size(size_t val)
 {
     _packet_size = val;
 }
+
+size_t
+UdpChamber::packet_size()
+{
+    return _packet_size;
+}

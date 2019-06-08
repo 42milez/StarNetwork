@@ -371,3 +371,21 @@ UdpCommandPod::outgoing_data_total(uint32_t val)
     _outgoing_data_total = val;
 }
 
+uint32_t
+UdpCommandPod::next_timeout()
+{
+    return _next_timeout;
+}
+
+bool
+UdpCommandPod::outgoing_reliable_command_exists()
+{
+    return !_outgoing_reliable_commands.empty();
+}
+
+
+bool
+UdpCommandPod::outgoing_unreliable_command_exists()
+{
+    return !_outgoing_unreliable_commands.empty();
+}
