@@ -248,6 +248,8 @@ public:
 
     void command_count(size_t val);
 
+    size_t command_count();
+
     void buffer_count(size_t val);
 
     void increase_packet_size(size_t val);

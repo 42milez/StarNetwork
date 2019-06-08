@@ -129,6 +129,12 @@ UdpChamber::command_count(size_t val)
     _command_count = val;
 }
 
+size_t
+UdpChamber::command_count()
+{
+    return _command_count;
+}
+
 void
 UdpChamber::buffer_count(size_t val)
 {
