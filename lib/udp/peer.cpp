@@ -149,19 +149,19 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
 
                 for (auto &peer: _peers)
                 {
-                    if ((IS_PEER_NOT_CONNECTED(peer)) || peer->incoming_bandwidth_throttle_epoch == time_current)
+                    if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
                         continue;
 
-                    if (peer->outgoing_bandwidth > 0 && peer->outgoing_bandwidth >= bandwidth_limit)
+                    if (peer->net()->outgoing_bandwidth() > 0 && peer->net()->outgoing_bandwidth() >= bandwidth_limit)
                         continue;
 
-                    peer->incoming_bandwidth_throttle_epoch = time_current;
+                    peer->net()->incoming_bandwidth_throttle_epoch(time_current);
 
                     needs_adjustment = true;
 
                     --peers_remaining;
 
-                    bandwidth -= peer->outgoing_bandwidth;
+                    bandwidth -= peer->net()->outgoing_bandwidth();
                 }
             }
         }
@@ -177,12 +177,12 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
             cmd->header.channel_id = 0xFF;
             cmd->bandwidth_limit.outgoing_bandwidth = htonl(outgoing_bandwidth);
 
-            if (peer->incoming_bandwidth_throttle_epoch == time_current)
-                cmd->bandwidth_limit.incoming_bandwidth = htonl(peer->outgoing_bandwidth);
+            if (peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
+                cmd->bandwidth_limit.incoming_bandwidth = htonl(peer->net()->outgoing_bandwidth());
             else
                 cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
 
-            udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
+            peer->queue_outgoing_command(cmd, nullptr, 0, 0);
         }
     }
 }
@@ -909,6 +909,12 @@ UdpPeerNet::incoming_bandwidth()
 }
 
 uint32_t
+UdpPeerNet::outgoing_bandwidth()
+{
+    return _outgoing_bandwidth;
+}
+
+uint32_t
 UdpPeer::outgoing_bandwidth_throttle_epoch()
 {
     return _net->outgoing_bandwidth_throttle_epoch();
@@ -919,6 +925,19 @@ UdpPeer::outgoing_bandwidth_throttle_epoch(uint32_t val)
 {
     _net->outgoing_bandwidth_throttle_epoch(val);
 }
+
+uint32_t
+UdpPeerNet::incoming_bandwidth_throttle_epoch()
+{
+    return _incoming_bandwidth_throttle_epoch;
+}
+
+void
+UdpPeerNet::incoming_bandwidth_throttle_epoch(uint32_t val)
+{
+    _incoming_bandwidth_throttle_epoch = val;
+}
+
 
 uint32_t
 UdpPeerNet::outgoing_bandwidth_throttle_epoch()

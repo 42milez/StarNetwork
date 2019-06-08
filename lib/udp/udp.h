@@ -496,6 +496,9 @@ public:
     bool state_is_ge(UdpPeerState state);
     bool state_is_lt(UdpPeerState state);
     uint32_t incoming_bandwidth();
+    uint32_t outgoing_bandwidth();
+    uint32_t incoming_bandwidth_throttle_epoch();
+    void incoming_bandwidth_throttle_epoch(uint32_t val);
     uint32_t outgoing_bandwidth_throttle_epoch();
     void outgoing_bandwidth_throttle_epoch(uint32_t val);
     uint32_t packet_throttle();
