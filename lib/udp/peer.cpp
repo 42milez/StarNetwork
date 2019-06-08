@@ -113,16 +113,16 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
 
         for (auto &peer : _peers)
         {
-            if ((IS_PEER_NOT_CONNECTED(peer)) || peer->outgoing_bandwidth_throttle_epoch == time_current)
+            if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->outgoing_bandwidth_throttle_epoch() == time_current)
                 continue;
 
-            peer->packet_throttle_limit = throttle;
+            peer->net()->packet_throttle_limit(throttle);
 
-            if (peer->packet_throttle > peer->packet_throttle_limit)
-                peer->packet_throttle = peer->packet_throttle_limit;
+            if (peer->net()->packet_throttle() > peer->net()->packet_throttle_limit())
+                peer->net()->packet_throttle(peer->net()->packet_throttle_limit());
 
-            peer->incoming_data_total = 0;
-            peer->outgoing_data_total = 0;
+            peer->command()->incoming_data_total(0);
+            peer->command()->outgoing_data_total(0);
         }
     }
 
@@ -738,6 +738,18 @@ UdpPeer::pop_acknowledgement()
     _acknowledgements.pop_front();
 
     return acknowledgement;
+}
+
+const std::unique_ptr<UdpPeerNet> &
+UdpPeer::net()
+{
+    return _net;
+}
+
+const std::unique_ptr<UdpCommandPod> &
+UdpPeer::command()
+{
+    return _command_pod;
 }
 
 uint32_t

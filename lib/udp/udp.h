@@ -625,6 +625,8 @@ public:
     void packet_throttle_limit(uint32_t val);
     uint32_t packet_throttle();
     void packet_throttle(uint32_t val);
+    const std::unique_ptr<UdpPeerNet> & net();
+    const std::unique_ptr<UdpCommandPod> & command();
 };
 
 class UdpHostCore
