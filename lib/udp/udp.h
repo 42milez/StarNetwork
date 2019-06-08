@@ -247,7 +247,11 @@ public:
 
     UdpProtocolType *command_insert_pos();
 
-    size_t packet_size();
+    void packet_size(size_t val);
+
+    void command_count(size_t val);
+
+    void buffer_count(size_t val);
 
     void increase_packet_size(size_t val);
 
@@ -262,7 +266,9 @@ public:
 
     bool sent_unreliable_command_exists();
 
-    void add_header_flags(uint16_t flag);
+    uint16_t header_flags();
+
+    void header_flags(uint16_t val);
 
     void push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
@@ -321,6 +327,8 @@ public:
     bool continue_sending();
 
     void continue_sending(bool val);
+
+    std::unique_ptr<UdpChamber> & chamber();
 };
 
 class UdpPeerPod
@@ -469,6 +477,7 @@ public:
     void outgoing_data_total(uint32_t val);
     uint32_t incoming_data_total();
     void incoming_data_total(uint32_t val);
+
 };
 
 class UdpPeerNet

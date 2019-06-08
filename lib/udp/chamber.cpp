@@ -69,10 +69,16 @@ UdpChamber::sent_unreliable_command_exists()
     return !_sent_unreliable_commands.empty();
 }
 
-void
-UdpChamber::add_header_flags(uint16_t flag)
+uint16_t
+UdpChamber::header_flags()
 {
-    _header_flags |= flag;
+    return _header_flags;
+}
+
+void
+UdpChamber::header_flags(uint16_t val)
+{
+    _header_flags = val;
 }
 
 void
@@ -157,4 +163,22 @@ UdpChamber::remove_sent_unreliable_commands()
     }
 
     _sent_unreliable_commands.pop_front();
+}
+
+void
+UdpChamber::command_count(size_t val)
+{
+    _command_count = val;
+}
+
+void
+UdpChamber::buffer_count(size_t val)
+{
+    _buffer_count = val;
+}
+
+void
+UdpChamber::packet_size(size_t val)
+{
+    _packet_size = val;
 }

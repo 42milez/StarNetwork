@@ -212,16 +212,16 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             if (peer->state_is(UdpPeerState::DISCONNECTED) || peer->state_is(UdpPeerState::ZOMBIE))
                 continue;
 
-            _header_flags = 0;
-            _command_count = 0;
-            _buffer_count = 1;
-            _packet_size = sizeof(UdpProtocolHeader);
+            _protocol->chamber()->header_flags(0);
+            _protocol->chamber()->command_count(0);
+            _protocol->chamber()->buffer_count(1);
+            _protocol->chamber()->packet_size(sizeof(UdpProtocolHeader));
 
             //  ACKを返す
             // --------------------------------------------------
 
-            if (!peer->acknowledgements.empty())
-                _udp_protocol_send_acknowledgements(peer);
+            if (peer->acknowledgement_exists())
+                _protocol->send_acknowledgements(peer);
 
             //  タイムアウト処理
             // --------------------------------------------------

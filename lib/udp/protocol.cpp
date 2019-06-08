@@ -363,3 +363,9 @@ UdpProtocol::continue_sending(bool val)
 {
     _chamber->continue_sending(val);
 }
+
+std::unique_ptr<UdpChamber> &
+UdpProtocol::chamber()
+{
+    return _chamber;
+}

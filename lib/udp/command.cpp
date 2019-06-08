@@ -224,7 +224,9 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
         buffer->data_length = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         chamber->increase_packet_size(buffer->data_length);
-        chamber->add_header_flags(PROTOCOL_HEADER_FLAG_SENT_TIME);
+
+        auto flags = chamber->header_flags();
+        chamber->header_flags(flags | PROTOCOL_HEADER_FLAG_SENT_TIME);
 
         // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
         //       これは受信側でパケットを正しく識別するための基本
