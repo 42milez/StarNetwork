@@ -356,3 +356,16 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     // udp_peer_disconnect() はUdpPeerPodから呼ぶ
     return can_disconnect;
 }
+
+uint32_t
+UdpCommandPod::outgoing_data_total()
+{
+    return _outgoing_data_total;
+}
+
+void
+UdpCommandPod::outgoing_data_total(uint32_t val)
+{
+    _outgoing_data_total = val;
+}
+

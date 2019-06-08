@@ -343,7 +343,7 @@ public:
 
     std::shared_ptr<UdpPeer> available_peer_exists();
 
-    void bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth);
+    void bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 
     int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
@@ -464,11 +464,17 @@ public:
                                                uint32_t packet_throttle,
                                                uint32_t window_size,
                                                uint32_t service_time);
+
+    uint32_t outgoing_data_total();
+    void outgoing_data_total(uint32_t val);
+    uint32_t incoming_data_total();
+    void incoming_data_total(uint32_t val);
 };
 
 class UdpPeerNet
 {
 private:
+    UdpPeerState _state;
     uint32_t _packet_throttle;
     uint32_t _packet_throttle_limit;
     uint32_t _packet_throttle_counter;
@@ -476,9 +482,12 @@ private:
     uint32_t _packet_throttle_acceleration;
     uint32_t _packet_throttle_deceleration;
     uint32_t _packet_throttle_interval;
-    UdpPeerState _state;
     uint32_t _mtu;
     uint32_t _window_size;
+    uint32_t _incoming_bandwidth;
+    uint32_t _outgoing_bandwidth;
+    uint32_t _incoming_bandwidth_throttle_epoch;
+    uint32_t _outgoing_bandwidth_throttle_epoch;
 
 public:
     UdpPeerNet();
@@ -486,6 +495,13 @@ public:
     bool state_is(UdpPeerState state);
     bool state_is_ge(UdpPeerState state);
     bool state_is_lt(UdpPeerState state);
+    uint32_t incoming_bandwidth();
+    uint32_t outgoing_bandwidth_throttle_epoch();
+    void outgoing_bandwidth_throttle_epoch(uint32_t val);
+    uint32_t packet_throttle();
+    void packet_throttle(uint32_t val);
+    uint32_t packet_throttle_limit();
+    void packet_throttle_limit(uint32_t val);
 };
 
 class UdpPeer
@@ -508,14 +524,6 @@ private:
     UdpAddress _address;
 
     void *_data;
-
-    uint32_t _incoming_bandwidth;
-
-    uint32_t _outgoing_bandwidth;
-
-    uint32_t _incoming_bandwidth_throttle_epoch;
-
-    uint32_t _outgoing_bandwidth_throttle_epoch;
 
     uint32_t _last_send_time;
 
@@ -606,6 +614,17 @@ public:
     bool state_is(UdpPeerState state);
     bool state_is_ge(UdpPeerState state);
     bool state_is_lt(UdpPeerState state);
+    uint32_t outgoing_data_total();
+    void outgoing_data_total(uint32_t val);
+    uint32_t incoming_data_total();
+    void incoming_data_total(uint32_t val);
+    uint32_t incoming_bandwidth();
+    uint32_t outgoing_bandwidth_throttle_epoch();
+    void outgoing_bandwidth_throttle_epoch(uint32_t val);
+    uint32_t packet_throttle_limit();
+    void packet_throttle_limit(uint32_t val);
+    uint32_t packet_throttle();
+    void packet_throttle(uint32_t val);
 };
 
 class UdpHostCore

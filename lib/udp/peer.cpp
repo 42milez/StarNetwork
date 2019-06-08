@@ -17,7 +17,7 @@ UdpPeerPod::available_peer_exists()
 }
 
 void
-UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_bandwidth)
+UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
 {
     auto time_current = udp_time_get();
     auto time_elapsed = time_current - _bandwidth_throttle_epoch;
@@ -39,17 +39,17 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
     //  Throttle outgoing bandwidth
     // --------------------------------------------------
 
-    if (_outgoing_bandwidth != 0)
+    if (outgoing_bandwidth != 0)
     {
         data_total = 0;
-        bandwidth = _outgoing_bandwidth * (time_elapsed / 1000);
+        bandwidth = outgoing_bandwidth * (time_elapsed / 1000);
 
         for (const auto &peer : _peers)
         {
             if (IS_PEER_NOT_CONNECTED(peer))
                 continue;
 
-            data_total += peer->outgoing_data_total;
+            data_total += peer->outgoing_data_total();
         }
     }
 
@@ -70,27 +70,27 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
             uint32_t peer_bandwidth;
 
             if ((IS_PEER_NOT_CONNECTED(peer)) ||
-                peer->incoming_bandwidth == 0 ||
-                peer->outgoing_bandwidth_throttle_epoch == time_current)
+                peer->incoming_bandwidth() == 0 ||
+                peer->outgoing_bandwidth_throttle_epoch() == time_current)
             {
                 continue;
             }
 
-            peer_bandwidth = peer->incoming_bandwidth * (time_elapsed / 1000);
-            if ((throttle * peer->outgoing_data_total) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
+            peer_bandwidth = peer->incoming_bandwidth() * (time_elapsed / 1000);
+            if ((throttle * peer->outgoing_data_total()) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
                 continue;
 
-            peer->packet_throttle_limit = (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total;
+            peer->packet_throttle_limit((peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
 
-            if (peer->packet_throttle_limit == 0)
-                peer->packet_throttle_limit = 1;
+            if (peer->packet_throttle_limit() == 0)
+                peer->packet_throttle_limit(1);
 
-            if (peer->packet_throttle > peer->packet_throttle_limit)
-                peer->packet_throttle = peer->packet_throttle_limit;
+            if (peer->packet_throttle() > peer->packet_throttle_limit())
+                peer->packet_throttle(peer->packet_throttle_limit());
 
-            peer->outgoing_bandwidth_throttle_epoch = time_current;
-            peer->incoming_data_total = 0;
-            peer->outgoing_data_total = 0;
+            peer->outgoing_bandwidth_throttle_epoch(time_current);
+            peer->incoming_data_total(0);
+            peer->outgoing_data_total(0);
 
             needs_adjustment = true;
 
@@ -133,7 +133,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
     {
         _protocol->recalculate_bandwidth_limits(false);
         peers_remaining = _connected_peers;
-        bandwidth = _incoming_bandwidth;
+        bandwidth = incoming_bandwidth;
         needs_adjustment = true;
 
         if (bandwidth == 0)
@@ -175,7 +175,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t _incoming_bandwidth, uint32_t _outgoing_
 
             cmd->header.command = PROTOCOL_COMMAND_BANDWIDTH_LIMIT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
             cmd->header.channel_id = 0xFF;
-            cmd->bandwidth_limit.outgoing_bandwidth = htonl(_outgoing_bandwidth);
+            cmd->bandwidth_limit.outgoing_bandwidth = htonl(outgoing_bandwidth);
 
             if (peer->incoming_bandwidth_throttle_epoch == time_current)
                 cmd->bandwidth_limit.incoming_bandwidth = htonl(peer->outgoing_bandwidth);
@@ -858,4 +858,112 @@ UdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &cham
                                                                            service_time);
 
     return diconnected;
+}
+
+uint32_t
+UdpPeer::outgoing_data_total()
+{
+    return _command_pod->outgoing_data_total();
+}
+
+void
+UdpPeer::outgoing_data_total(uint32_t val)
+{
+    _command_pod->outgoing_data_total(val);
+}
+
+uint32_t
+UdpPeer::incoming_data_total()
+{
+    return _command_pod->incoming_data_total();
+}
+
+void
+UdpPeer::incoming_data_total(uint32_t val)
+{
+    _command_pod->incoming_data_total(val);
+}
+
+uint32_t
+UdpPeer::incoming_bandwidth()
+{
+    return _net->incoming_bandwidth();
+}
+
+uint32_t
+UdpPeerNet::incoming_bandwidth()
+{
+    return _incoming_bandwidth;
+}
+
+uint32_t
+UdpPeer::outgoing_bandwidth_throttle_epoch()
+{
+    return _net->outgoing_bandwidth_throttle_epoch();
+}
+
+void
+UdpPeer::outgoing_bandwidth_throttle_epoch(uint32_t val)
+{
+    _net->outgoing_bandwidth_throttle_epoch(val);
+}
+
+uint32_t
+UdpPeerNet::outgoing_bandwidth_throttle_epoch()
+{
+    return _outgoing_bandwidth_throttle_epoch;
+}
+
+void
+UdpPeerNet::outgoing_bandwidth_throttle_epoch(uint32_t val)
+{
+    _outgoing_bandwidth_throttle_epoch = val;
+}
+
+uint32_t
+UdpPeerNet::packet_throttle_limit()
+{
+    return _packet_throttle_limit;
+}
+
+void
+UdpPeerNet::packet_throttle_limit(uint32_t val)
+{
+    _packet_throttle_limit = val;
+}
+
+uint32_t
+UdpPeer::packet_throttle_limit()
+{
+    return _net->packet_throttle_limit();
+}
+
+void
+UdpPeer::packet_throttle_limit(uint32_t val)
+{
+    _net->packet_throttle_limit(val);
+}
+
+uint32_t
+UdpPeerNet::packet_throttle()
+{
+    return _packet_throttle;
+}
+
+void
+UdpPeerNet::packet_throttle(uint32_t val)
+{
+    _packet_throttle = val;
+}
+
+uint32_t
+UdpPeer::packet_throttle()
+{
+    return _net->packet_throttle();
+}
+
+void
+UdpPeer::packet_throttle(uint32_t val)
+{
+    _net->packet_throttle(val);
 }
