@@ -2,7 +2,8 @@
 
 UdpChamber::UdpChamber() : _continue_sending(false),
                            _header_flags(0),
-                           _packets_sent(0)
+                           _packets_sent(0),
+                           _reliable_data_in_transit(0)
 {}
 
 UdpBuffer *

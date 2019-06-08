@@ -466,9 +466,33 @@ public:
                                                uint32_t service_time);
 };
 
+class UdpPeerNet
+{
+private:
+    uint32_t _packet_throttle;
+    uint32_t _packet_throttle_limit;
+    uint32_t _packet_throttle_counter;
+    uint32_t _packet_throttle_epoch;
+    uint32_t _packet_throttle_acceleration;
+    uint32_t _packet_throttle_deceleration;
+    uint32_t _packet_throttle_interval;
+    UdpPeerState _state;
+    uint32_t _mtu;
+    uint32_t _window_size;
+
+public:
+    UdpPeerNet();
+    uint32_t mtu();
+    bool state_is(UdpPeerState state);
+    bool state_is_ge(UdpPeerState state);
+    bool state_is_lt(UdpPeerState state);
+};
+
 class UdpPeer
 {
 private:
+    std::unique_ptr<UdpPeerNet> _net;
+
     UdpHost *_host;
 
     uint16_t _outgoing_peer_id;
@@ -484,8 +508,6 @@ private:
     UdpAddress _address;
 
     void *_data;
-
-    UdpPeerState _state;
 
     uint32_t _incoming_bandwidth;
 
@@ -509,20 +531,6 @@ private:
 
     uint32_t _packet_loss_variance;
 
-    uint32_t _packet_throttle;
-
-    uint32_t _packet_throttle_limit;
-
-    uint32_t _packet_throttle_counter;
-
-    uint32_t _packet_throttle_epoch;
-
-    uint32_t _packet_throttle_acceleration;
-
-    uint32_t _packet_throttle_deceleration;
-
-    uint32_t _packet_throttle_interval;
-
     uint32_t _ping_interval;
 
     uint32_t _timeout_minimum;
@@ -536,10 +544,6 @@ private:
     uint32_t _lowest_round_trip_time;
 
     uint32_t _highest_round_trip_time_variance;
-
-    uint32_t _mtu;
-
-    uint32_t _window_size;
 
     std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
 
@@ -594,17 +598,14 @@ public:
 
     int check_timeouts(const std::unique_ptr<UdpEvent> &event);
 
-    bool state_is(UdpPeerState state);
-
-    bool state_is_ge(UdpPeerState state);
-
-    bool state_is_lt(UdpPeerState state);
-
     void event_data(uint32_t val);
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+    bool state_is(UdpPeerState state);
+    bool state_is_ge(UdpPeerState state);
+    bool state_is_lt(UdpPeerState state);
 };
 
 class UdpHostCore

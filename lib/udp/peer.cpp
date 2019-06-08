@@ -592,10 +592,21 @@ UdpPeer::udp_peer_ping()
     udp_peer_queue_outgoing_command(peer, cmd, nullptr, 0, 0);
 }
 
+UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
+                           _packet_throttle(0),
+                           _packet_throttle_limit(0),
+                           _packet_throttle_counter(0),
+                           _packet_throttle_epoch(0),
+                           _packet_throttle_acceleration(0),
+                           _packet_throttle_deceleration(0),
+                           _packet_throttle_interval(0),
+                           _mtu(0),
+                           _window_size(0)
+{}
+
 UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _outgoing_session_id(0),
                      _incoming_session_id(0),
-                     _state(UdpPeerState::DISCONNECTED),
                      _incoming_bandwidth(0),
                      _outgoing_bandwidth(0),
                      _incoming_bandwidth_throttle_epoch(0),
@@ -607,13 +618,6 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _packets_lost(0),
                      _packet_loss(0),
                      _packet_loss_variance(0),
-                     _packet_throttle(0),
-                     _packet_throttle_limit(0),
-                     _packet_throttle_counter(0),
-                     _packet_throttle_epoch(0),
-                     _packet_throttle_acceleration(0),
-                     _packet_throttle_deceleration(0),
-                     _packet_throttle_interval(0),
                      _ping_interval(0),
                      _timeout_minimum(0),
                      _timeout_maximum(0),
@@ -621,9 +625,6 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _last_round_trip_time_variance(0),
                      _lowest_round_trip_time(0),
                      _highest_round_trip_time_variance(0),
-                     _mtu(0),
-                     _window_size(0),
-                     _reliable_data_in_transit(0),
                      _needs_dispatch(false),
                      _event_data(0),
                      _total_waiting_data(0),
@@ -740,7 +741,7 @@ UdpPeer::pop_acknowledgement()
 }
 
 uint32_t
-UdpPeer::mtu()
+UdpPeerNet::mtu()
 {
     return _mtu;
 }
@@ -796,17 +797,35 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
 bool
 UdpPeer::state_is(UdpPeerState state)
 {
-    return _state == state;
+    return _net->state_is(state);
 }
 
 bool
 UdpPeer::state_is_ge(UdpPeerState state)
 {
-    return _state >= state;
+    return _net->state_is_ge(state);
 }
 
 bool
 UdpPeer::state_is_lt(UdpPeerState state)
+{
+    return _net->state_is_lt(state);
+}
+
+bool
+UdpPeerNet::state_is(UdpPeerState state)
+{
+    return _state == state;
+}
+
+bool
+UdpPeerNet::state_is_ge(UdpPeerState state)
+{
+    return _state >= state;
+}
+
+bool
+UdpPeerNet::state_is_lt(UdpPeerState state)
 {
     return _state < state;
 }
