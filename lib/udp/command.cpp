@@ -128,10 +128,10 @@ UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand
 
 bool
 UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                          uint32_t mtu,
-                                          uint32_t packet_throttle,
-                                          uint32_t window_size,
-                                          uint32_t service_time)
+                                                   uint32_t mtu,
+                                                   uint32_t packet_throttle,
+                                                   uint32_t window_size,
+                                                   uint32_t service_time)
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();

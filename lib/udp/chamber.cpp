@@ -57,18 +57,6 @@ UdpChamber::sending_continues(UdpProtocolType *command,
     return false;
 }
 
-bool
-UdpChamber::sent_reliable_command_exists()
-{
-    return !_sent_reliable_commands.empty();
-}
-
-bool
-UdpChamber::sent_unreliable_command_exists()
-{
-    return !_sent_unreliable_commands.empty();
-}
-
 uint16_t
 UdpChamber::header_flags()
 {
@@ -91,20 +79,6 @@ void
 UdpChamber::increse_reliable_data_in_transit(uint32_t val)
 {
     _reliable_data_in_transit += val;
-}
-
-void
-UdpChamber::push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
-{
-    _sent_reliable_commands.push_back(command);
-
-    ++_packets_sent;
-}
-
-void
-UdpChamber::push_sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
-{
-    _sent_unreliable_commands.push_back(command);
 }
 
 void
@@ -147,22 +121,6 @@ bool
 UdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
 {
     return buffer < &_buffers[BUFFER_MAXIMUM];
-}
-
-void
-UdpChamber::remove_sent_unreliable_commands()
-{
-    auto &outgoing_command = _sent_unreliable_commands.front();
-
-    if (outgoing_command->packet != nullptr)
-    {
-        if (outgoing_command->packet.use_count() == 1)
-            outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
-
-        outgoing_command->packet->destroy();
-    }
-
-    _sent_unreliable_commands.pop_front();
 }
 
 void

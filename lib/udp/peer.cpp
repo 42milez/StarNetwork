@@ -149,7 +149,8 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
 
                 for (auto &peer: _peers)
                 {
-                    if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
+                    if ((IS_PEER_NOT_CONNECTED(peer)) ||
+                        peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
                         continue;
 
                     if (peer->net()->outgoing_bandwidth() > 0 && peer->net()->outgoing_bandwidth() >= bandwidth_limit)
@@ -997,4 +998,46 @@ void
 UdpPeer::packet_throttle(uint32_t val)
 {
     _net->packet_throttle(val);
+}
+
+void
+UdpPeer::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+{
+    _sent_reliable_commands.push_back(command);
+
+    ++_packets_sent;
+}
+
+void
+UdpPeer::sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+{
+    _sent_unreliable_commands.push_back(command);
+}
+
+bool
+UdpPeer::sent_reliable_command_exists()
+{
+    return !_sent_reliable_commands.empty();
+}
+
+bool
+UdpPeer::sent_unreliable_command_exists()
+{
+    return !_sent_unreliable_commands.empty();
+}
+
+void
+UdpPeer::remove_sent_unreliable_commands()
+{
+    auto &outgoing_command = _sent_unreliable_commands.front();
+
+    if (outgoing_command->packet != nullptr)
+    {
+        if (outgoing_command->packet.use_count() == 1)
+            outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+
+        outgoing_command->packet->destroy();
+    }
+
+    _sent_unreliable_commands.pop_front();
 }

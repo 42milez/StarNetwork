@@ -229,14 +229,9 @@ private:
 
     size_t _packet_size;
 
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
-
     uint16_t _header_flags;
 
     uint32_t _reliable_data_in_transit;
-
-    uint32_t _packets_sent;
 
     bool _continue_sending;
 
@@ -262,17 +257,9 @@ public:
                            uint32_t mtu,
                            const std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
 
-    bool sent_reliable_command_exists();
-
-    bool sent_unreliable_command_exists();
-
     uint16_t header_flags();
 
     void header_flags(uint16_t val);
-
-    void push_sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
-
-    void push_sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
     void update_command_count(const UdpProtocolType *command);
 
@@ -287,8 +274,6 @@ public:
     bool command_buffer_have_enough_space(UdpProtocolType *command);
 
     bool data_buffer_have_enough_space(UdpBuffer *buffer);
-
-    void remove_sent_unreliable_commands();
 };
 
 class UdpProtocol
@@ -328,7 +313,7 @@ public:
 
     void continue_sending(bool val);
 
-    std::unique_ptr<UdpChamber> & chamber();
+    std::unique_ptr<UdpChamber> &chamber();
 };
 
 class UdpPeerPod
@@ -474,8 +459,11 @@ public:
                                                uint32_t service_time);
 
     uint32_t outgoing_data_total();
+
     void outgoing_data_total(uint32_t val);
+
     uint32_t incoming_data_total();
+
     void incoming_data_total(uint32_t val);
 
 };
@@ -484,35 +472,62 @@ class UdpPeerNet
 {
 private:
     UdpPeerState _state;
+
     uint32_t _packet_throttle;
+
     uint32_t _packet_throttle_limit;
+
     uint32_t _packet_throttle_counter;
+
     uint32_t _packet_throttle_epoch;
+
     uint32_t _packet_throttle_acceleration;
+
     uint32_t _packet_throttle_deceleration;
+
     uint32_t _packet_throttle_interval;
+
     uint32_t _mtu;
+
     uint32_t _window_size;
+
     uint32_t _incoming_bandwidth;
+
     uint32_t _outgoing_bandwidth;
+
     uint32_t _incoming_bandwidth_throttle_epoch;
+
     uint32_t _outgoing_bandwidth_throttle_epoch;
 
 public:
     UdpPeerNet();
+
     uint32_t mtu();
+
     bool state_is(UdpPeerState state);
+
     bool state_is_ge(UdpPeerState state);
+
     bool state_is_lt(UdpPeerState state);
+
     uint32_t incoming_bandwidth();
+
     uint32_t outgoing_bandwidth();
+
     uint32_t incoming_bandwidth_throttle_epoch();
+
     void incoming_bandwidth_throttle_epoch(uint32_t val);
+
     uint32_t outgoing_bandwidth_throttle_epoch();
+
     void outgoing_bandwidth_throttle_epoch(uint32_t val);
+
     uint32_t packet_throttle();
+
     void packet_throttle(uint32_t val);
+
     uint32_t packet_throttle_limit();
+
     void packet_throttle_limit(uint32_t val);
 };
 
@@ -579,6 +594,12 @@ private:
 
     std::unique_ptr<UdpCommandPod> _command_pod;
 
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
+
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
+
+    uint32_t _packets_sent;
+
 public:
     UdpPeer();
 
@@ -623,22 +644,48 @@ public:
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+
     bool state_is(UdpPeerState state);
+
     bool state_is_ge(UdpPeerState state);
+
     bool state_is_lt(UdpPeerState state);
+
     uint32_t outgoing_data_total();
+
     void outgoing_data_total(uint32_t val);
+
     uint32_t incoming_data_total();
+
     void incoming_data_total(uint32_t val);
+
     uint32_t incoming_bandwidth();
+
     uint32_t outgoing_bandwidth_throttle_epoch();
+
     void outgoing_bandwidth_throttle_epoch(uint32_t val);
+
     uint32_t packet_throttle_limit();
+
     void packet_throttle_limit(uint32_t val);
+
     uint32_t packet_throttle();
+
     void packet_throttle(uint32_t val);
-    const std::unique_ptr<UdpPeerNet> & net();
-    const std::unique_ptr<UdpCommandPod> & command();
+
+    const std::unique_ptr<UdpPeerNet> &net();
+
+    const std::unique_ptr<UdpCommandPod> &command();
+
+    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+
+    void sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+
+    bool sent_reliable_command_exists();
+
+    bool sent_unreliable_command_exists();
+
+    void remove_sent_unreliable_commands();
 };
 
 class UdpHostCore

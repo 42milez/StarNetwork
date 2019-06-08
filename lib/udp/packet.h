@@ -10,9 +10,13 @@ class UdpPacket
 {
 private:
     std::function<void(UdpPacket *)> _free_callback;
+
     uint32_t _flags;
+
     uint8_t *_data;
+
     size_t _data_length;
+
     void *_user_data;
 
 public:
