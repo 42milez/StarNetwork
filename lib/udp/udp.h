@@ -351,6 +351,12 @@ public:
     void decrease_bandwidth_limited_peers();
 
     void decrease_connected_peers();
+
+    void on_connect(const std::shared_ptr<UdpPeer> &peer);
+
+    void on_disconnect(const std::shared_ptr<UdpPeer> &peer);
+
+    void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
 };
 
 class UdpPeerPod
@@ -757,12 +763,6 @@ public:
     const UdpAddress & address();
 
     void reset();
-
-    void on_connect(const std::unique_ptr<UdpProtocol> &protocol);
-
-    void on_disconnect(const std::unique_ptr<UdpProtocol> &protocol);
-
-    void change_state(const UdpPeerState &state, const std::unique_ptr<UdpProtocol> &protocol);
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

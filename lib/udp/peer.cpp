@@ -452,41 +452,6 @@ UdpPeer::queue_outgoing_command(const std::shared_ptr<UdpProtocolType> &command,
     return outgoing_command;
 }
 
-void
-UdpPeer::change_state(const UdpPeerState &state, const std::unique_ptr<UdpProtocol> &protocol)
-{
-    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
-        on_connect(protocol);
-    else
-        on_disconnect(protocol);
-
-    _net->state(state);
-}
-
-void
-UdpPeer::on_connect(const std::unique_ptr<UdpProtocol> &protocol)
-{
-    if (!_net->state_is(UdpPeerState::CONNECTED) && !_net->state_is(UdpPeerState::DISCONNECT_LATER))
-    {
-        if (_net->incoming_bandwidth() != 0)
-            protocol->increase_bandwidth_limited_peers();
-
-        protocol->increase_connected_peers();
-    }
-}
-
-void
-UdpPeer::on_disconnect(const std::unique_ptr<UdpProtocol> &protocol)
-{
-    if (_net->state_is(UdpPeerState::CONNECTED) || _net->state_is(UdpPeerState::DISCONNECT_LATER))
-    {
-        if (_net->incoming_bandwidth() != 0)
-            protocol->decrease_bandwidth_limited_peers();
-
-        protocol->decrease_connected_peers();
-    }
-}
-
 bool
 UdpPeer::is_disconnected()
 {

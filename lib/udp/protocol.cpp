@@ -13,7 +13,7 @@ UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
 void
 UdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
 {
-    peer->change_state(state);
+    change_state(peer, state);
 
     if (!peer->needs_dispatch())
     {
@@ -374,7 +374,7 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
             peer->state_is(UdpPeerState::CONNECTION_SUCCEEDED))
         {
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
-            peer->change_state(UdpPeerState::CONNECTED);
+            change_state(peer, UdpPeerState::CONNECTED);
 
             event->type = UdpEventType::CONNECT;
             event->peer = peer;
@@ -391,7 +391,7 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
             event->data = peer->event_data();
 
             // ゾンビ状態になったピアはリセットする
-            peer->udp_peer_reset();
+            peer->reset();
 
             return 1;
         }
@@ -481,4 +481,39 @@ void
 UdpProtocol::decrease_bandwidth_limited_peers()
 {
     --_bandwidth_limited_peers;
+}
+
+void
+UdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
+{
+    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
+        on_connect(peer);
+    else
+        on_disconnect(peer);
+
+    peer->net()->state(state);
+}
+
+void
+UdpProtocol::on_connect(const std::shared_ptr<UdpPeer> &peer)
+{
+    if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            increase_bandwidth_limited_peers();
+
+        increase_connected_peers();
+    }
+}
+
+void
+UdpProtocol::on_disconnect(const std::shared_ptr<UdpPeer> &peer)
+{
+    if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            decrease_bandwidth_limited_peers();
+
+        decrease_connected_peers();
+    }
 }
