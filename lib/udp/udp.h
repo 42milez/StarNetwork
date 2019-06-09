@@ -665,8 +665,6 @@ private:
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
 
-    void change_state(const UdpPeerState &state, const std::unique_ptr<UdpProtocol> &protocol);
-
 public:
     UdpPeer();
 
@@ -763,6 +761,8 @@ public:
     void on_connect(const std::unique_ptr<UdpProtocol> &protocol);
 
     void on_disconnect(const std::unique_ptr<UdpProtocol> &protocol);
+
+    void change_state(const UdpPeerState &state, const std::unique_ptr<UdpProtocol> &protocol);
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
