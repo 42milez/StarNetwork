@@ -337,6 +337,8 @@ private:
 
     UdpChecksumCallback _checksum;
 
+    std::shared_ptr<UdpCompressor> _compressor;
+
 public:
     UdpPeerPod(size_t peer_count);
 
@@ -363,8 +365,6 @@ private:
     std::vector<uint8_t> _received_data;
 
     std::vector<std::vector<uint8_t>> _packet_data;
-
-    std::shared_ptr<UdpCompressor> _compressor;
 
     std::unique_ptr<UdpAddress> _received_address;
 

@@ -214,8 +214,6 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
 {
     memset(_commands, 0, sizeof(_commands));
 
-    _compressor = std::make_shared<UdpCompressor>();
-
     _socket = std::make_unique<Socket>();
     _socket->open(Socket::Type::UDP, IP::Type::ANY);
     _socket->set_blocking_enabled(false);
