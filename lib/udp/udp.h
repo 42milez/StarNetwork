@@ -335,6 +335,8 @@ private:
 
     size_t _peer_count;
 
+    UdpChecksumCallback _checksum;
+
 public:
     UdpPeerPod(size_t peer_count);
 
@@ -358,8 +360,6 @@ public:
 class UdpHost
 {
 private:
-    UdpChecksumCallback _checksum;
-
     std::vector<uint8_t> _received_data;
 
     std::vector<std::vector<uint8_t>> _packet_data;
@@ -517,6 +517,8 @@ private:
 
     uint32_t _packets_sent;
 
+    uint32_t _last_send_time;
+
 public:
     UdpPeerNet();
 
@@ -565,6 +567,8 @@ public:
     uint32_t packets_sent();
 
     void calculate_packet_loss(uint32_t service_time);
+
+    void last_send_time(uint32_t val);
 };
 
 class UdpPeer
@@ -587,8 +591,6 @@ private:
     UdpAddress _address;
 
     void *_data;
-
-    uint32_t _last_send_time;
 
     uint32_t _last_receive_time;
 
@@ -716,6 +718,10 @@ public:
     bool exceeds_ping_interval(uint32_t service_time);
 
     bool exceeds_mtu(size_t packet_size);
+
+    uint16_t outgoing_peer_id();
+
+    uint8_t outgoing_session_id();
 };
 
 class UdpHostCore

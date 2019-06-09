@@ -301,9 +301,9 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 peer->net()->calculate_packet_loss(service_time);
             }
 
-            if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
+            if (_protocol->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {
-                header->sent_time = htons(_service_time & 0xFFFF);
+                header->sent_time = htons(service_time & 0xFFFF);
                 _buffers[0].data_length = sizeof(UdpProtocolHeader);
             }
             else
@@ -318,10 +318,14 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 // ...
             }
 
-            if (peer->outgoing_peer_id < PROTOCOL_MAXIMUM_PEER_ID)
-                _header_flags |= peer->outgoing_session_id << PROTOCOL_HEADER_SESSION_SHIFT;
+            if (peer->outgoing_peer_id() < PROTOCOL_MAXIMUM_PEER_ID)
+            {
+                auto header_flags = _protocol->chamber()->header_flags();
+                header_flags |= peer->outgoing_session_id() << PROTOCOL_HEADER_SESSION_SHIFT;
+                _protocol->chamber()->header_flags(header_flags);
+            }
 
-            header->peer_id = htons(peer->outgoing_peer_id | _header_flags);
+            header->peer_id = htons(peer->outgoing_peer_id() | _protocol->chamber()->header_flags());
 
             if (_checksum != nullptr)
             {
@@ -333,7 +337,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 // ...
             }
 
-            peer->last_send_time = _service_time;
+            peer->net()->last_send_time(service_time);
 
             auto sent_length = _udp_socket_send(peer->address);
 
@@ -1100,4 +1104,22 @@ UdpPeerNet::calculate_packet_loss(uint32_t service_time)
     _packet_loss_epoch = service_time;
     _packets_sent = 0;
     _packets_lost = 0;
+}
+
+uint16_t
+UdpPeer::outgoing_peer_id()
+{
+    return _outgoing_peer_id;
+}
+
+uint8_t
+UdpPeer::outgoing_session_id()
+{
+    return _outgoing_session_id;
+}
+
+void
+UdpPeerNet::last_send_time(uint32_t service_time)
+{
+    _last_send_time = service_time;
 }
