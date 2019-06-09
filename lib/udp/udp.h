@@ -307,6 +307,10 @@ private:
 
     bool _recalculate_bandwidth_limits;
 
+    size_t _connected_peers;
+
+    size_t _bandwidth_limited_peers;
+
 public:
     UdpProtocol();
 
@@ -339,6 +343,18 @@ public:
     void udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
 
     void udp_peer_reset_queues();
+
+    void udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
+
+    void udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
+
+    void increase_bandwidth_limited_peers();
+
+    void increase_connected_peers();
+
+    void decrease_bandwidth_limited_peers();
+
+    void decrease_connected_peers();
 };
 
 class UdpPeerPod
@@ -349,10 +365,6 @@ private:
     std::unique_ptr<UdpProtocol> _protocol;
 
     uint32_t _bandwidth_throttle_epoch;
-
-    size_t _bandwidth_limited_peers;
-
-    size_t _connected_peers;
 
     size_t _peer_count;
 
@@ -378,18 +390,6 @@ public:
     void bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
-
-    void increase_bandwidth_limited_peers();
-
-    void increase_connected_peers();
-
-    void decrease_bandwidth_limited_peers();
-
-    void decrease_connected_peers();
-
-    void udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
-
-    void udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
 
     void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
 };

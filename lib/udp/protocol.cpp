@@ -458,3 +458,51 @@ UdpProtocol::udp_peer_reset_queues()
     if (_command_pod->channel_exists())
         _command_pod->clear_channel();
 }
+
+void
+UdpProtocol::udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer)
+{
+    if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            increase_bandwidth_limited_peers();
+
+        increase_connected_peers();
+    }
+}
+
+void
+UdpProtocol::udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer)
+{
+    if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            decrease_bandwidth_limited_peers();
+
+        decrease_connected_peers();
+    }
+}
+
+void
+UdpProtocol::increase_connected_peers()
+{
+    ++_connected_peers;
+}
+
+void
+UdpProtocol::decrease_connected_peers()
+{
+    --_connected_peers;
+}
+
+void
+UdpProtocol::increase_bandwidth_limited_peers()
+{
+    ++_bandwidth_limited_peers;
+}
+
+void
+UdpProtocol::decrease_bandwidth_limited_peers()
+{
+    --_bandwidth_limited_peers;
+}
