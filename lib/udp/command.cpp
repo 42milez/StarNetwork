@@ -389,3 +389,41 @@ UdpCommandPod::outgoing_unreliable_command_exists()
 {
     return !_outgoing_unreliable_commands.empty();
 }
+
+void
+UdpCommandPod::clear_outgoing_reliable_command()
+{
+    _outgoing_reliable_commands.clear();
+}
+
+void
+UdpCommandPod::clear_outgoing_unreliable_command()
+{
+    _outgoing_unreliable_commands.clear();
+}
+
+bool
+UdpCommandPod::channel_exists()
+{
+    return !_channels.empty();
+}
+
+void
+UdpCommandPod::clear_channel()
+{
+    _channels.clear();
+}
+
+void
+UdpCommandPod::reset()
+{
+    _incoming_data_total = 0;
+    _outgoing_data_total = 0;
+    _next_timeout = 0;
+    _timeout_limit = PEER_TIMEOUT_LIMIT;
+    _round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
+    _round_trip_time_variance = 0;
+    _outgoing_reliable_sequence_number = 0;
+    _incoming_unsequenced_group = 0;
+    _outgoing_unsequenced_group = 0;
+}

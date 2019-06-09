@@ -281,6 +281,8 @@ public:
     bool data_buffer_have_enough_space(UdpBuffer *buffer);
 
     void set_data_length(size_t val);
+
+    void reset();
 };
 
 class UdpDispatchQueue
@@ -501,6 +503,14 @@ public:
 
     bool outgoing_reliable_command_exists();
     bool outgoing_unreliable_command_exists();
+
+    void clear_outgoing_reliable_command();
+    void clear_outgoing_unreliable_command();
+
+    bool channel_exists();
+    void clear_channel();
+
+    void reset();
 };
 
 class UdpPeerNet
@@ -598,6 +608,8 @@ public:
     void calculate_packet_loss(uint32_t service_time);
 
     void last_send_time(uint32_t val);
+
+    void reset();
 };
 
 class UdpPeer

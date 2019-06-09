@@ -158,3 +158,9 @@ UdpChamber::set_data_length(size_t val)
 {
     _buffers[0].data_length = val;
 }
+
+void
+UdpChamber::reset()
+{
+    _reliable_data_in_transit = 0;
+}
