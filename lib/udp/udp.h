@@ -380,6 +380,10 @@ public:
     void decrease_bandwidth_limited_peers();
 
     void decrease_connected_peers();
+
+    void udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
+
+    void udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
 };
 
 class UdpHost
@@ -663,10 +667,6 @@ public:
     void udp_peer_reset();
 
     void udp_peer_reset_queues();
-
-    void udp_peer_on_connect();
-
-    void udp_peer_on_disconnect();
 
     void udp_peer_disconnect();
 

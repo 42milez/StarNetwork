@@ -383,26 +383,26 @@ UdpPeerPod::decrease_connected_peers()
 }
 
 void
-UdpPeer::udp_peer_on_connect()
+UdpPeerPod::udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer)
 {
-    if (peer->state != UdpPeerState::CONNECTED && peer->state != UdpPeerState::DISCONNECT_LATER)
+    if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {
-        if (peer->incoming_bandwidth != 0)
-            peer->host->increase_bandwidth_limited_peers();
+        if (peer->net()->incoming_bandwidth() != 0)
+            increase_bandwidth_limited_peers();
 
-        peer->host->increase_connected_peers();
+        increase_connected_peers();
     }
 }
 
 void
-UdpPeer::udp_peer_on_disconnect()
+UdpPeerPod::udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer)
 {
-    if (peer->state == UdpPeerState::CONNECTED || peer->state == UdpPeerState::DISCONNECT_LATER)
+    if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {
-        if (peer->incoming_bandwidth != 0)
-            peer->host->decrease_bandwidth_limited_peers();
+        if (peer->net()->incoming_bandwidth() != 0)
+            decrease_bandwidth_limited_peers();
 
-        peer->host->decrease_connected_peers();
+        decrease_connected_peers();
     }
 }
 
