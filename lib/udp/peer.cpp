@@ -344,7 +344,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             auto sent_length = _host->_udp_socket_send(peer->address());
 
-            _protocol->_udp_protocol_remove_sent_unreliable_commands();
+            peer->remove_sent_unreliable_commands();
 
             if (sent_length < 0)
                 return -1;
@@ -968,17 +968,20 @@ UdpPeer::sent_unreliable_command_exists()
 void
 UdpPeer::remove_sent_unreliable_commands()
 {
-    auto &outgoing_command = _sent_unreliable_commands.front();
-
-    if (outgoing_command->packet != nullptr)
+    while (!_sent_unreliable_commands.empty())
     {
-        if (outgoing_command->packet.use_count() == 1)
-            outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+        auto &outgoing_command = _sent_unreliable_commands.front();
 
-        outgoing_command->packet->destroy();
+        if (outgoing_command->packet != nullptr)
+        {
+            if (outgoing_command->packet.use_count() == 1)
+                outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+
+            outgoing_command->packet->destroy();
+        }
+
+        _sent_unreliable_commands.pop_front();
     }
-
-    _sent_unreliable_commands.pop_front();
 }
 
 bool

@@ -11,7 +11,7 @@ UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
 {}
 
 void
-UdpProtocol::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+UdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
 {
     peer->change_state(state);
 
@@ -19,7 +19,7 @@ UdpProtocol::_udp_protocol_dispatch_state(const std::shared_ptr<UdpPeer> &peer, 
     {
         peer->needs_dispatch(true);
 
-        _dispatch_queue.push(peer);
+        _dispatch_queue->push(peer);
     }
 }
 
@@ -72,7 +72,7 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::notify_disconnect(const std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+UdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     if (peer->state_is_ge(UdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
@@ -329,15 +329,6 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
     */
 
     auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber, service_time);
-}
-
-void
-UdpProtocol::_udp_protocol_remove_sent_unreliable_commands()
-{
-    while (_chamber->sent_reliable_command_exists())
-    {
-        _chamber->remove_sent_unreliable_commands();
-    }
 }
 
 bool
