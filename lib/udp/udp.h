@@ -344,10 +344,6 @@ public:
 
     void udp_peer_reset_queues();
 
-    void udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
-
-    void udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
-
     void increase_bandwidth_limited_peers();
 
     void increase_connected_peers();
@@ -390,8 +386,6 @@ public:
     void bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
-
-    void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
 };
 
 class UdpHost
@@ -671,6 +665,8 @@ private:
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
 
+    void change_state(const UdpPeerState &state, const std::unique_ptr<UdpProtocol> &protocol);
+
 public:
     UdpPeer();
 
@@ -763,6 +759,10 @@ public:
     const UdpAddress & address();
 
     void reset();
+
+    void on_connect(const std::unique_ptr<UdpProtocol> &protocol);
+
+    void on_disconnect(const std::unique_ptr<UdpProtocol> &protocol);
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
