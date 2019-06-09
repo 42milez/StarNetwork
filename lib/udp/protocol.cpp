@@ -369,3 +369,66 @@ UdpProtocol::chamber()
 {
     return _chamber;
 }
+
+int
+UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+{
+    while (_dispatch_queue->peer_exists())
+    {
+        auto peer = _dispatch_queue->pop_peer();
+
+        peer->needs_dispatch(false);
+
+        if (peer->state_is(UdpPeerState::CONNECTION_PENDING) ||
+            peer->state_is(UdpPeerState::CONNECTION_SUCCEEDED))
+        {
+            // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
+            peer->change_state(UdpPeerState::CONNECTED);
+
+            event->type = UdpEventType::CONNECT;
+            event->peer = peer;
+            event->data = peer->event_data();
+
+            return 1;
+        }
+        else if (peer->state_is(UdpPeerState::ZOMBIE))
+        {
+            recalculate_bandwidth_limits(true);
+
+            event->type = UdpEventType::DISCONNECT;
+            event->peer = peer;
+            event->data = peer->event_data();
+
+            // ゾンビ状態になったピアはリセットする
+            peer->udp_peer_reset();
+
+            return 1;
+        }
+        else if (peer->state_is(UdpPeerState::CONNECTED))
+        {
+            if (!peer->dispatched_command_exists())
+                continue;
+
+            // 接続済みのピアからはコマンドを受信する
+            event->packet = peer->udp_peer_receive(event->channel_id);
+
+            if (event->packet == nullptr)
+                continue;
+
+            event->type = UdpEventType::RECEIVE;
+            event->peer = peer;
+
+            // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
+            if (peer->dispatched_command_exists())
+            {
+                peer->needs_dispatch(true);
+
+                _dispatch_queue->push(peer);
+            }
+
+            return 1;
+        }
+    }
+
+    return 0;
+}

@@ -13,6 +13,7 @@
 struct UdpBuffer;
 struct UdpIncomingCommand;
 struct UdpPeer;
+class UdpHost;
 
 constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
 
@@ -282,10 +283,23 @@ public:
     void set_data_length(size_t val);
 };
 
+class UdpDispatchQueue
+{
+private:
+    std::queue<std::shared_ptr<UdpPeer>> _queue;
+
+public:
+    std::shared_ptr<UdpPeer> pop_peer();
+
+    void push(std::shared_ptr<UdpPeer> &peer);
+
+    bool peer_exists();
+};
+
 class UdpProtocol
 {
 private:
-    std::queue<std::shared_ptr<UdpPeer>> _dispatch_queue;
+    std::unique_ptr<UdpDispatchQueue> _dispatch_queue;
 
     std::unique_ptr<UdpChamber> _chamber;
 
@@ -320,6 +334,8 @@ public:
     void continue_sending(bool val);
 
     std::unique_ptr<UdpChamber> &chamber();
+
+    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 };
 
 class UdpPeerPod
@@ -341,14 +357,22 @@ private:
 
     std::shared_ptr<UdpCompressor> _compressor;
 
+    std::shared_ptr<UdpHost> _host;
+
+    uint32_t _total_sent_data;
+
+    uint32_t _total_sent_packets;
+
+    uint32_t _total_received_data;
+
+    uint32_t _total_received_packets;
+
 public:
     UdpPeerPod(size_t peer_count);
 
     std::shared_ptr<UdpPeer> available_peer_exists();
 
     void bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
-
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
@@ -390,14 +414,6 @@ private:
 
     uint32_t _service_time;
 
-    uint32_t _total_sent_data;
-
-    uint32_t _total_sent_packets;
-
-    uint32_t _total_received_data;
-
-    uint32_t _total_received_packets;
-
     std::unique_ptr<UdpPeerPod> _peer_pod;
 
 public:
@@ -416,6 +432,12 @@ public:
     udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
 
     uint32_t service_time();
+
+    Error _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
+
+    ssize_t _udp_socket_send(const UdpAddress &address);
+
+    std::shared_ptr<UdpPeer> _pop_peer_from_dispatch_queue();
 };
 
 class UdpCommandPod
@@ -661,11 +683,15 @@ public:
 
     bool acknowledgement_exists();
 
+    bool dispatched_command_exists();
+
     std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
 
     uint32_t mtu();
 
     int check_timeouts(const std::unique_ptr<UdpEvent> &event);
+
+    uint32_t event_data();
 
     void event_data(uint32_t val);
 
@@ -724,19 +750,6 @@ public:
     uint8_t outgoing_session_id();
 
     const UdpAddress & address();
-};
-
-class UdpHostCore
-{
-public:
-    Error
-    _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
-
-    ssize_t
-    _udp_socket_send(const UdpAddress &address);
-
-    std::shared_ptr<UdpPeer>
-    _pop_peer_from_dispatch_queue();
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

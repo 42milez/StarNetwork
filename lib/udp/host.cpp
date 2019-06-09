@@ -248,7 +248,7 @@ UdpHost::service_time()
 }
 
 Error
-UdpHostCore::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
+UdpHost::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
 {
     IpAddress ip{};
 
@@ -260,18 +260,8 @@ UdpHostCore::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress 
     return socket->bind(ip, address.port);
 }
 
-std::shared_ptr<UdpPeer>
-UdpHostCore::_pop_peer_from_dispatch_queue()
-{
-    std::shared_ptr<UdpPeer> peer = _dispatch_queue.front();
-
-    _dispatch_queue.pop();
-
-    return peer;
-}
-
 ssize_t
-UdpHostCore::_udp_socket_send(const UdpAddress &address)
+UdpHost::_udp_socket_send(const UdpAddress &address)
 {
     IpAddress dest;
 

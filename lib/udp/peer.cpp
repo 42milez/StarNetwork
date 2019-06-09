@@ -344,7 +344,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             auto sent_length = _host->_udp_socket_send(peer->address());
 
-            _udp_protocol_remove_sent_unreliable_commands();
+            _protocol->_udp_protocol_remove_sent_unreliable_commands();
 
             if (sent_length < 0)
                 return -1;
@@ -352,69 +352,6 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             _total_sent_data += sent_length;
 
             ++_total_sent_packets;
-        }
-    }
-
-    return 0;
-}
-
-int
-UdpPeerPod::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
-{
-    while (!_dispatch_queue.empty())
-    {
-        auto peer = _pop_peer_from_dispatch_queue();
-
-        peer->needs_dispatch = false;
-
-        if (peer->state == UdpPeerState::CONNECTION_PENDING ||
-            peer->state == UdpPeerState::CONNECTION_SUCCEEDED)
-        {
-            // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
-            _udp_protocol_change_state(peer, UdpPeerState::CONNECTED);
-
-            event->type = UdpEventType::CONNECT;
-            event->peer = peer;
-            event->data = peer->event_data;
-
-            return 1;
-        }
-        else if (peer->state == UdpPeerState::ZOMBIE)
-        {
-            _protocol->recalculate_bandwidth_limits(true);
-
-            event->type = UdpEventType::DISCONNECT;
-            event->peer = peer;
-            event->data = peer->event_data;
-
-            // ゾンビ状態になったピアはリセットする
-            udp_peer_reset(peer);
-
-            return 1;
-        }
-        else if (peer->state == UdpPeerState::CONNECTED)
-        {
-            if (peer->dispatched_commands.empty())
-                continue;
-
-            // 接続済みのピアからはコマンドを受信する
-            event->packet = udp_peer_receive(peer, event->channel_id);
-
-            if (event->packet == nullptr)
-                continue;
-
-            event->type = UdpEventType::RECEIVE;
-            event->peer = peer;
-
-            // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
-            if (!peer->dispatched_commands.empty())
-            {
-                peer->needs_dispatch = true;
-
-                _dispatch_queue.push(peer);
-            }
-
-            return 1;
         }
     }
 
@@ -721,6 +658,12 @@ UdpPeer::acknowledgement_exists()
     return !_acknowledgements.empty();
 }
 
+bool
+UdpPeer::dispatched_command_exists()
+{
+    return !_dispatched_commands.empty();
+}
+
 std::shared_ptr<UdpAcknowledgement>
 UdpPeer::pop_acknowledgement()
 {
@@ -831,6 +774,12 @@ bool
 UdpPeerNet::state_is_lt(UdpPeerState state)
 {
     return _state < state;
+}
+
+uint32_t
+UdpPeer::event_data()
+{
+    return _event_data;
 }
 
 void
