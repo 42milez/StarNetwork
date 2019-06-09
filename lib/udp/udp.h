@@ -507,6 +507,16 @@ private:
 
     uint32_t _outgoing_bandwidth_throttle_epoch;
 
+    uint32_t _packet_loss_epoch;
+
+    uint32_t _packets_lost;
+
+    uint32_t _packet_loss;
+
+    uint32_t _packet_loss_variance;
+
+    uint32_t _packets_sent;
+
 public:
     UdpPeerNet();
 
@@ -537,6 +547,24 @@ public:
     uint32_t packet_throttle_limit();
 
     void packet_throttle_limit(uint32_t val);
+
+    uint32_t packet_loss_epoch();
+
+    void packet_loss_epoch(uint32_t val);
+
+    uint32_t packets_lost();
+
+    uint32_t packet_loss();
+
+    uint32_t packet_loss_variance();
+
+    void packet_loss_variance(uint32_t val);
+
+    bool exceeds_packet_loss_interval(uint32_t service_time);
+
+    uint32_t packets_sent();
+
+    void calculate_packet_loss(uint32_t service_time);
 };
 
 class UdpPeer
@@ -565,14 +593,6 @@ private:
     uint32_t _last_receive_time;
 
     uint32_t _earliest_timeout;
-
-    uint32_t _packet_loss_epoch;
-
-    uint32_t _packets_lost;
-
-    uint32_t _packet_loss;
-
-    uint32_t _packet_loss_variance;
 
     uint32_t _ping_interval;
 
@@ -605,8 +625,6 @@ private:
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
-
-    uint32_t _packets_sent;
 
 public:
     UdpPeer();

@@ -292,31 +292,13 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             if (_protocol->chamber()->command_count() == 0)
                 continue;
 
-            if (peer->packet_loss_epoch == 0)
+            if (peer->net()->packet_loss_epoch() == 0)
             {
-                peer->packet_loss_epoch = _service_time;
+                peer->net()->packet_loss_epoch(service_time);
             }
-            else if (UDP_TIME_DIFFERENCE(_service_time, peer->packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL &&
-                     peer->packets_sent > 0)
+            else if (peer->net()->exceeds_packet_loss_interval(service_time) && peer->net()->packets_sent() > 0)
             {
-                uint32_t packet_loss = peer->packets_lost * PEER_PACKET_LOSS_SCALE / peer->packets_sent;
-
-                peer->packet_loss_variance -= peer->packet_loss_variance / 4;
-
-                if (packet_loss >= peer->packet_loss)
-                {
-                    peer->packet_loss += (packet_loss - peer->packet_loss) / 8;
-                    peer->packet_loss_variance += (packet_loss - peer->packet_loss) / 4;
-                }
-                else
-                {
-                    peer->packet_loss -= (peer->packet_loss - packet_loss) / 8;
-                    peer->packet_loss_variance += (peer->packet_loss - packet_loss) / 4;
-                }
-
-                peer->packet_loss_epoch = _service_time;
-                peer->packets_sent = 0;
-                peer->packets_lost = 0;
+                peer->net()->calculate_packet_loss(service_time);
             }
 
             if (_header_flags & PROTOCOL_HEADER_FLAG_SENT_TIME)
@@ -1053,4 +1035,69 @@ bool
 UdpPeer::exceeds_mtu(size_t packet_size)
 {
     return _net->mtu() - packet_size >= sizeof(UdpProtocolPing);
+}
+
+uint32_t
+UdpPeerNet::packet_loss_epoch()
+{
+    return _packet_loss_epoch;
+}
+
+void
+UdpPeerNet::packet_loss_epoch(uint32_t val)
+{
+    _packet_loss_epoch = val;
+}
+
+uint32_t
+UdpPeerNet::packets_lost()
+{
+    return _packets_lost;
+}
+
+uint32_t
+UdpPeerNet::packet_loss()
+{
+    return _packet_loss;
+}
+
+uint32_t
+UdpPeerNet::packet_loss_variance()
+{
+    return _packet_loss_variance;
+}
+
+bool
+UdpPeerNet::exceeds_packet_loss_interval(uint32_t service_time)
+{
+    return UDP_TIME_DIFFERENCE(service_time, _packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL;
+}
+
+uint32_t
+UdpPeerNet::packets_sent()
+{
+    return _packets_sent;
+}
+
+void
+UdpPeerNet::calculate_packet_loss(uint32_t service_time)
+{
+    uint32_t packet_loss = _packets_lost * PEER_PACKET_LOSS_SCALE / _packets_sent;
+
+    _packet_loss_variance -= _packet_loss_variance / 4;
+
+    if (packet_loss >= _packet_loss)
+    {
+        _packet_loss += (packet_loss - _packet_loss) / 8;
+        _packet_loss_variance += (packet_loss - _packet_loss) / 4;
+    }
+    else
+    {
+        _packet_loss -= (_packet_loss - packet_loss) / 8;
+        _packet_loss_variance += (_packet_loss - packet_loss) / 4;
+    }
+
+    _packet_loss_epoch = service_time;
+    _packets_sent = 0;
+    _packets_lost = 0;
 }
