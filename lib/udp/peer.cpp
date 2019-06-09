@@ -305,11 +305,13 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             if (_protocol->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {
                 header->sent_time = htons(service_time & 0xFFFF);
-                _buffers[0].data_length = sizeof(UdpProtocolHeader);
+                //_buffers[0].data_length = sizeof(UdpProtocolHeader);
+                _protocol->chamber()->set_data_length(sizeof(UdpProtocolHeader));
             }
             else
             {
-                _buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
+                //_buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
+                _protocol->chamber()->set_data_length((size_t) &((UdpProtocolHeader *) 0)->sent_time);
             }
 
             auto should_compress = false;
@@ -340,7 +342,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             peer->net()->last_send_time(service_time);
 
-            auto sent_length = _udp_socket_send(peer->address);
+            auto sent_length = _host->_udp_socket_send(peer->address());
 
             _udp_protocol_remove_sent_unreliable_commands();
 
@@ -1123,4 +1125,10 @@ void
 UdpPeerNet::last_send_time(uint32_t service_time)
 {
     _last_send_time = service_time;
+}
+
+const UdpAddress &
+UdpPeer::address()
+{
+    return _address;
 }

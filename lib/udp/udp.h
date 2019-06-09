@@ -278,6 +278,8 @@ public:
     bool command_buffer_have_enough_space(UdpProtocolType *command);
 
     bool data_buffer_have_enough_space(UdpBuffer *buffer);
+
+    void set_data_length(size_t val);
 };
 
 class UdpProtocol
@@ -576,8 +578,6 @@ class UdpPeer
 private:
     std::unique_ptr<UdpPeerNet> _net;
 
-    UdpHost *_host;
-
     uint16_t _outgoing_peer_id;
 
     uint16_t _incoming_peer_id;
@@ -722,6 +722,8 @@ public:
     uint16_t outgoing_peer_id();
 
     uint8_t outgoing_session_id();
+
+    const UdpAddress & address();
 };
 
 class UdpHostCore

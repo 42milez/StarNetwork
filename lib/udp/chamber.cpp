@@ -152,3 +152,9 @@ UdpChamber::packet_size()
 {
     return _packet_size;
 }
+
+void
+UdpChamber::set_data_length(size_t val)
+{
+    _buffers[0].data_length = val;
+}
