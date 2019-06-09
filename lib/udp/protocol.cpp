@@ -423,3 +423,38 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 
     return 0;
 }
+
+void
+UdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
+{
+    udp_peer_on_disconnect(peer);
+
+    peer->reset();
+
+    memset(_unsequenced_window, 0, sizeof(_unsequenced_window));
+
+    udp_peer_reset_queues(peer);
+}
+
+void
+UdpProtocol::udp_peer_reset_queues()
+{
+    std::unique_ptr<UdpChannel> channel;
+
+    if (_needs_dispatch)
+        _needs_dispatch = false;
+
+    if (!_acknowledgements.empty())
+        _acknowledgements.clear();
+
+    _sent_reliable_commands.clear();
+    _sent_unreliable_commands.clear();
+    _command_pod->clear_outgoing_reliable_command();
+    _command_pod->clear_outgoing_unreliable_command();
+
+    while (!_dispatched_commands.empty())
+        _dispatched_commands.pop();
+
+    if (_command_pod->channel_exists())
+        _command_pod->clear_channel();
+}

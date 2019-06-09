@@ -412,53 +412,6 @@ UdpPeer::udp_peer_disconnect()
     // ...
 }
 
-void
-UdpPeer::udp_peer_reset_queues()
-{
-    std::unique_ptr<UdpChannel> channel;
-
-    if (_needs_dispatch)
-        _needs_dispatch = false;
-
-    if (!_acknowledgements.empty())
-        _acknowledgements.clear();
-
-    _sent_reliable_commands.clear();
-    _sent_unreliable_commands.clear();
-    _command_pod->clear_outgoing_reliable_command();
-    _command_pod->clear_outgoing_unreliable_command();
-
-    while (!_dispatched_commands.empty())
-        _dispatched_commands.pop();
-
-    if (_command_pod->channel_exists())
-        _command_pod->clear_channel();
-}
-
-void
-UdpPeer::udp_peer_reset()
-{
-    udp_peer_on_disconnect(peer);
-
-    _outgoing_peer_id = PROTOCOL_MAXIMUM_PEER_ID;
-    _last_receive_time = 0;
-    _earliest_timeout = 0;
-    _ping_interval = PEER_PING_INTERVAL;
-    _timeout_minimum = PEER_TIMEOUT_MINIMUM;
-    _timeout_maximum = PEER_TIMEOUT_MAXIMUM;
-    _last_round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
-    _lowest_round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
-    _last_round_trip_time_variance = 0;
-    _highest_round_trip_time_variance = 0;
-    _event_data = 0;
-    _total_waiting_data = 0;
-    _connect_id = 0;
-
-    memset(_unsequenced_window, 0, sizeof(_unsequenced_window));
-
-    udp_peer_reset_queues(peer);
-}
-
 std::shared_ptr<UdpPacket>
 UdpPeer::udp_peer_receive(uint8_t &channel_id)
 {
@@ -1059,6 +1012,24 @@ const UdpAddress &
 UdpPeer::address()
 {
     return _address;
+}
+
+void
+UdpPeer::reset()
+{
+    _outgoing_peer_id = PROTOCOL_MAXIMUM_PEER_ID;
+    _last_receive_time = 0;
+    _earliest_timeout = 0;
+    _ping_interval = PEER_PING_INTERVAL;
+    _timeout_minimum = PEER_TIMEOUT_MINIMUM;
+    _timeout_maximum = PEER_TIMEOUT_MAXIMUM;
+    _last_round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
+    _lowest_round_trip_time = PEER_DEFAULT_ROUND_TRIP_TIME;
+    _last_round_trip_time_variance = 0;
+    _highest_round_trip_time_variance = 0;
+    _event_data = 0;
+    _total_waiting_data = 0;
+    _connect_id = 0;
 }
 
 void

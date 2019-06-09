@@ -335,6 +335,10 @@ public:
     std::unique_ptr<UdpChamber> &chamber();
 
     int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
+
+    void udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
+
+    void udp_peer_reset_queues();
 };
 
 class UdpPeerPod
@@ -678,10 +682,6 @@ public:
     Error
     setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
-    void udp_peer_reset();
-
-    void udp_peer_reset_queues();
-
     void udp_peer_disconnect();
 
     std::shared_ptr<UdpPacket> udp_peer_receive(uint8_t &channel_id);
@@ -761,6 +761,8 @@ public:
     uint8_t outgoing_session_id();
 
     const UdpAddress & address();
+
+    void reset();
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
