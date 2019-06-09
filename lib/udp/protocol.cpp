@@ -391,7 +391,7 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
             event->data = peer->event_data();
 
             // ゾンビ状態になったピアはリセットする
-            peer->reset();
+            udp_peer_reset(peer);
 
             return 1;
         }
@@ -437,7 +437,7 @@ UdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::udp_peer_reset_queues()
+UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;
 

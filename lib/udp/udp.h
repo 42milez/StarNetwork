@@ -342,7 +342,7 @@ public:
 
     void udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
 
-    void udp_peer_reset_queues();
+    void udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer);
 
     void increase_bandwidth_limited_peers();
 
