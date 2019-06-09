@@ -578,14 +578,14 @@ UdpPeer::queue_outgoing_command(const std::shared_ptr<UdpProtocolType> &command,
 }
 
 void
-UdpPeer::change_state(const UdpPeerState state)
+UdpPeerPod::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
 {
     if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
-        udp_peer_on_connect();
+        udp_peer_on_connect(peer);
     else
-        udp_peer_on_disconnect();
+        udp_peer_on_disconnect(peer);
 
-    _state = state;
+    peer->net()->state(state);
 }
 
 bool
@@ -684,6 +684,12 @@ const std::unique_ptr<UdpCommandPod> &
 UdpPeer::command()
 {
     return _command_pod;
+}
+
+void
+UdpPeerNet::state(const UdpPeerState &state)
+{
+    _state = state;
 }
 
 uint32_t

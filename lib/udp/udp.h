@@ -384,6 +384,8 @@ public:
     void udp_peer_on_connect(const std::shared_ptr<UdpPeer> &peer);
 
     void udp_peer_on_disconnect(const std::shared_ptr<UdpPeer> &peer);
+
+    void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
 };
 
 class UdpHost
@@ -549,6 +551,8 @@ public:
 
     uint32_t mtu();
 
+    void state(const UdpPeerState &state);
+
     bool state_is(UdpPeerState state);
 
     bool state_is_ge(UdpPeerState state);
@@ -661,8 +665,6 @@ public:
 
     Error
     setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
-
-    void change_state(UdpPeerState state);
 
     void udp_peer_reset();
 
