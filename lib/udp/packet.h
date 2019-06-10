@@ -22,6 +22,8 @@ private:
 public:
     uint32_t add_flag(uint32_t flag);
 
+    size_t data_length();
+
     void destroy();
 };
 

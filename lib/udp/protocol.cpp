@@ -7,7 +7,10 @@ udp_protocol_command_size(uint8_t command_number)
     return command_sizes[command_number & PROTOCOL_COMMAND_MASK];
 }
 
-UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false)
+UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false),
+                             _bandwidth_limited_peers(0),
+                             _bandwidth_throttle_epoch(0),
+                             _connected_peers(0)
 {}
 
 void
@@ -515,4 +518,28 @@ UdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
 
         decrease_connected_peers();
     }
+}
+
+size_t
+UdpProtocol::connected_peers()
+{
+    return _connected_peers;
+}
+
+uint32_t
+UdpProtocol::bandwidth_throttle_epoch()
+{
+    return _bandwidth_throttle_epoch;
+}
+
+void
+UdpProtocol::bandwidth_throttle_epoch(uint32_t val)
+{
+    _bandwidth_throttle_epoch = val;
+}
+
+size_t
+UdpProtocol::bandwidth_limited_peers()
+{
+    return _bandwidth_limited_peers;
 }

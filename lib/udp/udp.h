@@ -311,6 +311,8 @@ private:
 
     size_t _bandwidth_limited_peers;
 
+    uint32_t _bandwidth_throttle_epoch;
+
 public:
     UdpProtocol();
 
@@ -357,6 +359,14 @@ public:
     void disconnect(const std::shared_ptr<UdpPeer> &peer);
 
     void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
+
+    size_t connected_peers();
+
+    uint32_t bandwidth_throttle_epoch();
+
+    void bandwidth_throttle_epoch(uint32_t val);
+
+    size_t bandwidth_limited_peers();
 };
 
 class UdpPeerPod
@@ -365,8 +375,6 @@ private:
     std::vector<std::shared_ptr<UdpPeer>> _peers;
 
     std::unique_ptr<UdpProtocol> _protocol;
-
-    uint32_t _bandwidth_throttle_epoch;
 
     size_t _peer_count;
 

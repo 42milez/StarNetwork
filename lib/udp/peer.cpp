@@ -20,18 +20,18 @@ void
 UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
 {
     auto time_current = udp_time_get();
-    auto time_elapsed = time_current - _bandwidth_throttle_epoch;
-    auto peers_remaining = _connected_peers;
+    auto time_elapsed = time_current - _protocol->bandwidth_throttle_epoch();
+    auto peers_remaining = _protocol->connected_peers();
     auto data_total = ~0u;
     auto bandwidth = ~0u;
     auto throttle = 0;
     auto bandwidth_limit = 0;
-    auto needs_adjustment = _bandwidth_limited_peers > 0 ? true : false;
+    auto needs_adjustment = _protocol->bandwidth_limited_peers() > 0 ? true : false;
 
     if (time_elapsed < HOST_BANDWIDTH_THROTTLE_INTERVAL)
         return;
 
-    _bandwidth_throttle_epoch = time_current;
+    _protocol->bandwidth_throttle_epoch(time_current);
 
     if (peers_remaining == 0)
         return;
@@ -132,7 +132,7 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
     if (_protocol->recalculate_bandwidth_limits())
     {
         _protocol->recalculate_bandwidth_limits(false);
-        peers_remaining = _connected_peers;
+        peers_remaining = _protocol->connected_peers();
         bandwidth = incoming_bandwidth;
         needs_adjustment = true;
 
@@ -189,9 +189,6 @@ UdpPeerPod::bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_ba
 }
 
 UdpPeerPod::UdpPeerPod(size_t peer_count) :
-    _bandwidth_limited_peers(0),
-    _bandwidth_throttle_epoch(0),
-    _connected_peers(0),
     _peers(peer_count),
     _peer_count(peer_count),
     _compressor(std::make_shared<UdpCompressor>())
@@ -367,16 +364,16 @@ UdpPeer::udp_peer_disconnect()
 std::shared_ptr<UdpPacket>
 UdpPeer::udp_peer_receive(uint8_t &channel_id)
 {
-    if (peer->dispatched_commands.empty())
+    if (_dispatched_commands.empty())
         return nullptr;
 
-    auto incoming_command = peer->dispatched_commands.front();
+    auto incoming_command = _dispatched_commands.front();
 
     channel_id = incoming_command.command->header.channel_id;
 
     auto packet = incoming_command.packet;
 
-    peer->total_waiting_data -= packet->data_length;
+    _total_waiting_data -= packet->data_length();
 
     return packet;
 }
@@ -403,6 +400,11 @@ UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
                            _packet_throttle_acceleration(0),
                            _packet_throttle_deceleration(0),
                            _packet_throttle_interval(0),
+                           _packet_loss_epoch(0),
+                           _packets_lost(0),
+                           _packet_loss(0),
+                           _packet_loss_variance(0),
+                           _last_send_time(0),
                            _mtu(0),
                            _window_size(0),
                            _incoming_bandwidth(0),
@@ -414,13 +416,8 @@ UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
 UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _outgoing_session_id(0),
                      _incoming_session_id(0),
-                     _last_send_time(0),
                      _last_receive_time(0),
                      _earliest_timeout(0),
-                     _packet_loss_epoch(0),
-                     _packets_lost(0),
-                     _packet_loss(0),
-                     _packet_loss_variance(0),
                      _ping_interval(0),
                      _timeout_minimum(0),
                      _timeout_maximum(0),

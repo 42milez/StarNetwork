@@ -18,3 +18,9 @@ UdpPacket::destroy()
     // TODO: free _data
     // ...
 }
+
+size_t
+UdpPacket::data_length()
+{
+    return _data_length;
+}
