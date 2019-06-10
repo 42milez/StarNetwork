@@ -427,11 +427,9 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 void
 UdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 {
-    udp_peer_on_disconnect(peer);
+    disconnect(peer);
 
     peer->reset();
-
-    memset(_unsequenced_window, 0, sizeof(_unsequenced_window));
 
     udp_peer_reset_queues(peer);
 }
@@ -488,15 +486,15 @@ void
 UdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
 {
     if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
-        on_connect(peer);
+        connect(peer);
     else
-        on_disconnect(peer);
+        disconnect(peer);
 
     peer->net()->state(state);
 }
 
 void
-UdpProtocol::on_connect(const std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {
@@ -508,7 +506,7 @@ UdpProtocol::on_connect(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::on_disconnect(const std::shared_ptr<UdpPeer> &peer)
+UdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {

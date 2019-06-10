@@ -996,6 +996,8 @@ UdpPeer::reset()
     _event_data = 0;
     _total_waiting_data = 0;
     _connect_id = 0;
+
+    memset(_unsequenced_window, 0, sizeof(_unsequenced_window));
 }
 
 void

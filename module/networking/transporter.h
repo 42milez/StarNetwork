@@ -130,7 +130,7 @@ public:
 
     void close_connection(uint32_t wait_usec = 100);
 
-    void disconnect_peer(int peer, bool now = false);
+    void disconnect(int peer, bool now = false);
 
     void poll();
 

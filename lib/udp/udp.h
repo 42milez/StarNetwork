@@ -352,9 +352,9 @@ public:
 
     void decrease_connected_peers();
 
-    void on_connect(const std::shared_ptr<UdpPeer> &peer);
+    void connect(const std::shared_ptr<UdpPeer> &peer);
 
-    void on_disconnect(const std::shared_ptr<UdpPeer> &peer);
+    void disconnect(const std::shared_ptr<UdpPeer> &peer);
 
     void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
 };
