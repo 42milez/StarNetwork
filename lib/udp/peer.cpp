@@ -434,19 +434,17 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
     _data = nullptr;
 }
 
-UdpOutgoingCommand
+void
 UdpPeer::queue_outgoing_command(const std::shared_ptr<UdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
 {
-    UdpOutgoingCommand outgoing_command;
+    std::shared_ptr<UdpOutgoingCommand> outgoing_command;
 
-    outgoing_command.command = command;
-    outgoing_command.packet = packet;
-    outgoing_command.fragment_offset = offset;
-    outgoing_command.fragment_length = length;
+    outgoing_command->command = command;
+    outgoing_command->packet = packet;
+    outgoing_command->fragment_offset = offset;
+    outgoing_command->fragment_length = length;
 
     _command_pod->setup_outgoing_command(outgoing_command);
-
-    return outgoing_command;
 }
 
 bool
