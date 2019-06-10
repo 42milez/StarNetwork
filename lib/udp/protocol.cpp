@@ -85,7 +85,7 @@ UdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique
     //if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
     if (!peer->state_is(UdpPeerState::CONNECTING) && peer->state_is_lt(UdpPeerState::CONNECTION_SUCCEEDED))
     {
-        peer->udp_peer_reset();
+        udp_peer_reset(peer);
     }
         // ピアが接続済みである場合
     else if (event != nullptr)
@@ -94,7 +94,7 @@ UdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique
         event->peer = peer;
         event->data = 0;
 
-        peer->udp_peer_reset();
+        udp_peer_reset(peer);
     }
     else
     {
@@ -441,22 +441,23 @@ UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;
 
-    if (_needs_dispatch)
-        _needs_dispatch = false;
+    if (peer->needs_dispatch())
+        peer->needs_dispatch(false);
 
-    if (!_acknowledgements.empty())
-        _acknowledgements.clear();
+    if (peer->acknowledgement_exists())
+        peer->clear_acknowledgement();
 
-    _sent_reliable_commands.clear();
-    _sent_unreliable_commands.clear();
-    _command_pod->clear_outgoing_reliable_command();
-    _command_pod->clear_outgoing_unreliable_command();
+    peer->clear_sent_reliable_command();
+    peer->clear_sent_unreliable_command();
 
-    while (!_dispatched_commands.empty())
-        _dispatched_commands.pop();
+    peer->command()->clear_outgoing_reliable_command();
+    peer->command()->clear_outgoing_unreliable_command();
 
-    if (_command_pod->channel_exists())
-        _command_pod->clear_channel();
+    while (peer->dispatched_command_exists())
+        peer->clear_dispatched_command();
+
+    if (peer->command()->channel_exists())
+        peer->command()->clear_channel();
 }
 
 void

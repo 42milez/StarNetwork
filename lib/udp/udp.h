@@ -696,6 +696,8 @@ public:
 
     bool dispatched_command_exists();
 
+    void clear_dispatched_command();
+
     std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
 
     uint32_t mtu();
@@ -748,7 +750,11 @@ public:
 
     bool sent_reliable_command_exists();
 
+    void clear_sent_reliable_command();
+
     bool sent_unreliable_command_exists();
+
+    void clear_sent_unreliable_command();
 
     void remove_sent_unreliable_commands();
 
@@ -763,6 +769,8 @@ public:
     const UdpAddress & address();
 
     void reset();
+
+    void clear_acknowledgement();
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

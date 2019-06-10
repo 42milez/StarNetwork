@@ -522,10 +522,23 @@ UdpPeer::acknowledgement_exists()
     return !_acknowledgements.empty();
 }
 
+void
+UdpPeer::clear_acknowledgement()
+{
+    _acknowledgements.clear();
+}
+
 bool
 UdpPeer::dispatched_command_exists()
 {
     return !_dispatched_commands.empty();
+}
+
+void
+UdpPeer::clear_dispatched_command()
+{
+    std::queue<UdpIncomingCommand> empty;
+    std::swap(_dispatched_commands, empty);
 }
 
 std::shared_ptr<UdpAcknowledgement>
@@ -829,10 +842,22 @@ UdpPeer::sent_reliable_command_exists()
     return !_sent_reliable_commands.empty();
 }
 
+void
+UdpPeer::clear_sent_reliable_command()
+{
+    _sent_reliable_commands.clear();
+}
+
 bool
 UdpPeer::sent_unreliable_command_exists()
 {
     return !_sent_unreliable_commands.empty();
+}
+
+void
+UdpPeer::clear_sent_unreliable_command()
+{
+    _sent_unreliable_commands.clear();
 }
 
 void
