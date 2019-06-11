@@ -247,7 +247,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 IS_EVENT_TYPE_NONE()
             }
 
-            bool timed_out = peer->check_timeouts(event);
+            bool timed_out = peer->check_timeouts(event, service_time);
 
             if (timed_out == 1)
             {
@@ -579,7 +579,7 @@ UdpPeerNet::mtu()
 }
 
 int
-UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
+UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event, uint32_t service_time)
 {
     auto current_command = _sent_reliable_commands.begin();
 
@@ -588,8 +588,6 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event)
         auto outgoing_command = current_command;
 
         ++current_command;
-
-        auto service_time = _host->service_time();
 
         // 処理をスキップ
         if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time) < (*outgoing_command)->round_trip_timeout)

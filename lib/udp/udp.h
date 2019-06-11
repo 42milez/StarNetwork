@@ -721,7 +721,7 @@ public:
 
     uint32_t mtu();
 
-    int check_timeouts(const std::unique_ptr<UdpEvent> &event);
+    int check_timeouts(const std::unique_ptr<UdpEvent> &event, uint32_t service_time);
 
     uint32_t event_data();
 
