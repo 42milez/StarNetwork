@@ -474,8 +474,6 @@ private:
 
     uint16_t _outgoing_unsequenced_group;
 
-    std::vector<std::shared_ptr<UdpChannel>> _channels;
-
     uint32_t _round_trip_time;
 
     uint32_t _round_trip_time_variance;
@@ -622,6 +620,18 @@ public:
     void last_send_time(uint32_t val);
 
     void reset();
+
+    uint32_t window_size();
+
+    void window_size(uint32_t val);
+
+    void setup();
+
+    uint32_t packet_throttle_interval();
+
+    uint32_t packet_throttle_acceleration();
+
+    uint32_t packet_throttle_deceleration();
 };
 
 class UdpPeer
@@ -678,6 +688,8 @@ private:
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
 
     std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
+
+    std::vector<std::shared_ptr<UdpChannel>> _channels;
 
 public:
     UdpPeer();

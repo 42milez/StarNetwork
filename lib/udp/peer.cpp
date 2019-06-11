@@ -1,3 +1,4 @@
+#include "core/hash.h"
 #include "command.h"
 #include "udp.h"
 
@@ -453,17 +454,10 @@ UdpPeer::is_disconnected()
     return _net->state_is(UdpPeerState::DISCONNECTED);
 }
 
-Error
-UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
+void
+UdpPeerNet::setup()
 {
-    _channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
-
-    if (_channels.empty())
-        return Error::CANT_CREATE;
-
     _state = UdpPeerState::CONNECTING;
-    _address = address;
-    _connect_id = hash32();
 
     if (_outgoing_bandwidth == 0)
         _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
@@ -475,6 +469,20 @@ UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, ui
 
     if (_window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
         _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+}
+
+Error
+UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
+{
+    _channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
+
+    if (_channels.empty())
+        return Error::CANT_CREATE;
+
+    _address = address;
+    _connect_id = hash32();
+
+    _net->setup();
 
     std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
 
@@ -484,14 +492,14 @@ UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, ui
     cmd->connect.outgoing_peer_id = htons(_incoming_peer_id);
     cmd->connect.incoming_session_id = _incoming_session_id;
     cmd->connect.outgoing_session_id = _outgoing_session_id;
-    cmd->connect.mtu = htonl(_mtu);
-    cmd->connect.window_size = htonl(_window_size);
+    cmd->connect.mtu = htonl(_net->mtu());
+    cmd->connect.window_size = htonl(_net->window_size());
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    cmd->connect.incoming_bandwidth = htonl(_incoming_bandwidth);
-    cmd->connect.outgoing_bandwidth = htonl(_outgoing_bandwidth);
-    cmd->connect.packet_throttle_interval = htonl(_packet_throttle_interval);
-    cmd->connect.packet_throttle_acceleration = htonl(_packet_throttle_acceleration);
-    cmd->connect.packet_throttle_deceleration = htonl(_packet_throttle_deceleration);
+    cmd->connect.incoming_bandwidth = htonl(_net->incoming_bandwidth());
+    cmd->connect.outgoing_bandwidth = htonl(_net->outgoing_bandwidth());
+    cmd->connect.packet_throttle_interval = htonl(_net->packet_throttle_interval());
+    cmd->connect.packet_throttle_acceleration = htonl(_net->packet_throttle_acceleration());
+    cmd->connect.packet_throttle_deceleration = htonl(_net->packet_throttle_deceleration());
     cmd->connect.data = data;
 
     queue_outgoing_command(cmd, nullptr, 0, 0);
@@ -1018,4 +1026,34 @@ UdpPeerNet::reset()
     _packet_loss_variance = 0;
     _mtu = HOST_DEFAULT_MTU;
     _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+}
+
+uint32_t
+UdpPeerNet::window_size()
+{
+    return _window_size;
+}
+
+void
+UdpPeerNet::window_size(uint32_t val)
+{
+    _window_size = val;
+}
+
+uint32_t
+UdpPeerNet::packet_throttle_interval()
+{
+    return _packet_throttle_interval;
+}
+
+uint32_t
+UdpPeerNet::packet_throttle_acceleration()
+{
+    return _packet_throttle_acceleration;
+}
+
+uint32_t
+UdpPeerNet::packet_throttle_deceleration()
+{
+    return _packet_throttle_deceleration;
 }
