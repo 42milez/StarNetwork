@@ -14,6 +14,7 @@ struct UdpBuffer;
 struct UdpIncomingCommand;
 struct UdpPeer;
 class UdpHost;
+class UdpPeerNet;
 
 constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
 
@@ -488,15 +489,12 @@ public:
     void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                             uint32_t mtu,
-                                             uint32_t packet_throttle,
-                                             uint32_t window_size,
+                                             std::unique_ptr<UdpPeerNet> &net,
+                                             const std::vector<std::shared_ptr<UdpChannel>> &channels,
                                              uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                               uint32_t mtu,
-                                               uint32_t packet_throttle,
-                                               uint32_t window_size,
+                                               std::unique_ptr<UdpPeerNet> &net,
                                                uint32_t service_time);
 
     uint32_t outgoing_data_total();

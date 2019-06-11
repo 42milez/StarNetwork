@@ -128,9 +128,8 @@ UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand
 
 bool
 UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                                   uint32_t mtu,
-                                                   uint32_t packet_throttle,
-                                                   uint32_t window_size,
+                                                   std::unique_ptr<UdpPeerNet> &net,
+                                                   const std::vector<std::shared_ptr<UdpChannel>> &channels,
                                                    uint32_t service_time)
 {
     auto *command = chamber->command_insert_pos();
@@ -144,8 +143,8 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
     {
         auto outgoing_command = current_command;
 
-        auto channel = (*outgoing_command)->command->header.channel_id < _channels.size() ?
-                       _channels.at((*outgoing_command)->command->header.channel_id) :
+        auto channel = (*outgoing_command)->command->header.channel_id < channels.size() ?
+                       channels.at((*outgoing_command)->command->header.channel_id) :
                        nullptr;
 
         auto reliable_window = (*outgoing_command)->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
@@ -173,9 +172,9 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
         {
             if (!window_exceeded)
             {
-                auto ws = (packet_throttle * window_size) / PEER_PACKET_THROTTLE_SCALE;
+                auto ws = (net->packet_throttle() * net->window_size()) / PEER_PACKET_THROTTLE_SCALE;
 
-                if (window_exceeds(chamber->reliable_data_in_transit(), mtu, ws, (*outgoing_command)))
+                if (window_exceeds(chamber->reliable_data_in_transit(), net->mtu(), ws, (*outgoing_command)))
                     window_exceeded = true;
             }
 
@@ -192,7 +191,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
 
         can_ping = false;
 
-        if (chamber->sending_continues(command, buffer, mtu, (*outgoing_command)))
+        if (chamber->sending_continues(command, buffer, net->mtu(), (*outgoing_command)))
         {
             chamber->continue_sending(true);
 
@@ -263,9 +262,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
 
 bool
 UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                                     uint32_t mtu,
-                                                     uint32_t packet_throttle,
-                                                     uint32_t window_size,
+                                                     std::unique_ptr<UdpPeerNet> &net,
                                                      uint32_t service_time)
 {
     auto *command = chamber->command_insert_pos();
