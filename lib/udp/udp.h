@@ -515,9 +515,6 @@ public:
     void clear_outgoing_reliable_command();
     void clear_outgoing_unreliable_command();
 
-    bool channel_exists();
-    void clear_channel();
-
     void reset();
 
     void increse_reliable_data_in_transit(uint32_t val);
@@ -790,6 +787,10 @@ public:
     void reset();
 
     void clear_acknowledgement();
+
+    bool channel_exists();
+
+    void clear_channel();
 };
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H

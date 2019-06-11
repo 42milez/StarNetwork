@@ -402,18 +402,6 @@ UdpCommandPod::clear_outgoing_unreliable_command()
     _outgoing_unreliable_commands.clear();
 }
 
-bool
-UdpCommandPod::channel_exists()
-{
-    return !_channels.empty();
-}
-
-void
-UdpCommandPod::clear_channel()
-{
-    _channels.clear();
-}
-
 void
 UdpCommandPod::reset()
 {

@@ -1055,3 +1055,15 @@ UdpPeerNet::packet_throttle_deceleration()
 {
     return _packet_throttle_deceleration;
 }
+
+bool
+UdpPeer::channel_exists()
+{
+    return !_channels.empty();
+}
+
+void
+UdpPeer::clear_channel()
+{
+    _channels.clear();
+}
