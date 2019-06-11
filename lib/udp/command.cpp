@@ -421,3 +421,21 @@ UdpCommandPod::increse_reliable_data_in_transit(uint32_t val)
 {
     _reliable_data_in_transit += val;
 }
+
+uint32_t
+UdpCommandPod::reliable_data_in_transit()
+{
+    return _reliable_data_in_transit;
+}
+
+void
+UdpCommandPod::reliable_data_in_transit(uint32_t val)
+{
+    _reliable_data_in_transit = val;
+}
+
+void
+UdpCommandPod::next_timeout(uint32_t val)
+{
+    _next_timeout = val;
+}

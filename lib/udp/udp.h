@@ -509,6 +509,8 @@ public:
 
     uint32_t next_timeout();
 
+    void next_timeout(uint32_t val);
+
     bool outgoing_reliable_command_exists();
     bool outgoing_unreliable_command_exists();
 
@@ -518,6 +520,10 @@ public:
     void reset();
 
     void increse_reliable_data_in_transit(uint32_t val);
+
+    uint32_t reliable_data_in_transit();
+
+    void reliable_data_in_transit(uint32_t val);
 };
 
 class UdpPeerNet
@@ -629,6 +635,10 @@ public:
     uint32_t packet_throttle_acceleration();
 
     uint32_t packet_throttle_deceleration();
+
+    void increase_packets_lost(uint32_t val);
+
+    void increase_packets_sent(uint32_t val);
 };
 
 class UdpPeer

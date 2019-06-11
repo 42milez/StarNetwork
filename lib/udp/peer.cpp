@@ -606,9 +606,13 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event, uint32_t service
         }
 
         if ((*outgoing_command)->packet != nullptr)
-            _reliable_data_in_transit -= (*outgoing_command)->fragment_length;
+        {
+            auto val = _command_pod->reliable_data_in_transit();
+            val -= (*outgoing_command)->fragment_length;
+            _command_pod->reliable_data_in_transit(val);
+        }
 
-        ++_packets_lost;
+        _net->increase_packets_lost(1);
 
         (*outgoing_command)->round_trip_timeout *= 2;
 
@@ -617,7 +621,7 @@ UdpPeer::check_timeouts(const std::unique_ptr<UdpEvent> &event, uint32_t service
         // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
         if (!_sent_reliable_commands.empty() && _sent_reliable_commands.size() == 1)
         {
-            _next_timeout = (*current_command)->sent_time + (*current_command)->round_trip_timeout;
+            _command_pod->next_timeout((*current_command)->sent_time + (*current_command)->round_trip_timeout);
         }
     }
 
@@ -828,7 +832,7 @@ UdpPeer::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
 {
     _sent_reliable_commands.push_back(command);
 
-    ++_packets_sent;
+    _net->increase_packets_sent(1);
 }
 
 void
@@ -1066,4 +1070,16 @@ void
 UdpPeer::clear_channel()
 {
     _channels.clear();
+}
+
+void
+UdpPeerNet::increase_packets_lost(uint32_t val)
+{
+    _packets_lost += val;
+}
+
+void
+UdpPeerNet::increase_packets_sent(uint32_t val)
+{
+    _packets_sent += val;
 }
