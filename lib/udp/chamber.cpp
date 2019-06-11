@@ -76,12 +76,6 @@ UdpChamber::increase_packet_size(size_t val)
 }
 
 void
-UdpChamber::increse_reliable_data_in_transit(uint32_t val)
-{
-    _reliable_data_in_transit += val;
-}
-
-void
 UdpChamber::update_command_count(const UdpProtocolType *command)
 {
     _command_count = command - _commands;

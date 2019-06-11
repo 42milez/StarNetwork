@@ -232,8 +232,6 @@ private:
 
     uint16_t _header_flags;
 
-    uint32_t _reliable_data_in_transit;
-
     bool _continue_sending;
 
 public:
@@ -254,8 +252,6 @@ public:
     void buffer_count(size_t val);
 
     void increase_packet_size(size_t val);
-
-    void increse_reliable_data_in_transit(uint32_t val);
 
     bool sending_continues(UdpProtocolType *command,
                            UdpBuffer *buffer,
@@ -482,6 +478,8 @@ private:
 
     uint32_t _next_timeout;
 
+    uint32_t _reliable_data_in_transit;
+
 public:
     UdpCommandPod();
 
@@ -521,6 +519,8 @@ public:
     void clear_channel();
 
     void reset();
+
+    void increse_reliable_data_in_transit(uint32_t val);
 };
 
 class UdpPeerNet

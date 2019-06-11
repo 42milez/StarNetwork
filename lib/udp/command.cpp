@@ -241,7 +241,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
             buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->increase_packet_size((*outgoing_command)->fragment_length);
-            chamber->increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
+            increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
         }
 
         chamber->push_sent_reliable_command(*outgoing_command);
@@ -426,4 +426,10 @@ UdpCommandPod::reset()
     _outgoing_reliable_sequence_number = 0;
     _incoming_unsequenced_group = 0;
     _outgoing_unsequenced_group = 0;
+}
+
+void
+UdpCommandPod::increse_reliable_data_in_transit(uint32_t val)
+{
+    _reliable_data_in_transit += val;
 }
