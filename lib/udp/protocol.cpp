@@ -457,8 +457,8 @@ UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
     while (peer->dispatched_command_exists())
         peer->clear_dispatched_command();
 
-    if (peer->command()->channel_exists())
-        peer->command()->clear_channel();
+    if (peer->channel_exists())
+        peer->clear_channel();
 }
 
 void
