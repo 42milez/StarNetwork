@@ -685,9 +685,9 @@ UdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chambe
 }
 
 bool
-UdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time)
+UdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber)
 {
-    auto disconnected = _command_pod->load_unreliable_commands_into_chamber(chamber, _net, service_time);
+    auto disconnected = _command_pod->load_unreliable_commands_into_chamber(chamber, _net);
 
     return disconnected;
 }
@@ -1074,4 +1074,17 @@ void
 UdpPeerNet::increase_packets_sent(uint32_t val)
 {
     _packets_sent += val;
+}
+
+void
+UdpPeerNet::update_packet_throttle_counter()
+{
+    _packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
+    _packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+}
+
+bool
+UdpPeerNet::exceeds_packet_throttle_counter()
+{
+    return _packet_throttle_counter > _packet_throttle;
 }

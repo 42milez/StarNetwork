@@ -262,8 +262,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
 
 bool
 UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                                     std::unique_ptr<UdpPeerNet> &net,
-                                                     uint32_t service_time)
+                                                     std::unique_ptr<UdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();
@@ -275,7 +274,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
         auto outgoing_command = current_command;
         auto command_size = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
-        if (chamber->sending_continues(command, buffer, mtu, (*outgoing_command)))
+        if (chamber->sending_continues(command, buffer, net->mtu(), (*outgoing_command)))
         {
             chamber->continue_sending(true);
 
@@ -286,10 +285,9 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
 
         if ((*outgoing_command)->packet != nullptr && (*outgoing_command)->fragment_offset == 0)
         {
-            peer->packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
-            peer->packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+            net->update_packet_throttle_counter();
 
-            if (peer->packet_throttle_counter > peer->packet_throttle)
+            if (net->exceeds_packet_throttle_counter())
             {
                 uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number;
                 uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number;
@@ -343,7 +341,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     chamber->update_buffer_count(buffer);
 
     // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはUdpPeerが所有する）
-    if (peer->state_is(UdpPeerState::DISCONNECT_LATER) &&
+    if (net->state_is(UdpPeerState::DISCONNECT_LATER) &&
         _outgoing_reliable_commands.empty() &&
         _outgoing_unreliable_commands.empty() &&
         !chamber->sent_reliable_command_exists())

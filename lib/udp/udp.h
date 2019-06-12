@@ -494,8 +494,7 @@ public:
                                              uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                               std::unique_ptr<UdpPeerNet> &net,
-                                               uint32_t service_time);
+                                               std::unique_ptr<UdpPeerNet> &net);
 
     uint32_t outgoing_data_total();
 
@@ -637,6 +636,10 @@ public:
     void increase_packets_lost(uint32_t val);
 
     void increase_packets_sent(uint32_t val);
+
+    void update_packet_throttle_counter();
+
+    bool exceeds_packet_throttle_counter();
 };
 
 class UdpPeer
@@ -734,7 +737,7 @@ public:
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
 
-    bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+    bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber);
 
     bool state_is(UdpPeerState state);
 
