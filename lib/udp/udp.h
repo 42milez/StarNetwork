@@ -481,6 +481,16 @@ private:
 
     uint32_t _reliable_data_in_transit;
 
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
+
+    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
+
+    uint32_t _earliest_timeout;
+
+    uint32_t _timeout_minimum;
+
+    uint32_t _timeout_maximum;
+
 public:
     UdpCommandPod();
 
@@ -521,6 +531,22 @@ public:
     uint32_t reliable_data_in_transit();
 
     void reliable_data_in_transit(uint32_t val);
+
+    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<UdpPeerNet> &net);
+
+    void sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+
+    bool sent_reliable_command_exists();
+
+    void clear_sent_reliable_command();
+
+    bool sent_unreliable_command_exists();
+
+    void clear_sent_unreliable_command();
+
+    int check_timeouts(const std::unique_ptr<UdpEvent> &event, const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time);
+
+    void remove_sent_unreliable_commands();
 };
 
 class UdpPeerNet
@@ -663,13 +689,7 @@ private:
 
     uint32_t _last_receive_time;
 
-    uint32_t _earliest_timeout;
-
     uint32_t _ping_interval;
-
-    uint32_t _timeout_minimum;
-
-    uint32_t _timeout_maximum;
 
     uint32_t _last_round_trip_time;
 
@@ -692,10 +712,6 @@ private:
     size_t _total_waiting_data;
 
     std::unique_ptr<UdpCommandPod> _command_pod;
-
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
-
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
 
     std::vector<std::shared_ptr<UdpChannel>> _channels;
 
@@ -728,8 +744,6 @@ public:
     std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
 
     uint32_t mtu();
-
-    int check_timeouts(const std::unique_ptr<UdpEvent> &event, uint32_t service_time);
 
     uint32_t event_data();
 
@@ -770,20 +784,6 @@ public:
     const std::unique_ptr<UdpPeerNet> &net();
 
     const std::unique_ptr<UdpCommandPod> &command();
-
-    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
-
-    void sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
-
-    bool sent_reliable_command_exists();
-
-    void clear_sent_reliable_command();
-
-    bool sent_unreliable_command_exists();
-
-    void clear_sent_unreliable_command();
-
-    void remove_sent_unreliable_commands();
 
     bool exceeds_ping_interval(uint32_t service_time);
 

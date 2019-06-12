@@ -55,7 +55,10 @@ UdpCommandPod::UdpCommandPod() :
     _round_trip_time(0),
     _round_trip_time_variance(0),
     _timeout_limit(0),
-    _next_timeout(0)
+    _next_timeout(0),
+    _earliest_timeout(0),
+    _timeout_minimum(0),
+    _timeout_maximum(0)
 {}
 
 void
@@ -214,7 +217,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
             (*outgoing_command)->round_trip_timeout_limit = _timeout_limit * (*outgoing_command)->round_trip_timeout;
         }
 
-        if (!chamber->sent_reliable_command_exists())
+        if (!_sent_reliable_commands.empty())
             _next_timeout = service_time + (*outgoing_command)->round_trip_timeout;
 
         (*outgoing_command)->sent_time = service_time;
@@ -243,7 +246,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
             increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
         }
 
-        chamber->push_sent_reliable_command(*outgoing_command);
+        _sent_reliable_commands.push_back(*outgoing_command);
 
         _outgoing_reliable_commands.erase(outgoing_command);
 
@@ -330,7 +333,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
 
             chamber->increase_packet_size(buffer->data_length);
 
-            chamber->push_sent_unreliable_command(*outgoing_command);
+            _sent_unreliable_commands.push_back(*outgoing_command);
         }
 
         ++command;
@@ -344,7 +347,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     if (net->state_is(UdpPeerState::DISCONNECT_LATER) &&
         _outgoing_reliable_commands.empty() &&
         _outgoing_unreliable_commands.empty() &&
-        !chamber->sent_reliable_command_exists())
+        !_sent_reliable_commands.empty())
     {
         peer->udp_peer_disconnect();
     }
@@ -409,6 +412,9 @@ UdpCommandPod::reset()
     _outgoing_reliable_sequence_number = 0;
     _incoming_unsequenced_group = 0;
     _outgoing_unsequenced_group = 0;
+    _earliest_timeout = 0;
+    _timeout_minimum = PEER_TIMEOUT_MINIMUM;
+    _timeout_maximum = PEER_TIMEOUT_MAXIMUM;
 }
 
 void
@@ -433,4 +439,109 @@ void
 UdpCommandPod::next_timeout(uint32_t val)
 {
     _next_timeout = val;
+}
+
+void
+UdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<UdpPeerNet> &net)
+{
+    _sent_reliable_commands.push_back(command);
+
+    net->increase_packets_sent(1);
+}
+
+void
+UdpCommandPod::sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+{
+    _sent_unreliable_commands.push_back(command);
+}
+
+bool
+UdpCommandPod::sent_reliable_command_exists()
+{
+    return !_sent_reliable_commands.empty();
+}
+
+void
+UdpCommandPod::clear_sent_reliable_command()
+{
+    _sent_reliable_commands.clear();
+}
+
+bool
+UdpCommandPod::sent_unreliable_command_exists()
+{
+    return !_sent_unreliable_commands.empty();
+}
+
+void
+UdpCommandPod::clear_sent_unreliable_command()
+{
+    _sent_unreliable_commands.clear();
+}
+
+int
+UdpCommandPod::check_timeouts(const std::unique_ptr<UdpEvent> &event, const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time)
+{
+    auto current_command = _sent_reliable_commands.begin();
+
+    while (current_command != _sent_reliable_commands.end())
+    {
+        auto outgoing_command = current_command;
+
+        ++current_command;
+
+        // 処理をスキップ
+        if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time) < (*outgoing_command)->round_trip_timeout)
+            continue;
+
+        if (_earliest_timeout == 0 || UDP_TIME_LESS((*outgoing_command)->sent_time, _earliest_timeout))
+            _earliest_timeout = (*outgoing_command)->sent_time;
+
+        // タイムアウトしたらピアを切断する
+        if (_earliest_timeout != 0 &&
+            (UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_maximum ||
+             ((*outgoing_command)->round_trip_timeout >= (*outgoing_command)->round_trip_timeout_limit &&
+              UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_minimum)))
+        {
+            return 1;
+        }
+
+        if ((*outgoing_command)->packet != nullptr)
+        {
+            _reliable_data_in_transit -= (*outgoing_command)->fragment_length;
+        }
+
+        net->increase_packets_lost(1);
+
+        (*outgoing_command)->round_trip_timeout *= 2;
+
+        _outgoing_reliable_commands.push_back(*outgoing_command);
+
+        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
+        if (!_sent_reliable_commands.empty() && _sent_reliable_commands.size() == 1)
+        {
+            _next_timeout = (*current_command)->sent_time + (*current_command)->round_trip_timeout;
+        }
+    }
+
+    return 0;
+}
+
+void
+UdpCommandPod::remove_sent_unreliable_commands()
+{
+    while (!_sent_unreliable_commands.empty())
+    {
+        auto &outgoing_command = _sent_unreliable_commands.front();
+
+        if (outgoing_command->packet != nullptr)
+        {
+            if (outgoing_command->packet.use_count() == 1)
+                outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+
+            outgoing_command->packet->destroy();
+        }
+
+        _sent_unreliable_commands.pop_front();
+    }
 }
