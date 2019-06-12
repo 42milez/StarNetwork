@@ -679,11 +679,7 @@ UdpPeer::event_data(uint32_t val)
 bool
 UdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time)
 {
-    auto can_ping = _command_pod->load_reliable_commands_into_chamber(chamber,
-                                                                      _mtu,
-                                                                      _packet_throttle,
-                                                                      _window_size,
-                                                                      service_time);
+    auto can_ping = _command_pod->load_reliable_commands_into_chamber(chamber, _net, _channels, service_time);
 
     return can_ping;
 }
@@ -691,13 +687,9 @@ UdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chambe
 bool
 UdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time)
 {
-    auto diconnected = _command_pod->load_unreliable_commands_into_chamber(chamber,
-                                                                           _mtu,
-                                                                           _packet_throttle,
-                                                                           _window_size,
-                                                                           service_time);
+    auto disconnected = _command_pod->load_unreliable_commands_into_chamber(chamber, _net, service_time);
 
-    return diconnected;
+    return disconnected;
 }
 
 uint32_t
