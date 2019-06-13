@@ -239,7 +239,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
         {
             ++buffer;
 
-            buffer->data = (*outgoing_command)->packet->data + (*outgoing_command)->fragment_offset;
+            buffer->data = (*outgoing_command)->packet->move_data_pointer((*outgoing_command)->fragment_offset);
             buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->increase_packet_size((*outgoing_command)->fragment_length);
@@ -328,7 +328,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
         {
             ++buffer;
 
-            buffer->data = (*outgoing_command)->packet->data + (*outgoing_command)->fragment_offset;
+            buffer->data = (*outgoing_command)->packet->move_data_pointer((*outgoing_command)->fragment_offset);
             buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->increase_packet_size(buffer->data_length);
@@ -349,7 +349,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
         _outgoing_unreliable_commands.empty() &&
         !_sent_reliable_commands.empty())
     {
-        peer->udp_peer_disconnect();
+        can_disconnect = true;
     }
 
     // ↑のロジックの結果次第でtrue/falseを返す
