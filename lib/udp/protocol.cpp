@@ -331,7 +331,7 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
     }
     */
 
-    auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber, service_time);
+    auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber);
 }
 
 bool
@@ -448,8 +448,8 @@ UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
     if (peer->acknowledgement_exists())
         peer->clear_acknowledgement();
 
-    peer->clear_sent_reliable_command();
-    peer->clear_sent_unreliable_command();
+    peer->command()->clear_sent_reliable_command();
+    peer->command()->clear_sent_unreliable_command();
 
     peer->command()->clear_outgoing_reliable_command();
     peer->command()->clear_outgoing_unreliable_command();

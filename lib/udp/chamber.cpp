@@ -87,12 +87,6 @@ UdpChamber::update_buffer_count(const UdpBuffer *buffer)
     _buffer_count = buffer - _buffers;
 }
 
-uint32_t
-UdpChamber::reliable_data_in_transit()
-{
-    return _reliable_data_in_transit;
-}
-
 bool
 UdpChamber::continue_sending()
 {
