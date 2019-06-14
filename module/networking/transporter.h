@@ -182,6 +182,10 @@ public:
 
     bool is_server() const;
 
+    void udp_host_compress(std::shared_ptr<UdpHost> &host);
+
+    void udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
+
     Transporter();
 
     ~Transporter();

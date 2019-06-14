@@ -22,20 +22,6 @@ namespace
     };
 }
 
-void
-UdpHost::udp_host_compress(std::shared_ptr<UdpHost> &host)
-{
-    if (_compressor->destroy != nullptr)
-        _compressor->destroy();
-}
-
-void
-UdpHost::udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor)
-{
-    if (compressor)
-        _compressor = compressor;
-}
-
 /*
 Error
 UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data)

@@ -433,12 +433,6 @@ private:
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
-    void
-    udp_host_compress(std::shared_ptr<UdpHost> &host);
-
-    void
-    udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
-
     Error
     udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data);
 
