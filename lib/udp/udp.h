@@ -397,6 +397,8 @@ public:
     void bandwidth_throttle(uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+
+    int protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 };
 
 class UdpHost

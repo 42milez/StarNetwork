@@ -123,7 +123,7 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
         //  8. DISCONNECTED,
         //  9. DISCONNECTING,
         // 10. ZOMBIE
-        ret = _udp_protocol_dispatch_incoming_commands(event);
+        ret = _peer_pod->protocol_dispatch_incoming_commands(event);
 
         CHECK_RETURN_VALUE(ret)
     }

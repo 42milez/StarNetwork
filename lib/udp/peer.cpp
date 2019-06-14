@@ -356,6 +356,12 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
     return 0;
 }
 
+int
+UdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+{
+    return _protocol->dispatch_incoming_commands(event);
+}
+
 void
 UdpPeer::udp_peer_disconnect()
 {
