@@ -143,7 +143,7 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
         _peer_pod->protocol_bandwidth_throttle(_service_time, _incoming_bandwidth, _outgoing_bandwidth);
 
         //
-        ret = _protocol_send_outgoing_commands(event, true);
+        ret = _peer_pod->send_outgoing_commands(event, _service_time, true);
 
         CHECK_RETURN_VALUE(ret)
 
