@@ -61,7 +61,7 @@ private:
 
     ConnectionStatus _connection_status;
 
-    UdpCompressor _compressor;
+    std::shared_ptr<UdpCompressor> _compressor;
 
     UdpEvent _event;
 
