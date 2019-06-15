@@ -18,7 +18,11 @@ UdpPeerPod::UdpPeerPod(size_t peer_count) :
     _peers(peer_count),
     _peer_count(peer_count),
     _compressor(std::make_shared<UdpCompressor>()),
-    _checksum(nullptr)
+    _checksum(nullptr),
+    _total_received_data(0),
+    _total_received_packets(0),
+    _total_sent_data(0),
+    _total_sent_packets(0)
 {
     for (auto &peer : _peers)
         peer->reset();

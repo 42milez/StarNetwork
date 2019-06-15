@@ -4,7 +4,9 @@ UdpChamber::UdpChamber() : _continue_sending(false),
                            _header_flags(0),
                            _buffer_count(0),
                            _command_count(0)
-{}
+{
+    memset(_commands, 0, sizeof(_commands));
+}
 
 UdpBuffer *
 UdpChamber::buffer_insert_pos()

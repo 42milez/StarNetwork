@@ -192,14 +192,8 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _outgoing_bandwidth(out_bandwidth),
     _received_address(std::make_unique<UdpAddress>()),
     _received_data_length(0),
-    _total_received_data(0),
-    _total_received_packets(0),
-    _total_sent_data(0),
-    _total_sent_packets(0),
     _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {
-    memset(_commands, 0, sizeof(_commands));
-
     _socket = std::make_unique<Socket>();
     _socket->open(Socket::Type::UDP, IP::Type::ANY);
     _socket->set_blocking_enabled(false);
