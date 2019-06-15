@@ -58,7 +58,8 @@ UdpCommandPod::UdpCommandPod() :
     _next_timeout(0),
     _earliest_timeout(0),
     _timeout_minimum(0),
-    _timeout_maximum(0)
+    _timeout_maximum(0),
+    _reliable_data_in_transit(0)
 {}
 
 void

@@ -181,17 +181,15 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 
 UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
     :
-    _checksum(nullptr),
-    _buffer_count(0),
+
+
     _channel_count(channel_count),
-    _command_count(0),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
     _maximum_packet_size(HOST_DEFAULT_MAXIMUM_PACKET_SIZE),
     _maximum_waiting_data(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     _mtu(HOST_DEFAULT_MTU),
     _outgoing_bandwidth(out_bandwidth),
-    _peer_pod(peer_count),
     _received_address(std::make_unique<UdpAddress>()),
     _received_data_length(0),
     _total_received_data(0),
@@ -218,15 +216,7 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
         // ...
     }
 
-    for (auto &peer : _peers)
-    {
-        peer->host = this;
-        peer->incoming_peer_id = hash32();
-        peer->outgoing_session_id = peer->incoming_session_id = 0xFF;
-        peer->data = nullptr;
-
-        udp_peer_reset(peer);
-    }
+    _peer_pod = std::make_unique<UdpPeerPod>(peer_count);
 }
 
 uint32_t

@@ -17,8 +17,12 @@ UdpPeerPod::available_peer_exists()
 UdpPeerPod::UdpPeerPod(size_t peer_count) :
     _peers(peer_count),
     _peer_count(peer_count),
-    _compressor(std::make_shared<UdpCompressor>())
-{}
+    _compressor(std::make_shared<UdpCompressor>()),
+    _checksum(nullptr)
+{
+    for (auto &peer : _peers)
+        peer->reset();
+}
 
 int
 UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
@@ -242,7 +246,8 @@ UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
                            _incoming_bandwidth(0),
                            _outgoing_bandwidth(0),
                            _incoming_bandwidth_throttle_epoch(0),
-                           _outgoing_bandwidth_throttle_epoch(0)
+                           _outgoing_bandwidth_throttle_epoch(0),
+                           _packets_sent(0)
 {}
 
 UdpPeer::UdpPeer() : _outgoing_peer_id(0),
@@ -260,6 +265,8 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
                      _incoming_peer_id(0),
                      _connect_id(0)
 {
+    _incoming_peer_id = hash32();
+    _outgoing_session_id = _incoming_session_id = 0xFF;
     _data = nullptr;
 }
 
