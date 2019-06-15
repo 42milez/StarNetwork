@@ -137,8 +137,10 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
     do
     {
         // 帯域幅の調整
-        if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
-            _udp_host_bandwidth_throttle();
+        //if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
+        //    _udp_host_bandwidth_throttle();
+
+        _peer_pod->protocol_bandwidth_throttle(_service_time, _incoming_bandwidth, _outgoing_bandwidth);
 
         //
         ret = _protocol_send_outgoing_commands(event, true);

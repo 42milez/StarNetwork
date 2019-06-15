@@ -364,6 +364,8 @@ public:
     void bandwidth_throttle_epoch(uint32_t val);
 
     size_t bandwidth_limited_peers();
+
+    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers);
 };
 
 class UdpPeerPod
@@ -399,6 +401,8 @@ public:
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
     int protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
+
+    void protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 };
 
 class UdpHost

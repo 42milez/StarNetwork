@@ -1,6 +1,9 @@
 #include "protocol.h"
 #include "udp.h"
 
+#define IS_PEER_NOT_CONNECTED(peer) \
+    !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
+
 size_t
 udp_protocol_command_size(uint8_t command_number)
 {
@@ -332,4 +335,179 @@ size_t
 UdpProtocol::bandwidth_limited_peers()
 {
     return _bandwidth_limited_peers;
+}
+
+void
+UdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers)
+{
+    if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
+    {
+        auto time_current = udp_time_get();
+        auto time_elapsed = time_current - _bandwidth_throttle_epoch;
+        auto peers_remaining = _connected_peers;
+        auto data_total = ~0u;
+        auto bandwidth = ~0u;
+        auto throttle = 0;
+        auto bandwidth_limit = 0;
+        auto needs_adjustment = _bandwidth_limited_peers > 0 ? true : false;
+
+        if (time_elapsed < HOST_BANDWIDTH_THROTTLE_INTERVAL)
+            return;
+
+        _bandwidth_throttle_epoch = time_current;
+
+        if (peers_remaining == 0)
+            return;
+
+        //  Throttle outgoing bandwidth
+        // --------------------------------------------------
+
+        if (outgoing_bandwidth != 0)
+        {
+            data_total = 0;
+            bandwidth = outgoing_bandwidth * (time_elapsed / 1000);
+
+            for (const auto &peer : peers)
+            {
+                if (IS_PEER_NOT_CONNECTED(peer))
+                    continue;
+
+                data_total += peer->outgoing_data_total();
+            }
+        }
+
+        //  Throttle peer bandwidth : Case A ( adjustment is needed )
+        // --------------------------------------------------
+
+        while (peers_remaining > 0 && needs_adjustment)
+        {
+            needs_adjustment = false;
+
+            if (data_total <= bandwidth)
+                throttle = PEER_PACKET_THROTTLE_SCALE;
+            else
+                throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+
+            for (auto &peer : peers)
+            {
+                uint32_t peer_bandwidth;
+
+                if ((IS_PEER_NOT_CONNECTED(peer)) ||
+                    peer->incoming_bandwidth() == 0 ||
+                    peer->outgoing_bandwidth_throttle_epoch() == time_current)
+                {
+                    continue;
+                }
+
+                peer_bandwidth = peer->incoming_bandwidth() * (time_elapsed / 1000);
+                if ((throttle * peer->outgoing_data_total()) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
+                    continue;
+
+                peer->packet_throttle_limit((peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
+
+                if (peer->packet_throttle_limit() == 0)
+                    peer->packet_throttle_limit(1);
+
+                if (peer->packet_throttle() > peer->packet_throttle_limit())
+                    peer->packet_throttle(peer->packet_throttle_limit());
+
+                peer->outgoing_bandwidth_throttle_epoch(time_current);
+                peer->incoming_data_total(0);
+                peer->outgoing_data_total(0);
+
+                needs_adjustment = true;
+
+                --peers_remaining;
+
+                bandwidth -= peer_bandwidth;
+                data_total -= peer_bandwidth;
+            }
+        }
+
+        //  Throttle peer bandwidth : Case B ( adjustment is NOT needed )
+        // --------------------------------------------------
+
+        if (peers_remaining > 0)
+        {
+            if (data_total <= bandwidth)
+                throttle = PEER_PACKET_THROTTLE_SCALE;
+            else
+                throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+
+            for (auto &peer : peers)
+            {
+                if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->outgoing_bandwidth_throttle_epoch() == time_current)
+                    continue;
+
+                peer->net()->packet_throttle_limit(throttle);
+
+                if (peer->net()->packet_throttle() > peer->net()->packet_throttle_limit())
+                    peer->net()->packet_throttle(peer->net()->packet_throttle_limit());
+
+                peer->command()->incoming_data_total(0);
+                peer->command()->outgoing_data_total(0);
+            }
+        }
+
+        //  Recalculate Bandwidth Limits
+        // --------------------------------------------------
+
+        if (_recalculate_bandwidth_limits)
+        {
+            _recalculate_bandwidth_limits = false;
+            peers_remaining = _connected_peers;
+            bandwidth = incoming_bandwidth;
+            needs_adjustment = true;
+
+            if (bandwidth == 0)
+            {
+                bandwidth_limit = 0;
+            }
+            else
+            {
+                while (peers_remaining > 0 && needs_adjustment)
+                {
+                    needs_adjustment = false;
+                    bandwidth_limit = bandwidth / peers_remaining;
+
+                    for (auto &peer: peers)
+                    {
+                        if ((IS_PEER_NOT_CONNECTED(peer)) ||
+                            peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
+                            continue;
+
+                        if (peer->net()->outgoing_bandwidth() > 0 && peer->net()->outgoing_bandwidth() >= bandwidth_limit)
+                            continue;
+
+                        peer->net()->incoming_bandwidth_throttle_epoch(time_current);
+
+                        needs_adjustment = true;
+
+                        --peers_remaining;
+
+                        bandwidth -= peer->net()->outgoing_bandwidth();
+                    }
+                }
+            }
+
+            std::shared_ptr<UdpProtocolType> cmd;
+
+            for (auto &peer : peers)
+            {
+                if (IS_PEER_NOT_CONNECTED(peer))
+                    continue;
+
+                cmd->header.command = PROTOCOL_COMMAND_BANDWIDTH_LIMIT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+                cmd->header.channel_id = 0xFF;
+                cmd->bandwidth_limit.outgoing_bandwidth = htonl(outgoing_bandwidth);
+
+                if (peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
+                    cmd->bandwidth_limit.incoming_bandwidth = htonl(peer->net()->outgoing_bandwidth());
+                else
+                    cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
+
+                peer->queue_outgoing_command(cmd, nullptr, 0, 0);
+            }
+        }
+    }
 }
