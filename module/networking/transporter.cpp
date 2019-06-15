@@ -293,7 +293,7 @@ Transporter::Transporter() : _bind_ip("*"),
 {
     _current_packet.packet = nullptr;
 
-    _compressor.compress = [this](
+    _compressor->compress = [this](
         const std::vector<UdpBuffer> &in_buffers,
         size_t in_limit,
         std::vector<uint8_t> &out_data,
@@ -302,7 +302,7 @@ Transporter::Transporter() : _bind_ip("*"),
         return _udp_compress(in_buffers, in_limit, out_data, out_limit);
     };
 
-    _compressor.decompress = [this](
+    _compressor->decompress = [this](
         std::vector<uint8_t> &in_data,
         size_t in_limit,
         std::vector<uint8_t> &out_data,
@@ -311,7 +311,7 @@ Transporter::Transporter() : _bind_ip("*"),
         return _udp_decompress(in_data, in_limit, out_data, out_limit);
     };
 
-    _compressor.destroy = [this]() -> void {
+    _compressor->destroy = [this]() -> void {
         _udp_destroy();
     };
 }
