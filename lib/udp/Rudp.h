@@ -8,7 +8,9 @@
 
 #include "core/errors.h"
 #include "core/io/socket.h"
-#include "peer_pod.h"
+
+#include "command.h"
+#include "protocol.h"
 
 constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
 
@@ -124,85 +126,6 @@ enum class UdpSocketWait : int
     INTERRUPT = (1u << 2u)
 };
 
-using UdpAcknowledgement = struct UdpAcknowledgement
-{
-    uint32_t sent_time;
-    UdpProtocolType command;
-};
-
-using UdpAddress = struct UdpAddress
-{
-    uint8_t host[16] = {0};
-
-    uint16_t port = 0;
-
-    uint8_t wildcard = 0;
-
-    UdpAddress();
-};
-
-using UdpBuffer = struct UdpBuffer
-{
-    void *data;
-    size_t data_length;
-};
-
-using UdpChannel = struct UdpChannel
-{
-    uint16_t outgoing_reliable_sequence_number;
-
-    uint16_t outgoing_unreliable_seaquence_number;
-
-    uint16_t used_reliable_windows; // 使用中のバッファ（reliable_windows[PEER_RELIABLE_WINDOWS]）
-    std::vector<uint16_t> reliable_windows;
-
-    uint16_t incoming_reliable_sequence_number;
-
-    uint16_t incoming_unreliable_sequence_number;
-
-    std::list<UdpIncomingCommand> incoming_reliable_commands;
-
-    std::list<UdpIncomingCommand> incoming_unreliable_commands;
-
-    UdpChannel();
-};
-
-using UdpCompressor = struct UdpCompressor
-{
-    std::function<size_t(
-        const std::vector<UdpBuffer> &in_buffers,
-        size_t in_limit,
-        std::vector<uint8_t> &out_data,
-        size_t out_limit)> compress;
-
-    std::function<size_t(
-        std::vector<uint8_t> &in_data,
-        size_t in_limit,
-        std::vector<uint8_t> &out_data,
-        size_t out_limit)> decompress;
-
-    std::function<void()> destroy;
-
-    UdpCompressor();
-};
-
-using UdpEvent = struct UdpEvent
-{
-    UdpEventType type;
-
-    uint32_t data;
-
-    std::shared_ptr<UdpPeer> peer;
-
-    std::shared_ptr<UdpPacket> packet;
-
-    uint8_t channel_id;
-
-    UdpEvent();
-};
-
-using UdpChecksumCallback = std::function<uint32_t(const std::vector<UdpBuffer> &buffers, size_t buffer_count)>;
-
 void
 udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size);
 
@@ -211,54 +134,5 @@ udp_time_get();
 
 void
 udp_time_set(uint32_t new_time_base);
-
-class UdpHost
-{
-private:
-    std::vector<uint8_t> _received_data;
-
-    std::vector<std::vector<uint8_t>> _packet_data;
-
-    std::unique_ptr<UdpAddress> _received_address;
-
-    std::unique_ptr<Socket> _socket;
-
-    size_t _received_data_length;
-
-    size_t _duplicate_peers;
-
-    size_t _maximum_packet_size;
-
-    size_t _maximum_waiting_data;
-
-    SysCh _channel_count;
-
-    uint32_t _incoming_bandwidth;
-
-    uint32_t _outgoing_bandwidth;
-
-    uint32_t _mtu;
-
-    uint32_t _service_time;
-
-    std::unique_ptr<UdpPeerPod> _peer_pod;
-
-public:
-    UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
-
-    Error
-    udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data);
-
-    int
-    udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
-
-    uint32_t service_time();
-
-    Error _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
-
-    ssize_t _udp_socket_send(const UdpAddress &address);
-
-    std::shared_ptr<UdpPeer> _pop_peer_from_dispatch_queue();
-};
 
 #endif // P2P_TECHDEMO_LIB_UDP_UDP_H
