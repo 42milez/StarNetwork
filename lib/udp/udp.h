@@ -10,12 +10,6 @@
 #include "core/io/socket.h"
 #include "peer_pod.h"
 
-struct UdpBuffer;
-struct UdpIncomingCommand;
-struct UdpPeer;
-class UdpHost;
-class UdpPeerNet;
-
 constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
 
 constexpr int HOST_BANDWIDTH_THROTTLE_INTERVAL = 1000;

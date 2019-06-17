@@ -1,6 +1,4 @@
-#include "core/hash.h"
-#include "command.h"
-#include "udp.h"
+#include "peer.h"
 
 void
 UdpPeer::udp_peer_disconnect()
