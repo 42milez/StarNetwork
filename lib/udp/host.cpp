@@ -241,22 +241,7 @@ UdpHost::_udp_socket_send(const UdpAddress &address)
 
     std::vector<uint8_t> out;
 
-    int size = 0;
-
-    for (auto i = 0; i < _buffer_count; ++i)
-    {
-        size += _buffers[i].data_length;
-    }
-
-    out.resize(size);
-
-    int pos = 0;
-
-    for (auto i = 0; i < _buffer_count; ++i)
-    {
-        memcpy(&out[pos], _buffers[i].data, _buffers[i].data_length);
-        pos += _buffers[i].data_length;
-    }
+    auto size = _peer_pod->protocol()->chamber()->write(out);
 
     ssize_t sent = 0;
 

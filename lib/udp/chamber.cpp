@@ -149,8 +149,25 @@ UdpChamber::set_data_length(size_t val)
     _buffers[0].data_length = val;
 }
 
-void
-UdpChamber::reset()
+int
+UdpChamber::write(std::vector<uint8_t> &out)
 {
-    _reliable_data_in_transit = 0;
+    auto size = 0;
+
+    for (auto i = 0; i < _buffer_count; ++i)
+    {
+        size += _buffers[i].data_length;
+    }
+
+    out.resize(size);
+
+    int pos = 0;
+
+    for (auto i = 0; i < _buffer_count; ++i)
+    {
+        memcpy(&out[pos], _buffers[i].data, _buffers[i].data_length);
+        pos += _buffers[i].data_length;
+    }
+
+    return size;
 }

@@ -823,3 +823,9 @@ UdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming
 {
     _protocol->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, _peers);
 }
+
+std::unique_ptr<UdpProtocol> &
+UdpPeerPod::protocol()
+{
+    return _protocol;
+}

@@ -280,6 +280,8 @@ public:
     void set_data_length(size_t val);
 
     void reset();
+
+    int write(std::vector<uint8_t> &out);
 };
 
 class UdpDispatchQueue
@@ -403,6 +405,8 @@ public:
     int protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
     void protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
+
+    std::unique_ptr<UdpProtocol> &protocol();
 };
 
 class UdpHost
