@@ -416,6 +416,7 @@ UdpCommandPod::reset()
     _earliest_timeout = 0;
     _timeout_minimum = PEER_TIMEOUT_MINIMUM;
     _timeout_maximum = PEER_TIMEOUT_MAXIMUM;
+    _reliable_data_in_transit = 0;
 }
 
 void
