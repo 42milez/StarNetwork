@@ -1,5 +1,4 @@
 #include "protocol.h"
-#include "udp.h"
 
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
