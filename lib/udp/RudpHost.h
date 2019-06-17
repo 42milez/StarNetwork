@@ -1,6 +1,12 @@
 #ifndef P2P_TECHDEMO_RUDPHOST_H
 #define P2P_TECHDEMO_RUDPHOST_H
 
+#include <vector>
+
+#include "core/io/socket.h"
+
+#include "RudpAddress.h"
+
 class UdpHost
 {
 private:
