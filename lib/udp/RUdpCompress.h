@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "RUdpCommon.h"
+#include "RUdpHost.h"
 
 int
 udp_host_compress_with_range_coder(std::shared_ptr<UdpHost> &host);

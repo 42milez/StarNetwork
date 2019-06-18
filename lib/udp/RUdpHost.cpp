@@ -1,7 +1,10 @@
 #include "core/error_macros.h"
 #include "core/hash.h"
 
-#include "RudpHost.h"
+#include "RUdpCommon.h"
+#include "RUdpEvent.h"
+#include "RUdpHost.h"
+#include "RUdpPeerPod.h"
 
 namespace
 {

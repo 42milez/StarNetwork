@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPADDRESS_H
 #define P2P_TECHDEMO_RUDPADDRESS_H
 
+#include <cstdint>
+
 using UdpAddress = struct UdpAddress
 {
     uint8_t host[16] = {0};

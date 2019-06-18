@@ -206,6 +206,22 @@ using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure
     uint32_t packet_throttle_deceleration;
 };
 
+using UdpProtocolType = union UdpProtocolType
+{
+    UdpProtocolCommandHeader header;
+    UdpProtocolAcknowledge acknowledge;
+    UdpProtocolConnect connect;
+    UdpProtocolVerifyConnect verify_connect;
+    UdpProtocolDisconnect disconnect;
+    UdpProtocolPing ping;
+    UdpProtocolSendReliable send_reliable;
+    UdpProtocolSendUnreliable send_unreliable;
+    UdpProtocolSendUnsequenced send_unsequenced;
+    UdpProtocolSendFragment send_fragment;
+    UdpProtocolBandwidthLimit bandwidth_limit;
+    UdpProtocolThrottleConfigure throttle_configure;
+};
+
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
 // TODO: 引数が「A is less than B」の順序になるようにする

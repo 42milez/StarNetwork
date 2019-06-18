@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPPACKETFLAG_H
 #define P2P_TECHDEMO_RUDPPACKETFLAG_H
 
+#include <cstdint>
+
 enum class UdpPacketFlag : uint32_t
 {
     // packet must be received by the target peer and

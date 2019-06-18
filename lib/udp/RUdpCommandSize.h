@@ -1,6 +1,10 @@
 #ifndef P2P_TECHDEMO_RUDPCOMMANDSIZE_H
 #define P2P_TECHDEMO_RUDPCOMMANDSIZE_H
 
+#include <array>
+
+#include "RUdpCommon.h"
+
 constexpr std::array<size_t, 13> command_sizes{
     0,
     sizeof(UdpProtocolAcknowledge),

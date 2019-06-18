@@ -1,4 +1,6 @@
-#include "RudpAddress.h"
+#include "RUdpAddress.h"
+
+#include <cstring>
 
 UdpAddress::UdpAddress() : port(0), wildcard(0)
 {

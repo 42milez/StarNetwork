@@ -481,7 +481,7 @@ UdpCommandPod::clear_sent_unreliable_command()
 }
 
 int
-UdpCommandPod::check_timeouts(const std::unique_ptr<UdpEvent> &event, const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time)
+UdpCommandPod::check_timeouts(const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time)
 {
     auto current_command = _sent_reliable_commands.begin();
 

@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPPEERNET_H
 #define P2P_TECHDEMO_RUDPPEERNET_H
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "RUdpPeerState.h"
 

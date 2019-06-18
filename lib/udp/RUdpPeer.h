@@ -9,6 +9,7 @@
 #include "RUdpAcknowledgement.h"
 #include "RUdpChamber.h"
 #include "RUdpChannel.h"
+#include "RUdpCommand.h"
 #include "RUdpCommandPod.h"
 #include "RUdpCommon.h"
 #include "RUdpPacket.h"

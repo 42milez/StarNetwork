@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPCHANNEL_H
 #define P2P_TECHDEMO_RUDPCHANNEL_H
 
+#include "RUdpCommand.h"
+
 using UdpChannel = struct UdpChannel
 {
     uint16_t outgoing_reliable_sequence_number;

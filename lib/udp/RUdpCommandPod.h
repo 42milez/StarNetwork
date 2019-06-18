@@ -1,6 +1,14 @@
 #ifndef P2P_TECHDEMO_RUDPCOMMANDPOD_H
 #define P2P_TECHDEMO_RUDPCOMMANDPOD_H
 
+#include <list>
+#include <memory>
+
+#include "RUdpChamber.h"
+#include "RUdpChannel.h"
+#include "RUdpCommand.h"
+#include "RUdpPeerNet.h"
+
 class UdpCommandPod
 {
 private:
@@ -91,7 +99,7 @@ public:
 
     void clear_sent_unreliable_command();
 
-    int check_timeouts(const std::unique_ptr<UdpEvent> &event, const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time);
+    int check_timeouts(const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time);
 
     void remove_sent_unreliable_commands();
 };

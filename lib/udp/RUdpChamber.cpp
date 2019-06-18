@@ -1,4 +1,6 @@
 #include "RUdpChamber.h"
+#include "RUdpCommandSize.h"
+#include "RUdpProtocol.h"
 
 UdpChamber::UdpChamber() : _continue_sending(false),
                            _header_flags(0),

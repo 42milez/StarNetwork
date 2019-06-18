@@ -1,6 +1,11 @@
 #ifndef P2P_TECHDEMO_RUDPDISPATCHQUEUE_H
 #define P2P_TECHDEMO_RUDPDISPATCHQUEUE_H
 
+#include <memory>
+#include <queue>
+
+#include "RUdpPeer.h"
+
 class UdpDispatchQueue
 {
 private:

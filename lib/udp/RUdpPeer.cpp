@@ -1,3 +1,5 @@
+#include "core/hash.h"
+
 #include "RUdpPeer.h"
 
 void

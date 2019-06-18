@@ -3,8 +3,8 @@
 
 #include <vector>
 
+#include "RUdpCommon.h"
 #include "RUdpPacket.h"
-#include "RUdpProtocol.h"
 
 using UdpIncomingCommand = struct UdpIncomingCommand
 {

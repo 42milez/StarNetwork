@@ -1,6 +1,10 @@
 #ifndef P2P_TECHDEMO_RUDPCHAMBER_H
 #define P2P_TECHDEMO_RUDPCHAMBER_H
 
+#include "RUdpBuffer.h"
+#include "RUdpCommand.h"
+#include "RUdpCommon.h"
+
 class UdpChamber
 {
 private:
