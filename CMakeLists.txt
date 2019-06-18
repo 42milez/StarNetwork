@@ -78,7 +78,7 @@ find_package(ZLIB CONFIG REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_subdirectory(core)
-add_subdirectory(lib/udp)
+add_subdirectory(lib/rudp)
 add_subdirectory(module/networking)
 
 add_subdirectory(engine/base)
@@ -91,5 +91,5 @@ add_subdirectory(auth_server)
 # --------------------------------------------------
 
 add_subdirectory(test/core/io)
-add_subdirectory(test/lib/udp)
+add_subdirectory(test/lib/rudp)
 add_subdirectory(test/module/networking)
