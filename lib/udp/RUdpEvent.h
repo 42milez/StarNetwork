@@ -1,6 +1,9 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
+#include "RUdpEventType.h"
+#include "RUdpPeer.h"
+
 using UdpEvent = struct UdpEvent
 {
     UdpEventType type;

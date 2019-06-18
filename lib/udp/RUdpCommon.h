@@ -1,7 +1,13 @@
-#ifndef P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
-#define P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
+#ifndef P2P_TECHDEMO_LIB_UDP_UDP_H
+#define P2P_TECHDEMO_LIB_UDP_UDP_H
 
-#include <array>
+#include <functional>
+#include <memory>
+#include <queue>
+#include <vector>
+
+#include "core/errors.h"
+#include "core/io/socket.h"
 
 constexpr uint8_t PROTOCOL_COMMAND_NONE = 0;
 constexpr uint8_t PROTOCOL_COMMAND_ACKNOWLEDGE = 1;
@@ -34,6 +40,53 @@ constexpr uint16_t PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32;
 constexpr uint16_t PROTOCOL_MAXIMUM_PEER_ID = 0xFFF;
 constexpr int PROTOCOL_MAXIMUM_WINDOW_SIZE = 65536;
 constexpr int PROTOCOL_FRAGMENT_COUNT = 1024 * 1024;
+
+constexpr int BUFFER_MAXIMUM = 1 + 2 * PROTOCOL_MAXIMUM_PACKET_COMMANDS;
+
+constexpr int HOST_BANDWIDTH_THROTTLE_INTERVAL = 1000;
+constexpr int HOST_DEFAULT_MAXIMUM_PACKET_SIZE = 32 * 1024 * 1024;
+constexpr int HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024;
+constexpr int HOST_DEFAULT_MTU = 1400;
+
+constexpr int PEER_DEFAULT_PACKET_THROTTLE = 32;
+constexpr int PEER_DEFAULT_ROUND_TRIP_TIME = 500;
+constexpr int PEER_FREE_RELIABLE_WINDOWS = 8;
+constexpr int PEER_PACKET_LOSS_INTERVAL = 10000;
+constexpr int PEER_PACKET_LOSS_SCALE = 32;
+constexpr int PEER_PACKET_THROTTLE_ACCELERATION = 2;
+constexpr int PEER_PACKET_THROTTLE_DECELERATION = 2;
+constexpr int PEER_PACKET_THROTTLE_INTERVAL = 5000;
+constexpr int PEER_PACKET_THROTTLE_COUNTER = 7;
+constexpr int PEER_PACKET_THROTTLE_SCALE = 32;
+constexpr int PEER_PING_INTERVAL = 500;
+constexpr int PEER_RELIABLE_WINDOW_SIZE = 0x1000;
+constexpr int PEER_RELIABLE_WINDOWS = 16;
+constexpr int PEER_TIMEOUT_LIMIT = 32;
+constexpr int PEER_TIMEOUT_MINIMUM = 5000;
+constexpr int PEER_TIMEOUT_MAXIMUM = 30000;
+constexpr int PEER_UNSEQUENCED_WINDOW_SIZE = 1024;
+constexpr int PEER_WINDOW_SIZE_SCALE = 64 * 1024;
+
+constexpr uint32_t SOCKET_WAIT_NONE = 0;
+constexpr uint32_t SOCKET_WAIT_SEND = (1u << 0u);
+constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
+constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
+
+enum class SysCh : int
+{
+    CONFIG = 1,
+    RELIABLE,
+    UNRELIABLE,
+    MAX
+};
+
+enum class UdpSocketWait : int
+{
+    NONE = 0,
+    SEND = (1u << 0u),
+    RECEIVE = (1u << 1u),
+    INTERRUPT = (1u << 2u)
+};
 
 enum class UdpProtocolCommandFlag : uint32_t
 {
@@ -153,96 +206,22 @@ using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure
     uint32_t packet_throttle_deceleration;
 };
 
-using UdpProtocolType = union UdpProtocolType
-{
-    UdpProtocolCommandHeader header;
-    UdpProtocolAcknowledge acknowledge;
-    UdpProtocolConnect connect;
-    UdpProtocolVerifyConnect verify_connect;
-    UdpProtocolDisconnect disconnect;
-    UdpProtocolPing ping;
-    UdpProtocolSendReliable send_reliable;
-    UdpProtocolSendUnreliable send_unreliable;
-    UdpProtocolSendUnsequenced send_unsequenced;
-    UdpProtocolSendFragment send_fragment;
-    UdpProtocolBandwidthLimit bandwidth_limit;
-    UdpProtocolThrottleConfigure throttle_configure;
-};
+#define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
-class UdpProtocol
-{
-private:
-    std::unique_ptr<UdpDispatchQueue> _dispatch_queue;
+// TODO: 引数が「A is less than B」の順序になるようにする
+#define UDP_TIME_LESS(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW)
+#define UDP_TIME_GREATER(a, b) ((b) - (a) >= UDP_TIME_OVERFLOW)
+#define UDP_TIME_LESS_EQUAL(a, b) (!UDP_TIME_GREATER(a, b))
+#define UDP_TIME_GREATER_EQUAL(a, b) (!UDP_TIME_LESS(a, b))
+#define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
-    std::unique_ptr<UdpChamber> _chamber;
+void
+udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size);
 
-    bool _recalculate_bandwidth_limits;
+uint32_t
+udp_time_get();
 
-    size_t _connected_peers;
+void
+udp_time_set(uint32_t new_time_base);
 
-    size_t _bandwidth_limited_peers;
-
-    uint32_t _bandwidth_throttle_epoch;
-
-public:
-    UdpProtocol();
-
-    void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
-
-    bool
-    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
-
-    void
-    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
-
-    void
-    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
-
-    void
-    notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
-
-    bool recalculate_bandwidth_limits();
-
-    void recalculate_bandwidth_limits(bool val);
-
-    bool continue_sending();
-
-    void continue_sending(bool val);
-
-    std::unique_ptr<UdpChamber> &chamber();
-
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
-
-    void udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
-
-    void udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer);
-
-    void increase_bandwidth_limited_peers();
-
-    void increase_connected_peers();
-
-    void decrease_bandwidth_limited_peers();
-
-    void decrease_connected_peers();
-
-    void connect(const std::shared_ptr<UdpPeer> &peer);
-
-    void disconnect(const std::shared_ptr<UdpPeer> &peer);
-
-    void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
-
-    size_t connected_peers();
-
-    uint32_t bandwidth_throttle_epoch();
-
-    void bandwidth_throttle_epoch(uint32_t val);
-
-    size_t bandwidth_limited_peers();
-
-    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers);
-};
-
-size_t
-udp_protocol_command_size(uint8_t command_number);
-
-#endif // P2P_TECHDEMO_LIB_UDP_PROTOCOL_H
+#endif // P2P_TECHDEMO_LIB_UDP_UDP_H

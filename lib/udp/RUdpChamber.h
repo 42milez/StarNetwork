@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_UDP_CHAMBER_H
-#define P2P_TECHDEMO_UDP_CHAMBER_H
+#ifndef P2P_TECHDEMO_RUDPCHAMBER_H
+#define P2P_TECHDEMO_RUDPCHAMBER_H
 
 class UdpChamber
 {
@@ -67,4 +67,4 @@ public:
     int write(std::vector<uint8_t> &out);
 };
 
-#endif // P2P_TECHDEMO_UDP_CHAMBER_H
+#endif // P2P_TECHDEMO_RUDPCHAMBER_H

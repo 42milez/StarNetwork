@@ -1,4 +1,5 @@
-#include "peer_pod.h"
+#include "RUdpPeerNet.h"
+#include "RUdpPeerPod.h"
 
 std::shared_ptr<UdpPeer>
 UdpPeerPod::available_peer_exists()

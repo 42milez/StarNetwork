@@ -5,7 +5,7 @@
 #include "core/singleton.h"
 #include "core/string.h"
 #include "core/io/compression.h"
-#include "lib/udp/compress.h"
+#include "lib/udp/RUdpCompress.h"
 #include "transporter.h"
 
 size_t

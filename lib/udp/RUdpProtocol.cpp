@@ -1,4 +1,7 @@
-#include "protocol.h"
+#include "RUdpChannel.h"
+#include "RUdpCommandSize.h"
+#include "RUdpCommon.h"
+#include "RUdpProtocol.h"
 
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)

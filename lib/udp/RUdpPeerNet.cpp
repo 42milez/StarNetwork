@@ -1,4 +1,5 @@
-#include "peer_net.h"
+#include "RUdpCommon.h"
+#include "RUdpPeerNet.h"
 
 UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
                            _packet_throttle(0),

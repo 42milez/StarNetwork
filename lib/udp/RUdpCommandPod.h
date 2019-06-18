@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_UDP_COMMAND_POD_H
-#define P2P_TECHDEMO_UDP_COMMAND_POD_H
+#ifndef P2P_TECHDEMO_RUDPCOMMANDPOD_H
+#define P2P_TECHDEMO_RUDPCOMMANDPOD_H
 
 class UdpCommandPod
 {
@@ -96,4 +96,4 @@ public:
     void remove_sent_unreliable_commands();
 };
 
-#endif // P2P_TECHDEMO_UDP_COMMAND_POD_H
+#endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H

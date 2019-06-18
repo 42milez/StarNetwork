@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_UDP_PACKET_H
-#define P2P_TECHDEMO_UDP_PACKET_H
+#ifndef P2P_TECHDEMO_RUDPPACKET_H
+#define P2P_TECHDEMO_RUDPPACKET_H
 
 #include <functional>
 
@@ -29,4 +29,4 @@ public:
     void destroy();
 };
 
-#endif // P2P_TECHDEMO_UDP_PACKET_H
+#endif // P2P_TECHDEMO_RUDPPACKET_H

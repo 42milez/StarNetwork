@@ -1,5 +1,18 @@
-#ifndef P2P_TECHDEMO_UDP_PEER_H
-#define P2P_TECHDEMO_UDP_PEER_H
+#ifndef P2P_TECHDEMO_RUDPPEER_H
+#define P2P_TECHDEMO_RUDPPEER_H
+
+#include <list>
+#include <memory>
+#include <queue>
+
+#include "RUdpAddress.h"
+#include "RUdpAcknowledgement.h"
+#include "RUdpChamber.h"
+#include "RUdpChannel.h"
+#include "RUdpCommandPod.h"
+#include "RUdpCommon.h"
+#include "RUdpPacket.h"
+#include "RUdpPeerNet.h"
 
 class UdpPeer
 {
@@ -137,4 +150,4 @@ public:
     void clear_channel();
 };
 
-#endif // P2P_TECHDEMO_UDP_PEER_H
+#endif // P2P_TECHDEMO_RUDPPEER_H

@@ -1,5 +1,9 @@
-#ifndef P2P_TECHDEMO_UDP_PEER_NET_H
-#define P2P_TECHDEMO_UDP_PEER_NET_H
+#ifndef P2P_TECHDEMO_RUDPPEERNET_H
+#define P2P_TECHDEMO_RUDPPEERNET_H
+
+#include <stdint.h>
+
+#include "RUdpPeerState.h"
 
 class UdpPeerNet
 {
@@ -120,4 +124,4 @@ public:
     bool exceeds_packet_throttle_counter();
 };
 
-#endif // P2P_TECHDEMO_UDP_PEER_NET_H
+#endif // P2P_TECHDEMO_RUDPPEERNET_H

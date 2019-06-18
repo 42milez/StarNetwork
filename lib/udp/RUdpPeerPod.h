@@ -1,5 +1,13 @@
-#ifndef P2P_TECHDEMO_UDP_PEER_POD_H
-#define P2P_TECHDEMO_UDP_PEER_POD_H
+#ifndef P2P_TECHDEMO_RUDPPEERPOD_H
+#define P2P_TECHDEMO_RUDPPEERPOD_H
+
+#include <vector>
+
+#include "RUdpChecksum.h"
+#include "RUdpCompressor.h"
+#include "RUdpHost.h"
+#include "RUdpPeer.h"
+#include "RUdpProtocol.h"
 
 class UdpPeerPod
 {
@@ -40,4 +48,4 @@ public:
     std::unique_ptr<UdpProtocol> &protocol();
 };
 
-#endif // P2P_TECHDEMO_UDP_PEER_POD_H
+#endif // P2P_TECHDEMO_RUDPPEERPOD_H
