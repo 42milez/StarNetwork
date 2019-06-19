@@ -7,7 +7,7 @@
 #include "RUdpConnection.h"
 #include "RUdpPeerPod.h"
 
-class UdpHost
+class RUdpHost
 {
 private:
     std::vector<uint8_t> _received_data;
@@ -39,7 +39,7 @@ private:
     std::shared_ptr<RUdpConnection> _conn;
 
 public:
-    UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
+    RUdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
     Error
     udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data);

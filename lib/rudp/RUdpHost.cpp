@@ -26,7 +26,7 @@ namespace
 }
 
 Error
-UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data)
+RUdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data)
 {
     auto peer = _peer_pod->available_peer_exists();
 
@@ -39,7 +39,7 @@ UdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32
 }
 
 int
-UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
+RUdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 {
 #define CHECK_RETURN_VALUE(val) \
     if (val == 1)               \
@@ -123,7 +123,7 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
     return 0;
 }
 
-UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
+RUdpHost::RUdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
@@ -147,7 +147,7 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
 }
 
 uint32_t
-UdpHost::service_time()
+RUdpHost::service_time()
 {
     return _service_time;
 }
