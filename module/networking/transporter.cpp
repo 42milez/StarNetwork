@@ -5,7 +5,11 @@
 #include "core/singleton.h"
 #include "core/string.h"
 #include "core/io/compression.h"
-#include "lib/udp/RUdpCompress.h"
+
+#include "lib/rudp/RUdpAddress.h"
+#include "lib/rudp/RUdpBuffer.h"
+#include "lib/rudp/RUdpHost.h"
+
 #include "transporter.h"
 
 size_t
@@ -127,13 +131,13 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
     }
     else
     {
-        udp_address_set_ip(address, _bind_ip.get_ipv6(), 16);
+        address.set_ip(_bind_ip.get_ipv6(), 16);
     }
 #else
     if (!_bind_ip.is_wildcard())
     {
         ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-        udp_address_set_ip(address, _bind_ip.get_ipv4(), 8);
+        address.set_ip(_bind_ip.get_ipv4(), 8);
     }
 #endif
 
@@ -174,13 +178,13 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
         }
         else
         {
-            udp_address_set_ip(client, _bind_ip.get_ipv6(), 16);
+            address.set_ip(client, _bind_ip.get_ipv6(), 16);
         }
 #else
         if (!_bind_ip.is_wildcard())
         {
             ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            udp_address_set_ip(client_address, _bind_ip.get_ipv4(), 8);
+            client_address.set_ip(_bind_ip.get_ipv4(), 8);
         }
 #endif
         client_address.port = client_port;
@@ -216,7 +220,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
     UdpAddress udp_address;
 
 #ifdef P2P_TECHDEMO_IPV6
-    udp_address_set_ip(address, ip.get_ipv6(), 16);
+    address.set_ip(ip.get_ipv6(), 16);
 #else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
     memcpy(udp_address.host, ip.get_ipv4(), sizeof(udp_address.host));

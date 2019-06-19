@@ -231,9 +231,6 @@ using UdpProtocolType = union UdpProtocolType
 #define UDP_TIME_GREATER_EQUAL(a, b) (!UDP_TIME_LESS(a, b))
 #define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
-void
-udp_address_set_ip(UdpAddress &address, const uint8_t *ip, size_t size);
-
 uint32_t
 udp_time_get();
 
