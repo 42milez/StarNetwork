@@ -5,7 +5,6 @@
 
 #include "RUdpChecksum.h"
 #include "RUdpCompressor.h"
-#include "RUdpHost.h"
 #include "RUdpPeer.h"
 #include "RUdpProtocol.h"
 
@@ -21,8 +20,6 @@ private:
     UdpChecksumCallback _checksum;
 
     std::shared_ptr<UdpCompressor> _compressor;
-
-    std::shared_ptr<UdpHost> _host;
 
     uint32_t _total_sent_data;
 

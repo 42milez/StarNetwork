@@ -6,6 +6,7 @@
 #include "core/io/socket.h"
 
 #include "RUdpAddress.h"
+#include "RUdpPeerPod.h"
 
 class UdpHost
 {
