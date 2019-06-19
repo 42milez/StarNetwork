@@ -182,10 +182,7 @@ UdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
     return 0;
 }
 
-UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
-    :
-
-
+UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
@@ -197,17 +194,9 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
     _received_data_length(0),
     _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {
-    _socket = std::make_unique<Socket>();
-    _socket->open(Socket::Type::UDP, IP::Type::ANY);
-    _socket->set_blocking_enabled(false);
+    _conn = std::make_shared<RUdpConnection>(address);
 
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
-    {
-        // throw exception
-        // ...
-    }
-
-    if (_socket == nullptr || (_udp_socket_bind(_socket, address) != Error::OK))
     {
         // throw exception
         // ...
@@ -220,43 +209,4 @@ uint32_t
 UdpHost::service_time()
 {
     return _service_time;
-}
-
-Error
-UdpHost::_udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address)
-{
-    IpAddress ip{};
-
-    if (address.wildcard)
-        ip = IpAddress("*");
-    else
-        ip.set_ipv6(address.host);
-
-    return socket->bind(ip, address.port);
-}
-
-ssize_t
-UdpHost::_udp_socket_send(const UdpAddress &address)
-{
-    IpAddress dest;
-
-    dest.set_ipv6(address.host);
-
-    std::vector<uint8_t> out;
-
-    auto size = _peer_pod->protocol()->chamber()->write(out);
-
-    ssize_t sent = 0;
-
-    auto err = _socket->sendto(out, size, sent, dest, address.port);
-
-    if (err != Error::OK)
-    {
-        if (err == Error::ERR_BUSY)
-            return 0;
-
-        return -1;
-    }
-
-    return sent;
 }

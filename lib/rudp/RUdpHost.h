@@ -3,9 +3,8 @@
 
 #include <vector>
 
-#include "core/io/socket.h"
-
 #include "RUdpAddress.h"
+#include "RUdpConnection.h"
 #include "RUdpPeerPod.h"
 
 class UdpHost
@@ -16,8 +15,6 @@ private:
     std::vector<std::vector<uint8_t>> _packet_data;
 
     std::unique_ptr<UdpAddress> _received_address;
-
-    std::unique_ptr<Socket> _socket;
 
     size_t _received_data_length;
 
@@ -39,6 +36,8 @@ private:
 
     std::unique_ptr<UdpPeerPod> _peer_pod;
 
+    std::shared_ptr<RUdpConnection> _conn;
+
 public:
     UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
@@ -49,10 +48,6 @@ public:
     udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
 
     uint32_t service_time();
-
-    Error _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
-
-    ssize_t _udp_socket_send(const UdpAddress &address);
 };
 
 #endif // P2P_TECHDEMO_RUDPHOST_H

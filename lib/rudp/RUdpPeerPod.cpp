@@ -13,7 +13,7 @@ UdpPeerPod::available_peer_exists()
     return nullptr;
 }
 
-UdpPeerPod::UdpPeerPod(size_t peer_count) :
+UdpPeerPod::UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn) :
     _peers(peer_count),
     _peer_count(peer_count),
     _compressor(std::make_shared<UdpCompressor>()),
@@ -21,7 +21,8 @@ UdpPeerPod::UdpPeerPod(size_t peer_count) :
     _total_received_data(0),
     _total_received_packets(0),
     _total_sent_data(0),
-    _total_sent_packets(0)
+    _total_sent_packets(0),
+    _conn(conn)
 {
     for (auto &peer : _peers)
         peer->reset();
@@ -172,7 +173,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
             peer->net()->last_send_time(service_time);
 
-            auto sent_length = _host->_udp_socket_send(peer->address());
+            auto sent_length = _conn->send(peer->address());
 
             peer->command()->remove_sent_unreliable_commands();
 

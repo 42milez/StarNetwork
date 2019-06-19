@@ -5,6 +5,7 @@
 
 #include "RUdpChecksum.h"
 #include "RUdpCompressor.h"
+#include "RUdpConnection.h"
 #include "RUdpPeer.h"
 #include "RUdpProtocol.h"
 
@@ -29,8 +30,10 @@ private:
 
     uint32_t _total_received_packets;
 
+    std::shared_ptr<RUdpConnection> _conn;
+
 public:
-    UdpPeerPod(size_t peer_count);
+    UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
 
     std::shared_ptr<UdpPeer> available_peer_exists();
 
