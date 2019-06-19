@@ -60,7 +60,7 @@ private:
 
     std::unique_ptr<RUdpCommandPod> _command_pod;
 
-    std::vector<std::shared_ptr<UdpChannel>> _channels;
+    std::vector<std::shared_ptr<RUdpChannel>> _channels;
 
 public:
     RUdpPeer();

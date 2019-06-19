@@ -1,7 +1,7 @@
 #include "RUdpChannel.h"
 #include "RUdpCommon.h"
 
-UdpChannel::UdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
+RUdpChannel::RUdpChannel() : reliable_windows(PEER_RELIABLE_WINDOWS),
                            outgoing_reliable_sequence_number(0),
                            outgoing_unreliable_seaquence_number(0),
                            incoming_reliable_sequence_number(0),

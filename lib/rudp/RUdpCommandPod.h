@@ -55,7 +55,7 @@ public:
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                              std::unique_ptr<RUdpPeerNet> &net,
-                                             const std::vector<std::shared_ptr<UdpChannel>> &channels,
+                                             const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                              uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,

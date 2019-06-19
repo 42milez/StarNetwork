@@ -5,7 +5,7 @@
 namespace
 {
     bool
-    window_wraps(const std::shared_ptr<UdpChannel> &channel,
+    window_wraps(const std::shared_ptr<RUdpChannel> &channel,
                  int reliable_window,
                  const std::shared_ptr<OutgoingCommand> &outgoing_command)
     {
@@ -66,7 +66,7 @@ RUdpCommandPod::RUdpCommandPod() :
 void
 RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
-    UdpChannel channel;
+    RUdpChannel channel;
 
     _outgoing_data_total +=
         command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK] + outgoing_command->fragment_length;
@@ -134,7 +134,7 @@ RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> 
 bool
 RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                                    std::unique_ptr<RUdpPeerNet> &net,
-                                                   const std::vector<std::shared_ptr<UdpChannel>> &channels,
+                                                   const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                                    uint32_t service_time)
 {
     auto *command = chamber->command_insert_pos();

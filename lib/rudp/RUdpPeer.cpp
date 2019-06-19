@@ -81,7 +81,7 @@ RUdpPeer::is_disconnected()
 Error
 RUdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
-    _channels = std::move(std::vector<std::shared_ptr<UdpChannel>>(static_cast<int>(channel_count)));
+    _channels = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
 
     if (_channels.empty())
         return Error::CANT_CREATE;

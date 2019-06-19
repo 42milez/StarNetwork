@@ -3,7 +3,7 @@
 
 #include "RUdpCommand.h"
 
-using UdpChannel = struct UdpChannel
+using RUdpChannel = struct RUdpChannel
 {
     uint16_t outgoing_reliable_sequence_number;
 
@@ -20,7 +20,7 @@ using UdpChannel = struct UdpChannel
 
     std::list<IncomingCommand> incoming_unreliable_commands;
 
-    UdpChannel();
+    RUdpChannel();
 };
 
 #endif //P2P_TECHDEMO_RUDPCHANNEL_H

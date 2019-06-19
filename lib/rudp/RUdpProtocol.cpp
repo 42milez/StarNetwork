@@ -229,7 +229,7 @@ RUdpProtocol::udp_peer_reset(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpProtocol::udp_peer_reset_queues(const std::shared_ptr<RUdpPeer> &peer)
 {
-    std::unique_ptr<UdpChannel> channel;
+    std::unique_ptr<RUdpChannel> channel;
 
     if (peer->needs_dispatch())
         peer->needs_dispatch(false);
