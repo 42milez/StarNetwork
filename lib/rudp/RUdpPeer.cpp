@@ -161,7 +161,7 @@ UdpPeer::pop_acknowledgement()
     return acknowledgement;
 }
 
-const std::unique_ptr<UdpPeerNet> &
+const std::unique_ptr<RUdpPeerNet> &
 UdpPeer::net()
 {
     return _net;

@@ -133,7 +133,7 @@ UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand
 
 bool
 UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                                   std::unique_ptr<UdpPeerNet> &net,
+                                                   std::unique_ptr<RUdpPeerNet> &net,
                                                    const std::vector<std::shared_ptr<UdpChannel>> &channels,
                                                    uint32_t service_time)
 {
@@ -267,7 +267,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
 
 bool
 UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                                     std::unique_ptr<UdpPeerNet> &net)
+                                                     std::unique_ptr<RUdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();
@@ -445,7 +445,7 @@ UdpCommandPod::next_timeout(uint32_t val)
 }
 
 void
-UdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<UdpPeerNet> &net)
+UdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
 {
     _sent_reliable_commands.push_back(command);
 
@@ -483,7 +483,7 @@ UdpCommandPod::clear_sent_unreliable_command()
 }
 
 int
-UdpCommandPod::check_timeouts(const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time)
+UdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
 {
     auto current_command = _sent_reliable_commands.begin();
 

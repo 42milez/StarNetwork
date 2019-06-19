@@ -1,7 +1,7 @@
 #include "RUdpCommon.h"
 #include "RUdpPeerNet.h"
 
-UdpPeerNet::UdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
+RUdpPeerNet::RUdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
                            _packet_throttle(0),
                            _packet_throttle_limit(0),
                            _packet_throttle_counter(0),
@@ -24,7 +24,7 @@ UdpPeerNet::UdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
 {}
 
 void
-UdpPeerNet::setup()
+RUdpPeerNet::setup()
 {
     _state = RUdpPeerState::CONNECTING;
 
@@ -41,140 +41,140 @@ UdpPeerNet::setup()
 }
 
 void
-UdpPeerNet::state(const RUdpPeerState &state)
+RUdpPeerNet::state(const RUdpPeerState &state)
 {
     _state = state;
 }
 
 uint32_t
-UdpPeerNet::mtu()
+RUdpPeerNet::mtu()
 {
     return _mtu;
 }
 
 bool
-UdpPeerNet::state_is(RUdpPeerState state)
+RUdpPeerNet::state_is(RUdpPeerState state)
 {
     return _state == state;
 }
 
 bool
-UdpPeerNet::state_is_ge(RUdpPeerState state)
+RUdpPeerNet::state_is_ge(RUdpPeerState state)
 {
     return _state >= state;
 }
 
 bool
-UdpPeerNet::state_is_lt(RUdpPeerState state)
+RUdpPeerNet::state_is_lt(RUdpPeerState state)
 {
     return _state < state;
 }
 
 uint32_t
-UdpPeerNet::incoming_bandwidth()
+RUdpPeerNet::incoming_bandwidth()
 {
     return _incoming_bandwidth;
 }
 
 uint32_t
-UdpPeerNet::outgoing_bandwidth()
+RUdpPeerNet::outgoing_bandwidth()
 {
     return _outgoing_bandwidth;
 }
 
 uint32_t
-UdpPeerNet::incoming_bandwidth_throttle_epoch()
+RUdpPeerNet::incoming_bandwidth_throttle_epoch()
 {
     return _incoming_bandwidth_throttle_epoch;
 }
 
 void
-UdpPeerNet::incoming_bandwidth_throttle_epoch(uint32_t val)
+RUdpPeerNet::incoming_bandwidth_throttle_epoch(uint32_t val)
 {
     _incoming_bandwidth_throttle_epoch = val;
 }
 
 
 uint32_t
-UdpPeerNet::outgoing_bandwidth_throttle_epoch()
+RUdpPeerNet::outgoing_bandwidth_throttle_epoch()
 {
     return _outgoing_bandwidth_throttle_epoch;
 }
 
 void
-UdpPeerNet::outgoing_bandwidth_throttle_epoch(uint32_t val)
+RUdpPeerNet::outgoing_bandwidth_throttle_epoch(uint32_t val)
 {
     _outgoing_bandwidth_throttle_epoch = val;
 }
 
 uint32_t
-UdpPeerNet::packet_throttle_limit()
+RUdpPeerNet::packet_throttle_limit()
 {
     return _packet_throttle_limit;
 }
 
 void
-UdpPeerNet::packet_throttle_limit(uint32_t val)
+RUdpPeerNet::packet_throttle_limit(uint32_t val)
 {
     _packet_throttle_limit = val;
 }
 
 uint32_t
-UdpPeerNet::packet_throttle()
+RUdpPeerNet::packet_throttle()
 {
     return _packet_throttle;
 }
 
 void
-UdpPeerNet::packet_throttle(uint32_t val)
+RUdpPeerNet::packet_throttle(uint32_t val)
 {
     _packet_throttle = val;
 }
 
 uint32_t
-UdpPeerNet::packet_loss_epoch()
+RUdpPeerNet::packet_loss_epoch()
 {
     return _packet_loss_epoch;
 }
 
 void
-UdpPeerNet::packet_loss_epoch(uint32_t val)
+RUdpPeerNet::packet_loss_epoch(uint32_t val)
 {
     _packet_loss_epoch = val;
 }
 
 uint32_t
-UdpPeerNet::packets_lost()
+RUdpPeerNet::packets_lost()
 {
     return _packets_lost;
 }
 
 uint32_t
-UdpPeerNet::packet_loss()
+RUdpPeerNet::packet_loss()
 {
     return _packet_loss;
 }
 
 uint32_t
-UdpPeerNet::packet_loss_variance()
+RUdpPeerNet::packet_loss_variance()
 {
     return _packet_loss_variance;
 }
 
 bool
-UdpPeerNet::exceeds_packet_loss_interval(uint32_t service_time)
+RUdpPeerNet::exceeds_packet_loss_interval(uint32_t service_time)
 {
     return UDP_TIME_DIFFERENCE(service_time, _packet_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL;
 }
 
 uint32_t
-UdpPeerNet::packets_sent()
+RUdpPeerNet::packets_sent()
 {
     return _packets_sent;
 }
 
 void
-UdpPeerNet::calculate_packet_loss(uint32_t service_time)
+RUdpPeerNet::calculate_packet_loss(uint32_t service_time)
 {
     uint32_t packet_loss = _packets_lost * PEER_PACKET_LOSS_SCALE / _packets_sent;
 
@@ -197,13 +197,13 @@ UdpPeerNet::calculate_packet_loss(uint32_t service_time)
 }
 
 void
-UdpPeerNet::last_send_time(uint32_t service_time)
+RUdpPeerNet::last_send_time(uint32_t service_time)
 {
     _last_send_time = service_time;
 }
 
 void
-UdpPeerNet::reset()
+RUdpPeerNet::reset()
 {
     _state = RUdpPeerState::DISCONNECTED;
     _last_send_time = 0;
@@ -228,56 +228,56 @@ UdpPeerNet::reset()
 }
 
 uint32_t
-UdpPeerNet::window_size()
+RUdpPeerNet::window_size()
 {
     return _window_size;
 }
 
 void
-UdpPeerNet::window_size(uint32_t val)
+RUdpPeerNet::window_size(uint32_t val)
 {
     _window_size = val;
 }
 
 uint32_t
-UdpPeerNet::packet_throttle_interval()
+RUdpPeerNet::packet_throttle_interval()
 {
     return _packet_throttle_interval;
 }
 
 uint32_t
-UdpPeerNet::packet_throttle_acceleration()
+RUdpPeerNet::packet_throttle_acceleration()
 {
     return _packet_throttle_acceleration;
 }
 
 uint32_t
-UdpPeerNet::packet_throttle_deceleration()
+RUdpPeerNet::packet_throttle_deceleration()
 {
     return _packet_throttle_deceleration;
 }
 
 void
-UdpPeerNet::increase_packets_lost(uint32_t val)
+RUdpPeerNet::increase_packets_lost(uint32_t val)
 {
     _packets_lost += val;
 }
 
 void
-UdpPeerNet::increase_packets_sent(uint32_t val)
+RUdpPeerNet::increase_packets_sent(uint32_t val)
 {
     _packets_sent += val;
 }
 
 void
-UdpPeerNet::update_packet_throttle_counter()
+RUdpPeerNet::update_packet_throttle_counter()
 {
     _packet_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
     _packet_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
 }
 
 bool
-UdpPeerNet::exceeds_packet_throttle_counter()
+RUdpPeerNet::exceeds_packet_throttle_counter()
 {
     return _packet_throttle_counter > _packet_throttle;
 }

@@ -5,7 +5,7 @@
 
 #include "RUdpPeerState.h"
 
-class UdpPeerNet
+class RUdpPeerNet
 {
 private:
     RUdpPeerState _state;
@@ -49,7 +49,7 @@ private:
     uint32_t _last_send_time;
 
 public:
-    UdpPeerNet();
+    RUdpPeerNet();
 
     uint32_t mtu();
 

@@ -54,12 +54,12 @@ public:
     void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                             std::unique_ptr<UdpPeerNet> &net,
+                                             std::unique_ptr<RUdpPeerNet> &net,
                                              const std::vector<std::shared_ptr<UdpChannel>> &channels,
                                              uint32_t service_time);
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
-                                               std::unique_ptr<UdpPeerNet> &net);
+                                               std::unique_ptr<RUdpPeerNet> &net);
 
     uint32_t outgoing_data_total();
 
@@ -87,7 +87,7 @@ public:
 
     void reliable_data_in_transit(uint32_t val);
 
-    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<UdpPeerNet> &net);
+    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
 
     void sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
 
@@ -99,7 +99,7 @@ public:
 
     void clear_sent_unreliable_command();
 
-    int check_timeouts(const std::unique_ptr<UdpPeerNet> &net, uint32_t service_time);
+    int check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
 
     void remove_sent_unreliable_commands();
 };

@@ -18,7 +18,7 @@
 class UdpPeer
 {
 private:
-    std::unique_ptr<UdpPeerNet> _net;
+    std::unique_ptr<RUdpPeerNet> _net;
 
     uint16_t _outgoing_peer_id;
 
@@ -128,7 +128,7 @@ public:
 
     void packet_throttle(uint32_t val);
 
-    const std::unique_ptr<UdpPeerNet> &net();
+    const std::unique_ptr<RUdpPeerNet> &net();
 
     const std::unique_ptr<UdpCommandPod> &command();
 
