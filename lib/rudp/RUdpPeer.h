@@ -58,7 +58,7 @@ private:
 
     size_t _total_waiting_data;
 
-    std::unique_ptr<UdpCommandPod> _command_pod;
+    std::unique_ptr<RUdpCommandPod> _command_pod;
 
     std::vector<std::shared_ptr<UdpChannel>> _channels;
 
@@ -130,7 +130,7 @@ public:
 
     const std::unique_ptr<RUdpPeerNet> &net();
 
-    const std::unique_ptr<UdpCommandPod> &command();
+    const std::unique_ptr<RUdpCommandPod> &command();
 
     bool exceeds_ping_interval(uint32_t service_time);
 

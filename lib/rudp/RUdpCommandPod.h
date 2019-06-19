@@ -9,7 +9,7 @@
 #include "RUdpCommand.h"
 #include "RUdpPeerNet.h"
 
-class UdpCommandPod
+class RUdpCommandPod
 {
 private:
     std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_reliable_commands;
@@ -47,7 +47,7 @@ private:
     uint32_t _timeout_maximum;
 
 public:
-    UdpCommandPod();
+    RUdpCommandPod();
 
     void setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
 

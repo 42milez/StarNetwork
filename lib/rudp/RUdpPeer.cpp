@@ -167,7 +167,7 @@ RUdpPeer::net()
     return _net;
 }
 
-const std::unique_ptr<UdpCommandPod> &
+const std::unique_ptr<RUdpCommandPod> &
 RUdpPeer::command()
 {
     return _command_pod;

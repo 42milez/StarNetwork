@@ -47,7 +47,7 @@ UdpOutgoingCommand::UdpOutgoingCommand() : reliable_sequence_number(0),
                                            send_attempts(0)
 {}
 
-UdpCommandPod::UdpCommandPod() :
+RUdpCommandPod::RUdpCommandPod() :
     _incoming_data_total(0),
     _outgoing_data_total(0),
     _outgoing_reliable_sequence_number(0),
@@ -64,7 +64,7 @@ UdpCommandPod::UdpCommandPod() :
 {}
 
 void
-UdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
+RUdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
 {
     UdpChannel channel;
 
@@ -126,13 +126,13 @@ UdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgo
 }
 
 void
-UdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
 {
     _outgoing_reliable_commands.push_front(command);
 }
 
 bool
-UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                                    std::unique_ptr<RUdpPeerNet> &net,
                                                    const std::vector<std::shared_ptr<UdpChannel>> &channels,
                                                    uint32_t service_time)
@@ -266,7 +266,7 @@ UdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &
 }
 
 bool
-UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                                      std::unique_ptr<RUdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();
@@ -360,50 +360,50 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
 }
 
 uint32_t
-UdpCommandPod::outgoing_data_total()
+RUdpCommandPod::outgoing_data_total()
 {
     return _outgoing_data_total;
 }
 
 void
-UdpCommandPod::outgoing_data_total(uint32_t val)
+RUdpCommandPod::outgoing_data_total(uint32_t val)
 {
     _outgoing_data_total = val;
 }
 
 uint32_t
-UdpCommandPod::next_timeout()
+RUdpCommandPod::next_timeout()
 {
     return _next_timeout;
 }
 
 bool
-UdpCommandPod::outgoing_reliable_command_exists()
+RUdpCommandPod::outgoing_reliable_command_exists()
 {
     return !_outgoing_reliable_commands.empty();
 }
 
 
 bool
-UdpCommandPod::outgoing_unreliable_command_exists()
+RUdpCommandPod::outgoing_unreliable_command_exists()
 {
     return !_outgoing_unreliable_commands.empty();
 }
 
 void
-UdpCommandPod::clear_outgoing_reliable_command()
+RUdpCommandPod::clear_outgoing_reliable_command()
 {
     _outgoing_reliable_commands.clear();
 }
 
 void
-UdpCommandPod::clear_outgoing_unreliable_command()
+RUdpCommandPod::clear_outgoing_unreliable_command()
 {
     _outgoing_unreliable_commands.clear();
 }
 
 void
-UdpCommandPod::reset()
+RUdpCommandPod::reset()
 {
     _incoming_data_total = 0;
     _outgoing_data_total = 0;
@@ -421,31 +421,31 @@ UdpCommandPod::reset()
 }
 
 void
-UdpCommandPod::increse_reliable_data_in_transit(uint32_t val)
+RUdpCommandPod::increse_reliable_data_in_transit(uint32_t val)
 {
     _reliable_data_in_transit += val;
 }
 
 uint32_t
-UdpCommandPod::reliable_data_in_transit()
+RUdpCommandPod::reliable_data_in_transit()
 {
     return _reliable_data_in_transit;
 }
 
 void
-UdpCommandPod::reliable_data_in_transit(uint32_t val)
+RUdpCommandPod::reliable_data_in_transit(uint32_t val)
 {
     _reliable_data_in_transit = val;
 }
 
 void
-UdpCommandPod::next_timeout(uint32_t val)
+RUdpCommandPod::next_timeout(uint32_t val)
 {
     _next_timeout = val;
 }
 
 void
-UdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
+RUdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
 {
     _sent_reliable_commands.push_back(command);
 
@@ -453,37 +453,37 @@ UdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &comman
 }
 
 void
-UdpCommandPod::sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+RUdpCommandPod::sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
 {
     _sent_unreliable_commands.push_back(command);
 }
 
 bool
-UdpCommandPod::sent_reliable_command_exists()
+RUdpCommandPod::sent_reliable_command_exists()
 {
     return !_sent_reliable_commands.empty();
 }
 
 void
-UdpCommandPod::clear_sent_reliable_command()
+RUdpCommandPod::clear_sent_reliable_command()
 {
     _sent_reliable_commands.clear();
 }
 
 bool
-UdpCommandPod::sent_unreliable_command_exists()
+RUdpCommandPod::sent_unreliable_command_exists()
 {
     return !_sent_unreliable_commands.empty();
 }
 
 void
-UdpCommandPod::clear_sent_unreliable_command()
+RUdpCommandPod::clear_sent_unreliable_command()
 {
     _sent_unreliable_commands.clear();
 }
 
 int
-UdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
+RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
 {
     auto current_command = _sent_reliable_commands.begin();
 
@@ -531,7 +531,7 @@ UdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t 
 }
 
 void
-UdpCommandPod::remove_sent_unreliable_commands()
+RUdpCommandPod::remove_sent_unreliable_commands()
 {
     while (!_sent_unreliable_commands.empty())
     {
