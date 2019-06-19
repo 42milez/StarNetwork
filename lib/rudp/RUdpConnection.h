@@ -4,6 +4,7 @@
 #include "core/io/socket.h"
 
 #include "RUdpAddress.h"
+#include "RUdpChamber.h"
 
 class RUdpConnection
 {
