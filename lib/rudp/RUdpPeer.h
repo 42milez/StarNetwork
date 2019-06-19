@@ -93,8 +93,6 @@ public:
 
     std::shared_ptr<RUdpAcknowledgement> pop_acknowledgement();
 
-    uint32_t mtu();
-
     uint32_t event_data();
 
     void event_data(uint32_t val);
