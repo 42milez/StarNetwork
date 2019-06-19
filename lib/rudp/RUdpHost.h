@@ -34,7 +34,7 @@ private:
 
     uint32_t _service_time;
 
-    std::unique_ptr<UdpPeerPod> _peer_pod;
+    std::unique_ptr<RUdpPeerPod> _peer_pod;
 
     std::shared_ptr<RUdpConnection> _conn;
 

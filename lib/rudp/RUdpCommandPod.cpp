@@ -355,7 +355,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     }
 
     // ↑のロジックの結果次第でtrue/falseを返す
-    // udp_peer_disconnect() はUdpPeerPodから呼ぶ
+    // udp_peer_disconnect() はRUdpPeerPodから呼ぶ
     return can_disconnect;
 }
 

@@ -143,7 +143,7 @@ UdpHost::UdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_cou
         // ...
     }
 
-    _peer_pod = std::make_unique<UdpPeerPod>(peer_count);
+    _peer_pod = std::make_unique<RUdpPeerPod>(peer_count);
 }
 
 uint32_t

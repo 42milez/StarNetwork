@@ -9,7 +9,7 @@
 #include "RUdpPeer.h"
 #include "RUdpProtocol.h"
 
-class UdpPeerPod
+class RUdpPeerPod
 {
 private:
     std::vector<std::shared_ptr<UdpPeer>> _peers;
@@ -33,7 +33,7 @@ private:
     std::shared_ptr<RUdpConnection> _conn;
 
 public:
-    UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
+    RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
 
     std::shared_ptr<UdpPeer> available_peer_exists();
 

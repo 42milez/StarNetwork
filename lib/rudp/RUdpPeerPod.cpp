@@ -2,7 +2,7 @@
 #include "RUdpPeerPod.h"
 
 std::shared_ptr<UdpPeer>
-UdpPeerPod::available_peer_exists()
+RUdpPeerPod::available_peer_exists()
 {
     for (auto &peer : _peers)
     {
@@ -13,7 +13,7 @@ UdpPeerPod::available_peer_exists()
     return nullptr;
 }
 
-UdpPeerPod::UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn) :
+RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn) :
     _peers(peer_count),
     _peer_count(peer_count),
     _compressor(std::make_shared<UdpCompressor>()),
@@ -29,7 +29,7 @@ UdpPeerPod::UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn)
 }
 
 int
-UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
+RUdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     uint8_t header_data[sizeof(RUdpProtocolHeader) + sizeof(uint32_t)];
     auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data);
@@ -190,19 +190,19 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 }
 
 int
-UdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+RUdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     return _protocol->dispatch_incoming_commands(event);
 }
 
 void
-UdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
+RUdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
 {
     _protocol->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, _peers);
 }
 
 std::unique_ptr<RUdpProtocol> &
-UdpPeerPod::protocol()
+RUdpPeerPod::protocol()
 {
     return _protocol;
 }
