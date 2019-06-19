@@ -8,7 +8,7 @@
 class RUdpChamber
 {
 private:
-    UdpBuffer _buffers[BUFFER_MAXIMUM];
+    RUdpBuffer _buffers[BUFFER_MAXIMUM];
 
     RUdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
 
@@ -25,7 +25,7 @@ private:
 public:
     RUdpChamber();
 
-    UdpBuffer *buffer_insert_pos();
+    RUdpBuffer *buffer_insert_pos();
 
     RUdpProtocolType *command_insert_pos();
 
@@ -42,7 +42,7 @@ public:
     void increase_packet_size(size_t val);
 
     bool sending_continues(RUdpProtocolType *command,
-                           UdpBuffer *buffer,
+                           RUdpBuffer *buffer,
                            uint32_t mtu,
                            const std::shared_ptr<OutgoingCommand> &outgoing_command);
 
@@ -52,7 +52,7 @@ public:
 
     void update_command_count(const RUdpProtocolType *command);
 
-    void update_buffer_count(const UdpBuffer *buffer);
+    void update_buffer_count(const RUdpBuffer *buffer);
 
     uint32_t reliable_data_in_transit();
 
@@ -62,7 +62,7 @@ public:
 
     bool command_buffer_have_enough_space(RUdpProtocolType *command);
 
-    bool data_buffer_have_enough_space(UdpBuffer *buffer);
+    bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
     void set_data_length(size_t val);
 

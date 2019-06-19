@@ -8,7 +8,7 @@
 using RUdpCompressor = struct RUdpCompressor
 {
     std::function<size_t(
-        const std::vector<UdpBuffer> &in_buffers,
+        const std::vector<RUdpBuffer> &in_buffers,
         size_t in_limit,
         std::vector<uint8_t> &out_data,
         size_t out_limit)> compress;

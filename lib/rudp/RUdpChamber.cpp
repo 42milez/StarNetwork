@@ -10,7 +10,7 @@ RUdpChamber::RUdpChamber() : _continue_sending(false),
     memset(_commands, 0, sizeof(_commands));
 }
 
-UdpBuffer *
+RUdpBuffer *
 RUdpChamber::buffer_insert_pos()
 {
     return &_buffers[_buffer_count];
@@ -24,7 +24,7 @@ RUdpChamber::command_insert_pos()
 
 bool
 RUdpChamber::sending_continues(RUdpProtocolType *command,
-                              UdpBuffer *buffer,
+                              RUdpBuffer *buffer,
                               uint32_t mtu,
                               const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
@@ -39,7 +39,7 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
         return true;
 
     // unsent data exists
-    if (buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(UdpBuffer)])
+    if (buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(RUdpBuffer)])
         return true;
 
     auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
@@ -86,7 +86,7 @@ RUdpChamber::update_command_count(const RUdpProtocolType *command)
 }
 
 void
-RUdpChamber::update_buffer_count(const UdpBuffer *buffer)
+RUdpChamber::update_buffer_count(const RUdpBuffer *buffer)
 {
     _buffer_count = buffer - _buffers;
 }
@@ -110,7 +110,7 @@ RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
 }
 
 bool
-RUdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
+RUdpChamber::data_buffer_have_enough_space(RUdpBuffer *buffer)
 {
     return buffer < &_buffers[BUFFER_MAXIMUM];
 }

@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-using UdpBuffer = struct UdpBuffer
+using RUdpBuffer = struct RUdpBuffer
 {
     void *data;
     size_t data_length;
