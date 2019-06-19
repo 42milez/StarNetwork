@@ -5,7 +5,7 @@
 
 #include "RUdpBuffer.h"
 
-using UdpCompressor = struct UdpCompressor
+using RUdpCompressor = struct RUdpCompressor
 {
     std::function<size_t(
         const std::vector<UdpBuffer> &in_buffers,
@@ -21,7 +21,7 @@ using UdpCompressor = struct UdpCompressor
 
     std::function<void()> destroy;
 
-    UdpCompressor();
+    RUdpCompressor();
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMPRESSOR_H

@@ -16,7 +16,7 @@ RUdpPeerPod::available_peer_exists()
 RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn) :
     _peers(peer_count),
     _peer_count(peer_count),
-    _compressor(std::make_shared<UdpCompressor>()),
+    _compressor(std::make_shared<RUdpCompressor>()),
     _checksum(nullptr),
     _total_received_data(0),
     _total_received_packets(0),

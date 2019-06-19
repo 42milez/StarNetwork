@@ -20,7 +20,7 @@ private:
 
     UdpChecksumCallback _checksum;
 
-    std::shared_ptr<UdpCompressor> _compressor;
+    std::shared_ptr<RUdpCompressor> _compressor;
 
     uint32_t _total_sent_data;
 
