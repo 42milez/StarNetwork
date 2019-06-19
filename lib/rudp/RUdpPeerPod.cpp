@@ -1,7 +1,7 @@
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
 
-std::shared_ptr<UdpPeer>
+std::shared_ptr<RUdpPeer>
 RUdpPeerPod::available_peer_exists()
 {
     for (auto &peer : _peers)

@@ -10,7 +10,7 @@ using UdpEvent = struct UdpEvent
 
     uint32_t data;
 
-    std::shared_ptr<UdpPeer> peer;
+    std::shared_ptr<RUdpPeer> peer;
 
     std::shared_ptr<UdpPacket> packet;
 

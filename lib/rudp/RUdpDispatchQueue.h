@@ -9,12 +9,12 @@
 class UdpDispatchQueue
 {
 private:
-    std::queue<std::shared_ptr<UdpPeer>> _queue;
+    std::queue<std::shared_ptr<RUdpPeer>> _queue;
 
 public:
-    std::shared_ptr<UdpPeer> pop_peer();
+    std::shared_ptr<RUdpPeer> pop_peer();
 
-    void push(std::shared_ptr<UdpPeer> &peer);
+    void push(std::shared_ptr<RUdpPeer> &peer);
 
     bool peer_exists();
 };

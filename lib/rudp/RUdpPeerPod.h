@@ -12,7 +12,7 @@
 class RUdpPeerPod
 {
 private:
-    std::vector<std::shared_ptr<UdpPeer>> _peers;
+    std::vector<std::shared_ptr<RUdpPeer>> _peers;
 
     std::unique_ptr<RUdpProtocol> _protocol;
 
@@ -35,7 +35,7 @@ private:
 public:
     RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
 
-    std::shared_ptr<UdpPeer> available_peer_exists();
+    std::shared_ptr<RUdpPeer> available_peer_exists();
 
     int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 

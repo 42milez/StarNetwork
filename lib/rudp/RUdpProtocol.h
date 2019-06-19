@@ -27,19 +27,19 @@ private:
 public:
     RUdpProtocol();
 
-    void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
+    void send_acknowledgements(std::shared_ptr<RUdpPeer> &peer);
 
     bool
-    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
+    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
 
     void
-    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
+    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
 
     void
-    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, RUdpPeerState state);
+    _udp_protocol_dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
     void
-    notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+    notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
 
     bool recalculate_bandwidth_limits();
 
@@ -53,9 +53,9 @@ public:
 
     int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
 
-    void udp_peer_reset(const std::shared_ptr<UdpPeer> &peer);
+    void udp_peer_reset(const std::shared_ptr<RUdpPeer> &peer);
 
-    void udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer);
+    void udp_peer_reset_queues(const std::shared_ptr<RUdpPeer> &peer);
 
     void increase_bandwidth_limited_peers();
 
@@ -65,11 +65,11 @@ public:
 
     void decrease_connected_peers();
 
-    void connect(const std::shared_ptr<UdpPeer> &peer);
+    void connect(const std::shared_ptr<RUdpPeer> &peer);
 
-    void disconnect(const std::shared_ptr<UdpPeer> &peer);
+    void disconnect(const std::shared_ptr<RUdpPeer> &peer);
 
-    void change_state(const std::shared_ptr<UdpPeer> &peer, const RUdpPeerState &state);
+    void change_state(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 
     size_t connected_peers();
 
@@ -79,7 +79,7 @@ public:
 
     size_t bandwidth_limited_peers();
 
-    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers);
+    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<RUdpPeer>> &peers);
 };
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOL_H

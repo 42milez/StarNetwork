@@ -345,7 +345,7 @@ UdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber>
     chamber->update_command_count(command);
     chamber->update_buffer_count(buffer);
 
-    // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはUdpPeerが所有する）
+    // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
     if (net->state_is(RUdpPeerState::DISCONNECT_LATER) &&
         _outgoing_reliable_commands.empty() &&
         _outgoing_unreliable_commands.empty() &&

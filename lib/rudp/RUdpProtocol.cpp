@@ -13,7 +13,7 @@ RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
 {}
 
 void
-RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const RUdpPeerState state)
+RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState state)
 {
     change_state(peer, state);
 
@@ -26,7 +26,7 @@ RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const
 }
 
 void
-RUdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
 {
     auto *command = _chamber->command_insert_pos();
     auto *buffer = _chamber->buffer_insert_pos();
@@ -74,7 +74,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     if (peer->state_is_ge(RUdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
@@ -107,7 +107,7 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::uniqu
 }
 
 bool
-RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
 {
     auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
 
@@ -115,7 +115,7 @@ RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_pt
 }
 
 void
-RUdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
 {
     auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber);
 
@@ -217,7 +217,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 }
 
 void
-RUdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::udp_peer_reset(const std::shared_ptr<RUdpPeer> &peer)
 {
     disconnect(peer);
 
@@ -227,7 +227,7 @@ RUdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-RUdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::udp_peer_reset_queues(const std::shared_ptr<RUdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;
 
@@ -275,7 +275,7 @@ RUdpProtocol::decrease_bandwidth_limited_peers()
 }
 
 void
-RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const RUdpPeerState &state)
+RUdpProtocol::change_state(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
 {
     if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
         connect(peer);
@@ -286,7 +286,7 @@ RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const RUdpPeerS
 }
 
 void
-RUdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::connect(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (!peer->net()->state_is(RUdpPeerState::CONNECTED) && !peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -298,7 +298,7 @@ RUdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-RUdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (peer->net()->state_is(RUdpPeerState::CONNECTED) || peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -334,7 +334,7 @@ RUdpProtocol::bandwidth_limited_peers()
 }
 
 void
-RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers)
+RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<RUdpPeer>> &peers)
 {
     if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
     {

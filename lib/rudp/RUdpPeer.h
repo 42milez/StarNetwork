@@ -15,7 +15,7 @@
 #include "RUdpPacket.h"
 #include "RUdpPeerNet.h"
 
-class UdpPeer
+class RUdpPeer
 {
 private:
     std::unique_ptr<RUdpPeerNet> _net;
@@ -63,7 +63,7 @@ private:
     std::vector<std::shared_ptr<UdpChannel>> _channels;
 
 public:
-    UdpPeer();
+    RUdpPeer();
 
     void queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 
