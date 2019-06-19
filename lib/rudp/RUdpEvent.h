@@ -4,7 +4,7 @@
 #include "RUdpEventType.h"
 #include "RUdpPeer.h"
 
-using UdpEvent = struct UdpEvent
+using RUdpEvent = struct RUdpEvent
 {
     RUdpEventType type;
 
@@ -16,7 +16,7 @@ using UdpEvent = struct UdpEvent
 
     uint8_t channel_id;
 
-    UdpEvent();
+    RUdpEvent();
 };
 
 #endif // P2P_TECHDEMO_RUDPEVENT_H

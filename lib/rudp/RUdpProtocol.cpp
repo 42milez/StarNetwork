@@ -74,7 +74,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
 }
 
 void
-RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event)
 {
     if (peer->state_is_ge(RUdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
@@ -154,7 +154,7 @@ RUdpProtocol::chamber()
 }
 
 int
-RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 {
     while (_dispatch_queue->peer_exists())
     {

@@ -29,7 +29,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
 }
 
 int
-RUdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
+RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     uint8_t header_data[sizeof(RUdpProtocolHeader) + sizeof(uint32_t)];
     auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data);
@@ -190,7 +190,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t s
 }
 
 int
-RUdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+RUdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 {
     return _protocol->dispatch_incoming_commands(event);
 }

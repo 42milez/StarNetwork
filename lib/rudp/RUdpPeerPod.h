@@ -37,9 +37,9 @@ public:
 
     std::shared_ptr<RUdpPeer> available_peer_exists();
 
-    int send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    int send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
-    int protocol_dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
+    int protocol_dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
 
     void protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 

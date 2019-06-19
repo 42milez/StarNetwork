@@ -39,7 +39,7 @@ public:
     _udp_protocol_dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
     void
-    notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
+    notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
     bool recalculate_bandwidth_limits();
 
@@ -51,7 +51,7 @@ public:
 
     std::unique_ptr<UdpChamber> &chamber();
 
-    int dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event);
+    int dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
 
     void udp_peer_reset(const std::shared_ptr<RUdpPeer> &peer);
 

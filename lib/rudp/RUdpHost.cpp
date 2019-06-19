@@ -39,7 +39,7 @@ RUdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint3
 }
 
 int
-RUdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
+RUdpHost::udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 {
 #define CHECK_RETURN_VALUE(val) \
     if (val == 1)               \

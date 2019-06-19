@@ -45,7 +45,7 @@ public:
     udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data);
 
     int
-    udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout);
+    udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
     uint32_t service_time();
 };
