@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_UDP_UDP_H
-#define P2P_TECHDEMO_LIB_UDP_UDP_H
+#ifndef P2P_TECHDEMO_RUDPCOMMON_H
+#define P2P_TECHDEMO_RUDPCOMMON_H
 
 #include <functional>
 #include <memory>
@@ -237,4 +237,4 @@ udp_time_get();
 void
 udp_time_set(uint32_t new_time_base);
 
-#endif // P2P_TECHDEMO_LIB_UDP_UDP_H
+#endif // P2P_TECHDEMO_RUDPCOMMON_H

@@ -1,6 +1,10 @@
 #ifndef P2P_TECHDEMO_RUDPCOMPRESSOR_H
 #define P2P_TECHDEMO_RUDPCOMPRESSOR_H
 
+#include <functional>
+
+#include "RUdpBuffer.h"
+
 using UdpCompressor = struct UdpCompressor
 {
     std::function<size_t(

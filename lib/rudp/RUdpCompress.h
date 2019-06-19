@@ -3,7 +3,6 @@
 
 #include <functional>
 
-#include "RUdpCommon.h"
 #include "RUdpHost.h"
 
 int

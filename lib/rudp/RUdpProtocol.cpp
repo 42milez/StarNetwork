@@ -6,12 +6,6 @@
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
 
-size_t
-udp_protocol_command_size(uint8_t command_number)
-{
-    return command_sizes[command_number & PROTOCOL_COMMAND_MASK];
-}
-
 UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false),
                              _bandwidth_limited_peers(0),
                              _bandwidth_throttle_epoch(0),

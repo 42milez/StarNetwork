@@ -82,7 +82,4 @@ public:
     void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers);
 };
 
-size_t
-udp_protocol_command_size(uint8_t command_number);
-
 #endif // P2P_TECHDEMO_RUDPPROTOCOL_H

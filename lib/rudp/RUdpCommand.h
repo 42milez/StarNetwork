@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_UDP_COMMAND_H
-#define P2P_TECHDEMO_UDP_COMMAND_H
+#ifndef P2P_TECHDEMO_RUDPCOMMAND_H
+#define P2P_TECHDEMO_RUDPCOMMAND_H
 
 #include <vector>
 
@@ -42,4 +42,4 @@ using UdpOutgoingCommand = struct UdpOutgoingCommand
     UdpOutgoingCommand();
 };
 
-#endif // P2P_TECHDEMO_UDP_COMMAND_H
+#endif // P2P_TECHDEMO_RUDPCOMMAND_H

@@ -1,4 +1,6 @@
 #include "RUdpCommandPod.h"
+#include "RUdpCommandSize.h"
+#include "RUdpPacketFlag.h"
 
 namespace
 {
@@ -67,7 +69,7 @@ UdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgo
     UdpChannel channel;
 
     _outgoing_data_total +=
-        udp_protocol_command_size(outgoing_command->command->header.command) + outgoing_command->fragment_length;
+        command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK] + outgoing_command->fragment_length;
 
     if (outgoing_command->command->header.channel_id == 0xFF)
     {
