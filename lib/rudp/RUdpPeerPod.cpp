@@ -104,7 +104,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
             // --------------------------------------------------
 
             if ((peer->command()->outgoing_reliable_command_exists() ||
-                 _protocol->_udp_protocol_send_reliable_outgoing_commands(peer, service_time)) &&
+                 _protocol->send_reliable_outgoing_commands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->exceeds_ping_interval(service_time) &&
                 peer->exceeds_mtu(_protocol->chamber()->packet_size()))
@@ -112,14 +112,14 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
                 peer->udp_peer_ping();
 
                 // ping コマンドをバッファに転送
-                _protocol->_udp_protocol_send_reliable_outgoing_commands(peer, service_time);
+                _protocol->send_reliable_outgoing_commands(peer, service_time);
             }
 
             //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------
 
             if (peer->command()->outgoing_unreliable_command_exists())
-                _protocol->_udp_protocol_send_unreliable_outgoing_commands(peer, service_time);
+                _protocol->send_unreliable_outgoing_commands(peer, service_time);
 
             //if (_command_count == 0)
             if (_protocol->chamber()->command_count() == 0)

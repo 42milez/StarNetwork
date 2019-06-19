@@ -13,7 +13,7 @@ RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
 {}
 
 void
-RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState state)
+RUdpProtocol::dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState state)
 {
     change_state(peer, state);
 
@@ -63,7 +63,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
         command->acknowledge.received_sent_time = htons(ack->sent_time);
 
         if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-            _udp_protocol_dispatch_state(peer, RUdpPeerState::ZOMBIE);
+            dispatch_state(peer, RUdpPeerState::ZOMBIE);
 
         ++command;
         ++buffer;
@@ -102,12 +102,12 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniq
     {
         peer->event_data(0);
 
-        _udp_protocol_dispatch_state(peer, RUdpPeerState::ZOMBIE);
+        dispatch_state(peer, RUdpPeerState::ZOMBIE);
     }
 }
 
 bool
-RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer,
+RUdpProtocol::send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer,
                                                             uint32_t service_time)
 {
     auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
@@ -116,7 +116,7 @@ RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_pt
 }
 
 void
-RUdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
 {
     auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber);
 
@@ -177,7 +177,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
         }
         else if (peer->state_is(RUdpPeerState::ZOMBIE))
         {
-            recalculate_bandwidth_limits(true);
+            _recalculate_bandwidth_limits = true;
 
             event->type = RUdpEventType::DISCONNECT;
             event->peer = peer;
@@ -308,30 +308,6 @@ RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
 
         decrease_connected_peers();
     }
-}
-
-size_t
-RUdpProtocol::connected_peers()
-{
-    return _connected_peers;
-}
-
-uint32_t
-RUdpProtocol::bandwidth_throttle_epoch()
-{
-    return _bandwidth_throttle_epoch;
-}
-
-void
-RUdpProtocol::bandwidth_throttle_epoch(uint32_t val)
-{
-    _bandwidth_throttle_epoch = val;
-}
-
-size_t
-RUdpProtocol::bandwidth_limited_peers()
-{
-    return _bandwidth_limited_peers;
 }
 
 void

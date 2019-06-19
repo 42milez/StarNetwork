@@ -29,21 +29,13 @@ public:
 
     void send_acknowledgements(std::shared_ptr<RUdpPeer> &peer);
 
-    bool
-    _udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
+    bool send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
 
-    void
-    _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
+    void send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
 
-    void
-    _udp_protocol_dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
+    void dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
-    void
-    notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
-
-    bool recalculate_bandwidth_limits();
-
-    void recalculate_bandwidth_limits(bool val);
+    void notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
     bool continue_sending();
 
@@ -70,14 +62,6 @@ public:
     void disconnect(const std::shared_ptr<RUdpPeer> &peer);
 
     void change_state(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
-
-    size_t connected_peers();
-
-    uint32_t bandwidth_throttle_epoch();
-
-    void bandwidth_throttle_epoch(uint32_t val);
-
-    size_t bandwidth_limited_peers();
 
     void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                             const std::vector<std::shared_ptr<RUdpPeer>> &peers);
