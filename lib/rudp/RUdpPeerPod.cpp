@@ -79,7 +79,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
                 IS_EVENT_TYPE_NONE()
             }
 
-            bool timed_out = peer->command()->check_timeouts(event, peer->net(), service_time);
+            bool timed_out = peer->command()->check_timeouts(peer->net(), service_time);
 
             if (timed_out == 1)
             {
