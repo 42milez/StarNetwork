@@ -1,7 +1,7 @@
 #include "RUdpDispatchQueue.h"
 
 std::shared_ptr<RUdpPeer>
-UdpDispatchQueue::pop_peer()
+RUdpDispatchQueue::pop_peer()
 {
     std::shared_ptr<RUdpPeer> peer = _queue.front();
 
@@ -11,13 +11,13 @@ UdpDispatchQueue::pop_peer()
 }
 
 void
-UdpDispatchQueue::push(std::shared_ptr<RUdpPeer> &peer)
+RUdpDispatchQueue::push(std::shared_ptr<RUdpPeer> &peer)
 {
     _queue.push(peer);
 }
 
 bool
-UdpDispatchQueue::peer_exists()
+RUdpDispatchQueue::peer_exists()
 {
     return !_queue.empty();
 }

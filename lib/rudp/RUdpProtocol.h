@@ -12,7 +12,7 @@
 class RUdpProtocol
 {
 private:
-    std::unique_ptr<UdpDispatchQueue> _dispatch_queue;
+    std::unique_ptr<RUdpDispatchQueue> _dispatch_queue;
 
     std::unique_ptr<UdpChamber> _chamber;
 

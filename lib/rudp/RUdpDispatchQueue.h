@@ -6,7 +6,7 @@
 
 #include "RUdpPeer.h"
 
-class UdpDispatchQueue
+class RUdpDispatchQueue
 {
 private:
     std::queue<std::shared_ptr<RUdpPeer>> _queue;
