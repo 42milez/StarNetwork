@@ -14,7 +14,7 @@ class UdpPeerPod
 private:
     std::vector<std::shared_ptr<UdpPeer>> _peers;
 
-    std::unique_ptr<UdpProtocol> _protocol;
+    std::unique_ptr<RUdpProtocol> _protocol;
 
     size_t _peer_count;
 
@@ -43,7 +43,7 @@ public:
 
     void protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
 
-    std::unique_ptr<UdpProtocol> &protocol();
+    std::unique_ptr<RUdpProtocol> &protocol();
 };
 
 #endif // P2P_TECHDEMO_RUDPPEERPOD_H

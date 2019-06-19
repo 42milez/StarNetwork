@@ -9,7 +9,7 @@
 #include "RUdpPeer.h"
 #include "RUdpPeerState.h"
 
-class UdpProtocol
+class RUdpProtocol
 {
 private:
     std::unique_ptr<UdpDispatchQueue> _dispatch_queue;
@@ -25,7 +25,7 @@ private:
     uint32_t _bandwidth_throttle_epoch;
 
 public:
-    UdpProtocol();
+    RUdpProtocol();
 
     void send_acknowledgements(std::shared_ptr<UdpPeer> &peer);
 

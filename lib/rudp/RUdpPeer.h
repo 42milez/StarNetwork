@@ -65,7 +65,7 @@ private:
 public:
     UdpPeer();
 
-    void queue_outgoing_command(const std::shared_ptr<UdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
+    void queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length);
 
     bool is_disconnected();
 

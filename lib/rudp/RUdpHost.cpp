@@ -10,18 +10,18 @@ namespace
 {
     std::vector<size_t> command_sizes{
         0,
-        sizeof(UdpProtocolAcknowledge),
-        sizeof(UdpProtocolConnect),
-        sizeof(UdpProtocolVerifyConnect),
-        sizeof(UdpProtocolDisconnect),
-        sizeof(UdpProtocolPing),
-        sizeof(UdpProtocolSendReliable),
-        sizeof(UdpProtocolSendUnreliable),
-        sizeof(UdpProtocolSendFragment),
-        sizeof(UdpProtocolSendUnsequenced),
-        sizeof(UdpProtocolBandwidthLimit),
-        sizeof(UdpProtocolThrottleConfigure),
-        sizeof(UdpProtocolSendFragment)
+        sizeof(RUdpProtocolAcknowledge),
+        sizeof(RUdpProtocolConnect),
+        sizeof(RUdpProtocolVerifyConnect),
+        sizeof(RUdpProtocolDisconnect),
+        sizeof(RUdpProtocolPing),
+        sizeof(RUdpProtocolSendReliable),
+        sizeof(RUdpProtocolSendUnreliable),
+        sizeof(RUdpProtocolSendFragment),
+        sizeof(RUdpProtocolSendUnsequenced),
+        sizeof(RUdpProtocolBandwidthLimit),
+        sizeof(RUdpProtocolThrottleConfigure),
+        sizeof(RUdpProtocolSendFragment)
     };
 }
 

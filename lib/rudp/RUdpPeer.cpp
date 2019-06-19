@@ -31,7 +31,7 @@ UdpPeer::udp_peer_ping()
     if (!_net->state_is(UdpPeerState::CONNECTED))
         return;
 
-    std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
     cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
@@ -60,7 +60,7 @@ UdpPeer::UdpPeer() : _outgoing_peer_id(0),
 }
 
 void
-UdpPeer::queue_outgoing_command(const std::shared_ptr<UdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
+UdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<UdpPacket> &packet, uint32_t offset, uint16_t length)
 {
     std::shared_ptr<UdpOutgoingCommand> outgoing_command;
 
@@ -91,7 +91,7 @@ UdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, ui
 
     _net->setup();
 
-    std::shared_ptr<UdpProtocolType> cmd = std::make_shared<UdpProtocolType>();
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
     cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
@@ -294,7 +294,7 @@ UdpPeer::exceeds_ping_interval(uint32_t service_time)
 bool
 UdpPeer::exceeds_mtu(size_t packet_size)
 {
-    return _net->mtu() - packet_size >= sizeof(UdpProtocolPing);
+    return _net->mtu() - packet_size >= sizeof(RUdpProtocolPing);
 }
 
 uint16_t

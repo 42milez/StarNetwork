@@ -4,7 +4,6 @@
 
 #include <catch2/catch.hpp>
 
-#include "lib/udp/RUdpCommon.h"
 #include "module/networking/transporter.h"
 
 TEST_CASE("", "")

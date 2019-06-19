@@ -1,4 +1,4 @@
-set(sources host_test.cpp)
+set(sources RUdpHostTests.cpp)
 
 add_executable(host_test ${sources})
 

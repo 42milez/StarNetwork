@@ -31,8 +31,8 @@ UdpPeerPod::UdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn)
 int
 UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
-    uint8_t header_data[sizeof(UdpProtocolHeader) + sizeof(uint32_t)];
-    auto *header = reinterpret_cast<UdpProtocolHeader *>(header_data);
+    uint8_t header_data[sizeof(RUdpProtocolHeader) + sizeof(uint32_t)];
+    auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data);
 
     _protocol->continue_sending(true);
 
@@ -48,7 +48,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             _protocol->chamber()->header_flags(0);
             _protocol->chamber()->command_count(0);
             _protocol->chamber()->buffer_count(1);
-            _protocol->chamber()->packet_size(sizeof(UdpProtocolHeader));
+            _protocol->chamber()->packet_size(sizeof(RUdpProtocolHeader));
 
             //  ACKを返す
             // --------------------------------------------------
@@ -136,13 +136,13 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
             if (_protocol->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {
                 header->sent_time = htons(service_time & 0xFFFF);
-                //_buffers[0].data_length = sizeof(UdpProtocolHeader);
-                _protocol->chamber()->set_data_length(sizeof(UdpProtocolHeader));
+                //_buffers[0].data_length = sizeof(RUdpProtocolHeader);
+                _protocol->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
             }
             else
             {
-                //_buffers[0].data_length = (size_t) &((UdpProtocolHeader *) 0)->sent_time; // ???
-                _protocol->chamber()->set_data_length((size_t) &((UdpProtocolHeader *) 0)->sent_time);
+                //_buffers[0].data_length = (size_t) &((RUdpProtocolHeader *) 0)->sent_time; // ???
+                _protocol->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
             }
 
             auto should_compress = false;
@@ -201,7 +201,7 @@ UdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming
     _protocol->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, _peers);
 }
 
-std::unique_ptr<UdpProtocol> &
+std::unique_ptr<RUdpProtocol> &
 UdpPeerPod::protocol()
 {
     return _protocol;

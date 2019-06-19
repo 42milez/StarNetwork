@@ -6,7 +6,7 @@
 using UdpAcknowledgement = struct UdpAcknowledgement
 {
     uint32_t sent_time;
-    UdpProtocolType command;
+    RUdpProtocolType command;
 };
 
 #endif // P2P_TECHDEMO_RUDPACKNOWLEDGEMENT_H

@@ -6,14 +6,14 @@
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
 
-UdpProtocol::UdpProtocol() : _recalculate_bandwidth_limits(false),
+RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
                              _bandwidth_limited_peers(0),
                              _bandwidth_throttle_epoch(0),
                              _connected_peers(0)
 {}
 
 void
-UdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
 {
     change_state(peer, state);
 
@@ -26,7 +26,7 @@ UdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const 
 }
 
 void
-UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 {
     auto *command = _chamber->command_insert_pos();
     auto *buffer = _chamber->buffer_insert_pos();
@@ -39,10 +39,10 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         // 送信継続
         // - コマンドバッファに空きがない
         // - データバッファに空きがない
-        // - ピアの MTU とパケットサイズの差が UdpProtocolAcknowledge のサイズ未満
+        // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
         if (!_chamber->command_buffer_have_enough_space(command) ||
             !_chamber->data_buffer_have_enough_space(buffer) ||
-            peer->mtu() - _chamber->packet_size() < sizeof(UdpProtocolAcknowledge))
+            peer->mtu() - _chamber->packet_size() < sizeof(RUdpProtocolAcknowledge))
         {
             _chamber->continue_sending(true);
 
@@ -50,7 +50,7 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         }
 
         buffer->data = command;
-        buffer->data_length = sizeof(UdpProtocolAcknowledge);
+        buffer->data_length = sizeof(RUdpProtocolAcknowledge);
 
         _chamber->increase_packet_size(buffer->data_length);
 
@@ -74,7 +74,7 @@ UdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
+RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
     if (peer->state_is_ge(UdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
@@ -107,7 +107,7 @@ UdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique
 }
 
 bool
-UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
 {
     auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
 
@@ -115,7 +115,7 @@ UdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr
 }
 
 void
-UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time)
 {
     auto can_disconnect = peer->load_unreliable_commands_into_chamber(_chamber);
 
@@ -124,37 +124,37 @@ UdpProtocol::_udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<Udp
 }
 
 bool
-UdpProtocol::recalculate_bandwidth_limits()
+RUdpProtocol::recalculate_bandwidth_limits()
 {
     return _recalculate_bandwidth_limits;
 }
 
 void
-UdpProtocol::recalculate_bandwidth_limits(bool val)
+RUdpProtocol::recalculate_bandwidth_limits(bool val)
 {
     _recalculate_bandwidth_limits = val;
 }
 
 bool
-UdpProtocol::continue_sending()
+RUdpProtocol::continue_sending()
 {
     return _chamber->continue_sending();
 }
 
 void
-UdpProtocol::continue_sending(bool val)
+RUdpProtocol::continue_sending(bool val)
 {
     _chamber->continue_sending(val);
 }
 
 std::unique_ptr<UdpChamber> &
-UdpProtocol::chamber()
+RUdpProtocol::chamber()
 {
     return _chamber;
 }
 
 int
-UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
+RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 {
     while (_dispatch_queue->peer_exists())
     {
@@ -217,7 +217,7 @@ UdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 }
 
 void
-UdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 {
     disconnect(peer);
 
@@ -227,7 +227,7 @@ UdpProtocol::udp_peer_reset(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 {
     std::unique_ptr<UdpChannel> channel;
 
@@ -251,31 +251,31 @@ UdpProtocol::udp_peer_reset_queues(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::increase_connected_peers()
+RUdpProtocol::increase_connected_peers()
 {
     ++_connected_peers;
 }
 
 void
-UdpProtocol::decrease_connected_peers()
+RUdpProtocol::decrease_connected_peers()
 {
     --_connected_peers;
 }
 
 void
-UdpProtocol::increase_bandwidth_limited_peers()
+RUdpProtocol::increase_bandwidth_limited_peers()
 {
     ++_bandwidth_limited_peers;
 }
 
 void
-UdpProtocol::decrease_bandwidth_limited_peers()
+RUdpProtocol::decrease_bandwidth_limited_peers()
 {
     --_bandwidth_limited_peers;
 }
 
 void
-UdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
+RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
 {
     if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
         connect(peer);
@@ -286,7 +286,7 @@ UdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerSta
 }
 
 void
-UdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {
@@ -298,7 +298,7 @@ UdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 }
 
 void
-UdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
+RUdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
 {
     if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
     {
@@ -310,31 +310,31 @@ UdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
 }
 
 size_t
-UdpProtocol::connected_peers()
+RUdpProtocol::connected_peers()
 {
     return _connected_peers;
 }
 
 uint32_t
-UdpProtocol::bandwidth_throttle_epoch()
+RUdpProtocol::bandwidth_throttle_epoch()
 {
     return _bandwidth_throttle_epoch;
 }
 
 void
-UdpProtocol::bandwidth_throttle_epoch(uint32_t val)
+RUdpProtocol::bandwidth_throttle_epoch(uint32_t val)
 {
     _bandwidth_throttle_epoch = val;
 }
 
 size_t
-UdpProtocol::bandwidth_limited_peers()
+RUdpProtocol::bandwidth_limited_peers()
 {
     return _bandwidth_limited_peers;
 }
 
 void
-UdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers)
+RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<UdpPeer>> &peers)
 {
     if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
     {
@@ -486,7 +486,7 @@ UdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwid
                 }
             }
 
-            std::shared_ptr<UdpProtocolType> cmd;
+            std::shared_ptr<RUdpProtocolType> cmd;
 
             for (auto &peer : peers)
             {

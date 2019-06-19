@@ -88,35 +88,35 @@ enum class UdpSocketWait : int
     INTERRUPT = (1u << 2u)
 };
 
-enum class UdpProtocolCommandFlag : uint32_t
+enum class RUdpProtocolCommandFlag : uint32_t
 {
     ACKNOWLEDGE = (1u << 7u),
     UNSEQUENCED = (1u << 6u)
 };
 
-using UdpProtocolHeader = struct UdpProtocolHeader
+using RUdpProtocolHeader = struct RUdpProtocolHeader
 {
     uint16_t peer_id;
     uint16_t sent_time;
 };
 
-using UdpProtocolCommandHeader = struct UdpProtocolCommandHeader
+using RUdpProtocolCommandHeader = struct RUdpProtocolCommandHeader
 {
     uint8_t command;
     uint8_t channel_id;
     uint16_t reliable_sequence_number;
 };
 
-using UdpProtocolAcknowledge = struct UdpProtocolAcknowledge
+using RUdpProtocolAcknowledge = struct RUdpProtocolAcknowledge
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t received_reliable_sequence_number;
     uint16_t received_sent_time;
 };
 
-using UdpProtocolConnect = struct UdpProtocolConnect
+using RUdpProtocolConnect = struct RUdpProtocolConnect
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint32_t outgoing_peer_id;
     uint8_t incoming_session_id;
     uint8_t outgoing_session_id;
@@ -132,9 +132,9 @@ using UdpProtocolConnect = struct UdpProtocolConnect
     uint32_t data;
 };
 
-using UdpProtocolVerifyConnect = struct UdpProtocolVerifyConnect
+using RUdpProtocolVerifyConnect = struct RUdpProtocolVerifyConnect
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t outgoing_peer_id;
     uint8_t incoming_session_id;
     uint8_t outgoing_session_id;
@@ -149,40 +149,40 @@ using UdpProtocolVerifyConnect = struct UdpProtocolVerifyConnect
     uint32_t connect_id;
 };
 
-using UdpProtocolDisconnect = struct UdpProtocolDisconnect
+using RUdpProtocolDisconnect = struct RUdpProtocolDisconnect
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint32_t data;
 };
 
-using UdpProtocolPing = struct UdpProtocolPing
+using RUdpProtocolPing = struct RUdpProtocolPing
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
 };
 
-using UdpProtocolSendReliable = struct UdpProtocolSendReliable
+using RUdpProtocolSendReliable = struct RUdpProtocolSendReliable
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t data_length;
 };
 
-using UdpProtocolSendUnreliable = struct UdpProtocolSendUnreliable
+using RUdpProtocolSendUnreliable = struct RUdpProtocolSendUnreliable
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t unreliable_sequence_number;
     uint16_t data_length;
 };
 
-using UdpProtocolSendUnsequenced = struct UdpProtocolSendUnsequenced
+using RUdpProtocolSendUnsequenced = struct RUdpProtocolSendUnsequenced
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t unsequenced_group;
     uint16_t data_length;
 };
 
-using UdpProtocolSendFragment = struct UdpProtocolSendFragment
+using RUdpProtocolSendFragment = struct RUdpProtocolSendFragment
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint16_t start_sequence_number;
     uint16_t data_length;
     uint32_t fragment_count;
@@ -191,35 +191,35 @@ using UdpProtocolSendFragment = struct UdpProtocolSendFragment
     uint32_t fragment_offset;
 };
 
-using UdpProtocolBandwidthLimit = struct UdpProtocolBandwidthLimit
+using RUdpProtocolBandwidthLimit = struct RUdpProtocolBandwidthLimit
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
 };
 
-using UdpProtocolThrottleConfigure = struct UdpProtocolThrottleConfigure
+using RUdpProtocolThrottleConfigure = struct RUdpProtocolThrottleConfigure
 {
-    UdpProtocolCommandHeader header;
+    RUdpProtocolCommandHeader header;
     uint32_t packet_throttle_interval;
     uint32_t packet_throttle_acceleration;
     uint32_t packet_throttle_deceleration;
 };
 
-using UdpProtocolType = union UdpProtocolType
+using RUdpProtocolType = union RUdpProtocolType
 {
-    UdpProtocolCommandHeader header;
-    UdpProtocolAcknowledge acknowledge;
-    UdpProtocolConnect connect;
-    UdpProtocolVerifyConnect verify_connect;
-    UdpProtocolDisconnect disconnect;
-    UdpProtocolPing ping;
-    UdpProtocolSendReliable send_reliable;
-    UdpProtocolSendUnreliable send_unreliable;
-    UdpProtocolSendUnsequenced send_unsequenced;
-    UdpProtocolSendFragment send_fragment;
-    UdpProtocolBandwidthLimit bandwidth_limit;
-    UdpProtocolThrottleConfigure throttle_configure;
+    RUdpProtocolCommandHeader header;
+    RUdpProtocolAcknowledge acknowledge;
+    RUdpProtocolConnect connect;
+    RUdpProtocolVerifyConnect verify_connect;
+    RUdpProtocolDisconnect disconnect;
+    RUdpProtocolPing ping;
+    RUdpProtocolSendReliable send_reliable;
+    RUdpProtocolSendUnreliable send_unreliable;
+    RUdpProtocolSendUnsequenced send_unsequenced;
+    RUdpProtocolSendFragment send_fragment;
+    RUdpProtocolBandwidthLimit bandwidth_limit;
+    RUdpProtocolThrottleConfigure throttle_configure;
 };
 
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)

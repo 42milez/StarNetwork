@@ -1,4 +1,4 @@
-set(sources transporter_test.cpp)
+set(sources TransporterTests.cpp)
 
 add_executable(transporter_test ${sources})
 

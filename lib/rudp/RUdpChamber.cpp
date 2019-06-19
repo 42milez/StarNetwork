@@ -16,14 +16,14 @@ UdpChamber::buffer_insert_pos()
     return &_buffers[_buffer_count];
 }
 
-UdpProtocolType *
+RUdpProtocolType *
 UdpChamber::command_insert_pos()
 {
     return &_commands[_command_count];
 }
 
 bool
-UdpChamber::sending_continues(UdpProtocolType *command,
+UdpChamber::sending_continues(RUdpProtocolType *command,
                               UdpBuffer *buffer,
                               uint32_t mtu,
                               const std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
@@ -35,7 +35,7 @@ UdpChamber::sending_continues(UdpProtocolType *command,
     //            それぞれで判定する必要がある
 
     // unsent command exists
-    if (command >= &_commands[sizeof(_commands) / sizeof(UdpProtocol)])
+    if (command >= &_commands[sizeof(_commands) / sizeof(RUdpProtocol)])
         return true;
 
     // unsent data exists
@@ -80,7 +80,7 @@ UdpChamber::increase_packet_size(size_t val)
 }
 
 void
-UdpChamber::update_command_count(const UdpProtocolType *command)
+UdpChamber::update_command_count(const RUdpProtocolType *command)
 {
     _command_count = command - _commands;
 }
@@ -104,7 +104,7 @@ UdpChamber::continue_sending(bool val)
 }
 
 bool
-UdpChamber::command_buffer_have_enough_space(UdpProtocolType *command)
+UdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
 {
     return command < &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
 }
