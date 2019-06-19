@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-enum class UdpPacketFlag : uint32_t
+enum class RUdpPacketFlag : uint32_t
 {
     // packet must be received by the target peer and
     // resend attempts should be made until the packet is delivered

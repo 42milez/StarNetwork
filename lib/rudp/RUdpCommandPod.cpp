@@ -540,7 +540,7 @@ UdpCommandPod::remove_sent_unreliable_commands()
         if (outgoing_command->packet != nullptr)
         {
             if (outgoing_command->packet.use_count() == 1)
-                outgoing_command->packet->add_flag(static_cast<uint32_t>(UdpPacketFlag::SENT));
+                outgoing_command->packet->add_flag(static_cast<uint32_t>(RUdpPacketFlag::SENT));
 
             outgoing_command->packet->destroy();
         }
