@@ -24,7 +24,7 @@ public:
 
     size_t data_length();
 
-    uint8_t * move_data_pointer(uint32_t val);
+    uint8_t *move_data_pointer(uint32_t val);
 
     void destroy();
 };

@@ -65,12 +65,15 @@ private:
 public:
     RUdpPeer();
 
-    void queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpPacket> &packet, uint32_t offset, uint16_t length);
+    void
+    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpPacket> &packet,
+                           uint32_t offset, uint16_t length);
 
     bool is_disconnected();
 
     Error
-    setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
+    setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth,
+          uint32_t out_bandwidth);
 
     void udp_peer_disconnect();
 
@@ -140,7 +143,7 @@ public:
 
     uint8_t outgoing_session_id();
 
-    const RUdpAddress & address();
+    const RUdpAddress &address();
 
     void reset();
 

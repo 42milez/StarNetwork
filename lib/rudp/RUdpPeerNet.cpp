@@ -2,25 +2,25 @@
 #include "RUdpPeerNet.h"
 
 RUdpPeerNet::RUdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
-                           _packet_throttle(0),
-                           _packet_throttle_limit(0),
-                           _packet_throttle_counter(0),
-                           _packet_throttle_epoch(0),
-                           _packet_throttle_acceleration(0),
-                           _packet_throttle_deceleration(0),
-                           _packet_throttle_interval(0),
-                           _packet_loss_epoch(0),
-                           _packets_lost(0),
-                           _packet_loss(0),
-                           _packet_loss_variance(0),
-                           _last_send_time(0),
-                           _mtu(0),
-                           _window_size(0),
-                           _incoming_bandwidth(0),
-                           _outgoing_bandwidth(0),
-                           _incoming_bandwidth_throttle_epoch(0),
-                           _outgoing_bandwidth_throttle_epoch(0),
-                           _packets_sent(0)
+                             _packet_throttle(0),
+                             _packet_throttle_limit(0),
+                             _packet_throttle_counter(0),
+                             _packet_throttle_epoch(0),
+                             _packet_throttle_acceleration(0),
+                             _packet_throttle_deceleration(0),
+                             _packet_throttle_interval(0),
+                             _packet_loss_epoch(0),
+                             _packets_lost(0),
+                             _packet_loss(0),
+                             _packet_loss_variance(0),
+                             _last_send_time(0),
+                             _mtu(0),
+                             _window_size(0),
+                             _incoming_bandwidth(0),
+                             _outgoing_bandwidth(0),
+                             _incoming_bandwidth_throttle_epoch(0),
+                             _outgoing_bandwidth_throttle_epoch(0),
+                             _packets_sent(0)
 {}
 
 void
@@ -93,7 +93,6 @@ RUdpPeerNet::incoming_bandwidth_throttle_epoch(uint32_t val)
 {
     _incoming_bandwidth_throttle_epoch = val;
 }
-
 
 uint32_t
 RUdpPeerNet::outgoing_bandwidth_throttle_epoch()

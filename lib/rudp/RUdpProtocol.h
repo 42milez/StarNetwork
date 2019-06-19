@@ -79,7 +79,8 @@ public:
 
     size_t bandwidth_limited_peers();
 
-    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<RUdpPeer>> &peers);
+    void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
+                            const std::vector<std::shared_ptr<RUdpPeer>> &peers);
 };
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOL_H

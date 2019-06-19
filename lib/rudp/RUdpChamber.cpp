@@ -3,9 +3,9 @@
 #include "RUdpProtocol.h"
 
 RUdpChamber::RUdpChamber() : _continue_sending(false),
-                           _header_flags(0),
-                           _buffer_count(0),
-                           _command_count(0)
+                             _header_flags(0),
+                             _buffer_count(0),
+                             _command_count(0)
 {
     memset(_commands, 0, sizeof(_commands));
 }
@@ -24,9 +24,9 @@ RUdpChamber::command_insert_pos()
 
 bool
 RUdpChamber::sending_continues(RUdpProtocolType *command,
-                              RUdpBuffer *buffer,
-                              uint32_t mtu,
-                              const std::shared_ptr<OutgoingCommand> &outgoing_command)
+                               RUdpBuffer *buffer,
+                               uint32_t mtu,
+                               const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
     // MEMO: [誤] _udp_protocol_send_reliable_outgoing_commands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、

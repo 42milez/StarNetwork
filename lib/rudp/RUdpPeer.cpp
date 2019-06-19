@@ -40,19 +40,19 @@ RUdpPeer::udp_peer_ping()
 }
 
 RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
-                     _outgoing_session_id(0),
-                     _incoming_session_id(0),
-                     _last_receive_time(0),
-                     _ping_interval(0),
-                     _last_round_trip_time(0),
-                     _last_round_trip_time_variance(0),
-                     _lowest_round_trip_time(0),
-                     _highest_round_trip_time_variance(0),
-                     _needs_dispatch(false),
-                     _event_data(0),
-                     _total_waiting_data(0),
-                     _incoming_peer_id(0),
-                     _connect_id(0)
+                       _outgoing_session_id(0),
+                       _incoming_session_id(0),
+                       _last_receive_time(0),
+                       _ping_interval(0),
+                       _last_round_trip_time(0),
+                       _last_round_trip_time_variance(0),
+                       _lowest_round_trip_time(0),
+                       _highest_round_trip_time_variance(0),
+                       _needs_dispatch(false),
+                       _event_data(0),
+                       _total_waiting_data(0),
+                       _incoming_peer_id(0),
+                       _connect_id(0)
 {
     _incoming_peer_id = hash32();
     _outgoing_session_id = _incoming_session_id = 0xFF;
@@ -60,7 +60,8 @@ RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
 }
 
 void
-RUdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpPacket> &packet, uint32_t offset, uint16_t length)
+RUdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command,
+                                 const std::shared_ptr<RUdpPacket> &packet, uint32_t offset, uint16_t length)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command;
 
@@ -79,7 +80,8 @@ RUdpPeer::is_disconnected()
 }
 
 Error
-RUdpPeer::setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
+RUdpPeer::setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth,
+                uint32_t out_bandwidth)
 {
     _channels = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
 

@@ -74,9 +74,11 @@ public:
     void next_timeout(uint32_t val);
 
     bool outgoing_reliable_command_exists();
+
     bool outgoing_unreliable_command_exists();
 
     void clear_outgoing_reliable_command();
+
     void clear_outgoing_unreliable_command();
 
     void reset();

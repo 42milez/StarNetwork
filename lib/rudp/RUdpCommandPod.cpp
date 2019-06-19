@@ -38,13 +38,13 @@ namespace
 }
 
 OutgoingCommand::OutgoingCommand() : reliable_sequence_number(0),
-                                           unreliable_sequence_number(0),
-                                           sent_time(0),
-                                           round_trip_timeout(0),
-                                           round_trip_timeout_limit(0),
-                                           fragment_offset(0),
-                                           fragment_length(0),
-                                           send_attempts(0)
+                                     unreliable_sequence_number(0),
+                                     sent_time(0),
+                                     round_trip_timeout(0),
+                                     round_trip_timeout_limit(0),
+                                     fragment_offset(0),
+                                     fragment_length(0),
+                                     send_attempts(0)
 {}
 
 RUdpCommandPod::RUdpCommandPod() :
@@ -69,7 +69,8 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     RUdpChannel channel;
 
     _outgoing_data_total +=
-        command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK] + outgoing_command->fragment_length;
+        command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK] +
+        outgoing_command->fragment_length;
 
     if (outgoing_command->command->header.channel_id == 0xFF)
     {
@@ -112,7 +113,8 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
 
     if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE)
     {
-        outgoing_command->command->send_unreliable.unreliable_sequence_number = htons(outgoing_command->unreliable_sequence_number);
+        outgoing_command->command->send_unreliable.unreliable_sequence_number = htons(
+            outgoing_command->unreliable_sequence_number);
     }
     else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
     {
@@ -133,9 +135,9 @@ RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> 
 
 bool
 RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
-                                                   std::unique_ptr<RUdpPeerNet> &net,
-                                                   const std::vector<std::shared_ptr<RUdpChannel>> &channels,
-                                                   uint32_t service_time)
+                                                    std::unique_ptr<RUdpPeerNet> &net,
+                                                    const std::vector<std::shared_ptr<RUdpChannel>> &channels,
+                                                    uint32_t service_time)
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();
@@ -267,7 +269,7 @@ RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber>
 
 bool
 RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
-                                                     std::unique_ptr<RUdpPeerNet> &net)
+                                                      std::unique_ptr<RUdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();
     auto *buffer = chamber->buffer_insert_pos();
@@ -382,7 +384,6 @@ RUdpCommandPod::outgoing_reliable_command_exists()
 {
     return !_outgoing_reliable_commands.empty();
 }
-
 
 bool
 RUdpCommandPod::outgoing_unreliable_command_exists()

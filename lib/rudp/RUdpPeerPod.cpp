@@ -103,7 +103,8 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((peer->command()->outgoing_reliable_command_exists() || _protocol->_udp_protocol_send_reliable_outgoing_commands(peer, service_time)) &&
+            if ((peer->command()->outgoing_reliable_command_exists() ||
+                 _protocol->_udp_protocol_send_reliable_outgoing_commands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->exceeds_ping_interval(service_time) &&
                 peer->exceeds_mtu(_protocol->chamber()->packet_size()))
@@ -196,7 +197,8 @@ RUdpPeerPod::protocol_dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &eve
 }
 
 void
-RUdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
+RUdpPeerPod::protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth,
+                                         uint32_t outgoing_bandwidth)
 {
     _protocol->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, _peers);
 }

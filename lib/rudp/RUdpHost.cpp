@@ -123,7 +123,8 @@ RUdpHost::udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     return 0;
 }
 
-RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
+RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
+                   uint32_t out_bandwidth) :
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),

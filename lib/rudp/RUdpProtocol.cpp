@@ -7,9 +7,9 @@
     !peer->state_is(RUdpPeerState::CONNECTED) && peer->state_is(RUdpPeerState::DISCONNECT_LATER)
 
 RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
-                             _bandwidth_limited_peers(0),
-                             _bandwidth_throttle_epoch(0),
-                             _connected_peers(0)
+                               _bandwidth_limited_peers(0),
+                               _bandwidth_throttle_epoch(0),
+                               _connected_peers(0)
 {}
 
 void
@@ -107,7 +107,8 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniq
 }
 
 bool
-RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
+RUdpProtocol::_udp_protocol_send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer,
+                                                            uint32_t service_time)
 {
     auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
 
@@ -334,7 +335,8 @@ RUdpProtocol::bandwidth_limited_peers()
 }
 
 void
-RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth, const std::vector<std::shared_ptr<RUdpPeer>> &peers)
+RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
+                                 const std::vector<std::shared_ptr<RUdpPeer>> &peers)
 {
     if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
     {
@@ -399,7 +401,8 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                 if ((throttle * peer->outgoing_data_total()) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
                     continue;
 
-                peer->packet_throttle_limit((peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
+                peer->packet_throttle_limit(
+                    (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
 
                 if (peer->packet_throttle_limit() == 0)
                     peer->packet_throttle_limit(1);
@@ -472,7 +475,8 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                             peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
                             continue;
 
-                        if (peer->net()->outgoing_bandwidth() > 0 && peer->net()->outgoing_bandwidth() >= bandwidth_limit)
+                        if (peer->net()->outgoing_bandwidth() > 0 &&
+                            peer->net()->outgoing_bandwidth() >= bandwidth_limit)
                             continue;
 
                         peer->net()->incoming_bandwidth_throttle_epoch(time_current);
