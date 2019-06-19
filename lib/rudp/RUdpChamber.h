@@ -44,7 +44,7 @@ public:
     bool sending_continues(RUdpProtocolType *command,
                            UdpBuffer *buffer,
                            uint32_t mtu,
-                           const std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
+                           const std::shared_ptr<OutgoingCommand> &outgoing_command);
 
     uint16_t header_flags();
 

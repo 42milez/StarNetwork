@@ -48,7 +48,7 @@ private:
 
     std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
 
-    std::queue<UdpIncomingCommand> _dispatched_commands;
+    std::queue<IncomingCommand> _dispatched_commands;
 
     bool _needs_dispatch;
 

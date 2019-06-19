@@ -12,9 +12,9 @@
 class RUdpCommandPod
 {
 private:
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_reliable_commands;
+    std::list<std::shared_ptr<OutgoingCommand>> _outgoing_reliable_commands;
 
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _outgoing_unreliable_commands;
+    std::list<std::shared_ptr<OutgoingCommand>> _outgoing_unreliable_commands;
 
     uint32_t _incoming_data_total;
 
@@ -36,9 +36,9 @@ private:
 
     uint32_t _reliable_data_in_transit;
 
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_reliable_commands;
+    std::list<std::shared_ptr<OutgoingCommand>> _sent_reliable_commands;
 
-    std::list<std::shared_ptr<UdpOutgoingCommand>> _sent_unreliable_commands;
+    std::list<std::shared_ptr<OutgoingCommand>> _sent_unreliable_commands;
 
     uint32_t _earliest_timeout;
 
@@ -49,9 +49,9 @@ private:
 public:
     RUdpCommandPod();
 
-    void setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command);
+    void setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command);
 
-    void push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+    void push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command);
 
     bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
                                              std::unique_ptr<RUdpPeerNet> &net,
@@ -87,9 +87,9 @@ public:
 
     void reliable_data_in_transit(uint32_t val);
 
-    void sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
+    void sent_reliable_command(std::shared_ptr<OutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
 
-    void sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command);
+    void sent_unreliable_command(std::shared_ptr<OutgoingCommand> &command);
 
     bool sent_reliable_command_exists();
 

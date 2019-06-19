@@ -62,7 +62,7 @@ RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
 void
 RUdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpPacket> &packet, uint32_t offset, uint16_t length)
 {
-    std::shared_ptr<UdpOutgoingCommand> outgoing_command;
+    std::shared_ptr<OutgoingCommand> outgoing_command;
 
     outgoing_command->command = command;
     outgoing_command->packet = packet;
@@ -147,7 +147,7 @@ RUdpPeer::dispatched_command_exists()
 void
 RUdpPeer::clear_dispatched_command()
 {
-    std::queue<UdpIncomingCommand> empty;
+    std::queue<IncomingCommand> empty;
     std::swap(_dispatched_commands, empty);
 }
 

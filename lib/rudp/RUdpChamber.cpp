@@ -26,7 +26,7 @@ bool
 UdpChamber::sending_continues(RUdpProtocolType *command,
                               UdpBuffer *buffer,
                               uint32_t mtu,
-                              const std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
+                              const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
     // MEMO: [誤] _udp_protocol_send_reliable_outgoing_commands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、

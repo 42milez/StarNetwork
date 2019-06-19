@@ -6,7 +6,7 @@
 #include "RUdpCommon.h"
 #include "RUdpPacket.h"
 
-using UdpIncomingCommand = struct UdpIncomingCommand
+using IncomingCommand = struct IncomingCommand
 {
     uint16_t reliable_sequence_number;
     uint16_t unreliable_sequence_number;
@@ -17,7 +17,7 @@ using UdpIncomingCommand = struct UdpIncomingCommand
     std::shared_ptr<RUdpPacket> packet;
 };
 
-using UdpOutgoingCommand = struct UdpOutgoingCommand
+using OutgoingCommand = struct OutgoingCommand
 {
     uint16_t reliable_sequence_number;
 
@@ -39,7 +39,7 @@ using UdpOutgoingCommand = struct UdpOutgoingCommand
 
     std::shared_ptr<RUdpPacket> packet;
 
-    UdpOutgoingCommand();
+    OutgoingCommand();
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMAND_H

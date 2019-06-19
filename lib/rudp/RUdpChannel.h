@@ -16,9 +16,9 @@ using UdpChannel = struct UdpChannel
 
     uint16_t incoming_unreliable_sequence_number;
 
-    std::list<UdpIncomingCommand> incoming_reliable_commands;
+    std::list<IncomingCommand> incoming_reliable_commands;
 
-    std::list<UdpIncomingCommand> incoming_unreliable_commands;
+    std::list<IncomingCommand> incoming_unreliable_commands;
 
     UdpChannel();
 };

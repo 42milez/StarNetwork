@@ -7,7 +7,7 @@ namespace
     bool
     window_wraps(const std::shared_ptr<UdpChannel> &channel,
                  int reliable_window,
-                 const std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
+                 const std::shared_ptr<OutgoingCommand> &outgoing_command)
     {
         auto has_not_sent_once = outgoing_command->send_attempts == 0;
 
@@ -31,13 +31,13 @@ namespace
     window_exceeds(uint32_t reliable_data_in_transit,
                    uint32_t mtu,
                    uint32_t window_size,
-                   const std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
+                   const std::shared_ptr<OutgoingCommand> &outgoing_command)
     {
         return (reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, mtu);
     }
 }
 
-UdpOutgoingCommand::UdpOutgoingCommand() : reliable_sequence_number(0),
+OutgoingCommand::OutgoingCommand() : reliable_sequence_number(0),
                                            unreliable_sequence_number(0),
                                            sent_time(0),
                                            round_trip_timeout(0),
@@ -64,7 +64,7 @@ RUdpCommandPod::RUdpCommandPod() :
 {}
 
 void
-RUdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outgoing_command)
+RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
     UdpChannel channel;
 
@@ -126,7 +126,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<UdpOutgoingCommand> &outg
 }
 
 void
-RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command)
 {
     _outgoing_reliable_commands.push_front(command);
 }
@@ -445,7 +445,7 @@ RUdpCommandPod::next_timeout(uint32_t val)
 }
 
 void
-RUdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
+RUdpCommandPod::sent_reliable_command(std::shared_ptr<OutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
 {
     _sent_reliable_commands.push_back(command);
 
@@ -453,7 +453,7 @@ RUdpCommandPod::sent_reliable_command(std::shared_ptr<UdpOutgoingCommand> &comma
 }
 
 void
-RUdpCommandPod::sent_unreliable_command(std::shared_ptr<UdpOutgoingCommand> &command)
+RUdpCommandPod::sent_unreliable_command(std::shared_ptr<OutgoingCommand> &command)
 {
     _sent_unreliable_commands.push_back(command);
 }
