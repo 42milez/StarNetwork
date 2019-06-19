@@ -60,7 +60,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t s
             // --------------------------------------------------
 
 #define IS_EVENT_TYPE_NONE() \
-    if (event->type != UdpEventType::NONE) \
+    if (event->type != RUdpEventType::NONE) \
         return 1; \
     else \
         continue;
@@ -94,7 +94,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t s
 //                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
 //                _udp_protocol_check_timeouts(peer, event) == 1)
 //            {
-//                if (event->type != UdpEventType::NONE)
+//                if (event->type != RUdpEventType::NONE)
 //                    return 1;
 //                else
 //                    continue;

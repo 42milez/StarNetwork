@@ -51,7 +51,7 @@ RUdpHost::udp_host_service(std::unique_ptr<UdpEvent> &event, uint32_t timeout)
 
     if (event != nullptr)
     {
-        event->type = UdpEventType::NONE;
+        event->type = RUdpEventType::NONE;
         event->peer = nullptr;
         event->packet = nullptr;
 

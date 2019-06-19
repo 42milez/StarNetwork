@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPEVENTTYPE_H
 #define P2P_TECHDEMO_RUDPEVENTTYPE_H
 
-enum class UdpEventType : int
+enum class RUdpEventType : int
 {
     NONE,
     CONNECT,

@@ -92,7 +92,7 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniq
         // ピアが接続済みである場合
     else if (event != nullptr)
     {
-        event->type = UdpEventType::DISCONNECT;
+        event->type = RUdpEventType::DISCONNECT;
         event->peer = peer;
         event->data = 0;
 
@@ -168,7 +168,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
             change_state(peer, RUdpPeerState::CONNECTED);
 
-            event->type = UdpEventType::CONNECT;
+            event->type = RUdpEventType::CONNECT;
             event->peer = peer;
             event->data = peer->event_data();
 
@@ -178,7 +178,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
         {
             recalculate_bandwidth_limits(true);
 
-            event->type = UdpEventType::DISCONNECT;
+            event->type = RUdpEventType::DISCONNECT;
             event->peer = peer;
             event->data = peer->event_data();
 
@@ -198,7 +198,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
             if (event->packet == nullptr)
                 continue;
 
-            event->type = UdpEventType::RECEIVE;
+            event->type = RUdpEventType::RECEIVE;
             event->peer = peer;
 
             // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する

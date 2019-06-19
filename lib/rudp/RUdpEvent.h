@@ -6,7 +6,7 @@
 
 using UdpEvent = struct UdpEvent
 {
-    UdpEventType type;
+    RUdpEventType type;
 
     uint32_t data;
 
