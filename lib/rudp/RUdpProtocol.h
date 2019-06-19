@@ -11,19 +11,6 @@
 
 class RUdpProtocol
 {
-private:
-    std::unique_ptr<RUdpDispatchQueue> _dispatch_queue;
-
-    std::unique_ptr<RUdpChamber> _chamber;
-
-    bool _recalculate_bandwidth_limits;
-
-    size_t _connected_peers;
-
-    size_t _bandwidth_limited_peers;
-
-    uint32_t _bandwidth_throttle_epoch;
-
 public:
     RUdpProtocol();
 
@@ -65,6 +52,19 @@ public:
 
     void bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                             const std::vector<std::shared_ptr<RUdpPeer>> &peers);
+
+private:
+    std::unique_ptr<RUdpDispatchQueue> _dispatch_queue;
+
+    std::unique_ptr<RUdpChamber> _chamber;
+
+    bool _recalculate_bandwidth_limits;
+
+    size_t _connected_peers;
+
+    size_t _bandwidth_limited_peers;
+
+    uint32_t _bandwidth_throttle_epoch;
 };
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOL_H
