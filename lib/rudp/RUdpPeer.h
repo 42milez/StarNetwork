@@ -30,7 +30,7 @@ private:
 
     uint8_t _incoming_session_id;
 
-    UdpAddress _address;
+    RUdpAddress _address;
 
     void *_data;
 
@@ -70,7 +70,7 @@ public:
     bool is_disconnected();
 
     Error
-    setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
+    setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth);
 
     void udp_peer_disconnect();
 
@@ -140,7 +140,7 @@ public:
 
     uint8_t outgoing_session_id();
 
-    const UdpAddress & address();
+    const RUdpAddress & address();
 
     void reset();
 

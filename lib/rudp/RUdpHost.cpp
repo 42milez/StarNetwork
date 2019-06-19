@@ -26,7 +26,7 @@ namespace
 }
 
 Error
-RUdpHost::udp_host_connect(const UdpAddress &address, SysCh channel_count, uint32_t data)
+RUdpHost::udp_host_connect(const RUdpAddress &address, SysCh channel_count, uint32_t data)
 {
     auto peer = _peer_pod->available_peer_exists();
 
@@ -123,7 +123,7 @@ RUdpHost::udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     return 0;
 }
 
-RUdpHost::RUdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
+RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth) :
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
@@ -131,7 +131,7 @@ RUdpHost::RUdpHost(const UdpAddress &address, SysCh channel_count, size_t peer_c
     _maximum_waiting_data(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     _mtu(HOST_DEFAULT_MTU),
     _outgoing_bandwidth(out_bandwidth),
-    _received_address(std::make_unique<UdpAddress>()),
+    _received_address(std::make_unique<RUdpAddress>()),
     _received_data_length(0),
     _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {

@@ -1,7 +1,7 @@
 #include "RUdpChamber.h"
 #include "RUdpConnection.h"
 
-RUdpConnection::RUdpConnection(const UdpAddress &address)
+RUdpConnection::RUdpConnection(const RUdpAddress &address)
 {
     _socket = std::make_unique<Socket>();
     _socket->open(Socket::Type::UDP, IP::Type::ANY);
@@ -30,7 +30,7 @@ RUdpConnection::RUdpConnection(const UdpAddress &address)
 }
 
 ssize_t
-RUdpConnection::send(const UdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber)
+RUdpConnection::send(const RUdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber)
 {
     IpAddress dest;
 

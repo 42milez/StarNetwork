@@ -11,9 +11,9 @@ private:
     std::unique_ptr<Socket> _socket;
 
 public:
-    RUdpConnection(const UdpAddress &address);
+    RUdpConnection(const RUdpAddress &address);
 
-    ssize_t send(const UdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber);
+    ssize_t send(const RUdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber);
 };
 
 #endif // P2P_TECHDEMO_RUDPCONNECTION_H

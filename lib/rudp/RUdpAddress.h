@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstring>
 
-using UdpAddress = struct UdpAddress
+using RUdpAddress = struct RUdpAddress
 {
     uint8_t host[16] = {0};
 
@@ -12,7 +12,7 @@ using UdpAddress = struct UdpAddress
 
     uint8_t wildcard = 0;
 
-    UdpAddress();
+    RUdpAddress();
 
     void set_ip(const uint8_t *ip, size_t size);
 };

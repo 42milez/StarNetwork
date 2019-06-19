@@ -79,7 +79,7 @@ RUdpPeer::is_disconnected()
 }
 
 Error
-RUdpPeer::setup(const UdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
+RUdpPeer::setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     _channels = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
 
@@ -309,7 +309,7 @@ RUdpPeer::outgoing_session_id()
     return _outgoing_session_id;
 }
 
-const UdpAddress &
+const RUdpAddress &
 RUdpPeer::address()
 {
     return _address;
