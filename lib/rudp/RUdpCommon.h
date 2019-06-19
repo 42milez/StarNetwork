@@ -80,7 +80,7 @@ enum class SysCh : int
     MAX
 };
 
-enum class UdpSocketWait : int
+enum class SocketWait : int
 {
     NONE = 0,
     SEND = (1u << 0u),

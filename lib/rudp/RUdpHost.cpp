@@ -114,11 +114,11 @@ RUdpHost::udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
                 return 0;
 
             wait_condition =
-                static_cast<uint32_t>(UdpSocketWait::RECEIVE) | static_cast<uint32_t>(UdpSocketWait::INTERRUPT);
-        } while (wait_condition & static_cast<uint32_t>(UdpSocketWait::INTERRUPT));
+                static_cast<uint32_t>(SocketWait::RECEIVE) | static_cast<uint32_t>(SocketWait::INTERRUPT);
+        } while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
         _service_time = udp_time_get();
-    } while (wait_condition & static_cast<uint32_t>(UdpSocketWait::RECEIVE));
+    } while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
     return 0;
 }
