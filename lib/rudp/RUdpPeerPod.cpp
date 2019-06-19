@@ -42,7 +42,7 @@ UdpPeerPod::send_outgoing_commands(std::unique_ptr<UdpEvent> &event, uint32_t se
 
         for (auto &peer : _peers)
         {
-            if (peer->state_is(UdpPeerState::DISCONNECTED) || peer->state_is(UdpPeerState::ZOMBIE))
+            if (peer->state_is(RUdpPeerState::DISCONNECTED) || peer->state_is(RUdpPeerState::ZOMBIE))
                 continue;
 
             _protocol->chamber()->header_flags(0);

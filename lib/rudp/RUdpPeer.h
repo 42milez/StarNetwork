@@ -100,11 +100,11 @@ public:
 
     bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber);
 
-    bool state_is(UdpPeerState state);
+    bool state_is(RUdpPeerState state);
 
-    bool state_is_ge(UdpPeerState state);
+    bool state_is_ge(RUdpPeerState state);
 
-    bool state_is_lt(UdpPeerState state);
+    bool state_is_lt(RUdpPeerState state);
 
     uint32_t outgoing_data_total();
 

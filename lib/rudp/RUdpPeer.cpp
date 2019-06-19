@@ -28,7 +28,7 @@ UdpPeer::udp_peer_receive(uint8_t &channel_id)
 void
 UdpPeer::udp_peer_ping()
 {
-    if (!_net->state_is(UdpPeerState::CONNECTED))
+    if (!_net->state_is(RUdpPeerState::CONNECTED))
         return;
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
@@ -75,7 +75,7 @@ UdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command
 bool
 UdpPeer::is_disconnected()
 {
-    return _net->state_is(UdpPeerState::DISCONNECTED);
+    return _net->state_is(RUdpPeerState::DISCONNECTED);
 }
 
 Error
@@ -174,19 +174,19 @@ UdpPeer::command()
 }
 
 bool
-UdpPeer::state_is(UdpPeerState state)
+UdpPeer::state_is(RUdpPeerState state)
 {
     return _net->state_is(state);
 }
 
 bool
-UdpPeer::state_is_ge(UdpPeerState state)
+UdpPeer::state_is_ge(RUdpPeerState state)
 {
     return _net->state_is_ge(state);
 }
 
 bool
-UdpPeer::state_is_lt(UdpPeerState state)
+UdpPeer::state_is_lt(RUdpPeerState state)
 {
     return _net->state_is_lt(state);
 }

@@ -1,7 +1,7 @@
 #include "RUdpCommon.h"
 #include "RUdpPeerNet.h"
 
-UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
+UdpPeerNet::UdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
                            _packet_throttle(0),
                            _packet_throttle_limit(0),
                            _packet_throttle_counter(0),
@@ -26,7 +26,7 @@ UdpPeerNet::UdpPeerNet() : _state(UdpPeerState::DISCONNECTED),
 void
 UdpPeerNet::setup()
 {
-    _state = UdpPeerState::CONNECTING;
+    _state = RUdpPeerState::CONNECTING;
 
     if (_outgoing_bandwidth == 0)
         _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
@@ -41,7 +41,7 @@ UdpPeerNet::setup()
 }
 
 void
-UdpPeerNet::state(const UdpPeerState &state)
+UdpPeerNet::state(const RUdpPeerState &state)
 {
     _state = state;
 }
@@ -53,19 +53,19 @@ UdpPeerNet::mtu()
 }
 
 bool
-UdpPeerNet::state_is(UdpPeerState state)
+UdpPeerNet::state_is(RUdpPeerState state)
 {
     return _state == state;
 }
 
 bool
-UdpPeerNet::state_is_ge(UdpPeerState state)
+UdpPeerNet::state_is_ge(RUdpPeerState state)
 {
     return _state >= state;
 }
 
 bool
-UdpPeerNet::state_is_lt(UdpPeerState state)
+UdpPeerNet::state_is_lt(RUdpPeerState state)
 {
     return _state < state;
 }
@@ -205,7 +205,7 @@ UdpPeerNet::last_send_time(uint32_t service_time)
 void
 UdpPeerNet::reset()
 {
-    _state = UdpPeerState::DISCONNECTED;
+    _state = RUdpPeerState::DISCONNECTED;
     _last_send_time = 0;
     _packet_throttle = PEER_DEFAULT_PACKET_THROTTLE;
     _packet_throttle_limit = PEER_PACKET_THROTTLE_SCALE;

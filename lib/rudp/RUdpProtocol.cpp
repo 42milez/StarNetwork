@@ -4,7 +4,7 @@
 #include "RUdpProtocol.h"
 
 #define IS_PEER_NOT_CONNECTED(peer) \
-    !peer->state_is(UdpPeerState::CONNECTED) && peer->state_is(UdpPeerState::DISCONNECT_LATER)
+    !peer->state_is(RUdpPeerState::CONNECTED) && peer->state_is(RUdpPeerState::DISCONNECT_LATER)
 
 RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
                              _bandwidth_limited_peers(0),
@@ -13,7 +13,7 @@ RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
 {}
 
 void
-RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const UdpPeerState state)
+RUdpProtocol::_udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, const RUdpPeerState state)
 {
     change_state(peer, state);
 
@@ -63,7 +63,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
         command->acknowledge.received_sent_time = htons(ack->sent_time);
 
         if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-            _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+            _udp_protocol_dispatch_state(peer, RUdpPeerState::ZOMBIE);
 
         ++command;
         ++buffer;
@@ -76,7 +76,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<UdpPeer> &peer)
 void
 RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event)
 {
-    if (peer->state_is_ge(UdpPeerState::CONNECTION_PENDING))
+    if (peer->state_is_ge(RUdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
         _recalculate_bandwidth_limits = true;
 
@@ -84,8 +84,8 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::uniqu
     // 1. DISCONNECTED,
     // 2. ACKNOWLEDGING_CONNECT,
     // 3. CONNECTION_PENDING
-    //if (peer->state != UdpPeerState::CONNECTING && peer->state < UdpPeerState::CONNECTION_SUCCEEDED)
-    if (!peer->state_is(UdpPeerState::CONNECTING) && peer->state_is_lt(UdpPeerState::CONNECTION_SUCCEEDED))
+    //if (peer->state != RUdpPeerState::CONNECTING && peer->state < RUdpPeerState::CONNECTION_SUCCEEDED)
+    if (!peer->state_is(RUdpPeerState::CONNECTING) && peer->state_is_lt(RUdpPeerState::CONNECTION_SUCCEEDED))
     {
         udp_peer_reset(peer);
     }
@@ -102,7 +102,7 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::uniqu
     {
         peer->event_data(0);
 
-        _udp_protocol_dispatch_state(peer, UdpPeerState::ZOMBIE);
+        _udp_protocol_dispatch_state(peer, RUdpPeerState::ZOMBIE);
     }
 }
 
@@ -162,11 +162,11 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 
         peer->needs_dispatch(false);
 
-        if (peer->state_is(UdpPeerState::CONNECTION_PENDING) ||
-            peer->state_is(UdpPeerState::CONNECTION_SUCCEEDED))
+        if (peer->state_is(RUdpPeerState::CONNECTION_PENDING) ||
+            peer->state_is(RUdpPeerState::CONNECTION_SUCCEEDED))
         {
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
-            change_state(peer, UdpPeerState::CONNECTED);
+            change_state(peer, RUdpPeerState::CONNECTED);
 
             event->type = UdpEventType::CONNECT;
             event->peer = peer;
@@ -174,7 +174,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 
             return 1;
         }
-        else if (peer->state_is(UdpPeerState::ZOMBIE))
+        else if (peer->state_is(RUdpPeerState::ZOMBIE))
         {
             recalculate_bandwidth_limits(true);
 
@@ -187,7 +187,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<UdpEvent> &event)
 
             return 1;
         }
-        else if (peer->state_is(UdpPeerState::CONNECTED))
+        else if (peer->state_is(RUdpPeerState::CONNECTED))
         {
             if (!peer->dispatched_command_exists())
                 continue;
@@ -275,9 +275,9 @@ RUdpProtocol::decrease_bandwidth_limited_peers()
 }
 
 void
-RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state)
+RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const RUdpPeerState &state)
 {
-    if (state == UdpPeerState::CONNECTED || state == UdpPeerState::DISCONNECT_LATER)
+    if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
         connect(peer);
     else
         disconnect(peer);
@@ -288,7 +288,7 @@ RUdpProtocol::change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerSt
 void
 RUdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 {
-    if (!peer->net()->state_is(UdpPeerState::CONNECTED) && !peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    if (!peer->net()->state_is(RUdpPeerState::CONNECTED) && !peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
     {
         if (peer->net()->incoming_bandwidth() != 0)
             increase_bandwidth_limited_peers();
@@ -300,7 +300,7 @@ RUdpProtocol::connect(const std::shared_ptr<UdpPeer> &peer)
 void
 RUdpProtocol::disconnect(const std::shared_ptr<UdpPeer> &peer)
 {
-    if (peer->net()->state_is(UdpPeerState::CONNECTED) || peer->net()->state_is(UdpPeerState::DISCONNECT_LATER))
+    if (peer->net()->state_is(RUdpPeerState::CONNECTED) || peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
     {
         if (peer->net()->incoming_bandwidth() != 0)
             decrease_bandwidth_limited_peers();

@@ -36,7 +36,7 @@ public:
     _udp_protocol_send_unreliable_outgoing_commands(std::shared_ptr<UdpPeer> &peer, uint32_t service_time);
 
     void
-    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, UdpPeerState state);
+    _udp_protocol_dispatch_state(std::shared_ptr<UdpPeer> &peer, RUdpPeerState state);
 
     void
     notify_disconnect(std::shared_ptr<UdpPeer> &peer, const std::unique_ptr<UdpEvent> &event);
@@ -69,7 +69,7 @@ public:
 
     void disconnect(const std::shared_ptr<UdpPeer> &peer);
 
-    void change_state(const std::shared_ptr<UdpPeer> &peer, const UdpPeerState &state);
+    void change_state(const std::shared_ptr<UdpPeer> &peer, const RUdpPeerState &state);
 
     size_t connected_peers();
 

@@ -8,7 +8,7 @@
 class UdpPeerNet
 {
 private:
-    UdpPeerState _state;
+    RUdpPeerState _state;
 
     uint32_t _packet_throttle;
 
@@ -53,13 +53,13 @@ public:
 
     uint32_t mtu();
 
-    void state(const UdpPeerState &state);
+    void state(const RUdpPeerState &state);
 
-    bool state_is(UdpPeerState state);
+    bool state_is(RUdpPeerState state);
 
-    bool state_is_ge(UdpPeerState state);
+    bool state_is_ge(RUdpPeerState state);
 
-    bool state_is_lt(UdpPeerState state);
+    bool state_is_lt(RUdpPeerState state);
 
     uint32_t incoming_bandwidth();
 
