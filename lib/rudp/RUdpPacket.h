@@ -6,10 +6,10 @@
 #include <cstddef>
 #include <cstdint>
 
-class UdpPacket
+class RUdpPacket
 {
 private:
-    std::function<void(UdpPacket *)> _free_callback;
+    std::function<void(RUdpPacket *)> _free_callback;
 
     uint32_t _flags;
 

@@ -2,7 +2,7 @@
 #include "RUdpCommon.h"
 
 uint32_t
-UdpPacket::add_flag(uint32_t flag)
+RUdpPacket::add_flag(uint32_t flag)
 {
     _flags |= flag;
 
@@ -10,7 +10,7 @@ UdpPacket::add_flag(uint32_t flag)
 }
 
 void
-UdpPacket::destroy()
+RUdpPacket::destroy()
 {
     if (_free_callback != nullptr)
         _free_callback(this);
@@ -20,13 +20,13 @@ UdpPacket::destroy()
 }
 
 size_t
-UdpPacket::data_length()
+RUdpPacket::data_length()
 {
     return _data_length;
 }
 
 uint8_t *
-UdpPacket::move_data_pointer(uint32_t val)
+RUdpPacket::move_data_pointer(uint32_t val)
 {
     return _data += val;
 }

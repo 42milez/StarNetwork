@@ -14,7 +14,7 @@ using UdpIncomingCommand = struct UdpIncomingCommand
     uint32_t fragment_count;
     uint32_t fragments_remaining;
     std::vector<uint32_t> fragments;
-    std::shared_ptr<UdpPacket> packet;
+    std::shared_ptr<RUdpPacket> packet;
 };
 
 using UdpOutgoingCommand = struct UdpOutgoingCommand
@@ -37,7 +37,7 @@ using UdpOutgoingCommand = struct UdpOutgoingCommand
 
     std::shared_ptr<RUdpProtocolType> command;
 
-    std::shared_ptr<UdpPacket> packet;
+    std::shared_ptr<RUdpPacket> packet;
 
     UdpOutgoingCommand();
 };
