@@ -53,8 +53,6 @@ public:
     Error _udp_socket_bind(std::unique_ptr<Socket> &socket, const UdpAddress &address);
 
     ssize_t _udp_socket_send(const UdpAddress &address);
-
-    std::shared_ptr<UdpPeer> _pop_peer_from_dispatch_queue();
 };
 
 #endif // P2P_TECHDEMO_RUDPHOST_H
