@@ -147,7 +147,7 @@ RUdpProtocol::continue_sending(bool val)
     _chamber->continue_sending(val);
 }
 
-std::unique_ptr<UdpChamber> &
+std::unique_ptr<RUdpChamber> &
 RUdpProtocol::chamber()
 {
     return _chamber;

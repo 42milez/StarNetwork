@@ -204,7 +204,7 @@ RUdpPeer::event_data(uint32_t val)
 }
 
 bool
-RUdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time)
+RUdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time)
 {
     auto can_ping = _command_pod->load_reliable_commands_into_chamber(chamber, _net, _channels, service_time);
 
@@ -212,7 +212,7 @@ RUdpPeer::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamb
 }
 
 bool
-RUdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber)
+RUdpPeer::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber)
 {
     auto disconnected = _command_pod->load_unreliable_commands_into_chamber(chamber, _net);
 

@@ -30,7 +30,7 @@ RUdpConnection::RUdpConnection(const UdpAddress &address)
 }
 
 ssize_t
-RUdpConnection::send(const UdpAddress &address, const std::shared_ptr<UdpChamber> &chamber)
+RUdpConnection::send(const UdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber)
 {
     IpAddress dest;
 

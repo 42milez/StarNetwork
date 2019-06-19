@@ -5,7 +5,7 @@
 #include "RUdpCommand.h"
 #include "RUdpCommon.h"
 
-class UdpChamber
+class RUdpChamber
 {
 private:
     UdpBuffer _buffers[BUFFER_MAXIMUM];
@@ -23,7 +23,7 @@ private:
     bool _continue_sending;
 
 public:
-    UdpChamber();
+    RUdpChamber();
 
     UdpBuffer *buffer_insert_pos();
 

@@ -2,7 +2,7 @@
 #include "RUdpCommandSize.h"
 #include "RUdpProtocol.h"
 
-UdpChamber::UdpChamber() : _continue_sending(false),
+RUdpChamber::RUdpChamber() : _continue_sending(false),
                            _header_flags(0),
                            _buffer_count(0),
                            _command_count(0)
@@ -11,19 +11,19 @@ UdpChamber::UdpChamber() : _continue_sending(false),
 }
 
 UdpBuffer *
-UdpChamber::buffer_insert_pos()
+RUdpChamber::buffer_insert_pos()
 {
     return &_buffers[_buffer_count];
 }
 
 RUdpProtocolType *
-UdpChamber::command_insert_pos()
+RUdpChamber::command_insert_pos()
 {
     return &_commands[_command_count];
 }
 
 bool
-UdpChamber::sending_continues(RUdpProtocolType *command,
+RUdpChamber::sending_continues(RUdpProtocolType *command,
                               UdpBuffer *buffer,
                               uint32_t mtu,
                               const std::shared_ptr<OutgoingCommand> &outgoing_command)
@@ -62,97 +62,97 @@ UdpChamber::sending_continues(RUdpProtocolType *command,
 }
 
 uint16_t
-UdpChamber::header_flags()
+RUdpChamber::header_flags()
 {
     return _header_flags;
 }
 
 void
-UdpChamber::header_flags(uint16_t val)
+RUdpChamber::header_flags(uint16_t val)
 {
     _header_flags = val;
 }
 
 void
-UdpChamber::increase_packet_size(size_t val)
+RUdpChamber::increase_packet_size(size_t val)
 {
     _packet_size += val;
 }
 
 void
-UdpChamber::update_command_count(const RUdpProtocolType *command)
+RUdpChamber::update_command_count(const RUdpProtocolType *command)
 {
     _command_count = command - _commands;
 }
 
 void
-UdpChamber::update_buffer_count(const UdpBuffer *buffer)
+RUdpChamber::update_buffer_count(const UdpBuffer *buffer)
 {
     _buffer_count = buffer - _buffers;
 }
 
 bool
-UdpChamber::continue_sending()
+RUdpChamber::continue_sending()
 {
     return _continue_sending;
 }
 
 void
-UdpChamber::continue_sending(bool val)
+RUdpChamber::continue_sending(bool val)
 {
     _continue_sending = val;
 }
 
 bool
-UdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
+RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
 {
     return command < &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
 }
 
 bool
-UdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
+RUdpChamber::data_buffer_have_enough_space(UdpBuffer *buffer)
 {
     return buffer < &_buffers[BUFFER_MAXIMUM];
 }
 
 void
-UdpChamber::command_count(size_t val)
+RUdpChamber::command_count(size_t val)
 {
     _command_count = val;
 }
 
 size_t
-UdpChamber::command_count()
+RUdpChamber::command_count()
 {
     return _command_count;
 }
 
 void
-UdpChamber::buffer_count(size_t val)
+RUdpChamber::buffer_count(size_t val)
 {
     _buffer_count = val;
 }
 
 void
-UdpChamber::packet_size(size_t val)
+RUdpChamber::packet_size(size_t val)
 {
     _packet_size = val;
 }
 
 size_t
-UdpChamber::packet_size()
+RUdpChamber::packet_size()
 {
     return _packet_size;
 }
 
 void
-UdpChamber::set_data_length(size_t val)
+RUdpChamber::set_data_length(size_t val)
 {
     _buffers[0].data_length = val;
 }
 
 int
-UdpChamber::write(std::vector<uint8_t> &out)
+RUdpChamber::write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 

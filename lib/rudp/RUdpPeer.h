@@ -96,9 +96,9 @@ public:
 
     void event_data(uint32_t val);
 
-    bool load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber, uint32_t service_time);
+    bool load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
 
-    bool load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber);
+    bool load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber);
 
     bool state_is(RUdpPeerState state);
 

@@ -132,7 +132,7 @@ RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> 
 }
 
 bool
-RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
                                                    std::unique_ptr<RUdpPeerNet> &net,
                                                    const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                                    uint32_t service_time)
@@ -266,7 +266,7 @@ RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<UdpChamber> 
 }
 
 bool
-RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<UdpChamber> &chamber,
+RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
                                                      std::unique_ptr<RUdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();

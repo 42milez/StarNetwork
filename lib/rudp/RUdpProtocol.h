@@ -14,7 +14,7 @@ class RUdpProtocol
 private:
     std::unique_ptr<RUdpDispatchQueue> _dispatch_queue;
 
-    std::unique_ptr<UdpChamber> _chamber;
+    std::unique_ptr<RUdpChamber> _chamber;
 
     bool _recalculate_bandwidth_limits;
 
@@ -49,7 +49,7 @@ public:
 
     void continue_sending(bool val);
 
-    std::unique_ptr<UdpChamber> &chamber();
+    std::unique_ptr<RUdpChamber> &chamber();
 
     int dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
 
