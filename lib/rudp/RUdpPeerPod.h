@@ -18,7 +18,7 @@ private:
 
     size_t _peer_count;
 
-    UdpChecksumCallback _checksum;
+    ChecksumCallback _checksum;
 
     std::shared_ptr<RUdpCompressor> _compressor;
 
