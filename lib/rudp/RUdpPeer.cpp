@@ -151,7 +151,7 @@ RUdpPeer::clear_dispatched_command()
     std::swap(_dispatched_commands, empty);
 }
 
-std::shared_ptr<UdpAcknowledgement>
+std::shared_ptr<RUdpAcknowledgement>
 RUdpPeer::pop_acknowledgement()
 {
     auto acknowledgement = _acknowledgements.front();

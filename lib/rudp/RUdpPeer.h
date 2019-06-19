@@ -46,7 +46,7 @@ private:
 
     uint32_t _highest_round_trip_time_variance;
 
-    std::list<std::shared_ptr<UdpAcknowledgement>> _acknowledgements;
+    std::list<std::shared_ptr<RUdpAcknowledgement>> _acknowledgements;
 
     std::queue<IncomingCommand> _dispatched_commands;
 
@@ -88,7 +88,7 @@ public:
 
     void clear_dispatched_command();
 
-    std::shared_ptr<UdpAcknowledgement> pop_acknowledgement();
+    std::shared_ptr<RUdpAcknowledgement> pop_acknowledgement();
 
     uint32_t mtu();
 

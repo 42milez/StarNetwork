@@ -3,7 +3,7 @@
 
 #include "RUdpCommon.h"
 
-using UdpAcknowledgement = struct UdpAcknowledgement
+using RUdpAcknowledgement = struct RUdpAcknowledgement
 {
     uint32_t sent_time;
     RUdpProtocolType command;
