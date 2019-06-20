@@ -1,11 +1,18 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
-#include "RUdpEventType.h"
 #include "RUdpPeer.h"
 
 using RUdpEvent = struct RUdpEvent
 {
+    enum class RUdpEventType : int
+    {
+        NONE,
+        CONNECT,
+        DISCONNECT,
+        RECEIVE
+    };
+
     RUdpEventType type;
 
     uint32_t data;
