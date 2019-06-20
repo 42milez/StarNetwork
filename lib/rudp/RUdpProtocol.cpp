@@ -125,18 +125,6 @@ RUdpProtocol::send_unreliable_outgoing_commands(std::shared_ptr<RUdpPeer> &peer,
 }
 
 bool
-RUdpProtocol::recalculate_bandwidth_limits()
-{
-    return _recalculate_bandwidth_limits;
-}
-
-void
-RUdpProtocol::recalculate_bandwidth_limits(bool val)
-{
-    _recalculate_bandwidth_limits = val;
-}
-
-bool
 RUdpProtocol::continue_sending()
 {
     return _chamber->continue_sending();
