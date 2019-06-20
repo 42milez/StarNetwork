@@ -3,16 +3,16 @@
 
 #include "RUdpPeer.h"
 
+enum class RUdpEventType : int
+{
+    NONE,
+    CONNECT,
+    DISCONNECT,
+    RECEIVE
+};
+
 using RUdpEvent = struct RUdpEvent
 {
-    enum class RUdpEventType : int
-    {
-        NONE,
-        CONNECT,
-        DISCONNECT,
-        RECEIVE
-    };
-
     RUdpEventType type;
 
     uint32_t data;
