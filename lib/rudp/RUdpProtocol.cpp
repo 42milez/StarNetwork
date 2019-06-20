@@ -21,7 +21,7 @@ RUdpProtocol::dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerStat
     {
         peer->needs_dispatch(true);
 
-        _dispatch_queue->push(peer);
+        _dispatch_queue->enqueue(peer);
     }
 }
 
@@ -42,7 +42,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
         // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
         if (!_chamber->command_buffer_have_enough_space(command) ||
             !_chamber->data_buffer_have_enough_space(buffer) ||
-            peer->mtu() - _chamber->packet_size() < sizeof(RUdpProtocolAcknowledge))
+            peer->net()->mtu() - _chamber->packet_size() < sizeof(RUdpProtocolAcknowledge))
         {
             _chamber->continue_sending(true);
 
@@ -195,7 +195,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
             {
                 peer->needs_dispatch(true);
 
-                _dispatch_queue->push(peer);
+                _dispatch_queue->enqueue(peer);
             }
 
             return 1;

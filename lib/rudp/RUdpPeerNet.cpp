@@ -142,24 +142,6 @@ RUdpPeerNet::packet_loss_epoch(uint32_t val)
     _packet_loss_epoch = val;
 }
 
-uint32_t
-RUdpPeerNet::packets_lost()
-{
-    return _packets_lost;
-}
-
-uint32_t
-RUdpPeerNet::packet_loss()
-{
-    return _packet_loss;
-}
-
-uint32_t
-RUdpPeerNet::packet_loss_variance()
-{
-    return _packet_loss_variance;
-}
-
 bool
 RUdpPeerNet::exceeds_packet_loss_interval(uint32_t service_time)
 {
@@ -230,12 +212,6 @@ uint32_t
 RUdpPeerNet::window_size()
 {
     return _window_size;
-}
-
-void
-RUdpPeerNet::window_size(uint32_t val)
-{
-    _window_size = val;
 }
 
 uint32_t

@@ -14,7 +14,7 @@ private:
 public:
     std::shared_ptr<RUdpPeer> pop_peer();
 
-    void push(std::shared_ptr<RUdpPeer> &peer);
+    void enqueue(std::shared_ptr<RUdpPeer> &peer);
 
     bool peer_exists();
 };
