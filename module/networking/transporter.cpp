@@ -322,17 +322,3 @@ Transporter::~Transporter()
 {
     close_connection();
 }
-
-void
-Transporter::udp_host_compress(std::shared_ptr<RUdpHost> &host)
-{
-    if (_compressor->destroy != nullptr)
-        _compressor->destroy();
-}
-
-void
-Transporter::udp_custom_compress(std::shared_ptr<RUdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor)
-{
-    if (compressor)
-        _compressor = compressor;
-}
