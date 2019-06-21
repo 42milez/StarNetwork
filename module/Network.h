@@ -75,59 +75,51 @@ private:
 
     struct Segment
     {
-        std::shared_ptr<RUdpSegment> *segment;
+        std::shared_ptr<RUdpSegment> segment;
         int from;
         int channel;
+
+        Segment();
     };
 
-    std::list<Segment> _incoming_segments;
-    std::map<int, RUdpPeer *> _peer_map;
-    std::vector<uint8_t> _dst_compressor_mem;
-    std::vector<uint8_t> _src_compressor_mem;
+    std::list<Segment> incoming_segments_;
+    std::map<int, std::shared_ptr<RUdpPeer>> peer_map_;
+    std::vector<uint8_t> dst_compressor_mem_;
+    std::vector<uint8_t> src_compressor_mem_;
 
-    std::shared_ptr<RUdpCompressor> _compressor;
-    std::shared_ptr<RUdpHost> _host;
+    std::shared_ptr<RUdpCompressor> compressor_;
+    std::shared_ptr<RUdpHost> host_;
 
-    CompressionMode _compression_mode;
+    CompressionMode compression_mode_;
 
-    ConnectionStatus _connection_status;
+    ConnectionStatus connection_status_;
 
-    IpAddress _bind_ip;
+    IpAddress bind_ip_;
 
-    Segment _current_segment;
+    Segment current_segment_;
 
-    RUdpEvent _event;
+    SysCh channel_count_;
 
-    RUdpPeer *_peer;
+    TransferMode transfer_mode_;
 
-    SysCh _channel_count;
+    uint32_t unique_id_;
 
-    TransferMode _transfer_mode;
+    int target_peer_;
 
-    uint32_t _unique_id;
+    int transfer_channel_;
 
-    int _target_peer;
+    bool active_;
 
-    int _transfer_channel;
+    bool always_ordered_;
 
-    bool _active;
+    bool refuse_connections_;
 
-    bool _always_ordered;
-
-    bool _refuse_connections;
-
-    bool _server;
+    bool server_;
 
 private:
-    size_t _udp_compress(const std::vector<RUdpBuffer> &in_buffers,
-                         size_t in_limit,
-                         std::vector<uint8_t> &out_data,
-                         size_t out_limit);
+    size_t Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, uint8_t *out_data, size_t out_limit);
 
-    size_t _udp_decompress(std::vector<uint8_t> &in_data,
-                           size_t in_limit,
-                           std::vector<uint8_t> &out_data,
-                           size_t out_limit);
+    size_t Decompressor(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit);
 
     void _udp_destroy();
 

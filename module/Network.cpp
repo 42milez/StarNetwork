@@ -10,14 +10,15 @@
 
 #include "Network.h"
 
+Network::Segment::Segment()
+    : segment(nullptr), from(0), channel(0)
+{}
+
 size_t
-Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
-                       size_t in_limit,
-                       std::vector<uint8_t> &out_data,
-                       size_t out_limit)
+Network::Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, uint8_t *out_data, size_t out_limit)
 {
-    if (_src_compressor_mem.size() < in_limit)
-        _src_compressor_mem.resize(in_limit);
+    if (src_compressor_mem_.size() < in_limit)
+        src_compressor_mem_.resize(in_limit);
 
     auto total = in_limit;
     auto offset = 0;
@@ -26,7 +27,7 @@ Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
     while (total) {
         for (auto i = 0; i < in_buffer_size; i++) {
             auto to_copy = std::min(total, in_buffers[i].data_length);
-            memcpy(&_src_compressor_mem[offset], in_buffers[i].data, to_copy);
+            memcpy(&src_compressor_mem_[offset], in_buffers[i].data, to_copy);
             offset += to_copy;
             total -= to_copy;
         }
@@ -34,10 +35,10 @@ Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
 
     Compression::Mode mode;
 
-    if (_compression_mode == CompressionMode::ZSTD) {
+    if (compression_mode_ == CompressionMode::ZSTD) {
         mode = Compression::Mode::ZSTD;
     }
-    else if (_compression_mode == CompressionMode::ZLIB) {
+    else if (compression_mode_ == CompressionMode::ZLIB) {
         mode = Compression::Mode::DEFLATE;
     }
     else {
@@ -46,10 +47,10 @@ Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
 
     auto req_size = Compression::get_max_compressed_buffer_size(offset, mode);
 
-    if (_dst_compressor_mem.size() < req_size)
-        _dst_compressor_mem.resize(req_size);
+    if (dst_compressor_mem_.size() < req_size)
+        dst_compressor_mem_.resize(req_size);
 
-    auto ret = Compression::compress(_dst_compressor_mem, _src_compressor_mem, mode);
+    auto ret = Compression::compress(dst_compressor_mem_, src_compressor_mem_, mode);
 
     if (ret < 0)
         return 0; // TODO: Is -1 better?
@@ -57,27 +58,24 @@ Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
     if (ret > out_limit)
         return 0; // TODO: Is -1 better?
 
-    out_data.resize(_dst_compressor_mem.size());
-    out_data = _dst_compressor_mem;
+    out_data.resize(dst_compressor_mem_.size());
+    out_data = dst_compressor_mem_;
 
-    _src_compressor_mem.clear();
-    _dst_compressor_mem.clear();
+    src_compressor_mem_.clear();
+    dst_compressor_mem_.clear();
 
     return ret;
 }
 
 size_t
-Network::_udp_decompress(std::vector<uint8_t> &in_data,
-                         size_t in_limit,
-                         std::vector<uint8_t> &out_data,
-                         size_t out_limit)
+Network::Decompressor(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)
 {
     auto ret = -1;
 
-    if (_compression_mode == CompressionMode::ZLIB) {
+    if (compression_mode_ == CompressionMode::ZLIB) {
         ret = Compression::decompress(out_data, out_limit, in_data, Compression::Mode::DEFLATE);
     }
-    else if (_compression_mode == CompressionMode::ZSTD) {
+    else if (compression_mode_ == CompressionMode::ZSTD) {
         // ...
     }
 
@@ -96,10 +94,10 @@ Network::_udp_destroy()
 void
 Network::_setup_compressor()
 {
-    if (_compression_mode == CompressionMode::NONE) {
+    if (compression_mode_ == CompressionMode::NONE) {
         //udp_host_compress(_host);
     }
-    else if (_compression_mode == CompressionMode::RANGE_CODER) {
+    else if (compression_mode_ == CompressionMode::RANGE_CODER) {
         //udp_host_compress_with_range_coder(_host);
     }
     else // FASTLZ or ZLIB or ZSTD
@@ -111,7 +109,7 @@ Network::_setup_compressor()
 Error
 Network::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
-    ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(peer_count < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
@@ -120,34 +118,34 @@ Network::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, 
     RUdpAddress address;
 
 #ifdef P2P_TECHDEMO_IPV6
-    if (_bind_ip.is_wildcard())
+    if (bind_ip_.is_wildcard())
     {
         address->wildcard = 1;
     }
     else
     {
-        address.set_ip(_bind_ip.get_ipv6(), 16);
+        address.set_ip(bind_ip_.get_ipv6(), 16);
     }
 #else
-    if (!_bind_ip.is_wildcard()) {
-        ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-        address.set_ip(_bind_ip.get_ipv4(), 8);
+    if (!bind_ip_.is_wildcard()) {
+        ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+        address.set_ip(bind_ip_.get_ipv4(), 8);
     }
 #endif
 
     address.port = port;
 
-    _host = std::make_unique<RUdpHost>(address, _channel_count, peer_count, in_bandwidth, out_bandwidth);
+    _host = std::make_unique<RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
 
     _setup_compressor();
 
-    _active = true;
-    _server = true;
+    active_ = true;
+    server_ = true;
     _connection_status = ConnectionStatus::CONNECTED;
 
-    _unique_id = hash32();
+    unique_id_ = hash32();
 
     return Error::OK;
 }
@@ -155,7 +153,7 @@ Network::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, 
 Error
 Network::create_client(const std::string &address, int port, int in_bandwidth, int out_bandwidth, int client_port)
 {
-    ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(client_port < 0 || client_port > 65535, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
@@ -165,23 +163,23 @@ Network::create_client(const std::string &address, int port, int in_bandwidth, i
         RUdpAddress client_address;
 
 #ifdef P2P_TECHDEMO_IPV6
-        if (_bind_ip.is_wildcard())
+        if (bind_ip_.is_wildcard())
         {
             client->wildcard = 1;
         }
         else
         {
-            address.set_ip(client, _bind_ip.get_ipv6(), 16);
+            address.set_ip(client, bind_ip_.get_ipv6(), 16);
         }
 #else
-        if (!_bind_ip.is_wildcard()) {
-            ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            client_address.set_ip(_bind_ip.get_ipv4(), 8);
+        if (!bind_ip_.is_wildcard()) {
+            ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+            client_address.set_ip(bind_ip_.get_ipv4(), 8);
         }
 #endif
         client_address.port = client_port;
 
-        _host = std::make_unique<RUdpHost>(client_address, _channel_count, 1, in_bandwidth, out_bandwidth);
+        _host = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
     else {
         // create a host with random assigned port
@@ -216,9 +214,9 @@ Network::create_client(const std::string &address, int port, int in_bandwidth, i
 #endif
     udp_address.port = port;
 
-    _unique_id = hash32();
+    unique_id_ = hash32();
 
-    return _host->udp_host_connect(udp_address, _channel_count, _unique_id);
+    return _host->udp_host_connect(udp_address, channel_count_, unique_id_);
 }
 
 void
@@ -236,14 +234,14 @@ Network::_pop_current_segment()
 void
 Network::poll()
 {
-    ERR_FAIL_COND(!_active)
+    ERR_FAIL_COND(!active_)
 
     _pop_current_segment();
 
     std::unique_ptr<RUdpEvent> event;
 
     while (true) {
-        if (!_host || !_active)
+        if (!_host || !active_)
             return;
 
         int ret = _host->udp_host_service(event, 0);
@@ -267,40 +265,33 @@ Network::poll()
 }
 
 Network::Network()
-    : _active(false),
-      _always_ordered(false),
-      _bind_ip("*"),
-      _channel_count(SysCh::MAX),
-      _compression_mode(CompressionMode::NONE),
+    : active_(false),
+      always_ordered_(false),
+      bind_ip_("*"),
+      channel_count_(SysCh::MAX),
+      compression_mode_(CompressionMode::NONE),
       _connection_status(ConnectionStatus::DISCONNECTED),
+      _current_segment(Segment{}),
       _refuse_connections(false),
-      _server(false),
+      server_(false),
       _target_peer(0),
       _transfer_channel(-1),
       _transfer_mode(TransferMode::RELIABLE),
-      _unique_id(0)
+      unique_id_(0)
 {
-    _current_segment.segment = nullptr;
-
-    _compressor->compress = [this](
-        const std::vector<RUdpBuffer> &in_buffers,
-        size_t in_limit,
-        std::vector<uint8_t> &out_data,
-        size_t out_limit
-    ) -> size_t
+    _compressor->compress = [this](const std::vector<RUdpBuffer> &in_buffers,
+                                   size_t in_limit,
+                                   uint8_t *out_data,
+                                   size_t out_limit) -> size_t
     {
-        return _udp_compress(in_buffers, in_limit, out_data, out_limit);
+        return Compressor(in_buffers, in_limit, out_data, out_limit);
     };
 
-    _compressor->decompress = [this](
-        std::vector<uint8_t> &in_data,
-        size_t in_limit,
-        std::vector<uint8_t> &out_data,
-        size_t out_limit
-    ) -> size_t
-    {
-        return _udp_decompress(in_data, in_limit, out_data, out_limit);
-    };
+    _compressor->decompress =
+        [this](const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit) -> size_t
+        {
+            return Decompressor(in_data, in_limit, out_data, out_limit);
+        };
 
     _compressor->destroy = [this]() -> void
     {
