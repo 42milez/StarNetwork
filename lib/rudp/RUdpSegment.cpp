@@ -1,8 +1,8 @@
-#include "RUdpPacket.h"
+#include "RUdpSegment.h"
 #include "RUdpCommon.h"
 
 uint32_t
-RUdpPacket::add_flag(uint32_t flag)
+RUdpSegment::add_flag(uint32_t flag)
 {
     _flags |= flag;
 
@@ -10,7 +10,7 @@ RUdpPacket::add_flag(uint32_t flag)
 }
 
 void
-RUdpPacket::destroy()
+RUdpSegment::destroy()
 {
     if (_free_callback != nullptr)
         _free_callback(this);
@@ -20,13 +20,13 @@ RUdpPacket::destroy()
 }
 
 size_t
-RUdpPacket::data_length()
+RUdpSegment::data_length()
 {
     return _data_length;
 }
 
 uint8_t *
-RUdpPacket::move_data_pointer(uint32_t val)
+RUdpSegment::move_data_pointer(uint32_t val)
 {
     return _data += val;
 }

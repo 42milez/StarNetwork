@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "RUdpCommon.h"
-#include "RUdpPacket.h"
+#include "RUdpSegment.h"
 
 using IncomingCommand = struct IncomingCommand
 {
@@ -14,7 +14,7 @@ using IncomingCommand = struct IncomingCommand
     uint32_t fragment_count;
     uint32_t fragments_remaining;
     std::vector<uint32_t> fragments;
-    std::shared_ptr<RUdpPacket> packet;
+    std::shared_ptr<RUdpSegment> packet;
 };
 
 using OutgoingCommand = struct OutgoingCommand
@@ -37,7 +37,7 @@ using OutgoingCommand = struct OutgoingCommand
 
     std::shared_ptr<RUdpProtocolType> command;
 
-    std::shared_ptr<RUdpPacket> packet;
+    std::shared_ptr<RUdpSegment> packet;
 
     OutgoingCommand();
 };

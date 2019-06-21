@@ -8,7 +8,7 @@ RUdpPeer::udp_peer_disconnect()
     // ...
 }
 
-std::shared_ptr<RUdpPacket>
+std::shared_ptr<RUdpSegment>
 RUdpPeer::udp_peer_receive(uint8_t &channel_id)
 {
     if (_dispatched_commands.empty())
@@ -61,7 +61,7 @@ RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
 
 void
 RUdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command,
-                                 const std::shared_ptr<RUdpPacket> &packet, uint32_t offset, uint16_t length)
+                                 const std::shared_ptr<RUdpSegment> &packet, uint32_t offset, uint16_t length)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command;
 

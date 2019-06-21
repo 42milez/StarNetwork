@@ -12,7 +12,7 @@
 #include "RUdpCommand.h"
 #include "RUdpCommandPod.h"
 #include "RUdpCommon.h"
-#include "RUdpPacket.h"
+#include "RUdpSegment.h"
 #include "RUdpPeerNet.h"
 
 class RUdpPeer
@@ -66,7 +66,7 @@ public:
     RUdpPeer();
 
     void
-    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpPacket> &packet,
+    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &packet,
                            uint32_t offset, uint16_t length);
 
     bool is_disconnected();
@@ -77,7 +77,7 @@ public:
 
     void udp_peer_disconnect();
 
-    std::shared_ptr<RUdpPacket> udp_peer_receive(uint8_t &channel_id);
+    std::shared_ptr<RUdpSegment> udp_peer_receive(uint8_t &channel_id);
 
     void udp_peer_ping();
 

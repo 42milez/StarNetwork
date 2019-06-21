@@ -1,15 +1,15 @@
-#ifndef P2P_TECHDEMO_RUDPPACKET_H
-#define P2P_TECHDEMO_RUDPPACKET_H
+#ifndef P2P_TECHDEMO_RUDPSEGMENT_H
+#define P2P_TECHDEMO_RUDPSEGMENT_H
 
 #include <functional>
 
 #include <cstddef>
 #include <cstdint>
 
-class RUdpPacket
+class RUdpSegment
 {
 private:
-    std::function<void(RUdpPacket *)> _free_callback;
+    std::function<void(RUdpSegment *)> _free_callback;
 
     uint32_t _flags;
 
@@ -29,4 +29,4 @@ public:
     void destroy();
 };
 
-#endif // P2P_TECHDEMO_RUDPPACKET_H
+#endif //P2P_TECHDEMO_RUDPSEGMENT_H

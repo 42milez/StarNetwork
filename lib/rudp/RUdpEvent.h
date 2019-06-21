@@ -19,7 +19,7 @@ using RUdpEvent = struct RUdpEvent
 
     std::shared_ptr<RUdpPeer> peer;
 
-    std::shared_ptr<RUdpPacket> packet;
+    std::shared_ptr<RUdpSegment> packet;
 
     uint8_t channel_id;
 

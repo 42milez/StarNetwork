@@ -12,7 +12,7 @@
 #include "lib/rudp/RUdpCompressor.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpHost.h"
-#include "lib/rudp/RUdpPacket.h"
+#include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/RUdpPeer.h"
 
 class Transporter
@@ -56,7 +56,7 @@ private:
 
     struct Packet
     {
-        RUdpPacket *packet;
+        RUdpSegment *packet;
         int from;
         int channel;
     };
