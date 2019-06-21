@@ -10,6 +10,7 @@
 
 #include "lib/rudp/RUdpCompressor.h"
 #include "lib/rudp/RUdpEvent.h"
+#include "lib/rudp/RUdpHost.h"
 #include "lib/rudp/RUdpPacket.h"
 #include "lib/rudp/RUdpPeer.h"
 
@@ -71,7 +72,7 @@ private:
 
     RUdpPeer *_peer;
 
-    std::shared_ptr<UdpHost> _host;
+    std::shared_ptr<RUdpHost> _host;
 
     Packet _current_packet;
 
@@ -186,9 +187,9 @@ public:
 
     bool is_server() const;
 
-    void udp_host_compress(std::shared_ptr<UdpHost> &host);
+    void udp_host_compress(std::shared_ptr<RUdpHost> &host);
 
-    void udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor);
+    void udp_custom_compress(std::shared_ptr<RUdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor);
 
     Transporter();
 

@@ -143,7 +143,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 
     address.port = port;
 
-    _host = std::make_unique<UdpHost>(address, _channel_count, peer_count, in_bandwidth, out_bandwidth);
+    _host = std::make_unique<RUdpHost>(address, _channel_count, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
 
@@ -189,7 +189,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 #endif
         client_address.port = client_port;
 
-        _host = std::make_unique<UdpHost>(client_address, _channel_count, 1, in_bandwidth, out_bandwidth);
+        _host = std::make_unique<RUdpHost>(client_address, _channel_count, 1, in_bandwidth, out_bandwidth);
     }
     else
     {
@@ -326,14 +326,14 @@ Transporter::~Transporter()
 }
 
 void
-Transporter::udp_host_compress(std::shared_ptr<UdpHost> &host)
+Transporter::udp_host_compress(std::shared_ptr<RUdpHost> &host)
 {
     if (_compressor->destroy != nullptr)
         _compressor->destroy();
 }
 
 void
-Transporter::udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor)
+Transporter::udp_custom_compress(std::shared_ptr<RUdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor)
 {
     if (compressor)
         _compressor = compressor;
