@@ -7,7 +7,8 @@
 
 #include "core/io/ip_address.h"
 #include "core/errors.h"
-#include "lib/udp/RUdpCommon.h"
+
+#include "lib/rudp/RUdpPacket.h"
 
 class Transporter
 {
@@ -50,7 +51,7 @@ private:
 
     struct Packet
     {
-        UdpPacket *packet;
+        RUdpPacket *packet;
         int from;
         int channel;
     };
