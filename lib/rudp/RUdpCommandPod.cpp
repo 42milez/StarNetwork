@@ -179,7 +179,7 @@ RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber>
         {
             if (!window_exceeded)
             {
-                auto ws = (net->segment_throttle() * net->window_size()) / PEER_PACKET_THROTTLE_SCALE;
+                auto ws = (net->segment_throttle() * net->window_size()) / PEER_SEGMENT_THROTTLE_SCALE;
 
                 if (window_exceeds(chamber->reliable_data_in_transit(), net->mtu(), ws, (*outgoing_command)))
                     window_exceeded = true;

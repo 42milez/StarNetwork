@@ -128,7 +128,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
-    _maximum_segment_size(HOST_DEFAULT_MAXIMUM_PACKET_SIZE),
+    _maximum_segment_size(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
     _maximum_waiting_data(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     _mtu(HOST_DEFAULT_MTU),
     _outgoing_bandwidth(out_bandwidth),

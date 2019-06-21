@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPPACKETFLAG_H
-#define P2P_TECHDEMO_RUDPPACKETFLAG_H
+#ifndef P2P_TECHDEMO_RUDPSEGMENTFLAG_H
+#define P2P_TECHDEMO_RUDPSEGMENTFLAG_H
 
 #include <cstdint>
 
@@ -22,4 +22,4 @@ enum class RUdpPacketFlag : uint32_t
         SENT = (1u << 8u)
 };
 
-#endif // P2P_TECHDEMO_RUDPPACKETFLAG_H
+#endif // P2P_TECHDEMO_RUDPSEGMENTFLAG_H

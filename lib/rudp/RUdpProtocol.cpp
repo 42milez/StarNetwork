@@ -60,9 +60,9 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
             needs_adjustment = false;
 
             if (data_total <= bandwidth)
-                throttle = PEER_PACKET_THROTTLE_SCALE;
+                throttle = PEER_SEGMENT_THROTTLE_SCALE;
             else
-                throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+                throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
             for (auto &peer : peers)
             {
@@ -76,11 +76,11 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                 }
 
                 peer_bandwidth = peer->incoming_bandwidth() * (time_elapsed / 1000);
-                if ((throttle * peer->outgoing_data_total()) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
+                if ((throttle * peer->outgoing_data_total()) / PEER_SEGMENT_THROTTLE_SCALE <= peer_bandwidth)
                     continue;
 
                 peer->segment_throttle_limit(
-                    (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
+                    (peer_bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / peer->outgoing_data_total());
 
                 if (peer->segment_throttle_limit() == 0)
                     peer->segment_throttle_limit(1);
@@ -107,9 +107,9 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
         if (peers_remaining > 0)
         {
             if (data_total <= bandwidth)
-                throttle = PEER_PACKET_THROTTLE_SCALE;
+                throttle = PEER_SEGMENT_THROTTLE_SCALE;
             else
-                throttle = (bandwidth * PEER_PACKET_THROTTLE_SCALE) / data_total;
+                throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
             for (auto &peer : peers)
             {

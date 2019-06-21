@@ -10,7 +10,7 @@ class RUdpChamber
 private:
     RUdpBuffer _buffers[BUFFER_MAXIMUM];
 
-    RUdpProtocolType _commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    RUdpProtocolType _commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
 
     size_t _command_count;
 

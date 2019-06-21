@@ -145,7 +145,7 @@ RUdpPeerNet::segment_loss_epoch(uint32_t val)
 bool
 RUdpPeerNet::exceeds_segment_loss_interval(uint32_t service_time)
 {
-    return UDP_TIME_DIFFERENCE(service_time, _segment_loss_epoch) >= PEER_PACKET_LOSS_INTERVAL;
+    return UDP_TIME_DIFFERENCE(service_time, _segment_loss_epoch) >= PEER_SEGMENT_LOSS_INTERVAL;
 }
 
 uint32_t
@@ -157,7 +157,7 @@ RUdpPeerNet::segments_sent()
 void
 RUdpPeerNet::calculate_segment_loss(uint32_t service_time)
 {
-    uint32_t segment_loss = _segments_lost * PEER_PACKET_LOSS_SCALE / _segments_sent;
+    uint32_t segment_loss = _segments_lost * PEER_SEGMENT_LOSS_SCALE / _segments_sent;
 
     _segment_loss_variance -= _segment_loss_variance / 4;
 
@@ -188,13 +188,13 @@ RUdpPeerNet::reset()
 {
     _state = RUdpPeerState::DISCONNECTED;
     _last_send_time = 0;
-    _segment_throttle = PEER_DEFAULT_PACKET_THROTTLE;
-    _segment_throttle_limit = PEER_PACKET_THROTTLE_SCALE;
+    _segment_throttle = PEER_DEFAULT_SEGMENT_THROTTLE;
+    _segment_throttle_limit = PEER_SEGMENT_THROTTLE_SCALE;
     _segment_throttle_counter = 0;
     _segment_throttle_epoch = 0;
-    _segment_throttle_acceleration = PEER_PACKET_THROTTLE_ACCELERATION;
-    _segment_throttle_deceleration = PEER_PACKET_THROTTLE_DECELERATION;
-    _segment_throttle_interval = PEER_PACKET_THROTTLE_INTERVAL;
+    _segment_throttle_acceleration = PEER_SEGMENT_THROTTLE_ACCELERATION;
+    _segment_throttle_deceleration = PEER_SEGMENT_THROTTLE_DECELERATION;
+    _segment_throttle_interval = PEER_SEGMENT_THROTTLE_INTERVAL;
     _incoming_bandwidth = 0;
     _outgoing_bandwidth = 0;
     _incoming_bandwidth_throttle_epoch = 0;
@@ -247,8 +247,8 @@ RUdpPeerNet::increase_segments_sent(uint32_t val)
 void
 RUdpPeerNet::update_segment_throttle_counter()
 {
-    _segment_throttle_counter += PEER_PACKET_THROTTLE_COUNTER;
-    _segment_throttle_counter %= PEER_PACKET_THROTTLE_SCALE;
+    _segment_throttle_counter += PEER_SEGMENT_THROTTLE_COUNTER;
+    _segment_throttle_counter %= PEER_SEGMENT_THROTTLE_SCALE;
 }
 
 bool

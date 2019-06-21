@@ -106,7 +106,7 @@ RUdpChamber::continue_sending(bool val)
 bool
 RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
 {
-    return command < &_commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    return command < &_commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
 }
 
 bool
