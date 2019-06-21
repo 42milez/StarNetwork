@@ -7,8 +7,6 @@
 #include "core/io/compression.h"
 
 #include "lib/rudp/RUdpAddress.h"
-#include "lib/rudp/RUdpBuffer.h"
-#include "lib/rudp/RUdpHost.h"
 
 #include "transporter.h"
 
@@ -122,7 +120,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    UdpAddress address;
+    RUdpAddress address;
 
 #ifdef P2P_TECHDEMO_IPV6
     if (_bind_ip.is_wildcard())
@@ -169,7 +167,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
     if (client_port != 0)
     {
-        UdpAddress client_address;
+        RUdpAddress client_address;
 
 #ifdef P2P_TECHDEMO_IPV6
         if (_bind_ip.is_wildcard())
@@ -217,7 +215,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
         ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
     }
 
-    UdpAddress udp_address;
+    RUdpAddress udp_address;
 
 #ifdef P2P_TECHDEMO_IPV6
     address.set_ip(ip.get_ipv6(), 16);
