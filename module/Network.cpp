@@ -228,7 +228,7 @@ Network::close_connection(uint32_t wait_usec)
 }
 
 void
-Network::_pop_current_packet()
+Network::_pop_current_segment()
 {
     // ...
 }
@@ -238,7 +238,7 @@ Network::poll()
 {
     ERR_FAIL_COND(!_active)
 
-    _pop_current_packet();
+    _pop_current_segment();
 
     std::unique_ptr<RUdpEvent> event;
 
@@ -267,9 +267,9 @@ Network::poll()
 }
 
 Network::Network()
-    : _bind_ip("*"),
-      _active(false),
+    : _active(false),
       _always_ordered(false),
+      _bind_ip("*"),
       _channel_count(SysCh::MAX),
       _compression_mode(CompressionMode::NONE),
       _connection_status(ConnectionStatus::DISCONNECTED),
@@ -280,7 +280,7 @@ Network::Network()
       _transfer_mode(TransferMode::RELIABLE),
       _unique_id(0)
 {
-    _current_packet.packet = nullptr;
+    _current_segment.segment = nullptr;
 
     _compressor->compress = [this](
         const std::vector<RUdpBuffer> &in_buffers,

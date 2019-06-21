@@ -33,9 +33,9 @@ public:
 
     void disconnect(int peer, bool now = false);
 
-    Error get_packet(const uint8_t **buffer, int &buffer_size);
+    Error get_segment(const uint8_t **buffer, int &buffer_size);
 
-    Error put_packet(const uint8_t *buffer, int buffer_size);
+    Error put_segment(const uint8_t *buffer, int buffer_size);
 
 private:
     enum class CompressionMode: uint8_t
@@ -73,14 +73,14 @@ private:
         RELIABLE
     };
 
-    struct Packet
+    struct Segment
     {
-        RUdpSegment *packet;
+        std::shared_ptr<RUdpSegment> *segment;
         int from;
         int channel;
     };
 
-    std::list<Packet> _incoming_packets;
+    std::list<Segment> _incoming_segments;
     std::map<int, RUdpPeer *> _peer_map;
     std::vector<uint8_t> _dst_compressor_mem;
     std::vector<uint8_t> _src_compressor_mem;
@@ -94,7 +94,7 @@ private:
 
     IpAddress _bind_ip;
 
-    Packet _current_packet;
+    Segment _current_segment;
 
     RUdpEvent _event;
 
@@ -131,7 +131,7 @@ private:
 
     void _udp_destroy();
 
-    void _pop_current_packet();
+    void _pop_current_segment();
 
     void _setup_compressor();
 };
