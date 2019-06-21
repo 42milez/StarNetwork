@@ -79,14 +79,14 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                 if ((throttle * peer->outgoing_data_total()) / PEER_PACKET_THROTTLE_SCALE <= peer_bandwidth)
                     continue;
 
-                peer->packet_throttle_limit(
+                peer->segment_throttle_limit(
                     (peer_bandwidth * PEER_PACKET_THROTTLE_SCALE) / peer->outgoing_data_total());
 
-                if (peer->packet_throttle_limit() == 0)
-                    peer->packet_throttle_limit(1);
+                if (peer->segment_throttle_limit() == 0)
+                    peer->segment_throttle_limit(1);
 
-                if (peer->packet_throttle() > peer->packet_throttle_limit())
-                    peer->packet_throttle(peer->packet_throttle_limit());
+                if (peer->segment_throttle() > peer->segment_throttle_limit())
+                    peer->segment_throttle(peer->segment_throttle_limit());
 
                 peer->outgoing_bandwidth_throttle_epoch(time_current);
                 peer->incoming_data_total(0);
@@ -116,10 +116,10 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                 if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->outgoing_bandwidth_throttle_epoch() == time_current)
                     continue;
 
-                peer->net()->packet_throttle_limit(throttle);
+                peer->net()->segment_throttle_limit(throttle);
 
-                if (peer->net()->packet_throttle() > peer->net()->packet_throttle_limit())
-                    peer->net()->packet_throttle(peer->net()->packet_throttle_limit());
+                if (peer->net()->segment_throttle() > peer->net()->segment_throttle_limit())
+                    peer->net()->segment_throttle(peer->net()->segment_throttle_limit());
 
                 peer->command()->incoming_data_total(0);
                 peer->command()->outgoing_data_total(0);
@@ -265,9 +265,9 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
                 continue;
 
             // 接続済みのピアからはコマンドを受信する
-            event->packet = peer->udp_peer_receive(event->channel_id);
+            event->segment = peer->udp_peer_receive(event->channel_id);
 
-            if (event->packet == nullptr)
+            if (event->segment == nullptr)
                 continue;
 
             event->type = RUdpEventType::RECEIVE;
@@ -351,7 +351,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
         // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
         if (!_chamber->command_buffer_have_enough_space(command) ||
             !_chamber->data_buffer_have_enough_space(buffer) ||
-            peer->net()->mtu() - _chamber->packet_size() < sizeof(RUdpProtocolAcknowledge))
+            peer->net()->mtu() - _chamber->segment_size() < sizeof(RUdpProtocolAcknowledge))
         {
             _chamber->continue_sending(true);
 
@@ -361,7 +361,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
         buffer->data = command;
         buffer->data_length = sizeof(RUdpProtocolAcknowledge);
 
-        _chamber->increase_packet_size(buffer->data_length);
+        _chamber->increase_segment_size(buffer->data_length);
 
         auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 

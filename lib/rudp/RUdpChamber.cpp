@@ -45,14 +45,14 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
     auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
 
     // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
-    if (mtu - _packet_size < command_size)
+    if (mtu - _segment_size < command_size)
         return true;
 
-    if (outgoing_command->packet != nullptr)
+    if (outgoing_command->segment != nullptr)
         return false;
 
     // has not enough space for command with payload
-    if (static_cast<uint16_t>(mtu - _packet_size) <
+    if (static_cast<uint16_t>(mtu - _segment_size) <
         static_cast<uint16_t>(command_size + outgoing_command->fragment_length))
     {
         return true;
@@ -74,9 +74,9 @@ RUdpChamber::header_flags(uint16_t val)
 }
 
 void
-RUdpChamber::increase_packet_size(size_t val)
+RUdpChamber::increase_segment_size(size_t val)
 {
-    _packet_size += val;
+    _segment_size += val;
 }
 
 void
@@ -134,15 +134,15 @@ RUdpChamber::buffer_count(size_t val)
 }
 
 void
-RUdpChamber::packet_size(size_t val)
+RUdpChamber::segment_size(size_t val)
 {
-    _packet_size = val;
+    _segment_size = val;
 }
 
 size_t
-RUdpChamber::packet_size()
+RUdpChamber::segment_size()
 {
-    return _packet_size;
+    return _segment_size;
 }
 
 void

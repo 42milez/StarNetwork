@@ -18,11 +18,11 @@ RUdpPeer::udp_peer_receive(uint8_t &channel_id)
 
     channel_id = incoming_command.command->header.channel_id;
 
-    auto packet = incoming_command.packet;
+    auto segment = incoming_command.segment;
 
-    _total_waiting_data -= packet->data_length();
+    _total_waiting_data -= segment->data_length();
 
-    return packet;
+    return segment;
 }
 
 void
@@ -61,12 +61,12 @@ RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
 
 void
 RUdpPeer::queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command,
-                                 const std::shared_ptr<RUdpSegment> &packet, uint32_t offset, uint16_t length)
+                                 const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command;
 
     outgoing_command->command = command;
-    outgoing_command->packet = packet;
+    outgoing_command->segment = segment;
     outgoing_command->fragment_offset = offset;
     outgoing_command->fragment_length = length;
 
@@ -106,9 +106,9 @@ RUdpPeer::setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, 
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
     cmd->connect.incoming_bandwidth = htonl(_net->incoming_bandwidth());
     cmd->connect.outgoing_bandwidth = htonl(_net->outgoing_bandwidth());
-    cmd->connect.packet_throttle_interval = htonl(_net->packet_throttle_interval());
-    cmd->connect.packet_throttle_acceleration = htonl(_net->packet_throttle_acceleration());
-    cmd->connect.packet_throttle_deceleration = htonl(_net->packet_throttle_deceleration());
+    cmd->connect.segment_throttle_interval = htonl(_net->segment_throttle_interval());
+    cmd->connect.segment_throttle_acceleration = htonl(_net->segment_throttle_acceleration());
+    cmd->connect.segment_throttle_deceleration = htonl(_net->segment_throttle_deceleration());
     cmd->connect.data = data;
 
     queue_outgoing_command(cmd, nullptr, 0, 0);
@@ -264,27 +264,27 @@ RUdpPeer::outgoing_bandwidth_throttle_epoch(uint32_t val)
 }
 
 uint32_t
-RUdpPeer::packet_throttle_limit()
+RUdpPeer::segment_throttle_limit()
 {
-    return _net->packet_throttle_limit();
+    return _net->segment_throttle_limit();
 }
 
 void
-RUdpPeer::packet_throttle_limit(uint32_t val)
+RUdpPeer::segment_throttle_limit(uint32_t val)
 {
-    _net->packet_throttle_limit(val);
+    _net->segment_throttle_limit(val);
 }
 
 uint32_t
-RUdpPeer::packet_throttle()
+RUdpPeer::segment_throttle()
 {
-    return _net->packet_throttle();
+    return _net->segment_throttle();
 }
 
 void
-RUdpPeer::packet_throttle(uint32_t val)
+RUdpPeer::segment_throttle(uint32_t val)
 {
-    _net->packet_throttle(val);
+    _net->segment_throttle(val);
 }
 
 bool
@@ -294,9 +294,9 @@ RUdpPeer::exceeds_ping_interval(uint32_t service_time)
 }
 
 bool
-RUdpPeer::exceeds_mtu(size_t packet_size)
+RUdpPeer::exceeds_mtu(size_t segment_size)
 {
-    return _net->mtu() - packet_size >= sizeof(RUdpProtocolPing);
+    return _net->mtu() - segment_size >= sizeof(RUdpProtocolPing);
 }
 
 uint16_t

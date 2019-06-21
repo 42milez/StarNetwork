@@ -53,7 +53,7 @@ RUdpHost::udp_host_service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     {
         event->type = RUdpEventType::NONE;
         event->peer = nullptr;
-        event->packet = nullptr;
+        event->segment = nullptr;
 
         // - キューから取り出されたパケットは event に格納される
         // - ピアが取りうるステートは以下の 10 通りだが、この関数で処理されるのは 3,5,6,10 の４つ
@@ -128,13 +128,13 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     _channel_count(channel_count),
     _duplicate_peers(PROTOCOL_MAXIMUM_PEER_ID),
     _incoming_bandwidth(in_bandwidth),
-    _maximum_packet_size(HOST_DEFAULT_MAXIMUM_PACKET_SIZE),
+    _maximum_segment_size(HOST_DEFAULT_MAXIMUM_PACKET_SIZE),
     _maximum_waiting_data(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     _mtu(HOST_DEFAULT_MTU),
     _outgoing_bandwidth(out_bandwidth),
     _received_address(std::make_unique<RUdpAddress>()),
     _received_data_length(0),
-    _packet_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
+    _segment_data(2, std::vector<uint8_t>(PROTOCOL_MAXIMUM_MTU))
 {
     _conn = std::make_shared<RUdpConnection>(address);
 

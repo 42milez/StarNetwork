@@ -125,9 +125,9 @@ using RUdpProtocolConnect = struct RUdpProtocolConnect
     uint32_t channel_count;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
-    uint32_t packet_throttle_interval;
-    uint32_t packet_throttle_acceleration;
-    uint32_t packet_throttle_deceleration;
+    uint32_t segment_throttle_interval;
+    uint32_t segment_throttle_acceleration;
+    uint32_t segment_throttle_deceleration;
     uint32_t connect_id;
     uint32_t data;
 };
@@ -143,9 +143,9 @@ using RUdpProtocolVerifyConnect = struct RUdpProtocolVerifyConnect
     uint32_t channel_count;
     uint32_t incoming_bandwidth;
     uint32_t outgoing_bandwidth;
-    uint32_t packet_throttle_interval;
-    uint32_t packet_throttle_acceleration;
-    uint32_t packet_throttle_deceleration;
+    uint32_t segment_throttle_interval;
+    uint32_t segment_throttle_acceleration;
+    uint32_t segment_throttle_deceleration;
     uint32_t connect_id;
 };
 
@@ -201,9 +201,9 @@ using RUdpProtocolBandwidthLimit = struct RUdpProtocolBandwidthLimit
 using RUdpProtocolThrottleConfigure = struct RUdpProtocolThrottleConfigure
 {
     RUdpProtocolCommandHeader header;
-    uint32_t packet_throttle_interval;
-    uint32_t packet_throttle_acceleration;
-    uint32_t packet_throttle_deceleration;
+    uint32_t segment_throttle_interval;
+    uint32_t segment_throttle_acceleration;
+    uint32_t segment_throttle_deceleration;
 };
 
 using RUdpProtocolType = union RUdpProtocolType

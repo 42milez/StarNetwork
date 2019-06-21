@@ -12,7 +12,7 @@ class RUdpHost
 private:
     std::vector<uint8_t> _received_data;
 
-    std::vector<std::vector<uint8_t>> _packet_data;
+    std::vector<std::vector<uint8_t>> _segment_data;
 
     std::unique_ptr<RUdpAddress> _received_address;
 
@@ -20,7 +20,7 @@ private:
 
     size_t _duplicate_peers;
 
-    size_t _maximum_packet_size;
+    size_t _maximum_segment_size;
 
     size_t _maximum_waiting_data;
 

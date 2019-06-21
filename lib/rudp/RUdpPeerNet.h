@@ -16,21 +16,21 @@ public:
 
     bool state_is_lt(RUdpPeerState state);
 
-    bool exceeds_packet_loss_interval(uint32_t service_time);
+    bool exceeds_segment_loss_interval(uint32_t service_time);
 
-    void calculate_packet_loss(uint32_t service_time);
+    void calculate_segment_loss(uint32_t service_time);
 
     void reset();
 
     void setup();
 
-    void increase_packets_lost(uint32_t val);
+    void increase_segments_lost(uint32_t val);
 
-    void increase_packets_sent(uint32_t val);
+    void increase_segments_sent(uint32_t val);
 
-    void update_packet_throttle_counter();
+    void update_segment_throttle_counter();
 
-    bool exceeds_packet_throttle_counter();
+    bool exceeds_segment_throttle_counter();
 
 public:
     void last_send_time(uint32_t val);
@@ -51,25 +51,25 @@ public:
 
     void outgoing_bandwidth_throttle_epoch(uint32_t val);
 
-    uint32_t packet_loss_epoch();
+    uint32_t segment_loss_epoch();
 
-    void packet_loss_epoch(uint32_t val);
+    void segment_loss_epoch(uint32_t val);
 
-    uint32_t packet_throttle();
+    uint32_t segment_throttle();
 
-    void packet_throttle(uint32_t val);
+    void segment_throttle(uint32_t val);
 
-    uint32_t packet_throttle_limit();
+    uint32_t segment_throttle_limit();
 
-    void packet_throttle_limit(uint32_t val);
+    void segment_throttle_limit(uint32_t val);
 
-    uint32_t packet_throttle_interval();
+    uint32_t segment_throttle_interval();
 
-    uint32_t packet_throttle_acceleration();
+    uint32_t segment_throttle_acceleration();
 
-    uint32_t packet_throttle_deceleration();
+    uint32_t segment_throttle_deceleration();
 
-    uint32_t packets_sent();
+    uint32_t segments_sent();
 
     uint32_t window_size();
 
@@ -88,19 +88,19 @@ private:
 
     uint32_t _outgoing_bandwidth_throttle_epoch;
 
-    uint32_t _packet_throttle;
+    uint32_t _segment_throttle;
 
-    uint32_t _packet_throttle_acceleration;
+    uint32_t _segment_throttle_acceleration;
 
-    uint32_t _packet_throttle_counter;
+    uint32_t _segment_throttle_counter;
 
-    uint32_t _packet_throttle_deceleration;
+    uint32_t _segment_throttle_deceleration;
 
-    uint32_t _packet_throttle_epoch;
+    uint32_t _segment_throttle_epoch;
 
-    uint32_t _packet_throttle_interval;
+    uint32_t _segment_throttle_interval;
 
-    uint32_t _packet_throttle_limit;
+    uint32_t _segment_throttle_limit;
 
     uint32_t _packet_loss;
 

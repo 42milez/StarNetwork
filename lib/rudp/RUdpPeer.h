@@ -66,7 +66,7 @@ public:
     RUdpPeer();
 
     void
-    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &packet,
+    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
                            uint32_t offset, uint16_t length);
 
     bool is_disconnected();
@@ -121,13 +121,13 @@ public:
 
     void outgoing_bandwidth_throttle_epoch(uint32_t val);
 
-    uint32_t packet_throttle_limit();
+    uint32_t segment_throttle_limit();
 
-    void packet_throttle_limit(uint32_t val);
+    void segment_throttle_limit(uint32_t val);
 
-    uint32_t packet_throttle();
+    uint32_t segment_throttle();
 
-    void packet_throttle(uint32_t val);
+    void segment_throttle(uint32_t val);
 
     const std::unique_ptr<RUdpPeerNet> &net();
 
@@ -135,7 +135,7 @@ public:
 
     bool exceeds_ping_interval(uint32_t service_time);
 
-    bool exceeds_mtu(size_t packet_size);
+    bool exceeds_mtu(size_t segment_size);
 
     uint16_t outgoing_peer_id();
 
