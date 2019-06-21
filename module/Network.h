@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_MODULE_TRANSPORTER_H
-#define P2P_TECHDEMO_MODULE_TRANSPORTER_H
+#ifndef P2P_TECHDEMO_NETWORK_H
+#define P2P_TECHDEMO_NETWORK_H
 
 #include <list>
 #include <map>
@@ -15,12 +15,12 @@
 #include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/RUdpPeer.h"
 
-class Transporter
+class Network
 {
 public:
-    Transporter();
+    Network();
 
-    ~Transporter();
+    ~Network();
 
     Error create_client(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0,
                         int client_port = 0);
@@ -136,4 +136,4 @@ private:
     void _setup_compressor();
 };
 
-#endif // P2P_TECHDEMO_MODULE_TRANSPORTER_H
+#endif // P2P_TECHDEMO_NETWORK_H

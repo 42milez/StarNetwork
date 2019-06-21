@@ -8,10 +8,13 @@
 
 #include "lib/rudp/RUdpAddress.h"
 
-#include "transporter.h"
+#include "Network.h"
 
 size_t
-Transporter::_udp_compress(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
+Network::_udp_compress(const std::vector<RUdpBuffer> &in_buffers,
+                       size_t in_limit,
+                       std::vector<uint8_t> &out_data,
+                       size_t out_limit)
 {
     if (_src_compressor_mem.size() < in_limit)
         _src_compressor_mem.resize(in_limit);
@@ -20,10 +23,8 @@ Transporter::_udp_compress(const std::vector<RUdpBuffer> &in_buffers, size_t in_
     auto offset = 0;
     auto in_buffer_size = in_buffers.size();
 
-    while (total)
-    {
-        for (auto i = 0; i < in_buffer_size; i++)
-        {
+    while (total) {
+        for (auto i = 0; i < in_buffer_size; i++) {
             auto to_copy = std::min(total, in_buffers[i].data_length);
             memcpy(&_src_compressor_mem[offset], in_buffers[i].data, to_copy);
             offset += to_copy;
@@ -33,16 +34,13 @@ Transporter::_udp_compress(const std::vector<RUdpBuffer> &in_buffers, size_t in_
 
     Compression::Mode mode;
 
-    if (_compression_mode == CompressionMode::ZSTD)
-    {
+    if (_compression_mode == CompressionMode::ZSTD) {
         mode = Compression::Mode::ZSTD;
     }
-    else if (_compression_mode == CompressionMode::ZLIB)
-    {
+    else if (_compression_mode == CompressionMode::ZLIB) {
         mode = Compression::Mode::DEFLATE;
     }
-    else
-    {
+    else {
         ERR_FAIL_V(0)
     }
 
@@ -69,16 +67,17 @@ Transporter::_udp_compress(const std::vector<RUdpBuffer> &in_buffers, size_t in_
 }
 
 size_t
-Transporter::_udp_decompress(std::vector<uint8_t> &in_data, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
+Network::_udp_decompress(std::vector<uint8_t> &in_data,
+                         size_t in_limit,
+                         std::vector<uint8_t> &out_data,
+                         size_t out_limit)
 {
     auto ret = -1;
 
-    if (_compression_mode == CompressionMode::ZLIB)
-    {
+    if (_compression_mode == CompressionMode::ZLIB) {
         ret = Compression::decompress(out_data, out_limit, in_data, Compression::Mode::DEFLATE);
     }
-    else if (_compression_mode == CompressionMode::ZSTD)
-    {
+    else if (_compression_mode == CompressionMode::ZSTD) {
         // ...
     }
 
@@ -89,20 +88,18 @@ Transporter::_udp_decompress(std::vector<uint8_t> &in_data, size_t in_limit, std
 }
 
 void
-Transporter::_udp_destroy()
+Network::_udp_destroy()
 {
     // Nothing to do
 }
 
 void
-Transporter::_setup_compressor()
+Network::_setup_compressor()
 {
-    if (_compression_mode == CompressionMode::NONE)
-    {
+    if (_compression_mode == CompressionMode::NONE) {
         //udp_host_compress(_host);
     }
-    else if (_compression_mode == CompressionMode::RANGE_CODER)
-    {
+    else if (_compression_mode == CompressionMode::RANGE_CODER) {
         //udp_host_compress_with_range_coder(_host);
     }
     else // FASTLZ or ZLIB or ZSTD
@@ -112,7 +109,7 @@ Transporter::_setup_compressor()
 }
 
 Error
-Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
+Network::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
@@ -132,8 +129,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
         address.set_ip(_bind_ip.get_ipv6(), 16);
     }
 #else
-    if (!_bind_ip.is_wildcard())
-    {
+    if (!_bind_ip.is_wildcard()) {
         ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
         address.set_ip(_bind_ip.get_ipv4(), 8);
     }
@@ -157,7 +153,7 @@ Transporter::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwid
 }
 
 Error
-Transporter::create_client(const std::string &address, int port, int in_bandwidth, int out_bandwidth, int client_port)
+Network::create_client(const std::string &address, int port, int in_bandwidth, int out_bandwidth, int client_port)
 {
     ERR_FAIL_COND_V(_active, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
@@ -165,8 +161,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    if (client_port != 0)
-    {
+    if (client_port != 0) {
         RUdpAddress client_address;
 
 #ifdef P2P_TECHDEMO_IPV6
@@ -179,8 +174,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
             address.set_ip(client, _bind_ip.get_ipv6(), 16);
         }
 #else
-        if (!_bind_ip.is_wildcard())
-        {
+        if (!_bind_ip.is_wildcard()) {
             ERR_FAIL_COND_V(!_bind_ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
             client_address.set_ip(_bind_ip.get_ipv4(), 8);
         }
@@ -189,8 +183,7 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
         _host = std::make_unique<RUdpHost>(client_address, _channel_count, 1, in_bandwidth, out_bandwidth);
     }
-    else
-    {
+    else {
         // create a host with random assigned port
         // ...
     }
@@ -201,12 +194,10 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 
     IpAddress ip;
 
-    if (is_valid_ip_address(address))
-    {
+    if (is_valid_ip_address(address)) {
         ip = IpAddress(address);
     }
-    else
-    {
+    else {
 #ifdef P2P_TECHDEMO_IPV6
         ip = Singleton<IP>::Instance().resolve_hostname(address);
 #else
@@ -231,19 +222,19 @@ Transporter::create_client(const std::string &address, int port, int in_bandwidt
 }
 
 void
-Transporter::close_connection(uint32_t wait_usec)
+Network::close_connection(uint32_t wait_usec)
 {
     // ...
 }
 
 void
-Transporter::_pop_current_packet()
+Network::_pop_current_packet()
 {
     // ...
 }
 
 void
-Transporter::poll()
+Network::poll()
 {
     ERR_FAIL_COND(!_active)
 
@@ -251,8 +242,7 @@ Transporter::poll()
 
     std::unique_ptr<RUdpEvent> event;
 
-    while (true)
-    {
+    while (true) {
         if (!_host || !_active)
             return;
 
@@ -261,37 +251,34 @@ Transporter::poll()
         if (ret <= 0)
             break;
 
-        if (event->type == RUdpEventType::CONNECT)
-        {
+        if (event->type == RUdpEventType::CONNECT) {
             // ...
         }
-        else if (event->type == RUdpEventType::DISCONNECT)
-        {
+        else if (event->type == RUdpEventType::DISCONNECT) {
             // ...
         }
-        else if (event->type == RUdpEventType::RECEIVE)
-        {
+        else if (event->type == RUdpEventType::RECEIVE) {
             // ...
         }
-        else if (event->type == RUdpEventType::NONE)
-        {
+        else if (event->type == RUdpEventType::NONE) {
             // ...
         }
     }
 }
 
-Transporter::Transporter() : _bind_ip("*"),
-                             _active(false),
-                             _always_ordered(false),
-                             _channel_count(SysCh::MAX),
-                             _compression_mode(CompressionMode::NONE),
-                             _connection_status(ConnectionStatus::DISCONNECTED),
-                             _refuse_connections(false),
-                             _server(false),
-                             _target_peer(0),
-                             _transfer_channel(-1),
-                             _transfer_mode(TransferMode::RELIABLE),
-                             _unique_id(0)
+Network::Network()
+    : _bind_ip("*"),
+      _active(false),
+      _always_ordered(false),
+      _channel_count(SysCh::MAX),
+      _compression_mode(CompressionMode::NONE),
+      _connection_status(ConnectionStatus::DISCONNECTED),
+      _refuse_connections(false),
+      _server(false),
+      _target_peer(0),
+      _transfer_channel(-1),
+      _transfer_mode(TransferMode::RELIABLE),
+      _unique_id(0)
 {
     _current_packet.packet = nullptr;
 
@@ -300,7 +287,8 @@ Transporter::Transporter() : _bind_ip("*"),
         size_t in_limit,
         std::vector<uint8_t> &out_data,
         size_t out_limit
-    ) -> size_t {
+    ) -> size_t
+    {
         return _udp_compress(in_buffers, in_limit, out_data, out_limit);
     };
 
@@ -309,16 +297,18 @@ Transporter::Transporter() : _bind_ip("*"),
         size_t in_limit,
         std::vector<uint8_t> &out_data,
         size_t out_limit
-    ) -> size_t {
+    ) -> size_t
+    {
         return _udp_decompress(in_data, in_limit, out_data, out_limit);
     };
 
-    _compressor->destroy = [this]() -> void {
+    _compressor->destroy = [this]() -> void
+    {
         _udp_destroy();
     };
 }
 
-Transporter::~Transporter()
+Network::~Network()
 {
     close_connection();
 }
