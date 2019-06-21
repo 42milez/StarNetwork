@@ -80,13 +80,13 @@ private:
         int channel;
     };
 
-    std::shared_ptr<RUdpCompressor> _compressor;
-    std::shared_ptr<RUdpHost> _host;
-
     std::list<Packet> _incoming_packets;
     std::map<int, RUdpPeer *> _peer_map;
     std::vector<uint8_t> _dst_compressor_mem;
     std::vector<uint8_t> _src_compressor_mem;
+
+    std::shared_ptr<RUdpCompressor> _compressor;
+    std::shared_ptr<RUdpHost> _host;
 
     CompressionMode _compression_mode;
 
