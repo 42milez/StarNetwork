@@ -11,6 +11,7 @@
 #include "lib/rudp/RUdpCompressor.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpPacket.h"
+#include "lib/rudp/RUdpPeer.h"
 
 class Transporter
 {
@@ -68,7 +69,7 @@ private:
 
     RUdpEvent _event;
 
-    UdpPeer *_peer;
+    RUdpPeer *_peer;
 
     std::shared_ptr<UdpHost> _host;
 
@@ -78,7 +79,7 @@ private:
 
     std::list<Packet> _incoming_packets;
 
-    std::map<int, UdpPeer *> _peer_map;
+    std::map<int, RUdpPeer *> _peer_map;
 
     std::vector<uint8_t> _src_compressor_mem;
 
