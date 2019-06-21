@@ -8,6 +8,7 @@
 #include "core/io/ip_address.h"
 #include "core/errors.h"
 
+#include "lib/rudp/RUdpCompressor.h"
 #include "lib/rudp/RUdpPacket.h"
 
 class Transporter
@@ -62,7 +63,7 @@ private:
 
     ConnectionStatus _connection_status;
 
-    std::shared_ptr<UdpCompressor> _compressor;
+    std::shared_ptr<RUdpCompressor> _compressor;
 
     UdpEvent _event;
 
@@ -98,7 +99,7 @@ private:
 
     int _transfer_channel;
 
-    std::shared_ptr<UdpCompressor> _udp_compressor;
+    std::shared_ptr<RUdpCompressor> _udp_compressor;
 
 private:
     size_t _udp_compress(const std::vector<UdpBuffer> &in_buffers,
@@ -185,7 +186,7 @@ public:
 
     void udp_host_compress(std::shared_ptr<UdpHost> &host);
 
-    void udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor);
+    void udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor);
 
     Transporter();
 

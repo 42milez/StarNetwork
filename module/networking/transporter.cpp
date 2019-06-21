@@ -333,7 +333,7 @@ Transporter::udp_host_compress(std::shared_ptr<UdpHost> &host)
 }
 
 void
-Transporter::udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<UdpCompressor> &compressor)
+Transporter::udp_custom_compress(std::shared_ptr<UdpHost> &host, std::shared_ptr<RUdpCompressor> &compressor)
 {
     if (compressor)
         _compressor = compressor;
