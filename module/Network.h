@@ -38,7 +38,7 @@ public:
     Error put_packet(const uint8_t *buffer, int buffer_size);
 
 private:
-    enum class CompressionMode: int
+    enum class CompressionMode: uint8_t
     {
         NONE,
         RANGE_CODER,
@@ -47,11 +47,30 @@ private:
         ZSTD
     };
 
-    enum class ConnectionStatus: int
+    enum class ConnectionStatus: uint8_t
     {
         DISCONNECTED,
         CONNECTING,
         CONNECTED
+    };
+
+    enum class SysMsg: uint8_t
+    {
+        ADD_PEER,
+        REMOVE_PEER
+    };
+
+    enum class TargetPeer: uint8_t
+    {
+        BROADCAST,
+        SERVER
+    };
+
+    enum class TransferMode: uint8_t
+    {
+        UNRELIABLE,
+        UNRELIABLE_ORDERED,
+        RELIABLE
     };
 
     struct Packet
@@ -59,25 +78,6 @@ private:
         RUdpSegment *packet;
         int from;
         int channel;
-    };
-
-    enum class SysMsg: int
-    {
-        ADD_PEER,
-        REMOVE_PEER
-    };
-
-    enum class TargetPeer: int
-    {
-        BROADCAST,
-        SERVER
-    };
-
-    enum class TransferMode: int
-    {
-        UNRELIABLE,
-        UNRELIABLE_ORDERED,
-        RELIABLE
     };
 
     std::shared_ptr<RUdpCompressor> _compressor;
