@@ -8,6 +8,7 @@
 #include "core/io/ip_address.h"
 #include "core/errors.h"
 
+#include "lib/rudp/RUdpBuffer.h"
 #include "lib/rudp/RUdpCompressor.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpHost.h"
@@ -105,7 +106,7 @@ private:
     std::shared_ptr<RUdpCompressor> _udp_compressor;
 
 private:
-    size_t _udp_compress(const std::vector<UdpBuffer> &in_buffers,
+    size_t _udp_compress(const std::vector<RUdpBuffer> &in_buffers,
                          size_t in_limit,
                          std::vector<uint8_t> &out_data,
                          size_t out_limit);

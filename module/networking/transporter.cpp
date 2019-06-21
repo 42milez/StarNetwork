@@ -13,7 +13,7 @@
 #include "transporter.h"
 
 size_t
-Transporter::_udp_compress(const std::vector<UdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
+Transporter::_udp_compress(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit)
 {
     if (_src_compressor_mem.size() < in_limit)
         _src_compressor_mem.resize(in_limit);
@@ -298,7 +298,7 @@ Transporter::Transporter() : _bind_ip("*"),
     _current_packet.packet = nullptr;
 
     _compressor->compress = [this](
-        const std::vector<UdpBuffer> &in_buffers,
+        const std::vector<RUdpBuffer> &in_buffers,
         size_t in_limit,
         std::vector<uint8_t> &out_data,
         size_t out_limit
