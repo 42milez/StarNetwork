@@ -9,10 +9,13 @@ using RUdpCompressor = struct RUdpCompressor
 {
     std::function<size_t(const std::vector<RUdpBuffer> &in_buffers,
                          size_t in_limit,
-                         uint8_t *out_data,
+                         std::vector<uint8_t> &out_data,
                          size_t out_limit)> compress;
 
-    std::function<size_t(uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)> decompress;
+    std::function<size_t(std::vector<uint8_t> &in_data,
+                         size_t in_limit,
+                         std::vector<uint8_t> &out_data,
+                         size_t out_limit)> decompress;
 
     std::function<void()> destroy;
 

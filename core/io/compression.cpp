@@ -90,7 +90,7 @@ Compression::compress(std::vector<uint8_t> &dst, std::vector<uint8_t> &src, Comp
 }
 
 int
-Compression::decompress(std::vector<uint8_t> &dst, int dst_max_size, std::vector<uint8_t> &src, Mode mode)
+Compression::decompress(std::vector<uint8_t> &dst, int dst_max_size, std::vector<uint8_t> &src, int src_max_size, Mode mode)
 {
     if (mode == Mode::DEFLATE || mode == Mode::GZIP)
     {

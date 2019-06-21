@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string>
 
 #include "core/error_macros.h"
@@ -15,7 +16,10 @@ Network::Segment::Segment()
 {}
 
 size_t
-Network::Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
+                    size_t in_limit,
+                    std::vector<uint8_t> &out_data,
+                    size_t out_limit)
 {
     if (src_compressor_mem_.size() < in_limit)
         src_compressor_mem_.resize(in_limit);
@@ -26,8 +30,8 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, 
 
     while (total) {
         for (auto i = 0; i < in_buffer_size; i++) {
-            auto to_copy = std::min(total, in_buffers[i].data_length);
-            memcpy(&src_compressor_mem_[offset], in_buffers[i].data, to_copy);
+            auto to_copy = std::min(total, in_buffers.at(i).data_length);
+            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).data, to_copy);
             offset += to_copy;
             total -= to_copy;
         }
@@ -58,8 +62,10 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, 
     if (ret > out_limit)
         return 0; // TODO: Is -1 better?
 
-    out_data.resize(dst_compressor_mem_.size());
-    out_data = dst_compressor_mem_;
+    if (out_data.size() < dst_compressor_mem_.size())
+        out_data.resize(dst_compressor_mem_.size());
+
+    std::copy(dst_compressor_mem_.begin(), dst_compressor_mem_.end(), out_data.begin());
 
     src_compressor_mem_.clear();
     dst_compressor_mem_.clear();
@@ -68,12 +74,15 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, 
 }
 
 size_t
-Network::Decompressor(const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit)
+Network::Decompressor(std::vector<uint8_t> &in_data,
+                      size_t in_limit,
+                      std::vector<uint8_t> &out_data,
+                      size_t out_limit)
 {
     auto ret = -1;
 
     if (compression_mode_ == CompressionMode::ZLIB) {
-        ret = Compression::decompress(out_data, out_limit, in_data, Compression::Mode::DEFLATE);
+        ret = Compression::decompress(out_data, out_limit, in_data, in_limit, Compression::Mode::DEFLATE);
     }
     else if (compression_mode_ == CompressionMode::ZSTD) {
         // ...
@@ -86,13 +95,13 @@ Network::Decompressor(const uint8_t *in_data, size_t in_limit, uint8_t *out_data
 }
 
 void
-Network::_udp_destroy()
+Network::Destroy()
 {
     // Nothing to do
 }
 
 void
-Network::_setup_compressor()
+Network::SetupCompressor()
 {
     if (compression_mode_ == CompressionMode::NONE) {
         //udp_host_compress(_host);
@@ -135,15 +144,15 @@ Network::create_server(uint16_t port, size_t peer_count, uint32_t in_bandwidth, 
 
     address.port = port;
 
-    _host = std::make_unique<RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
+    host_ = std::make_unique<RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
-    ERR_FAIL_COND_V(_host == nullptr, Error::CANT_CREATE)
+    ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
 
-    _setup_compressor();
+    SetupCompressor();
 
     active_ = true;
     server_ = true;
-    _connection_status = ConnectionStatus::CONNECTED;
+    connection_status_ = ConnectionStatus::CONNECTED;
 
     unique_id_ = hash32();
 
@@ -179,16 +188,16 @@ Network::create_client(const std::string &address, int port, int in_bandwidth, i
 #endif
         client_address.port = client_port;
 
-        _host = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
+        host_ = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
     else {
         // create a host with random assigned port
         // ...
     }
 
-    ERR_FAIL_COND_V(!_host, Error::CANT_CREATE)
+    ERR_FAIL_COND_V(!host_, Error::CANT_CREATE)
 
-    _setup_compressor();
+    SetupCompressor();
 
     IpAddress ip;
 
@@ -216,7 +225,7 @@ Network::create_client(const std::string &address, int port, int in_bandwidth, i
 
     unique_id_ = hash32();
 
-    return _host->udp_host_connect(udp_address, channel_count_, unique_id_);
+    return host_->udp_host_connect(udp_address, channel_count_, unique_id_);
 }
 
 void
@@ -241,10 +250,10 @@ Network::poll()
     std::unique_ptr<RUdpEvent> event;
 
     while (true) {
-        if (!_host || !active_)
+        if (!host_ || !active_)
             return;
 
-        int ret = _host->udp_host_service(event, 0);
+        int ret = host_->udp_host_service(event, 0);
 
         if (ret <= 0)
             break;
@@ -270,32 +279,32 @@ Network::Network()
       bind_ip_("*"),
       channel_count_(SysCh::MAX),
       compression_mode_(CompressionMode::NONE),
-      _connection_status(ConnectionStatus::DISCONNECTED),
-      _current_segment(Segment{}),
-      _refuse_connections(false),
+      connection_status_(ConnectionStatus::DISCONNECTED),
+      current_segment_(Segment{}),
+      refuse_connections_(false),
       server_(false),
-      _target_peer(0),
-      _transfer_channel(-1),
-      _transfer_mode(TransferMode::RELIABLE),
+      target_peer_(0),
+      transfer_channel_(-1),
+      transfer_mode_(TransferMode::RELIABLE),
       unique_id_(0)
 {
-    _compressor->compress = [this](const std::vector<RUdpBuffer> &in_buffers,
+    compressor_->compress = [this](const std::vector<RUdpBuffer> &in_buffers,
                                    size_t in_limit,
-                                   uint8_t *out_data,
+                                   std::vector<uint8_t> &out_data,
                                    size_t out_limit) -> size_t
     {
         return Compressor(in_buffers, in_limit, out_data, out_limit);
     };
 
-    _compressor->decompress =
-        [this](const uint8_t *in_data, size_t in_limit, uint8_t *out_data, size_t out_limit) -> size_t
+    compressor_->decompress =
+        [this](std::vector<uint8_t> &in_data, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit) -> size_t
         {
             return Decompressor(in_data, in_limit, out_data, out_limit);
         };
 
-    _compressor->destroy = [this]() -> void
+    compressor_->destroy = [this]() -> void
     {
-        _udp_destroy();
+        Destroy();
     };
 }
 
