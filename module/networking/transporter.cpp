@@ -251,7 +251,7 @@ Transporter::poll()
 
     _pop_current_packet();
 
-    std::unique_ptr<UdpEvent> event;
+    std::unique_ptr<RUdpEvent> event;
 
     while (true)
     {
@@ -263,19 +263,19 @@ Transporter::poll()
         if (ret <= 0)
             break;
 
-        if (event->type == UdpEventType::CONNECT)
+        if (event->type == RUdpEventType::CONNECT)
         {
             // ...
         }
-        else if (event->type == UdpEventType::DISCONNECT)
+        else if (event->type == RUdpEventType::DISCONNECT)
         {
             // ...
         }
-        else if (event->type == UdpEventType::RECEIVE)
+        else if (event->type == RUdpEventType::RECEIVE)
         {
             // ...
         }
-        else if (event->type == UdpEventType::NONE)
+        else if (event->type == RUdpEventType::NONE)
         {
             // ...
         }

@@ -9,6 +9,7 @@
 #include "core/errors.h"
 
 #include "lib/rudp/RUdpCompressor.h"
+#include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpPacket.h"
 
 class Transporter
@@ -65,7 +66,7 @@ private:
 
     std::shared_ptr<RUdpCompressor> _compressor;
 
-    UdpEvent _event;
+    RUdpEvent _event;
 
     UdpPeer *_peer;
 
