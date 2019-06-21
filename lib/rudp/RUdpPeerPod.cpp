@@ -19,9 +19,9 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     _compressor(std::make_shared<RUdpCompressor>()),
     _checksum(nullptr),
     _total_received_data(0),
-    _total_received_packets(0),
+    _total_received_segments(0),
     _total_sent_data(0),
-    _total_sent_packets(0),
+    _total_sent_segments(0),
     _conn(conn)
 {
     for (auto &peer : _peers)
@@ -48,7 +48,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
             _protocol->chamber()->header_flags(0);
             _protocol->chamber()->command_count(0);
             _protocol->chamber()->buffer_count(1);
-            _protocol->chamber()->packet_size(sizeof(RUdpProtocolHeader));
+            _protocol->chamber()->segment_size(sizeof(RUdpProtocolHeader));
 
             //  ACKを返す
             // --------------------------------------------------
@@ -107,7 +107,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
                  _protocol->send_reliable_outgoing_commands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->exceeds_ping_interval(service_time) &&
-                peer->exceeds_mtu(_protocol->chamber()->packet_size()))
+                peer->exceeds_mtu(_protocol->chamber()->segment_size()))
             {
                 peer->udp_peer_ping();
 
@@ -125,13 +125,13 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
             if (_protocol->chamber()->command_count() == 0)
                 continue;
 
-            if (peer->net()->packet_loss_epoch() == 0)
+            if (peer->net()->segment_loss_epoch() == 0)
             {
-                peer->net()->packet_loss_epoch(service_time);
+                peer->net()->segment_loss_epoch(service_time);
             }
-            else if (peer->net()->exceeds_packet_loss_interval(service_time) && peer->net()->packets_sent() > 0)
+            else if (peer->net()->exceeds_segment_loss_interval(service_time) && peer->net()->segments_sent() > 0)
             {
-                peer->net()->calculate_packet_loss(service_time);
+                peer->net()->calculate_segment_loss(service_time);
             }
 
             if (_protocol->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
@@ -183,7 +183,7 @@ RUdpPeerPod::send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t 
 
             _total_sent_data += sent_length;
 
-            ++_total_sent_packets;
+            ++_total_sent_segments;
         }
     }
 

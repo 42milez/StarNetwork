@@ -16,7 +16,7 @@ private:
 
     size_t _buffer_count;
 
-    size_t _packet_size;
+    size_t _segment_size;
 
     uint16_t _header_flags;
 
@@ -29,9 +29,9 @@ public:
 
     RUdpProtocolType *command_insert_pos();
 
-    void packet_size(size_t val);
+    void segment_size(size_t val);
 
-    size_t packet_size();
+    size_t segment_size();
 
     void command_count(size_t val);
 
@@ -39,7 +39,7 @@ public:
 
     void buffer_count(size_t val);
 
-    void increase_packet_size(size_t val);
+    void increase_segment_size(size_t val);
 
     bool sending_continues(RUdpProtocolType *command,
                            RUdpBuffer *buffer,

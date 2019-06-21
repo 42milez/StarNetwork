@@ -24,11 +24,11 @@ private:
 
     uint32_t _total_sent_data;
 
-    uint32_t _total_sent_packets;
+    uint32_t _total_sent_segments;
 
     uint32_t _total_received_data;
 
-    uint32_t _total_received_packets;
+    uint32_t _total_received_segments;
 
     std::shared_ptr<RUdpConnection> _conn;
 

@@ -102,15 +102,15 @@ private:
 
     uint32_t _segment_throttle_limit;
 
-    uint32_t _packet_loss;
+    uint32_t _segment_loss;
 
-    uint32_t _packet_loss_epoch;
+    uint32_t _segment_loss_epoch;
 
-    uint32_t _packet_loss_variance;
+    uint32_t _segment_loss_variance;
 
-    uint32_t _packets_lost;
+    uint32_t _segments_lost;
 
-    uint32_t _packets_sent;
+    uint32_t _segments_sent;
 
     uint32_t _window_size;
 };
