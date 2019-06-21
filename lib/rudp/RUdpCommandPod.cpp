@@ -1,6 +1,6 @@
 #include "RUdpCommandPod.h"
 #include "RUdpCommandSize.h"
-#include "RUdpPacketFlag.h"
+#include "RUdpSegmentFlag.h"
 
 namespace
 {
@@ -541,7 +541,7 @@ RUdpCommandPod::remove_sent_unreliable_commands()
         if (outgoing_command->segment != nullptr)
         {
             if (outgoing_command->segment.use_count() == 1)
-                outgoing_command->segment->add_flag(static_cast<uint32_t>(RUdpPacketFlag::SENT));
+                outgoing_command->segment->add_flag(static_cast<uint32_t>(RUdpSegmentFlag::SENT));
 
             outgoing_command->segment->destroy();
         }
