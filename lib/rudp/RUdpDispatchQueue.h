@@ -8,15 +8,13 @@
 
 class RUdpDispatchQueue
 {
-private:
-    std::queue<std::shared_ptr<RUdpPeer>> _queue;
-
 public:
-    std::shared_ptr<RUdpPeer> pop_peer();
+    void Enqueue(std::shared_ptr<RUdpPeer> &peer);
+    bool PeerExists();
+    std::shared_ptr<RUdpPeer> Pop();
 
-    void enqueue(std::shared_ptr<RUdpPeer> &peer);
-
-    bool peer_exists();
+private:
+    std::queue<std::shared_ptr<RUdpPeer>> queue_;
 };
 
 #endif // P2P_TECHDEMO_RUDPDISPATCHQUEUE_H

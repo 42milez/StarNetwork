@@ -228,9 +228,9 @@ RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
 int
 RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 {
-    while (_dispatch_queue->peer_exists())
+    while (_dispatch_queue->PeerExists())
     {
-        auto peer = _dispatch_queue->pop_peer();
+        auto peer = _dispatch_queue->Pop();
 
         peer->needs_dispatch(false);
 
@@ -278,7 +278,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
             {
                 peer->needs_dispatch(true);
 
-                _dispatch_queue->enqueue(peer);
+                _dispatch_queue->Enqueue(peer);
             }
 
             return 1;
@@ -297,7 +297,7 @@ RUdpProtocol::dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerStat
     {
         peer->needs_dispatch(true);
 
-        _dispatch_queue->enqueue(peer);
+        _dispatch_queue->Enqueue(peer);
     }
 }
 
