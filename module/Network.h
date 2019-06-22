@@ -21,13 +21,13 @@ public:
     Network();
     ~Network();
 
-    Error create_client(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0,
+    Error CreateClient(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0,
                         int client_port = 0);
-    Error create_server(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
+    Error CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
-    void poll();
+    void Poll();
 
-    void close_connection(uint32_t wait_usec = 100);
+    void CloseConnection(uint32_t wait_usec = 100);
     void disconnect(int peer, bool now = false);
 
     Error get_segment(const uint8_t **buffer, int &buffer_size);
@@ -105,6 +105,8 @@ private:
     bool server_;
 
 private:
+    void SetupCompressor();
+
     size_t Compressor(const std::vector<RUdpBuffer> &in_buffers,
                       size_t in_limit,
                       std::vector<uint8_t> &out_data,
@@ -114,8 +116,8 @@ private:
                         std::vector<uint8_t> &out_data,
                         size_t out_limit);
     void Destroy();
+
     void _pop_current_segment();
-    void SetupCompressor();
 };
 
 #endif // P2P_TECHDEMO_NETWORK_H
