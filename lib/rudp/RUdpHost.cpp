@@ -28,7 +28,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
 
     _conn = std::make_shared<RUdpConnection>(address);
 
-    peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count);
+    peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, _conn);
 }
 
 Error

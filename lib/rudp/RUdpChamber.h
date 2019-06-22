@@ -54,8 +54,6 @@ public:
 
     void update_buffer_count(const RUdpBuffer *buffer);
 
-    uint32_t reliable_data_in_transit();
-
     bool continue_sending();
 
     void continue_sending(bool val);

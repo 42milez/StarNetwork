@@ -181,7 +181,7 @@ RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber>
             {
                 auto ws = (net->segment_throttle() * net->window_size()) / PEER_SEGMENT_THROTTLE_SCALE;
 
-                if (window_exceeds(chamber->reliable_data_in_transit(), net->mtu(), ws, (*outgoing_command)))
+                if (window_exceeds(_reliable_data_in_transit, net->mtu(), ws, (*outgoing_command)))
                     window_exceeded = true;
             }
 
@@ -371,6 +371,18 @@ void
 RUdpCommandPod::outgoing_data_total(uint32_t val)
 {
     _outgoing_data_total = val;
+}
+
+uint32_t
+RUdpCommandPod::incoming_data_total()
+{
+    return _incoming_data_total;
+}
+
+void
+RUdpCommandPod::incoming_data_total(uint32_t val)
+{
+    _incoming_data_total = val;
 }
 
 uint32_t
