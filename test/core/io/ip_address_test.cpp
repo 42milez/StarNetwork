@@ -6,34 +6,34 @@
 
 #include "core/io/ip_address.h"
 
-TEST_CASE("Create IPv6 address (1)", "[IPv6][IpAddress]")
+TEST_CASE("Create IPv4 address (1)", "[IPv4][IpAddress]")
 {
-    std::string ip1{"::ffff:129.144.52.38"};
-    std::string ip2{IpAddress{ip1}};
+    std::string ip1{"129.144.52.38"};
+    std::string ip2{IpAddress{"::ffff:129.144.52.38"}};
 
     REQUIRE(ip1 == ip2);
 }
 
-TEST_CASE("Create IPv6 address (2)", "[IPv6][IpAddress]")
+TEST_CASE("Create IPv4 address (2)", "[IPv4][IpAddress]")
 {
-    std::string ip1{"::FFFF:129.144.52.38"};
-    std::string ip2{IpAddress{ip1}};
+    std::string ip1{"129.144.52.38"};
+    std::string ip2{IpAddress{"::FFFF:129.144.52.38"}};
 
     REQUIRE(ip1 == ip2);
 }
 
-TEST_CASE("Create IPv6 address (3)", "[IPv6][IpAddress]")
+TEST_CASE("Create IPv4 address (3)", "[IPv4][IpAddress]")
 {
-    std::string ip1{"0:0:0:0:0:ffff:129.144.52.38"};
-    std::string ip2{IpAddress{ip1}};
+    std::string ip1{"129.144.52.38"};
+    std::string ip2{IpAddress{"0:0:0:0:0:ffff:129.144.52.38"}};
 
     REQUIRE(ip1 == ip2);
 }
 
-TEST_CASE("Create IPv6 address (4)", "[IPv6][IpAddress]")
+TEST_CASE("Create IPv4 address (4)", "[IPv4][IpAddress]")
 {
-    std::string ip1{"0:0:0:0:0:FFFF:129.144.52.38"};
-    std::string ip2{IpAddress{ip1}};
+    std::string ip1{"129.144.52.38"};
+    std::string ip2{IpAddress{"0:0:0:0:0:FFFF:129.144.52.38"}};
 
     REQUIRE(ip1 == ip2);
 }
