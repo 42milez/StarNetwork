@@ -74,12 +74,12 @@ Network::CreateClient(const std::string &address, int port, int in_bandwidth, in
         }
         else
         {
-            address.set_ip(client, bind_ip_.get_ipv6(), 16);
+            address.SetIP(client, bind_ip_.get_ipv6(), 16);
         }
 #else
         if (!bind_ip_.is_wildcard()) {
             ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            client_address.set_ip(bind_ip_.get_ipv4(), 8);
+            client_address.SetIP(bind_ip_.get_ipv4(), 8);
         }
 #endif
         client_address.port = client_port;
@@ -112,7 +112,7 @@ Network::CreateClient(const std::string &address, int port, int in_bandwidth, in
     RUdpAddress udp_address;
 
 #ifdef P2P_TECHDEMO_IPV6
-    address.set_ip(ip.get_ipv6(), 16);
+    address.SetIP(ip.get_ipv6(), 16);
 #else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
     memcpy(udp_address.host, ip.get_ipv4(), sizeof(udp_address.host));
@@ -142,12 +142,12 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
     }
     else
     {
-        address.set_ip(bind_ip_.get_ipv6(), 16);
+        address.SetIP(bind_ip_.get_ipv6(), 16);
     }
 #else
     if (!bind_ip_.is_wildcard()) {
         ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-        address.set_ip(bind_ip_.get_ipv4(), 8);
+        address.SetIP(bind_ip_.get_ipv4(), 8);
     }
 #endif
 

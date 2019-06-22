@@ -6,15 +6,17 @@
 
 using RUdpAddress = struct RUdpAddress
 {
-    uint8_t host[16] = {0};
-
-    uint16_t port = 0;
-
-    uint8_t wildcard = 0;
-
+public:
     RUdpAddress();
 
-    void set_ip(const uint8_t *ip, size_t size);
+    void SetIP(const uint8_t *ip, size_t size);
+
+public:
+    uint8_t host[16];
+
+    uint16_t port;
+
+    uint8_t wildcard;
 };
 
 #endif // P2P_TECHDEMO_RUDPADDRESS_H
