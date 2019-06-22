@@ -34,7 +34,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
 Error
 RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data)
 {
-    auto peer = peer_pod_->available_peer_exists();
+    auto peer = peer_pod_->AvailablePeerExists();
 
     if (peer == nullptr)
         return Error::CANT_CREATE;
@@ -73,7 +73,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         //  8. DISCONNECTED,
         //  9. DISCONNECTING,
         // 10. ZOMBIE
-        ret = peer_pod_->protocol_dispatch_incoming_commands(event);
+        ret = peer_pod_->DispatchIncomingCommands(event);
 
         CHECK_RETURN_VALUE(ret)
     }
@@ -90,10 +90,10 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         //if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
         //    _udp_host_bandwidth_throttle();
 
-        peer_pod_->protocol_bandwidth_throttle(service_time_, incoming_bandwidth_, outgoing_bandwidth_);
+        peer_pod_->BandwidthThrottle(service_time_, incoming_bandwidth_, outgoing_bandwidth_);
 
         //
-        ret = peer_pod_->send_outgoing_commands(event, service_time_, true);
+        ret = peer_pod_->SendOutgoingCommands(event, service_time_, true);
 
         CHECK_RETURN_VALUE(ret)
 

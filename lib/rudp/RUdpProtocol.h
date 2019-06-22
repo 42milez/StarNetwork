@@ -40,7 +40,7 @@ public:
     void udp_peer_reset_queues(const std::shared_ptr<RUdpPeer> &peer);
 
 public:
-    std::unique_ptr<RUdpChamber> &chamber();
+    const std::unique_ptr<RUdpChamber> &chamber();
 
     bool continue_sending();
 

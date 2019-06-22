@@ -434,7 +434,7 @@ RUdpProtocol::udp_peer_reset_queues(const std::shared_ptr<RUdpPeer> &peer)
         peer->clear_channel();
 }
 
-std::unique_ptr<RUdpChamber> &
+const std::unique_ptr<RUdpChamber> &
 RUdpProtocol::chamber()
 {
     return _chamber;

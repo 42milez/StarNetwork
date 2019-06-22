@@ -14,7 +14,7 @@ private:
 public:
     RUdpConnection(const RUdpAddress &address);
 
-    ssize_t send(const RUdpAddress &address, const std::shared_ptr<RUdpChamber> &chamber);
+    ssize_t send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber);
 };
 
 #endif // P2P_TECHDEMO_RUDPCONNECTION_H

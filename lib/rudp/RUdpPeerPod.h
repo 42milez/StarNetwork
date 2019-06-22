@@ -11,39 +11,30 @@
 
 class RUdpPeerPod
 {
-private:
-    std::vector<std::shared_ptr<RUdpPeer>> _peers;
-
-    std::unique_ptr<RUdpProtocol> _protocol;
-
-    size_t _peer_count;
-
-    ChecksumCallback _checksum;
-
-    std::shared_ptr<RUdpCompressor> _compressor;
-
-    uint32_t _total_sent_data;
-
-    uint32_t _total_sent_segments;
-
-    uint32_t _total_received_data;
-
-    uint32_t _total_received_segments;
-
-    std::shared_ptr<RUdpConnection> _conn;
-
 public:
     RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
 
-    std::shared_ptr<RUdpPeer> available_peer_exists();
+    std::shared_ptr<RUdpPeer> AvailablePeerExists();
+    void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
+    int DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+    int SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
-    int send_outgoing_commands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+private:
+    std::vector<std::shared_ptr<RUdpPeer>> peers_;
 
-    int protocol_dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
+    std::shared_ptr<RUdpCompressor> compressor_;
+    std::shared_ptr<RUdpConnection> conn_;
 
-    void protocol_bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
+    std::unique_ptr<RUdpProtocol> protocol_;
 
-    std::unique_ptr<RUdpProtocol> &protocol();
+    ChecksumCallback checksum_;
+
+    size_t peer_count_;
+
+    uint32_t total_received_data_;
+    uint32_t total_received_segments_;
+    uint32_t total_sent_data_;
+    uint32_t total_sent_segments_;
 };
 
 #endif // P2P_TECHDEMO_RUDPPEERPOD_H
