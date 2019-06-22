@@ -44,15 +44,15 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     return err;
 }
 
-int
-RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
-{
 #define CHECK_RETURN_VALUE(val) \
     if (val == 1)               \
         return 1;               \
     else if (val == -1)         \
         return -1;
 
+int
+RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
+{
     int ret;
 
     if (event != nullptr)
