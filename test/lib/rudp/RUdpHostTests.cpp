@@ -4,7 +4,7 @@
 
 #include "lib/rudp/RUdpCommon.h"
 
-TEST_CASE("", "[ivp4][host]")
+TEST_CASE("", "[IPv4][RUdpHost]")
 {
     // ...
 }
