@@ -21,8 +21,11 @@ public:
     Network();
     ~Network();
 
-    Error CreateClient(const std::string &address, int port, int in_bandwidth = 0, int out_bandwidth = 0,
-                        int client_port = 0);
+    Error CreateClient(const std::string &server_address,
+                       uint16_t server_port,
+                       uint16_t client_port,
+                       int in_bandwidth,
+                       int out_bandwidth);
     Error CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
     void Poll();
