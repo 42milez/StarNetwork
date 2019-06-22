@@ -13,17 +13,18 @@ enum class RUdpEventType : int
 
 using RUdpEvent = struct RUdpEvent
 {
+public:
+    RUdpEvent();
+
+public:
     RUdpEventType type;
+
+    std::shared_ptr<RUdpPeer> peer;
+    std::shared_ptr<RUdpSegment> segment;
 
     uint32_t data;
 
-    std::shared_ptr<RUdpPeer> peer;
-
-    std::shared_ptr<RUdpSegment> segment;
-
     uint8_t channel_id;
-
-    RUdpEvent();
 };
 
 #endif // P2P_TECHDEMO_RUDPEVENT_H
