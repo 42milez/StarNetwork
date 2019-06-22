@@ -1,17 +1,6 @@
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
 
-std::shared_ptr<RUdpPeer>
-RUdpPeerPod::AvailablePeerExists()
-{
-    for (auto &peer : peers_) {
-        if (peer->is_disconnected())
-            return peer;
-    }
-
-    return nullptr;
-}
-
 RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn)
     :
     checksum_(nullptr),
@@ -26,6 +15,30 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
 {
     for (auto &peer : peers_)
         peer->reset();
+}
+
+std::shared_ptr<RUdpPeer>
+RUdpPeerPod::AvailablePeerExists()
+{
+    for (auto &peer : peers_) {
+        if (peer->is_disconnected())
+            return peer;
+    }
+
+    return nullptr;
+}
+
+void
+RUdpPeerPod::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth,
+                               uint32_t outgoing_bandwidth)
+{
+    protocol_->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
+}
+
+int
+RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
+{
+    return protocol_->dispatch_incoming_commands(event);
 }
 
 int
@@ -173,17 +186,4 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
     }
 
     return 0;
-}
-
-int
-RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
-{
-    return protocol_->dispatch_incoming_commands(event);
-}
-
-void
-RUdpPeerPod::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth,
-                               uint32_t outgoing_bandwidth)
-{
-    protocol_->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
 }
