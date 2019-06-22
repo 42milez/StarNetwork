@@ -121,7 +121,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 
     unique_id_ = hash32();
 
-    return host_->udp_host_connect(dst_address, channel_count_, unique_id_);
+    return host_->Connect(dst_address, channel_count_, unique_id_);
 }
 
 Error
@@ -181,7 +181,7 @@ Network::Poll()
         if (!host_ || !active_)
             return;
 
-        int ret = host_->udp_host_service(event, 0);
+        int ret = host_->Service(event, 0);
 
         if (ret <= 0)
             break;
