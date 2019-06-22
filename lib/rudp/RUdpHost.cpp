@@ -22,7 +22,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
     {
-        // throw exception
+        // TODO: throw exception
         // ...
     }
 
