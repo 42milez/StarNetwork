@@ -133,7 +133,7 @@ enum class SysCh: int
     MAX
 };
 
-enum class SocketWait: int
+enum class SocketWait: uint8_t
 {
     NONE = 0,
     SEND = (1u << 0u),

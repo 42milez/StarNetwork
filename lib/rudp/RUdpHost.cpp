@@ -50,6 +50,19 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     else if (val == -1)         \
         return -1;
 
+/** Waits for events on the host specified and shuttles packets between
+    the host and its peers.
+
+    @param event   an event structure where event details will be placed if one occurs
+                   if event == nullptr then no events will be delivered
+    @param timeout number of milliseconds that RUDP should wait for events
+
+    @retval > 0    if an event occurred within the specified time limit
+    @retval 0      if no event occurred
+    @retval < 0    on failure
+
+    @remarks RUdpHost::Service should be called fairly regularly for adequate performance
+*/
 int
 RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 {
@@ -81,16 +94,11 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
     timeout += service_time_;
 
-    uint32_t wait_condition;
+    uint8_t wait_condition;
 
     do {
-        // 帯域幅の調整
-        //if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
-        //    _udp_host_bandwidth_throttle();
-
         peer_pod_->BandwidthThrottle(service_time_, incoming_bandwidth_, outgoing_bandwidth_);
 
-        //
         ret = peer_pod_->SendOutgoingCommands(event, service_time_, true);
 
         CHECK_RETURN_VALUE(ret)
@@ -117,7 +125,10 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
                 return 0;
 
             wait_condition =
-                static_cast<uint32_t>(SocketWait::RECEIVE) | static_cast<uint32_t>(SocketWait::INTERRUPT);
+                static_cast<uint8_t>(SocketWait::RECEIVE) | static_cast<uint8_t>(SocketWait::INTERRUPT);
+
+            if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, service_time_)) != 0)
+                return -1;
         }
         while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 

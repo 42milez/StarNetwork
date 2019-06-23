@@ -18,6 +18,9 @@ public:
     int Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
 private:
+    static int SocketWait(uint8_t wait_condition, uint32_t timeout) { return 0; };
+
+private:
     std::vector<uint8_t> received_data_;
 
     std::shared_ptr<RUdpConnection> _conn;
