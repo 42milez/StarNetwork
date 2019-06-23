@@ -173,7 +173,7 @@ Network::Poll()
 {
     ERR_FAIL_COND(!active_)
 
-    _pop_current_segment();
+    PopCurrentSegment();
 
     std::unique_ptr<RUdpEvent> event;
 
@@ -205,21 +205,6 @@ void
 Network::CloseConnection(uint32_t wait_usec)
 {
     // ...
-}
-
-void
-Network::SetupCompressor()
-{
-    if (compression_mode_ == CompressionMode::NONE) {
-        //udp_host_compress(_host);
-    }
-    else if (compression_mode_ == CompressionMode::RANGE_CODER) {
-        //udp_host_compress_with_range_coder(_host);
-    }
-    else // FASTLZ or ZLIB or ZSTD
-    {
-        //udp_custom_compress(_host, _udp_compressor);
-    }
 }
 
 size_t
@@ -308,7 +293,22 @@ Network::Destroy()
 }
 
 void
-Network::_pop_current_segment()
+Network::PopCurrentSegment()
 {
     // ...
+}
+
+void
+Network::SetupCompressor()
+{
+    if (compression_mode_ == CompressionMode::NONE) {
+        //udp_host_compress(_host);
+    }
+    else if (compression_mode_ == CompressionMode::RANGE_CODER) {
+        //udp_host_compress_with_range_coder(_host);
+    }
+    else // FASTLZ or ZLIB or ZSTD
+    {
+        //udp_custom_compress(_host, _udp_compressor);
+    }
 }

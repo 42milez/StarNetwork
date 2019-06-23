@@ -108,8 +108,6 @@ private:
     bool server_;
 
 private:
-    void SetupCompressor();
-
     size_t Compressor(const std::vector<RUdpBuffer> &in_buffers,
                       size_t in_limit,
                       std::vector<uint8_t> &out_data,
@@ -120,7 +118,9 @@ private:
                         size_t out_limit);
     void Destroy();
 
-    void _pop_current_segment();
+    void PopCurrentSegment();
+
+    void SetupCompressor();
 };
 
 #endif // P2P_TECHDEMO_NETWORK_H
