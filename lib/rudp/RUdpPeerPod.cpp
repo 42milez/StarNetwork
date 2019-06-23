@@ -7,14 +7,18 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     compressor_(std::make_shared<RUdpCompressor>()),
     conn_(conn),
     peer_count_(peer_count),
-    peers_(peer_count),
     total_received_data_(),
     total_received_segments_(),
     total_sent_data_(),
     total_sent_segments_()
 {
+    peers_.resize(peer_count);
+
     for (auto &peer : peers_)
+    {
+        peer = std::make_unique<RUdpPeer>();
         peer->reset();
+    }
 }
 
 std::shared_ptr<RUdpPeer>
