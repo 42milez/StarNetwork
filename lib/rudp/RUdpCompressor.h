@@ -7,6 +7,10 @@
 
 using RUdpCompressor = struct RUdpCompressor
 {
+public:
+    RUdpCompressor();
+
+public:
     std::function<size_t(const std::vector<RUdpBuffer> &in_buffers,
                          size_t in_limit,
                          std::vector<uint8_t> &out_data,
@@ -18,8 +22,6 @@ using RUdpCompressor = struct RUdpCompressor
                          size_t out_limit)> decompress;
 
     std::function<void()> destroy;
-
-    RUdpCompressor();
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMPRESSOR_H
