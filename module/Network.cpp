@@ -297,7 +297,7 @@ Network::Destroy()
 void
 Network::PopCurrentSegment()
 {
-    // ...
+    incoming_segments_.pop_front();
 }
 
 void
