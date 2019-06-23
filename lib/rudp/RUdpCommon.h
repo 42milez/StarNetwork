@@ -285,9 +285,9 @@ using RUdpProtocolType = union RUdpProtocolType
 #define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 uint32_t
-udp_time_get();
+TimeGet();
 
 void
-udp_time_set(uint32_t new_time_base);
+TimeSet(uint32_t new_time_base);
 
 #endif // P2P_TECHDEMO_RUDPCOMMON_H

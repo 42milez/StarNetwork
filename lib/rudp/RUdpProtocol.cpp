@@ -18,7 +18,7 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                                  const std::vector<std::shared_ptr<RUdpPeer>> &peers)
 {
     if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
-        auto time_current = udp_time_get();
+        auto time_current = TimeGet();
         auto time_elapsed = time_current - _bandwidth_throttle_epoch;
         auto peers_remaining = _connected_peers;
         auto data_total = ~0u;

@@ -77,7 +77,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         CHECK_RETURN_VALUE(ret)
     }
 
-    service_time_ = udp_time_get();
+    service_time_ = TimeGet();
 
     timeout += service_time_;
 
@@ -111,7 +111,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
             return 0;
 
         do {
-            service_time_ = udp_time_get();
+            service_time_ = TimeGet();
 
             if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
                 return 0;
@@ -121,7 +121,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         }
         while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
-        service_time_ = udp_time_get();
+        service_time_ = TimeGet();
     }
     while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
