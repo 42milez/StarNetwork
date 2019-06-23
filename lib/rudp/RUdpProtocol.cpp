@@ -171,7 +171,9 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
                 else
                     cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
 
-                peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+                std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
+
+                peer->QueueOutgoingCommand(cmd, seg, 0, 0);
             }
         }
     }

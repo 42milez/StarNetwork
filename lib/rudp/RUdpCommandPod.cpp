@@ -37,17 +37,6 @@ window_exceeds(uint32_t reliable_data_in_transit,
 }
 }
 
-OutgoingCommand::OutgoingCommand()
-    : reliable_sequence_number(),
-      unreliable_sequence_number(),
-      sent_time(),
-      round_trip_timeout(),
-      round_trip_timeout_limit(),
-      fragment_offset(),
-      fragment_length(),
-      send_attempts()
-{}
-
 RUdpCommandPod::RUdpCommandPod()
     :
     _incoming_data_total(),

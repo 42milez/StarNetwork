@@ -19,27 +19,22 @@ using IncomingCommand = struct IncomingCommand
 
 using OutgoingCommand = struct OutgoingCommand
 {
-    uint16_t reliable_sequence_number;
+public:
+    OutgoingCommand();
 
-    uint16_t unreliable_sequence_number;
-
-    uint32_t sent_time;
-
-    uint32_t round_trip_timeout;
-
-    uint32_t round_trip_timeout_limit;
-
-    uint32_t fragment_offset;
-
-    uint16_t fragment_length;
-
-    uint16_t send_attempts;
-
+public:
     std::shared_ptr<RUdpProtocolType> command;
-
     std::shared_ptr<RUdpSegment> segment;
 
-    OutgoingCommand();
+    uint32_t fragment_offset;
+    uint32_t round_trip_timeout;
+    uint32_t round_trip_timeout_limit;
+    uint32_t sent_time;
+
+    uint16_t fragment_length;
+    uint16_t reliable_sequence_number;
+    uint16_t send_attempts;
+    uint16_t unreliable_sequence_number;
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMAND_H
