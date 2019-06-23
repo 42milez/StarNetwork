@@ -12,7 +12,7 @@
 #include "Network.h"
 
 Network::Segment::Segment()
-    : segment(nullptr), from(0), channel(0)
+    : segment(nullptr), from(), channel()
 {}
 
 Network::Network()
@@ -25,10 +25,10 @@ Network::Network()
       current_segment_(Segment{}),
       refuse_connections_(false),
       server_(false),
-      target_peer_(0),
+      target_peer_(),
       transfer_channel_(-1),
       transfer_mode_(TransferMode::RELIABLE),
-      unique_id_(0)
+      unique_id_()
 {
     compressor_->compress = [this](const std::vector<RUdpBuffer> &in_buffers,
                                    size_t in_limit,

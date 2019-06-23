@@ -3,7 +3,7 @@
 #include <cstring>
 
 RUdpAddress::RUdpAddress()
-    : port(0), wildcard(false)
+    : port(), wildcard(false)
 {
     memset(&host, 0, sizeof(host));
 }

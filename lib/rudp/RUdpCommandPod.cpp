@@ -38,31 +38,31 @@ window_exceeds(uint32_t reliable_data_in_transit,
 }
 
 OutgoingCommand::OutgoingCommand()
-    : reliable_sequence_number(0),
-      unreliable_sequence_number(0),
-      sent_time(0),
-      round_trip_timeout(0),
-      round_trip_timeout_limit(0),
-      fragment_offset(0),
-      fragment_length(0),
-      send_attempts(0)
+    : reliable_sequence_number(),
+      unreliable_sequence_number(),
+      sent_time(),
+      round_trip_timeout(),
+      round_trip_timeout_limit(),
+      fragment_offset(),
+      fragment_length(),
+      send_attempts()
 {}
 
 RUdpCommandPod::RUdpCommandPod()
     :
-    _incoming_data_total(0),
-    _outgoing_data_total(0),
-    _outgoing_reliable_sequence_number(0),
-    _incoming_unsequenced_group(0),
-    _outgoing_unsequenced_group(0),
-    _round_trip_time(0),
-    _round_trip_time_variance(0),
-    _timeout_limit(0),
-    _next_timeout(0),
-    _earliest_timeout(0),
-    _timeout_minimum(0),
-    _timeout_maximum(0),
-    _reliable_data_in_transit(0)
+    _incoming_data_total(),
+    _outgoing_data_total(),
+    _outgoing_reliable_sequence_number(),
+    _incoming_unsequenced_group(),
+    _outgoing_unsequenced_group(),
+    _round_trip_time(),
+    _round_trip_time_variance(),
+    _timeout_limit(),
+    _next_timeout(),
+    _earliest_timeout(),
+    _timeout_minimum(),
+    _timeout_maximum(),
+    _reliable_data_in_transit()
 {}
 
 void

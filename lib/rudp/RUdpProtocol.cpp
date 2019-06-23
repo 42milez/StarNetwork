@@ -8,9 +8,9 @@
 
 RUdpProtocol::RUdpProtocol()
     : _recalculate_bandwidth_limits(false),
-      _bandwidth_limited_peers(0),
-      _bandwidth_throttle_epoch(0),
-      _connected_peers(0)
+      _bandwidth_limited_peers(),
+      _bandwidth_throttle_epoch(),
+      _connected_peers()
 {}
 
 void

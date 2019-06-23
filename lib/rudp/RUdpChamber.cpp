@@ -4,9 +4,9 @@
 
 RUdpChamber::RUdpChamber()
     : _continue_sending(false),
-      _header_flags(0),
-      _buffer_count(0),
-      _command_count(0)
+      _header_flags(),
+      _buffer_count(),
+      _command_count()
 {
     memset(_commands, 0, sizeof(_commands));
 }
