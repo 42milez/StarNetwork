@@ -117,8 +117,8 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             if ((peer->command()->outgoing_reliable_command_exists() ||
                 protocol_->send_reliable_outgoing_commands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
-                peer->exceeds_ping_interval(service_time) &&
-                peer->exceeds_mtu(protocol_->chamber()->segment_size())) {
+                peer->ExceedsPingInterval(service_time) &&
+                peer->ExceedsMTU(protocol_->chamber()->segment_size())) {
                 peer->Ping();
 
                 // ping コマンドをバッファに転送

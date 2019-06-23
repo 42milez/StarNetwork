@@ -47,6 +47,10 @@ public:
 
     bool Disconnected();
 
+    bool ExceedsMTU(size_t segment_size);
+
+    bool ExceedsPingInterval(uint32_t service_time);
+
     bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
 
     bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
@@ -58,38 +62,37 @@ public:
     bool StateIsLessThanOrEqual(RUdpPeerState state);
 
 public:
-    uint32_t event_data();
-    void event_data(uint32_t val);
+    inline uint32_t event_data() { return _event_data; };
+    inline void event_data(uint32_t val) { _event_data = val; };
 
-    uint32_t incoming_bandwidth();
+    inline uint32_t incoming_bandwidth() { return _net->incoming_bandwidth(); };
 
-    uint32_t incoming_data_total();
-    void incoming_data_total(uint32_t val);
+    inline uint32_t incoming_data_total() { return _command_pod->incoming_data_total(); };
+    inline void incoming_data_total(uint32_t val) { _command_pod->incoming_data_total(val); };
 
-    bool needs_dispatch();
-    void needs_dispatch(bool val);
+    inline bool needs_dispatch() { return _needs_dispatch; };
+    inline void needs_dispatch(bool val) { _needs_dispatch = val; };
 
-    uint32_t outgoing_bandwidth_throttle_epoch();
-    void outgoing_bandwidth_throttle_epoch(uint32_t val);
+    inline uint32_t outgoing_bandwidth_throttle_epoch() { return _net->outgoing_bandwidth_throttle_epoch(); };
+    inline void outgoing_bandwidth_throttle_epoch(uint32_t val) { _net->outgoing_bandwidth_throttle_epoch(val); };
 
-    uint32_t outgoing_data_total();
-    void outgoing_data_total(uint32_t val);
+    inline uint32_t outgoing_data_total() { return _command_pod->outgoing_data_total(); };
+    inline void outgoing_data_total(uint32_t val) { _command_pod->outgoing_data_total(val); };
 
-    uint16_t outgoing_peer_id();
-    uint8_t outgoing_session_id();
+    inline uint16_t outgoing_peer_id() { return _outgoing_peer_id; };
 
-    uint32_t segment_throttle();
-    void segment_throttle(uint32_t val);
-    uint32_t segment_throttle_limit();
-    void segment_throttle_limit(uint32_t val);
+    inline uint8_t outgoing_session_id() { return _outgoing_session_id; };
 
-    bool exceeds_mtu(size_t segment_size);
-    bool exceeds_ping_interval(uint32_t service_time);
-    
+    inline uint32_t segment_throttle() { return _net->segment_throttle(); };
+    inline void segment_throttle(uint32_t val) { _net->segment_throttle(val); };
+
+    inline uint32_t segment_throttle_limit() { return _net->segment_throttle_limit(); };
+    inline void segment_throttle_limit(uint32_t val) { _net->segment_throttle_limit(val); };
+
 public:
-    const RUdpAddress &address();
-    const std::unique_ptr<RUdpCommandPod> &command();
-    const std::unique_ptr<RUdpPeerNet> &net();
+    inline const RUdpAddress &address() { return _address; };
+    inline const std::unique_ptr<RUdpCommandPod> &command() { return _command_pod; };
+    inline const std::unique_ptr<RUdpPeerNet> &net() { return _net; };
 
 private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> _acknowledgements;

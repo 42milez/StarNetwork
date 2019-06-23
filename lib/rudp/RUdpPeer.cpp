@@ -2,82 +2,29 @@
 
 #include "RUdpPeer.h"
 
+RUdpPeer::RUdpPeer()
+    : _connect_id(),
+      _data(nullptr),
+      _event_data(),
+      _highest_round_trip_time_variance(),
+      _incoming_peer_id(hash32()),
+      _incoming_session_id(0xFF),
+      _last_receive_time(),
+      _last_round_trip_time(),
+      _last_round_trip_time_variance(),
+      _lowest_round_trip_time(),
+      _needs_dispatch(false),
+      _outgoing_peer_id(),
+      _outgoing_session_id(0xFF),
+      _ping_interval(),
+      _total_waiting_data(),
+      _unsequenced_window()
+{}
+
 void
 RUdpPeer::Disconnect()
 {
     // ...
-}
-
-std::shared_ptr<RUdpSegment>
-RUdpPeer::Receive(uint8_t &channel_id)
-{
-    if (_dispatched_commands.empty())
-        return nullptr;
-
-    auto incoming_command = _dispatched_commands.front();
-
-    channel_id = incoming_command.command->header.channel_id;
-
-    auto segment = incoming_command.segment;
-
-    _total_waiting_data -= segment->data_length();
-
-    return segment;
-}
-
-void
-RUdpPeer::Ping()
-{
-    if (!_net->StateIs(RUdpPeerState::CONNECTED))
-        return;
-
-    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
-
-    cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-    cmd->header.channel_id = 0xFF;
-
-    QueueOutgoingCommand(cmd, nullptr, 0, 0);
-}
-
-RUdpPeer::RUdpPeer()
-    : _outgoing_peer_id(),
-      _outgoing_session_id(),
-      _incoming_session_id(),
-      _last_receive_time(),
-      _ping_interval(),
-      _last_round_trip_time(),
-      _last_round_trip_time_variance(),
-      _lowest_round_trip_time(),
-      _highest_round_trip_time_variance(),
-      _needs_dispatch(false),
-      _event_data(),
-      _total_waiting_data(),
-      _incoming_peer_id(),
-      _connect_id()
-{
-    _incoming_peer_id = hash32();
-    _outgoing_session_id = _incoming_session_id = 0xFF;
-    _data = nullptr;
-}
-
-void
-RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command,
-                               const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
-{
-    std::shared_ptr<OutgoingCommand> outgoing_command;
-
-    outgoing_command->command = command;
-    outgoing_command->segment = segment;
-    outgoing_command->fragment_offset = offset;
-    outgoing_command->fragment_length = length;
-
-    _command_pod->setup_outgoing_command(outgoing_command);
-}
-
-bool
-RUdpPeer::Disconnected()
-{
-    return _net->StateIs(RUdpPeerState::DISCONNECTED);
 }
 
 Error
@@ -117,16 +64,49 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, 
     return Error::OK;
 }
 
-bool
-RUdpPeer::needs_dispatch()
+void
+RUdpPeer::Ping()
 {
-    return _needs_dispatch;
+    if (!_net->StateIs(RUdpPeerState::CONNECTED))
+        return;
+
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+
+    cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.channel_id = 0xFF;
+
+    QueueOutgoingCommand(cmd, nullptr, 0, 0);
 }
 
 void
-RUdpPeer::needs_dispatch(bool val)
+RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command,
+                               const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
 {
-    _needs_dispatch = val;
+    std::shared_ptr<OutgoingCommand> outgoing_command;
+
+    outgoing_command->command = command;
+    outgoing_command->segment = segment;
+    outgoing_command->fragment_offset = offset;
+    outgoing_command->fragment_length = length;
+
+    _command_pod->setup_outgoing_command(outgoing_command);
+}
+
+std::shared_ptr<RUdpSegment>
+RUdpPeer::Receive(uint8_t &channel_id)
+{
+    if (_dispatched_commands.empty())
+        return nullptr;
+
+    auto incoming_command = _dispatched_commands.front();
+
+    channel_id = incoming_command.command->header.channel_id;
+
+    auto segment = incoming_command.segment;
+
+    _total_waiting_data -= segment->data_length();
+
+    return segment;
 }
 
 bool
@@ -141,19 +121,6 @@ RUdpPeer::ClearAcknowledgement()
     _acknowledgements.clear();
 }
 
-bool
-RUdpPeer::DispatchedCommandExists()
-{
-    return !_dispatched_commands.empty();
-}
-
-void
-RUdpPeer::ClearDispatchedCommandQueue()
-{
-    std::queue<IncomingCommand> empty;
-    std::swap(_dispatched_commands, empty);
-}
-
 std::shared_ptr<RUdpAcknowledgement>
 RUdpPeer::PopAcknowledgement()
 {
@@ -164,46 +131,35 @@ RUdpPeer::PopAcknowledgement()
     return acknowledgement;
 }
 
-const std::unique_ptr<RUdpPeerNet> &
-RUdpPeer::net()
-{
-    return _net;
-}
-
-const std::unique_ptr<RUdpCommandPod> &
-RUdpPeer::command()
-{
-    return _command_pod;
-}
-
 bool
-RUdpPeer::StateIs(RUdpPeerState state)
+RUdpPeer::ChannelExists()
 {
-    return _net->StateIs(state);
-}
-
-bool
-RUdpPeer::StateIsGreaterThanOrEqual(RUdpPeerState state)
-{
-    return _net->StateIsGreaterThanOrEqual(state);
-}
-
-bool
-RUdpPeer::StateIsLessThanOrEqual(RUdpPeerState state)
-{
-    return _net->StateIsLessThanOrEqual(state);
-}
-
-uint32_t
-RUdpPeer::event_data()
-{
-    return _event_data;
+    return !_channels.empty();
 }
 
 void
-RUdpPeer::event_data(uint32_t val)
+RUdpPeer::ClearChannel()
 {
-    _event_data = val;
+    _channels.clear();
+}
+
+void
+RUdpPeer::ClearDispatchedCommandQueue()
+{
+    std::queue<IncomingCommand> empty;
+    std::swap(_dispatched_commands, empty);
+}
+
+bool
+RUdpPeer::DispatchedCommandExists()
+{
+    return !_dispatched_commands.empty();
+}
+
+bool
+RUdpPeer::Disconnected()
+{
+    return _net->StateIs(RUdpPeerState::DISCONNECTED);
 }
 
 bool
@@ -220,102 +176,6 @@ RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chambe
     auto disconnected = _command_pod->LoadUnreliableCommandsIntoChamber(chamber, _net);
 
     return disconnected;
-}
-
-uint32_t
-RUdpPeer::outgoing_data_total()
-{
-    return _command_pod->outgoing_data_total();
-}
-
-void
-RUdpPeer::outgoing_data_total(uint32_t val)
-{
-    _command_pod->outgoing_data_total(val);
-}
-
-uint32_t
-RUdpPeer::incoming_data_total()
-{
-    return _command_pod->incoming_data_total();
-}
-
-void
-RUdpPeer::incoming_data_total(uint32_t val)
-{
-    _command_pod->incoming_data_total(val);
-}
-
-uint32_t
-RUdpPeer::incoming_bandwidth()
-{
-    return _net->incoming_bandwidth();
-}
-
-uint32_t
-RUdpPeer::outgoing_bandwidth_throttle_epoch()
-{
-    return _net->outgoing_bandwidth_throttle_epoch();
-}
-
-void
-RUdpPeer::outgoing_bandwidth_throttle_epoch(uint32_t val)
-{
-    _net->outgoing_bandwidth_throttle_epoch(val);
-}
-
-uint32_t
-RUdpPeer::segment_throttle_limit()
-{
-    return _net->segment_throttle_limit();
-}
-
-void
-RUdpPeer::segment_throttle_limit(uint32_t val)
-{
-    _net->segment_throttle_limit(val);
-}
-
-uint32_t
-RUdpPeer::segment_throttle()
-{
-    return _net->segment_throttle();
-}
-
-void
-RUdpPeer::segment_throttle(uint32_t val)
-{
-    _net->segment_throttle(val);
-}
-
-bool
-RUdpPeer::exceeds_ping_interval(uint32_t service_time)
-{
-    return UDP_TIME_DIFFERENCE(service_time, _last_receive_time) >= _ping_interval;
-}
-
-bool
-RUdpPeer::exceeds_mtu(size_t segment_size)
-{
-    return _net->mtu() - segment_size >= sizeof(RUdpProtocolPing);
-}
-
-uint16_t
-RUdpPeer::outgoing_peer_id()
-{
-    return _outgoing_peer_id;
-}
-
-uint8_t
-RUdpPeer::outgoing_session_id()
-{
-    return _outgoing_session_id;
-}
-
-const RUdpAddress &
-RUdpPeer::address()
-{
-    return _address;
 }
 
 void
@@ -336,13 +196,31 @@ RUdpPeer::Reset()
 }
 
 bool
-RUdpPeer::ChannelExists()
+RUdpPeer::StateIs(RUdpPeerState state)
 {
-    return !_channels.empty();
+    return _net->StateIs(state);
 }
 
-void
-RUdpPeer::ClearChannel()
+bool
+RUdpPeer::StateIsGreaterThanOrEqual(RUdpPeerState state)
 {
-    _channels.clear();
+    return _net->StateIsGreaterThanOrEqual(state);
+}
+
+bool
+RUdpPeer::StateIsLessThanOrEqual(RUdpPeerState state)
+{
+    return _net->StateIsLessThanOrEqual(state);
+}
+
+bool
+RUdpPeer::ExceedsMTU(size_t segment_size)
+{
+    return _net->mtu() - segment_size >= sizeof(RUdpProtocolPing);
+}
+
+bool
+RUdpPeer::ExceedsPingInterval(uint32_t service_time)
+{
+    return UDP_TIME_DIFFERENCE(service_time, _last_receive_time) >= _ping_interval;
 }
