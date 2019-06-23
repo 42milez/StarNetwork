@@ -39,20 +39,21 @@ RUdpPeer::udp_peer_ping()
     queue_outgoing_command(cmd, nullptr, 0, 0);
 }
 
-RUdpPeer::RUdpPeer() : _outgoing_peer_id(0),
-                       _outgoing_session_id(0),
-                       _incoming_session_id(0),
-                       _last_receive_time(0),
-                       _ping_interval(0),
-                       _last_round_trip_time(0),
-                       _last_round_trip_time_variance(0),
-                       _lowest_round_trip_time(0),
-                       _highest_round_trip_time_variance(0),
-                       _needs_dispatch(false),
-                       _event_data(0),
-                       _total_waiting_data(0),
-                       _incoming_peer_id(0),
-                       _connect_id(0)
+RUdpPeer::RUdpPeer()
+    : _outgoing_peer_id(0),
+      _outgoing_session_id(0),
+      _incoming_session_id(0),
+      _last_receive_time(0),
+      _ping_interval(0),
+      _last_round_trip_time(0),
+      _last_round_trip_time_variance(0),
+      _lowest_round_trip_time(0),
+      _highest_round_trip_time_variance(0),
+      _needs_dispatch(false),
+      _event_data(0),
+      _total_waiting_data(0),
+      _incoming_peer_id(0),
+      _connect_id(0)
 {
     _incoming_peer_id = hash32();
     _outgoing_session_id = _incoming_session_id = 0xFF;

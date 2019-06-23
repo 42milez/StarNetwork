@@ -3,7 +3,7 @@
 
 #include "RUdpPeer.h"
 
-enum class RUdpEventType : int
+enum class RUdpEventType: int
 {
     NONE,
     CONNECT,

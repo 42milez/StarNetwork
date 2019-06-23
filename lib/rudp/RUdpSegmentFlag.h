@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-enum class RUdpSegmentFlag : uint32_t
+enum class RUdpSegmentFlag: uint32_t
 {
     // segment must be received by the target peer and
     // resend attempts should be made until the segment is delivered

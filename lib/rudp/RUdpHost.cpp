@@ -7,7 +7,8 @@
 #include "RUdpPeerPod.h"
 
 RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
-                   uint32_t out_bandwidth) :
+                   uint32_t out_bandwidth)
+    :
     channel_count_(channel_count),
     duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
     incoming_bandwidth_(in_bandwidth),
@@ -20,8 +21,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     segment_data_(),
     service_time_()
 {
-    if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
-    {
+    if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
         // TODO: throw exception
         // ...
     }
@@ -55,8 +55,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 {
     int ret;
 
-    if (event != nullptr)
-    {
+    if (event != nullptr) {
         event->type = RUdpEventType::NONE;
         event->peer = nullptr;
         event->segment = nullptr;
@@ -84,8 +83,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
     uint32_t wait_condition;
 
-    do
-    {
+    do {
         // 帯域幅の調整
         //if (UDP_TIME_DIFFERENCE(_service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
         //    _udp_host_bandwidth_throttle();
@@ -112,8 +110,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
             return 0;
 
-        do
-        {
+        do {
             service_time_ = udp_time_get();
 
             if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
@@ -121,10 +118,12 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
             wait_condition =
                 static_cast<uint32_t>(SocketWait::RECEIVE) | static_cast<uint32_t>(SocketWait::INTERRUPT);
-        } while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
+        }
+        while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
         service_time_ = udp_time_get();
-    } while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
+    }
+    while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
     return 0;
 }

@@ -1,26 +1,27 @@
 #include "RUdpCommon.h"
 #include "RUdpPeerNet.h"
 
-RUdpPeerNet::RUdpPeerNet() : _state(RUdpPeerState::DISCONNECTED),
-                             _segment_throttle(0),
-                             _segment_throttle_limit(0),
-                             _segment_throttle_counter(0),
-                             _segment_throttle_epoch(0),
-                             _segment_throttle_acceleration(0),
-                             _segment_throttle_deceleration(0),
-                             _segment_throttle_interval(0),
-                             _segment_loss_epoch(0),
-                             _segments_lost(0),
-                             _segment_loss(0),
-                             _segment_loss_variance(0),
-                             _last_send_time(0),
-                             _mtu(0),
-                             _window_size(0),
-                             _incoming_bandwidth(0),
-                             _outgoing_bandwidth(0),
-                             _incoming_bandwidth_throttle_epoch(0),
-                             _outgoing_bandwidth_throttle_epoch(0),
-                             _segments_sent(0)
+RUdpPeerNet::RUdpPeerNet()
+    : _state(RUdpPeerState::DISCONNECTED),
+      _segment_throttle(0),
+      _segment_throttle_limit(0),
+      _segment_throttle_counter(0),
+      _segment_throttle_epoch(0),
+      _segment_throttle_acceleration(0),
+      _segment_throttle_deceleration(0),
+      _segment_throttle_interval(0),
+      _segment_loss_epoch(0),
+      _segments_lost(0),
+      _segment_loss(0),
+      _segment_loss_variance(0),
+      _last_send_time(0),
+      _mtu(0),
+      _window_size(0),
+      _incoming_bandwidth(0),
+      _outgoing_bandwidth(0),
+      _incoming_bandwidth_throttle_epoch(0),
+      _outgoing_bandwidth_throttle_epoch(0),
+      _segments_sent(0)
 {}
 
 void
@@ -161,13 +162,11 @@ RUdpPeerNet::calculate_segment_loss(uint32_t service_time)
 
     _segment_loss_variance -= _segment_loss_variance / 4;
 
-    if (segment_loss >= _segment_loss)
-    {
+    if (segment_loss >= _segment_loss) {
         _segment_loss += (segment_loss - _segment_loss) / 8;
         _segment_loss_variance += (segment_loss - _segment_loss) / 4;
     }
-    else
-    {
+    else {
         _segment_loss -= (_segment_loss - segment_loss) / 8;
         _segment_loss_variance += (_segment_loss - segment_loss) / 4;
     }

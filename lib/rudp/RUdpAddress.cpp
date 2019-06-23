@@ -2,7 +2,8 @@
 
 #include <cstring>
 
-RUdpAddress::RUdpAddress() : port(0), wildcard(false)
+RUdpAddress::RUdpAddress()
+    : port(0), wildcard(false)
 {
     memset(&host, 0, sizeof(host));
 }

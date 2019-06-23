@@ -66,8 +66,10 @@ public:
     RUdpPeer();
 
     void
-    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
-                           uint32_t offset, uint16_t length);
+    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command,
+                           const std::shared_ptr<RUdpSegment> &segment,
+                           uint32_t offset,
+                           uint16_t length);
 
     bool is_disconnected();
 

@@ -7,8 +7,7 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
     _socket->open(Socket::Type::UDP, IP::Type::ANY);
     _socket->set_blocking_enabled(false);
 
-    if (_socket == nullptr)
-    {
+    if (_socket == nullptr) {
         // throw exception
         // ...
     }
@@ -22,8 +21,7 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
 
     auto ret = _socket->bind(ip, address.port);
 
-    if (ret != Error::OK)
-    {
+    if (ret != Error::OK) {
         // throw exception
         // ...
     }
@@ -44,8 +42,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     auto err = _socket->sendto(out, size, sent, dest, address.port);
 
-    if (err != Error::OK)
-    {
+    if (err != Error::OK) {
         if (err == Error::ERR_BUSY)
             return 0;
 

@@ -6,18 +6,18 @@
 #define IS_PEER_NOT_CONNECTED(peer) \
     !peer->state_is(RUdpPeerState::CONNECTED) && peer->state_is(RUdpPeerState::DISCONNECT_LATER)
 
-RUdpProtocol::RUdpProtocol() : _recalculate_bandwidth_limits(false),
-                               _bandwidth_limited_peers(0),
-                               _bandwidth_throttle_epoch(0),
-                               _connected_peers(0)
+RUdpProtocol::RUdpProtocol()
+    : _recalculate_bandwidth_limits(false),
+      _bandwidth_limited_peers(0),
+      _bandwidth_throttle_epoch(0),
+      _connected_peers(0)
 {}
 
 void
 RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                                  const std::vector<std::shared_ptr<RUdpPeer>> &peers)
 {
-    if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
-    {
+    if (UDP_TIME_DIFFERENCE(service_time, _bandwidth_throttle_epoch) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
         auto time_current = udp_time_get();
         auto time_elapsed = time_current - _bandwidth_throttle_epoch;
         auto peers_remaining = _connected_peers;
@@ -38,13 +38,11 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
         //  Throttle outgoing bandwidth
         // --------------------------------------------------
 
-        if (outgoing_bandwidth != 0)
-        {
+        if (outgoing_bandwidth != 0) {
             data_total = 0;
             bandwidth = outgoing_bandwidth * (time_elapsed / 1000);
 
-            for (const auto &peer : peers)
-            {
+            for (const auto &peer : peers) {
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
 
@@ -55,8 +53,7 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
         //  Throttle peer bandwidth : Case A ( adjustment is needed )
         // --------------------------------------------------
 
-        while (peers_remaining > 0 && needs_adjustment)
-        {
+        while (peers_remaining > 0 && needs_adjustment) {
             needs_adjustment = false;
 
             if (data_total <= bandwidth)
@@ -64,14 +61,12 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
             else
                 throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
-            for (auto &peer : peers)
-            {
+            for (auto &peer : peers) {
                 uint32_t peer_bandwidth;
 
                 if ((IS_PEER_NOT_CONNECTED(peer)) ||
                     peer->incoming_bandwidth() == 0 ||
-                    peer->outgoing_bandwidth_throttle_epoch() == time_current)
-                {
+                    peer->outgoing_bandwidth_throttle_epoch() == time_current) {
                     continue;
                 }
 
@@ -104,15 +99,13 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
         //  Throttle peer bandwidth : Case B ( adjustment is NOT needed )
         // --------------------------------------------------
 
-        if (peers_remaining > 0)
-        {
+        if (peers_remaining > 0) {
             if (data_total <= bandwidth)
                 throttle = PEER_SEGMENT_THROTTLE_SCALE;
             else
                 throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
-            for (auto &peer : peers)
-            {
+            for (auto &peer : peers) {
                 if ((IS_PEER_NOT_CONNECTED(peer)) || peer->net()->outgoing_bandwidth_throttle_epoch() == time_current)
                     continue;
 
@@ -129,26 +122,21 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
         //  Recalculate Bandwidth Limits
         // --------------------------------------------------
 
-        if (_recalculate_bandwidth_limits)
-        {
+        if (_recalculate_bandwidth_limits) {
             _recalculate_bandwidth_limits = false;
             peers_remaining = _connected_peers;
             bandwidth = incoming_bandwidth;
             needs_adjustment = true;
 
-            if (bandwidth == 0)
-            {
+            if (bandwidth == 0) {
                 bandwidth_limit = 0;
             }
-            else
-            {
-                while (peers_remaining > 0 && needs_adjustment)
-                {
+            else {
+                while (peers_remaining > 0 && needs_adjustment) {
                     needs_adjustment = false;
                     bandwidth_limit = bandwidth / peers_remaining;
 
-                    for (auto &peer: peers)
-                    {
+                    for (auto &peer: peers) {
                         if ((IS_PEER_NOT_CONNECTED(peer)) ||
                             peer->net()->incoming_bandwidth_throttle_epoch() == time_current)
                             continue;
@@ -170,8 +158,7 @@ RUdpProtocol::bandwidth_throttle(uint32_t service_time, uint32_t incoming_bandwi
 
             std::shared_ptr<RUdpProtocolType> cmd;
 
-            for (auto &peer : peers)
-            {
+            for (auto &peer : peers) {
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
 
@@ -204,8 +191,7 @@ RUdpProtocol::change_state(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeer
 void
 RUdpProtocol::connect(const std::shared_ptr<RUdpPeer> &peer)
 {
-    if (!peer->net()->state_is(RUdpPeerState::CONNECTED) && !peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
-    {
+    if (!peer->net()->state_is(RUdpPeerState::CONNECTED) && !peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER)) {
         if (peer->net()->incoming_bandwidth() != 0)
             increase_bandwidth_limited_peers();
 
@@ -216,8 +202,7 @@ RUdpProtocol::connect(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
 {
-    if (peer->net()->state_is(RUdpPeerState::CONNECTED) || peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER))
-    {
+    if (peer->net()->state_is(RUdpPeerState::CONNECTED) || peer->net()->state_is(RUdpPeerState::DISCONNECT_LATER)) {
         if (peer->net()->incoming_bandwidth() != 0)
             decrease_bandwidth_limited_peers();
 
@@ -228,15 +213,13 @@ RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
 int
 RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 {
-    while (_dispatch_queue->PeerExists())
-    {
+    while (_dispatch_queue->PeerExists()) {
         auto peer = _dispatch_queue->Pop();
 
         peer->needs_dispatch(false);
 
         if (peer->state_is(RUdpPeerState::CONNECTION_PENDING) ||
-            peer->state_is(RUdpPeerState::CONNECTION_SUCCEEDED))
-        {
+            peer->state_is(RUdpPeerState::CONNECTION_SUCCEEDED)) {
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
             change_state(peer, RUdpPeerState::CONNECTED);
 
@@ -246,8 +229,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 
             return 1;
         }
-        else if (peer->state_is(RUdpPeerState::ZOMBIE))
-        {
+        else if (peer->state_is(RUdpPeerState::ZOMBIE)) {
             _recalculate_bandwidth_limits = true;
 
             event->type = RUdpEventType::DISCONNECT;
@@ -259,8 +241,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 
             return 1;
         }
-        else if (peer->state_is(RUdpPeerState::CONNECTED))
-        {
+        else if (peer->state_is(RUdpPeerState::CONNECTED)) {
             if (!peer->dispatched_command_exists())
                 continue;
 
@@ -274,8 +255,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
             event->peer = peer;
 
             // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
-            if (peer->dispatched_command_exists())
-            {
+            if (peer->dispatched_command_exists()) {
                 peer->needs_dispatch(true);
 
                 _dispatch_queue->Enqueue(peer);
@@ -293,8 +273,7 @@ RUdpProtocol::dispatch_state(std::shared_ptr<RUdpPeer> &peer, const RUdpPeerStat
 {
     change_state(peer, state);
 
-    if (!peer->needs_dispatch())
-    {
+    if (!peer->needs_dispatch()) {
         peer->needs_dispatch(true);
 
         _dispatch_queue->Enqueue(peer);
@@ -313,21 +292,18 @@ RUdpProtocol::notify_disconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniq
     // 2. ACKNOWLEDGING_CONNECT,
     // 3. CONNECTION_PENDING
     //if (peer->state != RUdpPeerState::CONNECTING && peer->state < RUdpPeerState::CONNECTION_SUCCEEDED)
-    if (!peer->state_is(RUdpPeerState::CONNECTING) && peer->state_is_lt(RUdpPeerState::CONNECTION_SUCCEEDED))
-    {
+    if (!peer->state_is(RUdpPeerState::CONNECTING) && peer->state_is_lt(RUdpPeerState::CONNECTION_SUCCEEDED)) {
         udp_peer_reset(peer);
     }
         // ピアが接続済みである場合
-    else if (event != nullptr)
-    {
+    else if (event != nullptr) {
         event->type = RUdpEventType::DISCONNECT;
         event->peer = peer;
         event->data = 0;
 
         udp_peer_reset(peer);
     }
-    else
-    {
+    else {
         peer->event_data(0);
 
         dispatch_state(peer, RUdpPeerState::ZOMBIE);
@@ -340,8 +316,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
     auto *command = _chamber->command_insert_pos();
     auto *buffer = _chamber->buffer_insert_pos();
 
-    while (peer->acknowledgement_exists())
-    {
+    while (peer->acknowledgement_exists()) {
         // auto ack = peer->acknowledgements.front();
         auto ack = peer->pop_acknowledgement();
 
@@ -351,8 +326,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
         // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
         if (!_chamber->command_buffer_have_enough_space(command) ||
             !_chamber->data_buffer_have_enough_space(buffer) ||
-            peer->net()->mtu() - _chamber->segment_size() < sizeof(RUdpProtocolAcknowledge))
-        {
+            peer->net()->mtu() - _chamber->segment_size() < sizeof(RUdpProtocolAcknowledge)) {
             _chamber->continue_sending(true);
 
             break;
@@ -384,7 +358,7 @@ RUdpProtocol::send_acknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
 bool
 RUdpProtocol::send_reliable_outgoing_commands(const std::shared_ptr<RUdpPeer> &peer,
-                                                            uint32_t service_time)
+                                              uint32_t service_time)
 {
     auto can_ping = peer->load_reliable_commands_into_chamber(_chamber, service_time);
 

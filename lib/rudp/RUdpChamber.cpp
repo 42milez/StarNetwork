@@ -2,10 +2,11 @@
 #include "RUdpCommandSize.h"
 #include "RUdpProtocol.h"
 
-RUdpChamber::RUdpChamber() : _continue_sending(false),
-                             _header_flags(0),
-                             _buffer_count(0),
-                             _command_count(0)
+RUdpChamber::RUdpChamber()
+    : _continue_sending(false),
+      _header_flags(0),
+      _buffer_count(0),
+      _command_count(0)
 {
     memset(_commands, 0, sizeof(_commands));
 }
@@ -53,8 +54,7 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
 
     // has not enough space for command with payload
     if (static_cast<uint16_t>(mtu - _segment_size) <
-        static_cast<uint16_t>(command_size + outgoing_command->fragment_length))
-    {
+        static_cast<uint16_t>(command_size + outgoing_command->fragment_length)) {
         return true;
     }
 
@@ -156,8 +156,7 @@ RUdpChamber::write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 
-    for (auto i = 0; i < _buffer_count; ++i)
-    {
+    for (auto i = 0; i < _buffer_count; ++i) {
         size += _buffers[i].data_length;
     }
 
@@ -165,8 +164,7 @@ RUdpChamber::write(std::vector<uint8_t> &out)
 
     int pos = 0;
 
-    for (auto i = 0; i < _buffer_count; ++i)
-    {
+    for (auto i = 0; i < _buffer_count; ++i) {
         memcpy(&out[pos], _buffers[i].data, _buffers[i].data_length);
         pos += _buffers[i].data_length;
     }
