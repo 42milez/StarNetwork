@@ -74,11 +74,14 @@ private:
 
     struct Segment
     {
-        std::shared_ptr<RUdpSegment> segment;
-        int from;
-        int channel;
-
+    public:
         Segment();
+
+    public:
+        std::shared_ptr<RUdpSegment> segment;
+
+        int channel;
+        int from;
     };
 
     std::list<Segment> incoming_segments_;
