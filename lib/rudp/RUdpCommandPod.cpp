@@ -130,7 +130,7 @@ RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> 
 }
 
 bool
-RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
+RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                                     std::unique_ptr<RUdpPeerNet> &net,
                                                     const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                                     uint32_t service_time)
@@ -254,7 +254,7 @@ RUdpCommandPod::load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber>
 }
 
 bool
-RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
+RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                                       std::unique_ptr<RUdpPeerNet> &net)
 {
     auto *command = chamber->command_insert_pos();
@@ -327,7 +327,7 @@ RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChambe
     chamber->update_buffer_count(buffer);
 
     // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
-    if (net->state_is(RUdpPeerState::DISCONNECT_LATER) &&
+    if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&
         _outgoing_reliable_commands.empty() &&
         _outgoing_unreliable_commands.empty() &&
         !_sent_reliable_commands.empty()) {
@@ -335,7 +335,7 @@ RUdpCommandPod::load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChambe
     }
 
     // ↑のロジックの結果次第でtrue/falseを返す
-    // udp_peer_disconnect() はRUdpPeerPodから呼ぶ
+    // Disconnect() はRUdpPeerPodから呼ぶ
     return can_disconnect;
 }
 
@@ -394,7 +394,7 @@ RUdpCommandPod::clear_outgoing_unreliable_command()
 }
 
 void
-RUdpCommandPod::reset()
+RUdpCommandPod::Reset()
 {
     _incoming_data_total = 0;
     _outgoing_data_total = 0;

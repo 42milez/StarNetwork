@@ -53,12 +53,12 @@ public:
 
     void push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command);
 
-    bool load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
+    bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                              std::unique_ptr<RUdpPeerNet> &net,
                                              const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                              uint32_t service_time);
 
-    bool load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber,
+    bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                                std::unique_ptr<RUdpPeerNet> &net);
 
     uint32_t outgoing_data_total();
@@ -81,7 +81,7 @@ public:
 
     void clear_outgoing_unreliable_command();
 
-    void reset();
+    void Reset();
 
     void increse_reliable_data_in_transit(uint32_t val);
 

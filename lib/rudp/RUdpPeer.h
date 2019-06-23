@@ -17,141 +17,113 @@
 
 class RUdpPeer
 {
+public:
+    RUdpPeer();
+
+    void Disconnect();
+
+    Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth,
+                uint32_t out_bandwidth);
+
+    void Ping();
+
+    void QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command,
+                              const std::shared_ptr<RUdpSegment> &segment,
+                              uint32_t offset,
+                              uint16_t length);
+
+    std::shared_ptr<RUdpSegment> Receive(uint8_t &channel_id);
+
+public:
+    bool AcknowledgementExists();
+    void ClearAcknowledgement();
+    std::shared_ptr<RUdpAcknowledgement> PopAcknowledgement();
+
+    bool ChannelExists();
+    void ClearChannel();
+
+    void ClearDispatchedCommandQueue();
+    bool DispatchedCommandExists();
+
+    bool Disconnected();
+
+    bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
+
+    bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
+
+    void Reset();
+
+    bool StateIs(RUdpPeerState state);
+    bool StateIsGreaterThanOrEqual(RUdpPeerState state);
+    bool StateIsLessThanOrEqual(RUdpPeerState state);
+
+public:
+    uint32_t event_data();
+    void event_data(uint32_t val);
+
+    uint32_t incoming_bandwidth();
+
+    uint32_t incoming_data_total();
+    void incoming_data_total(uint32_t val);
+
+    bool needs_dispatch();
+    void needs_dispatch(bool val);
+
+    uint32_t outgoing_bandwidth_throttle_epoch();
+    void outgoing_bandwidth_throttle_epoch(uint32_t val);
+
+    uint32_t outgoing_data_total();
+    void outgoing_data_total(uint32_t val);
+
+    uint16_t outgoing_peer_id();
+    uint8_t outgoing_session_id();
+
+    uint32_t segment_throttle();
+    void segment_throttle(uint32_t val);
+    uint32_t segment_throttle_limit();
+    void segment_throttle_limit(uint32_t val);
+
+    bool exceeds_mtu(size_t segment_size);
+    bool exceeds_ping_interval(uint32_t service_time);
+    
+public:
+    const RUdpAddress &address();
+    const std::unique_ptr<RUdpCommandPod> &command();
+    const std::unique_ptr<RUdpPeerNet> &net();
+
 private:
-    std::unique_ptr<RUdpPeerNet> _net;
-
-    uint16_t _outgoing_peer_id;
-
-    uint16_t _incoming_peer_id;
-
-    uint32_t _connect_id;
-
-    uint8_t _outgoing_session_id;
-
-    uint8_t _incoming_session_id;
-
-    RUdpAddress _address;
-
-    void *_data;
-
-    uint32_t _last_receive_time;
-
-    uint32_t _ping_interval;
-
-    uint32_t _last_round_trip_time;
-
-    uint32_t _last_round_trip_time_variance;
-
-    uint32_t _lowest_round_trip_time;
-
-    uint32_t _highest_round_trip_time_variance;
-
     std::list<std::shared_ptr<RUdpAcknowledgement>> _acknowledgements;
 
     std::queue<IncomingCommand> _dispatched_commands;
 
-    bool _needs_dispatch;
+    std::vector<std::shared_ptr<RUdpChannel>> _channels;
 
-    uint32_t _unsequenced_window[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
+    std::unique_ptr<RUdpCommandPod> _command_pod;
+    std::unique_ptr<RUdpPeerNet> _net;
 
-    uint32_t _event_data;
+    RUdpAddress _address;
 
     size_t _total_waiting_data;
 
-    std::unique_ptr<RUdpCommandPod> _command_pod;
+    uint32_t _connect_id;
+    uint32_t _event_data;
+    uint32_t _highest_round_trip_time_variance;
+    uint32_t _last_receive_time;
+    uint32_t _last_round_trip_time;
+    uint32_t _last_round_trip_time_variance;
+    uint32_t _lowest_round_trip_time;
+    uint32_t _ping_interval;
+    uint32_t _unsequenced_window[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
 
-    std::vector<std::shared_ptr<RUdpChannel>> _channels;
+    uint16_t _incoming_peer_id;
+    uint16_t _outgoing_peer_id;
 
-public:
-    RUdpPeer();
+    uint8_t _incoming_session_id;
+    uint8_t _outgoing_session_id;
 
-    void
-    queue_outgoing_command(const std::shared_ptr<RUdpProtocolType> &command,
-                           const std::shared_ptr<RUdpSegment> &segment,
-                           uint32_t offset,
-                           uint16_t length);
+    bool _needs_dispatch;
 
-    bool is_disconnected();
-
-    Error
-    setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth,
-          uint32_t out_bandwidth);
-
-    void udp_peer_disconnect();
-
-    std::shared_ptr<RUdpSegment> udp_peer_receive(uint8_t &channel_id);
-
-    void udp_peer_ping();
-
-    bool needs_dispatch();
-
-    bool needs_dispatch(bool val);
-
-    bool acknowledgement_exists();
-
-    bool dispatched_command_exists();
-
-    void clear_dispatched_command();
-
-    std::shared_ptr<RUdpAcknowledgement> pop_acknowledgement();
-
-    uint32_t event_data();
-
-    void event_data(uint32_t val);
-
-    bool load_reliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
-
-    bool load_unreliable_commands_into_chamber(std::unique_ptr<RUdpChamber> &chamber);
-
-    bool state_is(RUdpPeerState state);
-
-    bool state_is_ge(RUdpPeerState state);
-
-    bool state_is_lt(RUdpPeerState state);
-
-    uint32_t outgoing_data_total();
-
-    void outgoing_data_total(uint32_t val);
-
-    uint32_t incoming_data_total();
-
-    void incoming_data_total(uint32_t val);
-
-    uint32_t incoming_bandwidth();
-
-    uint32_t outgoing_bandwidth_throttle_epoch();
-
-    void outgoing_bandwidth_throttle_epoch(uint32_t val);
-
-    uint32_t segment_throttle_limit();
-
-    void segment_throttle_limit(uint32_t val);
-
-    uint32_t segment_throttle();
-
-    void segment_throttle(uint32_t val);
-
-    const std::unique_ptr<RUdpPeerNet> &net();
-
-    const std::unique_ptr<RUdpCommandPod> &command();
-
-    bool exceeds_ping_interval(uint32_t service_time);
-
-    bool exceeds_mtu(size_t segment_size);
-
-    uint16_t outgoing_peer_id();
-
-    uint8_t outgoing_session_id();
-
-    const RUdpAddress &address();
-
-    void reset();
-
-    void clear_acknowledgement();
-
-    bool channel_exists();
-
-    void clear_channel();
+    void *_data;
 };
 
 #endif // P2P_TECHDEMO_RUDPPEER_H

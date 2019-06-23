@@ -54,19 +54,19 @@ RUdpPeerNet::mtu()
 }
 
 bool
-RUdpPeerNet::state_is(RUdpPeerState state)
+RUdpPeerNet::StateIs(RUdpPeerState state)
 {
     return _state == state;
 }
 
 bool
-RUdpPeerNet::state_is_ge(RUdpPeerState state)
+RUdpPeerNet::StateIsGreaterThanOrEqual(RUdpPeerState state)
 {
     return _state >= state;
 }
 
 bool
-RUdpPeerNet::state_is_lt(RUdpPeerState state)
+RUdpPeerNet::StateIsLessThanOrEqual(RUdpPeerState state)
 {
     return _state < state;
 }
@@ -183,7 +183,7 @@ RUdpPeerNet::last_send_time(uint32_t service_time)
 }
 
 void
-RUdpPeerNet::reset()
+RUdpPeerNet::Reset()
 {
     _state = RUdpPeerState::DISCONNECTED;
     _last_send_time = 0;

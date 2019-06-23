@@ -64,7 +64,7 @@ public:
 
     void set_data_length(size_t val);
 
-    void reset();
+    void Reset();
 
     int write(std::vector<uint8_t> &out);
 };

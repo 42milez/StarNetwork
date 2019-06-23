@@ -17,7 +17,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     for (auto &peer : peers_)
     {
         peer = std::make_unique<RUdpPeer>();
-        peer->reset();
+        peer->Reset();
     }
 }
 
@@ -25,7 +25,7 @@ std::shared_ptr<RUdpPeer>
 RUdpPeerPod::AvailablePeerExists()
 {
     for (auto &peer : peers_) {
-        if (peer->is_disconnected())
+        if (peer->Disconnected())
             return peer;
     }
 
@@ -63,7 +63,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
         protocol_->continue_sending(false);
 
         for (auto &peer : peers_) {
-            if (peer->state_is(RUdpPeerState::DISCONNECTED) || peer->state_is(RUdpPeerState::ZOMBIE))
+            if (peer->StateIs(RUdpPeerState::DISCONNECTED) || peer->StateIs(RUdpPeerState::ZOMBIE))
                 continue;
 
             protocol_->chamber()->header_flags(0);
@@ -74,7 +74,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             //  ACKを返す
             // --------------------------------------------------
 
-            if (peer->acknowledgement_exists())
+            if (peer->AcknowledgementExists())
                 protocol_->send_acknowledgements(peer);
 
             //  タイムアウト処理
@@ -119,7 +119,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->exceeds_ping_interval(service_time) &&
                 peer->exceeds_mtu(protocol_->chamber()->segment_size())) {
-                peer->udp_peer_ping();
+                peer->Ping();
 
                 // ping コマンドをバッファに転送
                 protocol_->send_reliable_outgoing_commands(peer, service_time);

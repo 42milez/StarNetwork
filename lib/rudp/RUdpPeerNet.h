@@ -10,17 +10,17 @@ class RUdpPeerNet
 public:
     RUdpPeerNet();
 
-    bool state_is(RUdpPeerState state);
+    bool StateIs(RUdpPeerState state);
 
-    bool state_is_ge(RUdpPeerState state);
+    bool StateIsGreaterThanOrEqual(RUdpPeerState state);
 
-    bool state_is_lt(RUdpPeerState state);
+    bool StateIsLessThanOrEqual(RUdpPeerState state);
 
     bool exceeds_segment_loss_interval(uint32_t service_time);
 
     void calculate_segment_loss(uint32_t service_time);
 
-    void reset();
+    void Reset();
 
     void setup();
 
