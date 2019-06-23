@@ -45,6 +45,12 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     return protocol_->dispatch_incoming_commands(event);
 }
 
+#define IS_EVENT_TYPE_NONE() \
+    if (event->type != RUdpEventType::NONE) \
+        return 1; \
+    else \
+        continue;
+
 int
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
@@ -73,12 +79,6 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
 
             //  タイムアウト処理
             // --------------------------------------------------
-
-#define IS_EVENT_TYPE_NONE() \
-    if (event->type != RUdpEventType::NONE) \
-        return 1; \
-    else \
-        continue;
 
             if (check_for_timeouts) {
                 IS_EVENT_TYPE_NONE()
