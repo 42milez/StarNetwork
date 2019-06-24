@@ -14,7 +14,7 @@ class RUdpPeerPod
 public:
     RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
 
-    std::shared_ptr<RUdpPeer> AvailablePeerExists();
+    std::shared_ptr<RUdpPeer> AvailablePeer();
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);

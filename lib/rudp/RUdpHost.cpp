@@ -34,7 +34,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
 Error
 RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data)
 {
-    auto peer = peer_pod_->AvailablePeerExists();
+    auto peer = peer_pod_->AvailablePeer();
 
     if (peer == nullptr)
         return Error::CANT_CREATE;
@@ -53,13 +53,13 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
 /** Waits for events on the host specified and shuttles packets between
     the host and its peers.
 
-    @param event   an event structure where event details will be placed if one occurs
-                   if event == nullptr then no events will be delivered
-    @param timeout number of milliseconds that RUDP should wait for events
+    @param event                           an event structure where event details will be placed if one occurs
+                                           if event == nullptr then no events will be delivered
+    @param timeout                         number of milliseconds that RUDP should wait for events
 
-    @retval > 0    if an event occurred within the specified time limit
-    @retval 0      if no event occurred
-    @retval < 0    on failure
+    @retval EventStatus::AN_EVENT_OCCURRED if an event occurred within the specified time limit
+    @retval EventStatus::NO_EVENT_OCCURRED if no event occurred
+    @retval EventStatus::ERROR             on failure
 
     @remarks RUdpHost::Service should be called fairly regularly for adequate performance
 */

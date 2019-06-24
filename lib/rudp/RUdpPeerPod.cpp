@@ -23,7 +23,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
 }
 
 std::shared_ptr<RUdpPeer>
-RUdpPeerPod::AvailablePeerExists()
+RUdpPeerPod::AvailablePeer()
 {
     for (auto &peer : peers_) {
         if (peer->Disconnected())
