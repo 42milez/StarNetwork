@@ -37,13 +37,13 @@ void
 RUdpPeerPod::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth,
                                uint32_t outgoing_bandwidth)
 {
-    protocol_->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
+    protocol_->BandwidthThrottle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
 }
 
 EventStatus
 RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
-    return protocol_->dispatch_incoming_commands(event);
+    return protocol_->DispatchIncomingCommands(event);
 }
 
 #define IS_EVENT_TYPE_NONE() \
@@ -76,7 +76,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             // --------------------------------------------------
 
             if (peer->AcknowledgementExists())
-                protocol_->send_acknowledgements(peer);
+                protocol_->SendAcknowledgements(peer);
 
             //  タイムアウト処理
             // --------------------------------------------------
@@ -96,7 +96,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             bool timed_out = peer->command()->check_timeouts(peer->net(), service_time);
 
             if (timed_out == 1) {
-                protocol_->notify_disconnect(peer, event);
+                protocol_->NotifyDisconnect(peer, event);
 
                 IS_EVENT_TYPE_NONE()
             }
@@ -116,21 +116,21 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             // --------------------------------------------------
 
             if ((peer->command()->outgoing_reliable_command_exists() ||
-                protocol_->send_reliable_outgoing_commands(peer, service_time)) &&
+                protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->ExceedsPingInterval(service_time) &&
                 peer->ExceedsMTU(protocol_->chamber()->segment_size())) {
                 peer->Ping();
 
                 // ping コマンドをバッファに転送
-                protocol_->send_reliable_outgoing_commands(peer, service_time);
+                protocol_->SendReliableOutgoingCommands(peer, service_time);
             }
 
             //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------
 
             if (peer->command()->outgoing_unreliable_command_exists())
-                protocol_->send_unreliable_outgoing_commands(peer, service_time);
+                protocol_->SendUnreliableOutgoingCommands(peer, service_time);
 
             //if (_command_count == 0)
             if (protocol_->chamber()->command_count() == 0)

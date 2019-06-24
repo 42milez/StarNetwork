@@ -29,7 +29,7 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
                                uint32_t mtu,
                                const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
-    // MEMO: [誤] send_reliable_outgoing_commands() では
+    // MEMO: [誤] SendReliableOutgoingCommands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、
     //            command か buffer どちらかでよいのでは？
     //       [正] コマンドがパケットを持っている際に buffer がインクリメントされる（コマンドに続くデータがバッファに投入される）ので、
