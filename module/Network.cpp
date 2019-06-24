@@ -81,7 +81,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 #else
         if (!bind_ip_.is_wildcard()) {
             ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            client_address.SetIP(bind_ip_.get_ipv4(), 8);
+            client_address.SetIP(bind_ip_.GetIPv4(), 8);
         }
 #endif
         client_address.port = client_port;
@@ -89,7 +89,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
         host_ = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
     else {
-        // create a host with random assigned port
+        // create a host with randomly assigned port
         // ...
     }
 
@@ -117,7 +117,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
     dst_address.SetIP(ip.get_ipv6(), 16);
 #else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-    memcpy(dst_address.host, ip.get_ipv4(), sizeof(dst_address.host));
+    memcpy(dst_address.host, ip.GetIPv4(), sizeof(dst_address.host));
 #endif
     dst_address.port = server_port;
 
@@ -149,7 +149,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
 #else
     if (!bind_ip_.is_wildcard()) {
         ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-        address.SetIP(bind_ip_.get_ipv4(), 8);
+        address.SetIP(bind_ip_.GetIPv4(), 8);
     }
 #endif
 

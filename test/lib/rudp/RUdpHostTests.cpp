@@ -8,7 +8,13 @@
 
 TEST_CASE("Service", "[IPv4][RUdpHost]")
 {
-    std::unique_ptr<RUdpHost> host = std::make_unique<RUdpHost>();
+    IpAddress ip{"*"};
+    RUdpAddress address{};
+
+    address.SetIP(ip.GetIPv4(), 8);
+    address.port = 8888;
+
+    std::unique_ptr<RUdpHost> host = std::make_unique<RUdpHost>(address, SysCh::MAX, 1, 100, 100);
     std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
 
     auto ret = host->Service(event, 0);

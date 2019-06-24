@@ -113,7 +113,7 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
 
         if (ip.is_valid())
         {
-            memcpy(&addr4.sin_addr.s_addr, ip.get_ipv4(), 4);
+            memcpy(&addr4.sin_addr.s_addr, ip.GetIPv4(), 4);
         }
         else
         {

@@ -35,7 +35,7 @@ public:
 
     bool is_wildcard() const;
 
-    const uint8_t *get_ipv4() const;
+    const uint8_t *GetIPv4() const;
 
     const uint8_t *get_ipv6() const;
 

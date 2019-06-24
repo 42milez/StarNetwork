@@ -47,7 +47,7 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
 #define IS_EVENT_TYPE_NONE() \
     if (event->type != RUdpEventType::NONE) \
-        return 1; \
+        return EventStatus::AN_EVENT_OCCURRED; \
     else \
         continue;
 

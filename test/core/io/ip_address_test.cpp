@@ -45,7 +45,7 @@ TEST_CASE("Set and Get IPv4 address", "")
     uint8_t ipv4[4] = {129, 144, 52, 38};
     ip_address.set_ipv4(ipv4);
 
-    auto ret = ip_address.get_ipv4();
+    auto ret = ip_address.GetIPv4();
 
     REQUIRE(ret[0] == 129);
     REQUIRE(ret[1] == 144);

@@ -296,7 +296,7 @@ IpAddress::is_wildcard() const
 }
 
 const uint8_t *
-IpAddress::get_ipv4() const
+IpAddress::GetIPv4() const
 {
     // ToDo: bounds checking
     // ...

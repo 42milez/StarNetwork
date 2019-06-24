@@ -1,5 +1,5 @@
 set(sources RUdpHostTests.cpp)
 
-add_executable(host_test ${sources})
+add_executable(rudp_host_test ${sources})
 
-target_link_libraries(host_test PRIVATE Catch2::Catch2)
+target_link_libraries(rudp_host_test PRIVATE core rudp module Catch2::Catch2)
