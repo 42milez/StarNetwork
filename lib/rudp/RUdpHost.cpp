@@ -44,11 +44,11 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     return err;
 }
 
-#define CHECK_RETURN_VALUE(val) \
-    if (val == 1)               \
-        return 1;               \
-    else if (val == -1)         \
-        return -1;
+#define CHECK_RETURN_VALUE(val)                \
+    if (val == EventStatus::AN_EVENT_OCCURRED) \
+        return EventStatus::AN_EVENT_OCCURRED; \
+    else if (val == EventStatus::ERROR)        \
+        return EventStatus::ERROR;
 
 /** Waits for events on the host specified and shuttles packets between
     the host and its peers.
@@ -63,10 +63,10 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
 
     @remarks RUdpHost::Service should be called fairly regularly for adequate performance
 */
-int
+EventStatus
 RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 {
-    int ret;
+    EventStatus ret;
 
     if (event != nullptr) {
         event->type = RUdpEventType::NONE;
@@ -116,19 +116,19 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         CHECK_RETURN_VALUE(ret)
 
         if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
-            return 0;
+            return EventStatus::NO_EVENT_OCCURRED;
 
         do {
             service_time_ = TimeGet();
 
             if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
-                return 0;
+                return EventStatus::NO_EVENT_OCCURRED;
 
             wait_condition =
                 static_cast<uint8_t>(SocketWait::RECEIVE) | static_cast<uint8_t>(SocketWait::INTERRUPT);
 
             if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, service_time_)) != 0)
-                return -1;
+                return EventStatus::ERROR;
         }
         while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
@@ -136,5 +136,5 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     }
     while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
-    return 0;
+    return EventStatus::NO_EVENT_OCCURRED;
 }

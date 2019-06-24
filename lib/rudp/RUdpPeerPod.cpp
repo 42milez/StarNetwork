@@ -39,7 +39,7 @@ RUdpPeerPod::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidt
     protocol_->bandwidth_throttle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
 }
 
-int
+EventStatus
 RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
     return protocol_->dispatch_incoming_commands(event);
@@ -51,7 +51,7 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     else \
         continue;
 
-int
+EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     uint8_t header_data[sizeof(RUdpProtocolHeader) + sizeof(uint32_t)];
@@ -181,7 +181,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             peer->command()->remove_sent_unreliable_commands();
 
             if (sent_length < 0)
-                return -1;
+                return EventStatus::ERROR;
 
             total_sent_data_ += sent_length;
 
@@ -189,5 +189,5 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
         }
     }
 
-    return 0;
+    return EventStatus::NO_EVENT_OCCURRED;
 }

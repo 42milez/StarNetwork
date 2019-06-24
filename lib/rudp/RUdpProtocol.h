@@ -23,7 +23,7 @@ public:
 
     void disconnect(const std::shared_ptr<RUdpPeer> &peer);
 
-    int dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
+    EventStatus dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event);
 
     void dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 

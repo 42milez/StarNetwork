@@ -183,9 +183,9 @@ Network::Poll()
         if (!host_ || !active_)
             return;
 
-        int ret = host_->Service(event, 0);
+        EventStatus ret = host_->Service(event, 0);
 
-        if (ret <= 0)
+        if (ret == EventStatus::NO_EVENT_OCCURRED || ret == EventStatus::ERROR)
             break;
 
         if (event->type == RUdpEventType::CONNECT) {

@@ -16,8 +16,8 @@ public:
 
     std::shared_ptr<RUdpPeer> AvailablePeerExists();
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
-    int DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
-    int SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+    EventStatus SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
 private:
     std::vector<std::shared_ptr<RUdpPeer>> peers_;

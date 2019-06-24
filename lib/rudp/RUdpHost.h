@@ -15,7 +15,7 @@ public:
 
     Error Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data);
 
-    int Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
+    EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
 private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout) { return 0; };

@@ -212,7 +212,7 @@ RUdpProtocol::disconnect(const std::shared_ptr<RUdpPeer> &peer)
     }
 }
 
-int
+EventStatus
 RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
 {
     while (_dispatch_queue->PeerExists()) {
@@ -229,7 +229,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
             event->peer = peer;
             event->data = peer->event_data();
 
-            return 1;
+            return EventStatus::AN_EVENT_OCCURRED;
         }
         else if (peer->StateIs(RUdpPeerState::ZOMBIE)) {
             _recalculate_bandwidth_limits = true;
@@ -241,7 +241,7 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
             // ゾンビ状態になったピアはリセットする
             udp_peer_reset(peer);
 
-            return 1;
+            return EventStatus::AN_EVENT_OCCURRED;
         }
         else if (peer->StateIs(RUdpPeerState::CONNECTED)) {
             if (!peer->DispatchedCommandExists())
@@ -263,11 +263,11 @@ RUdpProtocol::dispatch_incoming_commands(std::unique_ptr<RUdpEvent> &event)
                 _dispatch_queue->Enqueue(peer);
             }
 
-            return 1;
+            return EventStatus::AN_EVENT_OCCURRED;
         }
     }
 
-    return 0;
+    return EventStatus::NO_EVENT_OCCURRED;
 }
 
 void
