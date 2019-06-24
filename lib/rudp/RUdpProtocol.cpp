@@ -7,7 +7,9 @@ RUdpProtocol::RUdpProtocol()
     : recalculate_bandwidth_limits_(false),
       bandwidth_limited_peers_(),
       bandwidth_throttle_epoch_(),
-      connected_peers_()
+      chamber_(std::make_unique<RUdpChamber>()),
+      connected_peers_(),
+      dispatch_queue_(std::make_unique<RUdpDispatchQueue>())
 {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
