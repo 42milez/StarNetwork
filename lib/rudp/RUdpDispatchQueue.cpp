@@ -1,7 +1,7 @@
 #include "RUdpDispatchQueue.h"
 
 std::shared_ptr<RUdpPeer>
-RUdpDispatchQueue::Pop()
+RUdpDispatchQueue::Dequeue()
 {
     std::shared_ptr<RUdpPeer> peer = queue_.front();
 

@@ -249,7 +249,7 @@ EventStatus
 RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
     while (dispatch_queue_->PeerExists()) {
-        auto peer = dispatch_queue_->Pop();
+        auto peer = dispatch_queue_->Dequeue();
 
         peer->needs_dispatch(false);
 
