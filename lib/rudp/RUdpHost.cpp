@@ -10,6 +10,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
                    uint32_t out_bandwidth)
     :
     channel_count_(channel_count),
+    conn_(std::make_shared<RUdpConnection>(address)),
     duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
     incoming_bandwidth_(in_bandwidth),
     maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
@@ -25,8 +26,6 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
         // TODO: throw exception
         // ...
     }
-
-    conn_ = std::make_shared<RUdpConnection>(address);
 
     peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_);
 }
