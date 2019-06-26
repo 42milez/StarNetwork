@@ -30,6 +30,18 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_);
 }
 
+/** Initiates a connection to a foreign host.
+ *
+    @param address             destination for the connection
+    @param channel_count       number of channels to allocate
+    @param data                user data supplied to the receiving host
+
+    @retval Error::CANT_CREATE Nothing available peer
+    @retval Error::OK          A peer was successfully configured
+
+    @remarks The peer configured will have not completed the connection until UdpHost::Service()
+             notifies of an EventType::CONNECT event for the peer.
+*/
 Error
 RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data)
 {
