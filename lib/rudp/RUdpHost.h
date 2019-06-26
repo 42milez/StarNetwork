@@ -23,7 +23,7 @@ private:
 private:
     std::vector<uint8_t> received_data_;
 
-    std::shared_ptr<RUdpConnection> _conn;
+    std::shared_ptr<RUdpConnection> conn_;
     std::unique_ptr<RUdpAddress> received_address_;
     std::unique_ptr<RUdpPeerPod> peer_pod_;
 
