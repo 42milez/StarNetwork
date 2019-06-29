@@ -71,7 +71,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     }
     else if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
         ++channel.outgoing_reliable_sequence_number;
-        channel.outgoing_unreliable_seaquence_number = 0;
+        channel.outgoing_unreliable_sequence_number = 0;
 
         outgoing_command->reliable_sequence_number = channel.outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
@@ -84,10 +84,10 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     }
     else {
         if (outgoing_command->fragment_offset == 0)
-            ++channel.outgoing_unreliable_seaquence_number;
+            ++channel.outgoing_unreliable_sequence_number;
 
         outgoing_command->reliable_sequence_number = channel.outgoing_reliable_sequence_number;
-        outgoing_command->unreliable_sequence_number = channel.outgoing_unreliable_seaquence_number;
+        outgoing_command->unreliable_sequence_number = channel.outgoing_unreliable_sequence_number;
     }
 
     outgoing_command->send_attempts = 0;

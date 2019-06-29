@@ -7,7 +7,7 @@ using RUdpChannel = struct RUdpChannel
 {
     uint16_t outgoing_reliable_sequence_number;
 
-    uint16_t outgoing_unreliable_seaquence_number;
+    uint16_t outgoing_unreliable_sequence_number;
 
     uint16_t used_reliable_windows; // 使用中のバッファ（reliable_windows[PEER_RELIABLE_WINDOWS]）
     std::vector<uint16_t> reliable_windows;
