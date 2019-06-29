@@ -49,17 +49,18 @@ private:
 public:
     RUdpCommandPod();
 
-    void setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command);
+    void setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command,
+                                const std::shared_ptr<RUdpChannel> &channel);
 
     void push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command);
 
     bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
-                                             std::unique_ptr<RUdpPeerNet> &net,
-                                             const std::vector<std::shared_ptr<RUdpChannel>> &channels,
-                                             uint32_t service_time);
+                                         std::unique_ptr<RUdpPeerNet> &net,
+                                         const std::vector<std::shared_ptr<RUdpChannel>> &channels,
+                                         uint32_t service_time);
 
     bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
-                                               std::unique_ptr<RUdpPeerNet> &net);
+                                           std::unique_ptr<RUdpPeerNet> &net);
 
     uint32_t outgoing_data_total();
 

@@ -54,25 +54,24 @@ RUdpCommandPod::RUdpCommandPod()
 {}
 
 void
-RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command)
+RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command,
+                                       const std::shared_ptr<RUdpChannel> &channel)
 {
-    RUdpChannel channel;
-
     _outgoing_data_total +=
         command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK] +
             outgoing_command->fragment_length;
 
-    if (outgoing_command->protocol_type->header.channel_id == 0xFF) {
+    if (channel == nullptr) {
         ++_outgoing_reliable_sequence_number;
 
         outgoing_command->reliable_sequence_number = _outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
     else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
-        ++channel.outgoing_reliable_sequence_number;
-        channel.outgoing_unreliable_sequence_number = 0;
+        ++channel->outgoing_reliable_sequence_number;
+        channel->outgoing_unreliable_sequence_number = 0;
 
-        outgoing_command->reliable_sequence_number = channel.outgoing_reliable_sequence_number;
+        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
     else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED) {
@@ -83,10 +82,10 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     }
     else {
         if (outgoing_command->fragment_offset == 0)
-            ++channel.outgoing_unreliable_sequence_number;
+            ++channel->outgoing_unreliable_sequence_number;
 
-        outgoing_command->reliable_sequence_number = channel.outgoing_reliable_sequence_number;
-        outgoing_command->unreliable_sequence_number = channel.outgoing_unreliable_sequence_number;
+        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
+        outgoing_command->unreliable_sequence_number = channel->outgoing_unreliable_sequence_number;
     }
 
     outgoing_command->send_attempts = 0;

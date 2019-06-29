@@ -100,7 +100,12 @@ RUdpPeer::QueueOutgoingCommand(std::shared_ptr<RUdpProtocolType> &protocol_type,
     outgoing_command->fragment_length = length;
     outgoing_command->fragment_offset = offset;
 
-    command_pod_->setup_outgoing_command(outgoing_command);
+    auto channel_id = protocol_type->header.channel_id;
+
+    if (channel_id < channels_.size())
+        command_pod_->setup_outgoing_command(outgoing_command, channels_.at(channel_id));
+    else
+        command_pod_->setup_outgoing_command(outgoing_command, nullptr);
 }
 
 std::shared_ptr<RUdpSegment>
