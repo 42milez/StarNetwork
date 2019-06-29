@@ -35,9 +35,6 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
 {
     channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
 
-    if (channels_.empty())
-        return Error::CANT_CREATE;
-
     address_ = address;
     connect_id_ = hash32();
 
