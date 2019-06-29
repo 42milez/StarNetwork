@@ -19,11 +19,9 @@ using IncomingCommand = struct IncomingCommand
 
 using OutgoingCommand = struct OutgoingCommand
 {
-public:
     OutgoingCommand();
 
-public:
-    std::shared_ptr<RUdpProtocolType> command;
+    std::shared_ptr<RUdpProtocolType> protocol_type;
     std::shared_ptr<RUdpSegment> segment;
 
     uint32_t fragment_offset;

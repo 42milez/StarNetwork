@@ -22,8 +22,8 @@ public:
 
     void Disconnect();
 
-    Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t data, uint32_t in_bandwidth,
-                uint32_t out_bandwidth);
+    Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth,
+                uint32_t data);
 
     void Ping();
 

@@ -23,7 +23,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # This is a gate file to Hunter package manager.
-# Include this file using `include` command and add package you need, example:
+# Include this file using `include` protocol_type and add package you need, example:
 #
 #     cmake_minimum_required(VERSION 3.2)
 #
@@ -351,7 +351,7 @@ function(hunter_gate_download dir)
 endfunction()
 
 # Must be a macro so master file 'cmake/Hunter' can
-# apply all variables easily just by 'include' command
+# apply all variables easily just by 'include' protocol_type
 # (otherwise PARENT_SCOPE magic needed)
 macro(HunterGate)
   if(HUNTER_GATE_DONE)
@@ -360,7 +360,7 @@ macro(HunterGate)
     set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
   endif()
 
-  # First HunterGate command will init Hunter, others will be ignored
+  # First HunterGate protocol_type will init Hunter, others will be ignored
   get_property(_hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
 
   if(NOT HUNTER_ENABLED)

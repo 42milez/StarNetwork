@@ -50,7 +50,7 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     if (peer == nullptr)
         return Error::CANT_CREATE;
 
-    auto err = peer->Setup(address, channel_count, data, incoming_bandwidth_, outgoing_bandwidth_);
+    auto err = peer->Setup(address, channel_count, incoming_bandwidth_, outgoing_bandwidth_, data);
 
     return err;
 }

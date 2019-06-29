@@ -125,9 +125,9 @@ constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
 
 constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
-enum class SysCh: int
+enum class SysCh: uint8_t
 {
-    CONFIG = 1,
+    CONFIG,
     RELIABLE,
     UNRELIABLE,
     MAX
