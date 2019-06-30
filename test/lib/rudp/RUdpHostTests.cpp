@@ -6,15 +6,40 @@
 
 #include "lib/rudp/RUdpHost.h"
 
-TEST_CASE("Service", "[IPv4][RUdpHost]")
+class ServerIPv4Fixture
 {
-    IpAddress ip{"*"};
-    RUdpAddress address{};
+public:
+    ServerIPv4Fixture()
+    {
+        RUdpAddress address;
 
-    address.SetIP(ip.GetIPv4(), 8);
-    address.port = 8888;
+        address.port = 8888;
 
-    std::unique_ptr<RUdpHost> host = std::make_unique<RUdpHost>(address, SysCh::MAX, 1, 100, 100);
+        host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
+    }
+
+private:
+    std::shared_ptr<RUdpHost> host_;
+};
+
+TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
+{
+    RUdpAddress client_address;
+
+    client_address.port = 8889;
+
+    auto host = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
+
+    IpAddress server_ip{"::FFFF:127.0.0.1"};
+
+    RUdpAddress server_address;
+
+    memcpy(server_address.host, server_ip.GetIPv4(), sizeof(server_address.host));
+
+    server_address.port = 8888;
+
+    host->Connect(server_address, SysCh::MAX, 0);
+
     std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
 
     auto ret = host->Service(event, 0);

@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "RUdpChamber.h"
 #include "RUdpCommandSize.h"
 #include "RUdpProtocol.h"
@@ -170,4 +172,10 @@ RUdpChamber::write(std::vector<uint8_t> &out)
     }
 
     return size;
+}
+
+void
+RUdpChamber::copy_header_data(const uint8_t *header_data, int header_data_size)
+{
+    memcpy(_buffers, header_data, header_data_size);
 }

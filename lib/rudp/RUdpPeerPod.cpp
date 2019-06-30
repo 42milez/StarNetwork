@@ -25,7 +25,8 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
 std::shared_ptr<RUdpPeer>
 RUdpPeerPod::AvailablePeer()
 {
-    for (auto &peer : peers_) {
+    for (auto &peer : peers_)
+    {
         if (peer->Disconnected())
             return peer;
     }
@@ -55,15 +56,18 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
-    uint8_t header_data[sizeof(RUdpProtocolHeader) + sizeof(uint32_t)];
+    auto header_data_size = sizeof(RUdpProtocolHeader) + sizeof(uint32_t);
+    uint8_t header_data[header_data_size];
     auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data);
 
     protocol_->continue_sending(true);
 
-    while (protocol_->continue_sending()) {
+    while (protocol_->continue_sending())
+    {
         protocol_->continue_sending(false);
 
-        for (auto &peer : peers_) {
+        for (auto &peer : peers_)
+        {
             if (peer->StateIs(RUdpPeerState::DISCONNECTED) || peer->StateIs(RUdpPeerState::ZOMBIE))
                 continue;
 
@@ -81,45 +85,23 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             //  タイムアウト処理
             // --------------------------------------------------
 
-            if (check_for_timeouts) {
+            if (check_for_timeouts &&
+                peer->command()->sent_reliable_command_exists() &&
+                UDP_TIME_GREATER_EQUAL(service_time, peer->command()->next_timeout()) &&
+                peer->command()->check_timeouts(peer->net(), service_time) == 1)
+            {
                 IS_EVENT_TYPE_NONE()
             }
-
-            if (peer->command()->sent_reliable_command_exists()) {
-                IS_EVENT_TYPE_NONE()
-            }
-
-            if (UDP_TIME_GREATER_EQUAL(service_time, peer->command()->next_timeout())) {
-                IS_EVENT_TYPE_NONE()
-            }
-
-            bool timed_out = peer->command()->check_timeouts(peer->net(), service_time);
-
-            if (timed_out == 1) {
-                protocol_->NotifyDisconnect(peer, event);
-
-                IS_EVENT_TYPE_NONE()
-            }
-
-//            if (check_for_timeouts &&
-//                !peer->sent_reliable_commands.empty() &&
-//                UDP_TIME_GREATER_EQUAL(_service_time, peer->next_timeout) &&
-//                _udpprotocol__check_timeouts(peer, event) == 1)
-//            {
-//                if (event->type != RUdpEventType::NONE)
-//                    return 1;
-//                else
-//                    continue;
-//            }
 
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((peer->command()->outgoing_reliable_command_exists() ||
+            if ((!peer->command()->outgoing_reliable_command_exists() ||
                 protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
                 !peer->command()->sent_reliable_command_exists() &&
                 peer->ExceedsPingInterval(service_time) &&
-                peer->ExceedsMTU(protocol_->chamber()->segment_size())) {
+                peer->ExceedsMTU(protocol_->chamber()->segment_size()))
+            {
                 peer->Ping();
 
                 // ping コマンドをバッファに転送
@@ -132,34 +114,37 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             if (peer->command()->outgoing_unreliable_command_exists())
                 protocol_->SendUnreliableOutgoingCommands(peer, service_time);
 
-            //if (_command_count == 0)
             if (protocol_->chamber()->command_count() == 0)
                 continue;
 
-            if (peer->net()->segment_loss_epoch() == 0) {
+            if (peer->net()->segment_loss_epoch() == 0)
+            {
                 peer->net()->segment_loss_epoch(service_time);
             }
-            else if (peer->net()->exceeds_segment_loss_interval(service_time) && peer->net()->segments_sent() > 0) {
+            else if (peer->net()->exceeds_segment_loss_interval(service_time) && peer->net()->segments_sent() > 0)
+            {
                 peer->net()->calculate_segment_loss(service_time);
             }
 
-            if (protocol_->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME) {
+            if (protocol_->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
+            {
                 header->sent_time = htons(service_time & 0xFFFF);
-                //_buffers[0].data_length = sizeof(RUdpProtocolHeader);
                 protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
             }
-            else {
-                //_buffers[0].data_length = (size_t) &((RUdpProtocolHeader *) 0)->sent_time; // ???
+            else
+            {
                 protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
             }
 
             auto should_compress = false;
 
-            if (compressor_->compress != nullptr) {
+            if (compressor_->compress != nullptr)
+            {
                 // ...
             }
 
-            if (peer->outgoing_peer_id() < PROTOCOL_MAXIMUM_PEER_ID) {
+            if (peer->outgoing_peer_id() < PROTOCOL_MAXIMUM_PEER_ID)
+            {
                 auto header_flags = protocol_->chamber()->header_flags();
                 header_flags |= peer->outgoing_session_id() << PROTOCOL_HEADER_SESSION_SHIFT;
                 protocol_->chamber()->header_flags(header_flags);
@@ -167,13 +152,17 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
 
             header->peer_id = htons(peer->outgoing_peer_id() | protocol_->chamber()->header_flags());
 
-            if (checksum_ != nullptr) {
+            if (checksum_ != nullptr)
+            {
                 // ...
             }
 
-            if (should_compress) {
+            if (should_compress)
+            {
                 // ...
             }
+
+            protocol_->chamber()->copy_header_data(header_data, header_data_size);
 
             peer->net()->last_send_time(service_time);
 

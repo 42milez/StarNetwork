@@ -67,6 +67,8 @@ public:
     void Reset();
 
     int write(std::vector<uint8_t> &out);
+
+    void copy_header_data(const uint8_t *header_data, int header_data_size);
 };
 
 #endif // P2P_TECHDEMO_RUDPCHAMBER_H
