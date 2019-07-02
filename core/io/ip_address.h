@@ -37,7 +37,7 @@ public:
 
     const uint8_t *GetIPv4() const;
 
-    const uint8_t *get_ipv6() const;
+    const uint8_t *GetIPv6() const;
 
     void set_ipv4(const uint8_t (&ip)[4]);
 

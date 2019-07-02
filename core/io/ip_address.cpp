@@ -305,7 +305,7 @@ IpAddress::GetIPv4() const
 }
 
 const uint8_t *
-IpAddress::get_ipv6() const
+IpAddress::GetIPv6() const
 {
     // ToDo: bounds checking
     // ...

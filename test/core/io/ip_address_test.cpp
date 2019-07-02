@@ -65,7 +65,7 @@ TEST_CASE("Set and Get IPv6 address", "")
     };
     ip_address.set_ipv6(ipv6);
 
-    auto ret = ip_address.get_ipv6();
+    auto ret = ip_address.GetIPv6();
 
     REQUIRE(ret[0] == 255);
     REQUIRE(ret[1] == 255);

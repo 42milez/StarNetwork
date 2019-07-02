@@ -18,6 +18,13 @@ public:
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
     }
 
+    EventStatus Service()
+    {
+        std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
+
+        return host_->Service(event, 0);
+    }
+
 private:
     std::shared_ptr<RUdpHost> host_;
 };
@@ -34,7 +41,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     RUdpAddress server_address;
 
-    memcpy(server_address.host, server_ip.GetIPv4(), sizeof(server_address.host));
+    memcpy(server_address.host, server_ip.GetIPv6(), sizeof(server_address.host));
 
     server_address.port = 8888;
 
@@ -42,7 +49,9 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
 
-    auto ret = host->Service(event, 0);
+    host->Service(event, 0);
+
+    auto ret = Service();
 
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 }

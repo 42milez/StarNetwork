@@ -92,7 +92,7 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
 
         if (ip.is_valid())
         {
-            memcpy(&addr6.sin6_addr.s6_addr, ip.get_ipv6(), 16); // copy 16 bytes
+            memcpy(&addr6.sin6_addr.s6_addr, ip.GetIPv6(), 16); // copy 16 bytes
         }
         else
         {
@@ -409,6 +409,7 @@ Socket::sendto(const std::vector<uint8_t> &buffer, size_t len, ssize_t &bytes_se
 
     struct sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(addr, ip, port, _ip_type);
+
 
     bytes_sent = ::sendto(_sock, &buffer[0], len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
 
