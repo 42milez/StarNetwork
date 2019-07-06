@@ -10,7 +10,8 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     protocol_(std::make_unique<RUdpProtocol>()),
     received_address_(std::make_unique<RUdpAddress>()),
     received_data_length_(),
-    segment_data_(),
+    segment_data_1_(),
+    segment_data_2_(),
     total_received_data_(),
     total_received_segments_(),
     total_sent_data_(),
@@ -61,12 +62,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
     for (auto i = 0; i < 256; ++i)
     {
-        RUdpBuffer buffer;
-
-        buffer.data = segment_data_[0];
-        buffer.data_length = sizeof(segment_data_[0]);
-
-        auto received_length = conn_->receive(received_address_, buffer, 1);
+        auto received_length = conn_->receive(received_address_, segment_data_1_, 1);
 
         if (received_length < 0)
             return EventStatus::ERROR;
@@ -164,11 +160,11 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             if (protocol_->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {
                 header->sent_time = htons(service_time & 0xFFFF);
-                protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
+                //protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
             }
             else
             {
-                protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
+                //protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
             }
 
             auto should_compress = false;

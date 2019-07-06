@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <cstring>
 
 #include "RUdpChamber.h"
@@ -147,11 +149,11 @@ RUdpChamber::segment_size()
     return _segment_size;
 }
 
-void
-RUdpChamber::set_data_length(size_t val)
-{
-    _buffers[0].data_length = val;
-}
+//void
+//RUdpChamber::set_data_length(size_t val)
+//{
+//    _buffers[0].data_length = val;
+//}
 
 int
 RUdpChamber::write(std::vector<uint8_t> &out)
@@ -159,16 +161,15 @@ RUdpChamber::write(std::vector<uint8_t> &out)
     auto size = 0;
 
     for (auto i = 0; i < _buffer_count; ++i) {
-        size += _buffers[i].data_length;
+        size += _buffers[i].data.size();
     }
 
     out.resize(size);
 
-    int pos = 0;
+    auto it = out.begin();
 
     for (auto i = 0; i < _buffer_count; ++i) {
-        memcpy(&out[pos], _buffers[i].data, _buffers[i].data_length);
-        pos += _buffers[i].data_length;
+        it = std::copy(_buffers[i].data.begin(), _buffers[i].data.end(), it);
     }
 
     return size;

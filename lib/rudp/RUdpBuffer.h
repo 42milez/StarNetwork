@@ -5,8 +5,7 @@
 
 using RUdpBuffer = struct RUdpBuffer
 {
-    void *data;
-    size_t data_length;
+    std::vector<uint8_t> data;
 };
 
 #endif // P2P_TECHDEMO_RUDPBUFFER_H

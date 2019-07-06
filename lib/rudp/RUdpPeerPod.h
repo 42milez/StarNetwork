@@ -40,7 +40,8 @@ private:
     uint32_t total_sent_data_;
     uint32_t total_sent_segments_;
 
-    uint8_t segment_data_[2][PROTOCOL_MAXIMUM_MTU];
+    std::vector<uint8_t> segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
+    std::vector<uint8_t> segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
 };
 
 #endif // P2P_TECHDEMO_RUDPPEERPOD_H

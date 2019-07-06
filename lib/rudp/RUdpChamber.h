@@ -62,7 +62,7 @@ public:
 
     bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
-    void set_data_length(size_t val);
+    //void set_data_length(size_t val);
 
     void Reset();
 

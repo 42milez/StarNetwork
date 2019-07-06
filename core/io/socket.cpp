@@ -332,14 +332,15 @@ Socket::recv(uint8_t &buffer, size_t len, ssize_t &bytes_read)
 }
 
 Error
-Socket::recvfrom(uint8_t *buffer, socklen_t len, ssize_t &bytes_read, IpAddress &ip, uint16_t &port)
+Socket::recvfrom(std::vector<uint8_t> &buffer, ssize_t &bytes_read, IpAddress &ip, uint16_t &port)
 {
     ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
 
     struct sockaddr_storage addr;
-    memset(&addr, 0, sizeof(addr));
+    socklen_t len = sizeof(struct sockaddr_storage);
+    memset(&addr, 0, len);
 
-    bytes_read = ::recvfrom(_sock, buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
+    bytes_read = ::recvfrom(_sock, &buffer, buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
 
     if (bytes_read < 0)
     {
