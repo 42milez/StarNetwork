@@ -22,6 +22,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<RUdpPeer>> peers_;
+    std::vector<uint8_t> received_data_;
 
     std::shared_ptr<RUdpCompressor> compressor_;
     std::shared_ptr<RUdpConnection> conn_;
@@ -32,6 +33,7 @@ private:
     ChecksumCallback checksum_;
 
     size_t peer_count_;
+    size_t received_data_length_;
 
     uint32_t total_received_data_;
     uint32_t total_received_segments_;

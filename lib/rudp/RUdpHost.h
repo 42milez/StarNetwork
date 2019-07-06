@@ -21,8 +21,6 @@ private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout) { return 0; };
 
 private:
-    std::vector<uint8_t> received_data_;
-
     std::shared_ptr<RUdpConnection> conn_;
 
     std::unique_ptr<RUdpPeerPod> peer_pod_;
@@ -32,7 +30,6 @@ private:
     size_t duplicate_peers_;
     size_t maximum_segment_size_;
     size_t maximum_waiting_data_;
-    size_t received_data_length_;
 
     uint32_t incoming_bandwidth_;
     uint32_t mtu_;
