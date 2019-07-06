@@ -9,6 +9,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     peer_count_(peer_count),
     protocol_(std::make_unique<RUdpProtocol>()),
     received_address_(std::make_unique<RUdpAddress>()),
+    received_data_length_(),
     segment_data_(),
     total_received_data_(),
     total_received_segments_(),

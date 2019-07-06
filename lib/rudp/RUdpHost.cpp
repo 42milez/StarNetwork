@@ -17,7 +17,6 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     mtu_(HOST_DEFAULT_MTU),
     outgoing_bandwidth_(out_bandwidth),
-    received_data_length_(),
     service_time_()
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
