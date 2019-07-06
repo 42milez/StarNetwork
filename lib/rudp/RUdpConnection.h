@@ -14,6 +14,8 @@ private:
 public:
     RUdpConnection(const RUdpAddress &address);
 
+    ssize_t receive(std::unique_ptr<RUdpAddress> &received_address, RUdpBuffer &buffer, size_t buffer_count);
+
     ssize_t send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber);
 };
 

@@ -17,6 +17,7 @@ public:
     std::shared_ptr<RUdpPeer> AvailablePeer();
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+    EventStatus ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
 private:
@@ -26,6 +27,7 @@ private:
     std::shared_ptr<RUdpConnection> conn_;
 
     std::unique_ptr<RUdpProtocol> protocol_;
+    std::unique_ptr<RUdpAddress> received_address_;
 
     ChecksumCallback checksum_;
 
@@ -35,6 +37,8 @@ private:
     uint32_t total_received_segments_;
     uint32_t total_sent_data_;
     uint32_t total_sent_segments_;
+
+    uint8_t segment_data_[2][PROTOCOL_MAXIMUM_MTU];
 };
 
 #endif // P2P_TECHDEMO_RUDPPEERPOD_H

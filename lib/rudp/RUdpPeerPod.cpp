@@ -8,6 +8,8 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     conn_(conn),
     peer_count_(peer_count),
     protocol_(std::make_unique<RUdpProtocol>()),
+    received_address_(std::make_unique<RUdpAddress>()),
+    segment_data_(),
     total_received_data_(),
     total_received_segments_(),
     total_sent_data_(),
@@ -52,6 +54,30 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         return EventStatus::AN_EVENT_OCCURRED; \
     else \
         continue;
+
+EventStatus
+RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
+{
+    for (auto i = 0; i < 256; ++i)
+    {
+        RUdpBuffer buffer;
+
+        buffer.data = segment_data_[0];
+        buffer.data_length = sizeof(segment_data_[0]);
+
+        auto received_length = conn_->receive(received_address_, buffer, 1);
+
+        if (received_length < 0)
+            return EventStatus::ERROR;
+
+        if (received_length == 0)
+            return EventStatus::NO_EVENT_OCCURRED;
+
+        // ...
+    }
+
+    return EventStatus::ERROR;
+}
 
 EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)

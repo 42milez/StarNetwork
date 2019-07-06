@@ -24,7 +24,7 @@ private:
     std::vector<uint8_t> received_data_;
 
     std::shared_ptr<RUdpConnection> conn_;
-    std::unique_ptr<RUdpAddress> received_address_;
+
     std::unique_ptr<RUdpPeerPod> peer_pod_;
 
     SysCh channel_count_;
@@ -38,8 +38,6 @@ private:
     uint32_t mtu_;
     uint32_t outgoing_bandwidth_;
     uint32_t service_time_;
-
-    uint8_t segment_data_[2][PROTOCOL_MAXIMUM_MTU];
 };
 
 #endif // P2P_TECHDEMO_RUDPHOST_H

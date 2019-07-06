@@ -17,9 +17,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
     mtu_(HOST_DEFAULT_MTU),
     outgoing_bandwidth_(out_bandwidth),
-    received_address_(std::make_unique<RUdpAddress>()),
     received_data_length_(),
-    segment_data_(),
     service_time_()
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
@@ -114,7 +112,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
         CHECK_RETURN_VALUE(ret)
 
-        //ret = protocol_receive_incoming_commands(host, event);
+        ret = peer_pod_->ReceiveIncomingCommands(event);
 
         CHECK_RETURN_VALUE(ret)
 

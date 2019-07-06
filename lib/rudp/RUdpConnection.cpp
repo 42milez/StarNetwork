@@ -1,3 +1,5 @@
+#include <core/error_macros.h>
+
 #include "RUdpChamber.h"
 #include "RUdpConnection.h"
 
@@ -25,6 +27,35 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
         // throw exception
         // ...
     }
+}
+
+ssize_t
+RUdpConnection::receive(std::unique_ptr<RUdpAddress> &received_address, RUdpBuffer &buffer, size_t buffer_count)
+{
+    ERR_FAIL_COND_V(buffer_count != 1, -1)
+
+    Error err = _socket->poll(Socket::PollType::POLL_TYPE_IN, 0);
+
+    if (err == Error::ERR_BUSY)
+        return 0;
+
+    if (err != Error::OK)
+        return -1;
+
+    ssize_t read_count;
+    IpAddress ip;
+
+    err = _socket->recvfrom((uint8_t *) buffer.data, buffer.data_length, read_count, ip, received_address->port);
+
+    if (err == Error::ERR_BUSY)
+        return 0;
+
+    if (err != Error::OK)
+        return -1;
+
+    received_address->SetIP(ip.GetIPv6(), 16);
+
+    return read_count;
 }
 
 ssize_t
