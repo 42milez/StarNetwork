@@ -1,3 +1,4 @@
+#include "RUdpCommandSize.h"
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
 
@@ -59,6 +60,10 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     else \
         continue;
 
+#define COMMAND_ERROR() \
+    if (event != nullptr && event->type != RUdpEventType::NONE) \
+        return EventStatus::AN_EVENT_OCCURRED;
+
 EventStatus
 RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
@@ -100,7 +105,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
          */
 
         if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time)
-            return EventStatus::NO_EVENT_OCCURRED;
+            //return EventStatus::NO_EVENT_OCCURRED;
+            continue;
 
         auto header = reinterpret_cast<RUdpProtocolHeader *>(&received_data_);
         auto peer_id = header->peer_id;
@@ -121,14 +127,16 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         }
         else if (peer_id >= peer_count_)
         {
-            return EventStatus::NO_EVENT_OCCURRED;
+            //return EventStatus::NO_EVENT_OCCURRED;
+            continue;
         }
         else
         {
             peer = peers_[peer_id];
 
             if (!peer->EventOccur(received_address_, session_id))
-                return EventStatus::NO_EVENT_OCCURRED;
+                //return EventStatus::NO_EVENT_OCCURRED;
+                continue;
         }
 
         if (flags & PROTOCOL_HEADER_FLAG_COMPRESSED)
@@ -147,7 +155,125 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             peer->incoming_data_total(received_data_length_);
         }
 
-        // ...
+        auto current_data = received_data_.begin() + header_size;
+
+        while (current_data != received_data_.end())
+        {
+            auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
+
+            if (current_data + sizeof(RUdpProtocolCommandHeader) > received_data_.end())
+                break;
+
+            auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
+            if (cmd_number >= PROTOCOL_COMMAND_COUNT)
+                break;
+
+            auto cmd_size = command_sizes.at(cmd_number);
+            if (cmd_size == 0 || current_data + cmd_size > received_data_.end())
+                break;
+
+            current_data += cmd_size;
+
+            if (peer == nullptr && cmd_number != PROTOCOL_COMMAND_CONNECT)
+                break;
+
+            cmd->header.reliable_sequence_number = ntohs(cmd->header.reliable_sequence_number);
+
+            if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
+            {
+                if (handle_acknowledge(event, peer, cmd))
+                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
+            {
+//                if (peer)
+//                    COMMAND_ERROR()
+//
+//                peer = handle_connect(header, cmd);
+//
+//                if (peer == nullptr)
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
+            {
+//                if (handle_verify_connect(event, peer, cmd))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
+            {
+//                if (handle_disconnect(peer, cmd))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_PING)
+            {
+//                if (handle_ping(peer, cmd))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_SEND_RELIABLE)
+            {
+//                if (handle_send_reliable(peer, cmd, current_data))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE)
+            {
+//                if (handle_send_unreliable(peer, cmd, current_data))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
+            {
+//                if (handle_send_unsequenced(peer, cmd, current_data))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_SEND_FRAGMENT)
+            {
+//                if (handle_send_fragment(peer, cmd, current_data))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_BANDWIDTH_LIMIT)
+            {
+//                if (handle_bandwidth_limit(peer, cmd))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_THROTTLE_CONFIGURE)
+            {
+//                if (handle_throttle_configure(peer, cmd))
+//                    COMMAND_ERROR()
+            }
+            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT)
+            {
+//                if (handle_send_unreliable_fragment(peer, cmd, current_data))
+//                    COMMAND_ERROR()
+            }
+            else
+            {
+                COMMAND_ERROR()
+            }
+
+            if (peer && (cmd->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) != 0)
+            {
+                if (!(flags & PROTOCOL_HEADER_FLAG_SENT_TIME))
+                    break;
+
+                auto sent_time = ntohs(header->sent_time);
+
+                if (peer->StateIs(RUdpPeerState::DISCONNECTING) ||
+                    peer->StateIs(RUdpPeerState::ACKNOWLEDGING_CONNECT) ||
+                    peer->StateIs(RUdpPeerState::DISCONNECTED) ||
+                    peer->StateIs(RUdpPeerState::ZOMBIE))
+                {
+                    // DO NOTHING
+                }
+                else if (peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
+                {
+                    if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+                        queue_acknowledgement(peer, cmd, sent_time);
+                }
+                else
+                {
+                    queue_acknowledgement(peer, cmd, sent_time);
+                }
+            }
+        }
     }
 
     return EventStatus::ERROR;
