@@ -1,6 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPHOST_H
 #define P2P_TECHDEMO_RUDPHOST_H
 
+#include <functional>
 #include <vector>
 
 #include "RUdpAddress.h"

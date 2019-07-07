@@ -6,9 +6,11 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     checksum_(nullptr),
     compressor_(std::make_shared<RUdpCompressor>()),
     conn_(conn),
+    intercept_(nullptr),
     peer_count_(peer_count),
     protocol_(std::make_unique<RUdpProtocol>()),
-    received_address_(std::make_unique<RUdpAddress>()),
+    received_address_(),
+    received_data_(),
     received_data_length_(),
     segment_data_1_(),
     segment_data_2_(),
@@ -69,6 +71,80 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
         if (received_length == 0)
             return EventStatus::NO_EVENT_OCCURRED;
+
+        total_received_data_ += segment_data_1_.size();
+
+        ++total_received_segments_;
+
+        if (intercept_)
+        {
+            // ...
+        }
+
+        // ---------- [ enet_protocol_handle_incoming_commands ] ----------
+
+        /*
+
+           switch (enet_protocol_handle_incoming_commands (host, event))
+           {
+           case 1:
+              return 1;
+
+           case -1:
+              return -1;
+
+           default:
+              break;
+           }
+
+         */
+
+        if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time)
+            return EventStatus::NO_EVENT_OCCURRED;
+
+        auto header = reinterpret_cast<RUdpProtocolHeader *>(&received_data_);
+        auto peer_id = header->peer_id;
+        auto session_id = (peer_id & PROTOCOL_HEADER_SESSION_MASK) >> PROTOCOL_HEADER_SESSION_SHIFT;
+        auto flags = peer_id & PROTOCOL_HEADER_FLAG_MASK;
+        auto header_size = (flags & PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(RUdpProtocolHeader) : (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time);
+
+        peer_id &= (PROTOCOL_HEADER_FLAG_MASK | PROTOCOL_HEADER_SESSION_MASK);
+
+        if (checksum_)
+            header_size += sizeof(uint32_t);
+
+        std::shared_ptr<RUdpPeer> peer;
+
+        if (peer_id == PROTOCOL_MAXIMUM_PEER_ID)
+        {
+            peer = nullptr;
+        }
+        else if (peer_id >= peer_count_)
+        {
+            return EventStatus::NO_EVENT_OCCURRED;
+        }
+        else
+        {
+            peer = peers_[peer_id];
+
+            if (!peer->EventOccur(received_address_, session_id))
+                return EventStatus::NO_EVENT_OCCURRED;
+        }
+
+        if (flags & PROTOCOL_HEADER_FLAG_COMPRESSED)
+        {
+            // ...
+        }
+
+        if (checksum_)
+        {
+            // ...
+        }
+
+        if (peer)
+        {
+            peer->address(received_address_);
+        }
 
         // ...
     }

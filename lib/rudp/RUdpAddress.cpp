@@ -17,3 +17,21 @@ RUdpAddress::SetIP(const uint8_t *ip, size_t size)
 
     memcpy(host, ip, len); // network byte-order (big endian)
 }
+
+bool
+RUdpAddress::operator==(const RUdpAddress &address)
+{
+    auto same_host = memcmp(address.host, address.host, 16) == 0;
+    auto same_port = port == address.port;
+
+    return same_host & same_port;
+}
+
+bool
+RUdpAddress::operator!=(const RUdpAddress &address)
+{
+    auto same_host = memcmp(address.host, address.host, 16) == 0;
+    auto same_port = port == address.port;
+
+    return !(same_host & same_port);
+}

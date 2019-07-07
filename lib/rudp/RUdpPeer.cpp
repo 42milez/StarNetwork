@@ -176,6 +176,24 @@ RUdpPeer::Disconnected()
 }
 
 bool
+RUdpPeer::EventOccur(const RUdpAddress &address, uint8_t session_id)
+{
+    if (net_->StateIs(RUdpPeerState::DISCONNECTED))
+        return false;
+
+    if (net_->StateIs(RUdpPeerState::ZOMBIE))
+        return false;
+
+    if (address_ != address)
+        return false;
+
+    if (outgoing_peer_id_ < PROTOCOL_MAXIMUM_PEER_ID && session_id != incoming_session_id_)
+        return false;
+
+    return true;
+}
+
+bool
 RUdpPeer::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time)
 {
     auto can_ping = command_pod_->LoadReliableCommandsIntoChamber(chamber, net_, channels_, service_time);

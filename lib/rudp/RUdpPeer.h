@@ -47,6 +47,8 @@ public:
 
     bool Disconnected();
 
+    bool EventOccur(const RUdpAddress &address, uint8_t session_id);
+
     bool ExceedsMTU(size_t segment_size);
 
     bool ExceedsPingInterval(uint32_t service_time);
@@ -116,6 +118,12 @@ public:
 public:
     inline const RUdpAddress &address()
     { return address_; };
+
+    inline void address(const RUdpAddress &address)
+    {
+        address_.SetIP(address.host, 16);
+        address_.port = address.port;
+    }
 
     inline const std::unique_ptr<RUdpCommandPod> &command()
     { return command_pod_; };

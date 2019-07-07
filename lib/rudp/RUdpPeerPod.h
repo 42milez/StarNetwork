@@ -20,6 +20,9 @@ public:
     EventStatus ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
+public:
+    using InterceptCallback = std::function<int (RUdpEvent &event)>;
+
 private:
     std::vector<std::shared_ptr<RUdpPeer>> peers_;
     std::vector<uint8_t> received_data_;
@@ -28,9 +31,10 @@ private:
     std::shared_ptr<RUdpConnection> conn_;
 
     std::unique_ptr<RUdpProtocol> protocol_;
-    std::unique_ptr<RUdpAddress> received_address_;
 
     ChecksumCallback checksum_;
+    InterceptCallback intercept_;
+    RUdpAddress received_address_;
 
     size_t peer_count_;
     size_t received_data_length_;

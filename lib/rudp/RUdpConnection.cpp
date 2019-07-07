@@ -30,7 +30,7 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
 }
 
 ssize_t
-RUdpConnection::receive(std::unique_ptr<RUdpAddress> &received_address, std::vector<uint8_t> &buffer, size_t buffer_count)
+RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buffer, size_t buffer_count)
 {
     ERR_FAIL_COND_V(buffer_count != 1, -1)
 
@@ -45,7 +45,7 @@ RUdpConnection::receive(std::unique_ptr<RUdpAddress> &received_address, std::vec
     ssize_t read_count;
     IpAddress ip;
 
-    err = _socket->recvfrom(buffer, read_count, ip, received_address->port);
+    err = _socket->recvfrom(buffer, read_count, ip, received_address.port);
 
     if (err == Error::ERR_BUSY)
         return 0;
@@ -53,7 +53,7 @@ RUdpConnection::receive(std::unique_ptr<RUdpAddress> &received_address, std::vec
     if (err != Error::OK)
         return -1;
 
-    received_address->SetIP(ip.GetIPv6(), 16);
+    received_address.SetIP(ip.GetIPv6(), 16);
 
     return read_count;
 }
