@@ -336,7 +336,7 @@ RUdpCommandPod::outgoing_data_total()
 void
 RUdpCommandPod::outgoing_data_total(uint32_t val)
 {
-    _outgoing_data_total = val;
+    _outgoing_data_total += val;
 }
 
 uint32_t
@@ -348,7 +348,7 @@ RUdpCommandPod::incoming_data_total()
 void
 RUdpCommandPod::incoming_data_total(uint32_t val)
 {
-    _incoming_data_total = val;
+    _incoming_data_total += val;
 }
 
 uint32_t

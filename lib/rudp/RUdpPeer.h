@@ -121,8 +121,7 @@ public:
 
     inline void address(const RUdpAddress &address)
     {
-        address_.SetIP(address.host, 16);
-        address_.port = address.port;
+        address_ = address;
     }
 
     inline const std::unique_ptr<RUdpCommandPod> &command()

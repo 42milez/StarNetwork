@@ -144,6 +144,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         if (peer)
         {
             peer->address(received_address_);
+            peer->incoming_data_total(received_data_length_);
         }
 
         // ...

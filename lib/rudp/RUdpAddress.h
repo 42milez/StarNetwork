@@ -12,6 +12,7 @@ public:
     void SetIP(const uint8_t *ip, size_t size);
 
 public:
+    RUdpAddress & operator =(const RUdpAddress &address);
     bool operator ==(const RUdpAddress &address);
     bool operator !=(const RUdpAddress &address);
 

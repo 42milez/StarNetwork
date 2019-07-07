@@ -18,6 +18,13 @@ RUdpAddress::SetIP(const uint8_t *ip, size_t size)
     memcpy(host, ip, len); // network byte-order (big endian)
 }
 
+RUdpAddress &
+RUdpAddress::operator=(const RUdpAddress &address)
+{
+    memcpy(host, address.host, 16);
+    port = address.port;
+}
+
 bool
 RUdpAddress::operator==(const RUdpAddress &address)
 {
