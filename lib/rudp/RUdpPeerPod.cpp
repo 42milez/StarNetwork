@@ -181,7 +181,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
             {
-                if (handle_acknowledge(event, peer, cmd))
+                if (protocol_->HandleAcknowledge(event, peer, cmd))
                     COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
@@ -189,59 +189,59 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 //                if (peer)
 //                    COMMAND_ERROR()
 //
-//                peer = handle_connect(header, cmd);
+//                peer = protocol_->HandleConnect(header, cmd);
 //
 //                if (peer == nullptr)
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
             {
-//                if (handle_verify_connect(event, peer, cmd))
+//                if (protocol_->HandleVerifyConnect(event, peer, cmd))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
             {
-//                if (handle_disconnect(peer, cmd))
+//                if (protocol_->HandleDisconnect(peer, cmd))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_PING)
             {
-//                if (handle_ping(peer, cmd))
+//                if (protocol_->HandlePing(peer, cmd))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_RELIABLE)
             {
-//                if (handle_send_reliable(peer, cmd, current_data))
+//                if (protocol_->HandleSendReliable(peer, cmd, current_data))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE)
             {
-//                if (handle_send_unreliable(peer, cmd, current_data))
+//                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
             {
-//                if (handle_send_unsequenced(peer, cmd, current_data))
+//                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_FRAGMENT)
             {
-//                if (handle_send_fragment(peer, cmd, current_data))
+//                if (protocol_->HandleSendFragment(peer, cmd, current_data))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_BANDWIDTH_LIMIT)
             {
-//                if (handle_bandwidth_limit(peer, cmd))
+//                if (protocol_->HandleBandwidthLimit(peer, cmd))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_THROTTLE_CONFIGURE)
             {
-//                if (handle_throttle_configure(peer, cmd))
+//                if (protocol_->HandleThrottleConfigure(peer, cmd))
 //                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT)
             {
-//                if (handle_send_unreliable_fragment(peer, cmd, current_data))
+//                if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
 //                    COMMAND_ERROR()
             }
             else
@@ -266,11 +266,11 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 else if (peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
                 {
                     if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-                        queue_acknowledgement(peer, cmd, sent_time);
+                        peer->QueueAcknowledgement(peer, cmd, sent_time);
                 }
                 else
                 {
-                    queue_acknowledgement(peer, cmd, sent_time);
+                    peer->QueueAcknowledgement(peer, cmd, sent_time);
                 }
             }
         }
