@@ -104,7 +104,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
          */
 
-        if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time)
+        if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) nullptr) -> sent_time)
             //return EventStatus::NO_EVENT_OCCURRED;
             continue;
 
@@ -181,18 +181,22 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
             {
-                if (protocol_->HandleAcknowledge(event, peer, cmd))
-                    COMMAND_ERROR()
+//                if (protocol_->HandleAcknowledge(event, peer, cmd))
+//                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
             {
-//                if (peer)
-//                    COMMAND_ERROR()
-//
-//                peer = protocol_->HandleConnect(header, cmd);
-//
-//                if (peer == nullptr)
-//                    COMMAND_ERROR()
+                if (peer)
+                    COMMAND_ERROR()
+
+                // ここで対象となるpeerを検索する
+                // 対象peerをHandleConnectにわたす
+                // 対象peerがなければCOMMAND_ERRORとする
+
+                protocol_->HandleConnect(peer, header, cmd);
+
+                if (peer == nullptr)
+                    COMMAND_ERROR()
             }
             else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
             {
