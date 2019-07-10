@@ -217,7 +217,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     }
                 }
 
-                protocol_->HandleConnect(peer, header, cmd);
+                protocol_->HandleConnect(peer, header, cmd, received_address_);
 
                 if (peer == nullptr || duplicate_peers >= duplicate_peers_)
                 {

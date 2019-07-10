@@ -70,6 +70,23 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
 }
 
 void
+RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd, const RUdpAddress &received_address)
+{
+    net_->state(RUdpPeerState::ACKNOWLEDGING_CONNECT);
+    connect_id_  = cmd->connect.connect_id;
+    address_ = received_address;
+    outgoing_peer_id_ = ntohs(cmd->connect.outgoing_peer_id);
+    net_->incoming_bandwidth(ntohl(cmd->connect.incoming_bandwidth));
+    net_->outgoing_bandwidth(ntohl(cmd->connect.outgoing_bandwidth));
+    net_->segment_throttle_interval(ntohl(cmd->connect.segment_throttle_interval));
+    net_->segment_throttle_acceleration(ntohl(cmd->connect.segment_throttle_acceleration));
+    net_->segment_throttle_deceleration(ntohl(cmd->connect.segment_throttle_deceleration));
+    event_data_ = ntohl(cmd->connect.data);
+
+    // ...
+}
+
+void
 RUdpPeer::Ping()
 {
     if (!net_->StateIs(RUdpPeerState::CONNECTED))

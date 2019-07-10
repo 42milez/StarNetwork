@@ -77,10 +77,22 @@ RUdpPeerNet::incoming_bandwidth()
     return _incoming_bandwidth;
 }
 
+void
+RUdpPeerNet::incoming_bandwidth(uint32_t val)
+{
+    _incoming_bandwidth = val;
+}
+
 uint32_t
 RUdpPeerNet::outgoing_bandwidth()
 {
     return _outgoing_bandwidth;
+}
+
+void
+RUdpPeerNet::outgoing_bandwidth(uint32_t val)
+{
+    _outgoing_bandwidth = val;
 }
 
 uint32_t
@@ -219,16 +231,34 @@ RUdpPeerNet::segment_throttle_interval()
     return _segment_throttle_interval;
 }
 
+void
+RUdpPeerNet::segment_throttle_interval(uint32_t val)
+{
+    _segment_throttle_interval = val;
+}
+
 uint32_t
 RUdpPeerNet::segment_throttle_acceleration()
 {
     return _segment_throttle_acceleration;
 }
 
+void
+RUdpPeerNet::segment_throttle_acceleration(uint32_t val)
+{
+    _segment_throttle_acceleration = val;
+}
+
 uint32_t
 RUdpPeerNet::segment_throttle_deceleration()
 {
     return _segment_throttle_deceleration;
+}
+
+void
+RUdpPeerNet::segment_throttle_deceleration(uint32_t val)
+{
+    _segment_throttle_deceleration = val;
 }
 
 void

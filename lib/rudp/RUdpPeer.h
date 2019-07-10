@@ -25,6 +25,8 @@ public:
     Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth,
                 uint32_t data);
 
+    void SetupConnectedPeer(const RUdpProtocolType *cmd, const RUdpAddress &received_address);
+
     void Ping();
 
     void QueueOutgoingCommand(std::shared_ptr<RUdpProtocolType> &command,
@@ -67,6 +69,9 @@ public:
     inline uint32_t connect_id()
     { return connect_id_; }
 
+    inline void connect_id(uint32_t val)
+    { connect_id_ = val; }
+
     inline uint32_t event_data()
     { return event_data_; };
 
@@ -75,6 +80,12 @@ public:
 
     inline uint32_t incoming_bandwidth()
     { return net_->incoming_bandwidth(); };
+
+    inline void incoming_bandwidth(uint32_t val)
+    { net_->incoming_bandwidth(val); }
+
+    inline void outgoing_bandwidth(uint32_t val)
+    { net_->outgoing_bandwidth(val); }
 
     inline uint32_t incoming_data_total()
     { return command_pod_->incoming_data_total(); };

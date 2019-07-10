@@ -41,11 +41,15 @@ public:
 
     uint32_t incoming_bandwidth();
 
+    void incoming_bandwidth(uint32_t val);
+
     uint32_t incoming_bandwidth_throttle_epoch();
 
     void incoming_bandwidth_throttle_epoch(uint32_t val);
 
     uint32_t outgoing_bandwidth();
+
+    void outgoing_bandwidth(uint32_t val);
 
     uint32_t outgoing_bandwidth_throttle_epoch();
 
@@ -65,9 +69,13 @@ public:
 
     uint32_t segment_throttle_interval();
 
+    void segment_throttle_interval(uint32_t val);
+
     uint32_t segment_throttle_acceleration();
+    void segment_throttle_acceleration(uint32_t val);
 
     uint32_t segment_throttle_deceleration();
+    void segment_throttle_deceleration(uint32_t val);
 
     uint32_t segments_sent();
 
