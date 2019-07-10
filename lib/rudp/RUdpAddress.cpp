@@ -26,7 +26,7 @@ RUdpAddress::operator=(const RUdpAddress &address)
 }
 
 bool
-RUdpAddress::operator==(const RUdpAddress &address)
+RUdpAddress::operator==(const RUdpAddress &address) const
 {
     auto same_host = memcmp(address.host, address.host, 16) == 0;
     auto same_port = port == address.port;
@@ -35,7 +35,7 @@ RUdpAddress::operator==(const RUdpAddress &address)
 }
 
 bool
-RUdpAddress::operator!=(const RUdpAddress &address)
+RUdpAddress::operator!=(const RUdpAddress &address) const
 {
     auto same_host = memcmp(address.host, address.host, 16) == 0;
     auto same_port = port == address.port;

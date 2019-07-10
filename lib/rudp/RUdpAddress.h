@@ -13,8 +13,8 @@ public:
 
 public:
     RUdpAddress & operator =(const RUdpAddress &address);
-    bool operator ==(const RUdpAddress &address);
-    bool operator !=(const RUdpAddress &address);
+    bool operator ==(const RUdpAddress &address) const;
+    bool operator !=(const RUdpAddress &address) const;
 
 public:
     uint8_t host[16];

@@ -28,7 +28,6 @@ private:
 
     SysCh channel_count_;
 
-    size_t duplicate_peers_;
     size_t maximum_segment_size_;
     size_t maximum_waiting_data_;
 

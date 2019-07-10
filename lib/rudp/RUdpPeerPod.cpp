@@ -7,6 +7,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
     checksum_(nullptr),
     compressor_(std::make_shared<RUdpCompressor>()),
     conn_(conn),
+    duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
     intercept_(nullptr),
     peer_count_(peer_count),
     protocol_(std::make_unique<RUdpProtocol>()),
@@ -60,9 +61,11 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     else \
         continue;
 
-#define COMMAND_ERROR() \
+#define IS_EVENT_AVAILABLE() \
     if (event != nullptr && event->type != RUdpEventType::NONE) \
-        return EventStatus::AN_EVENT_OCCURRED;
+        return EventStatus::AN_EVENT_OCCURRED;                  \
+    else                                                        \
+        return EventStatus::NO_EVENT_OCCURRED;
 
 EventStatus
 RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
@@ -182,75 +185,98 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
             {
 //                if (protocol_->HandleAcknowledge(event, peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
             {
                 if (peer)
-                    COMMAND_ERROR()
+                {
+                    IS_EVENT_AVAILABLE()
+                }
 
-                // ここで対象となるpeerを検索する
-                // 対象peerをHandleConnectにわたす
-                // 対象peerがなければCOMMAND_ERRORとする
+                auto duplicate_peers = 0;
+
+                for (auto &p : peers_)
+                {
+                    if (p->StateIs(RUdpPeerState::DISCONNECTED))
+                    {
+                        peer = p;
+
+                        break;
+                    }
+                    else if (p->StateIs(RUdpPeerState::CONNECTING) && p->address() == received_address_)
+                    {
+                        if (p->connect_id() == cmd->connect.connect_id)
+                        {
+                            peer = nullptr;
+
+                            break;
+                        }
+
+                        ++duplicate_peers;
+                    }
+                }
 
                 protocol_->HandleConnect(peer, header, cmd);
 
-                if (peer == nullptr)
-                    COMMAND_ERROR()
+                if (peer == nullptr || duplicate_peers >= duplicate_peers_)
+                {
+                    IS_EVENT_AVAILABLE()
+                }
             }
             else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
             {
 //                if (protocol_->HandleVerifyConnect(event, peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
             {
 //                if (protocol_->HandleDisconnect(peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_PING)
             {
 //                if (protocol_->HandlePing(peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_RELIABLE)
             {
 //                if (protocol_->HandleSendReliable(peer, cmd, current_data))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE)
             {
 //                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
             {
 //                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_FRAGMENT)
             {
 //                if (protocol_->HandleSendFragment(peer, cmd, current_data))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_BANDWIDTH_LIMIT)
             {
 //                if (protocol_->HandleBandwidthLimit(peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_THROTTLE_CONFIGURE)
             {
 //                if (protocol_->HandleThrottleConfigure(peer, cmd))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT)
             {
 //                if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
-//                    COMMAND_ERROR()
+//                    IS_EVENT_AVAILABLE()
             }
             else
             {
-                COMMAND_ERROR()
+                IS_EVENT_AVAILABLE()
             }
 
             if (peer && (cmd->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) != 0)

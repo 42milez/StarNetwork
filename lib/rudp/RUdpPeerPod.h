@@ -36,6 +36,7 @@ private:
     InterceptCallback intercept_;
     RUdpAddress received_address_;
 
+    size_t duplicate_peers_;
     size_t peer_count_;
     size_t received_data_length_;
 

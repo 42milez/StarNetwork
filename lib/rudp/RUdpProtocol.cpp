@@ -316,6 +316,17 @@ RUdpProtocol::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state
 }
 
 void
+RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header, RUdpProtocolType * cmd)
+{
+    auto channel_count = ntohl(cmd->connect.channel_count);
+
+    if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT || channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT)
+        return;
+
+    // ...
+}
+
+void
 RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)
 {
     Disconnect(peer);

@@ -64,6 +64,9 @@ public:
     bool StateIsLessThanOrEqual(RUdpPeerState state);
 
 public:
+    inline uint32_t connect_id()
+    { return connect_id_; }
+
     inline uint32_t event_data()
     { return event_data_; };
 

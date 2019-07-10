@@ -6,13 +6,16 @@
 RUdpConnection::RUdpConnection(const RUdpAddress &address)
 {
     _socket = std::make_unique<Socket>();
-    _socket->open(Socket::Type::UDP, IP::Type::ANY);
-    _socket->set_blocking_enabled(false);
 
     if (_socket == nullptr) {
         // throw exception
         // ...
     }
+
+    _socket->open(Socket::Type::UDP, IP::Type::ANY);
+
+    _socket->set_blocking_enabled(false);
+    _socket->set_broadcasting_enabled(true);
 
     IpAddress ip{};
 
