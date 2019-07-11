@@ -12,7 +12,10 @@
 class RUdpPeerPod
 {
 public:
-    RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn);
+    RUdpPeerPod(size_t peer_count,
+                std::shared_ptr<RUdpConnection> &conn,
+                uint32_t host_incoming_bandwidth,
+                uint32_t host_outgoing_bandwidth);
 
     std::shared_ptr<RUdpPeer> AvailablePeer();
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
@@ -40,6 +43,8 @@ private:
     size_t peer_count_;
     size_t received_data_length_;
 
+    uint32_t host_incoming_bandwidth_;
+    uint32_t host_outgoing_bandwidth_;
     uint32_t total_received_data_;
     uint32_t total_received_segments_;
     uint32_t total_sent_data_;

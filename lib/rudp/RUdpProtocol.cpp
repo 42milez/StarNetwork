@@ -173,9 +173,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 else
                     cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
 
-                std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
-
-                peer->QueueOutgoingCommand(cmd, seg, 0, 0);
+                peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
             }
         }
     }
@@ -316,14 +314,19 @@ RUdpProtocol::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state
 }
 
 void
-RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header, const RUdpProtocolType * cmd, const RUdpAddress &received_address)
+RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer,
+                            const RUdpProtocolHeader * header,
+                            const RUdpProtocolType * cmd,
+                            const RUdpAddress &received_address,
+                            uint32_t host_outgoing_bandwidth,
+                            uint32_t host_incoming_bandwidth)
 {
     auto channel_count = ntohl(cmd->connect.channel_count);
 
     if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT || channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT)
         return;
 
-    peer->SetupConnectedPeer(cmd, received_address);
+    peer->SetupConnectedPeer(cmd, received_address, host_incoming_bandwidth, host_outgoing_bandwidth, channel_count);
 }
 
 void

@@ -37,6 +37,8 @@ public:
 
     uint32_t mtu();
 
+    void mtu(uint32_t val);
+
     void state(const RUdpPeerState &state);
 
     uint32_t incoming_bandwidth();
@@ -80,6 +82,8 @@ public:
     uint32_t segments_sent();
 
     uint32_t window_size();
+
+    void window_size(uint32_t val);
 
 private:
     RUdpPeerState _state;

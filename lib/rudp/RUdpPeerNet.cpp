@@ -53,6 +53,12 @@ RUdpPeerNet::mtu()
     return _mtu;
 }
 
+void
+RUdpPeerNet::mtu(uint32_t val)
+{
+    _mtu = val;
+}
+
 bool
 RUdpPeerNet::StateIs(RUdpPeerState state)
 {
@@ -223,6 +229,12 @@ uint32_t
 RUdpPeerNet::window_size()
 {
     return _window_size;
+}
+
+void
+RUdpPeerNet::window_size(uint32_t val)
+{
+    _window_size = val;
 }
 
 uint32_t

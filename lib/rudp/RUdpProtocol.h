@@ -26,7 +26,12 @@ public:
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
-    void HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header, const RUdpProtocolType * cmd, const RUdpAddress &received_address);
+    void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
+                       const RUdpProtocolHeader * header,
+                       const RUdpProtocolType * cmd,
+                       const RUdpAddress &received_address,
+                       uint32_t host_incoming_bandwidth,
+                       uint32_t host_outgoing_bandwidth);
 
     void ResetPeer(const std::shared_ptr<RUdpPeer> &peer);
     static void ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer);

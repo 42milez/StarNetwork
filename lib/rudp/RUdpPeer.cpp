@@ -1,5 +1,6 @@
 #include "core/hash.h"
 
+#include "RUdpCommon.h"
 #include "RUdpPeer.h"
 
 RUdpPeer::RUdpPeer()
@@ -70,10 +71,14 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
 }
 
 void
-RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd, const RUdpAddress &received_address)
+RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
+                             const RUdpAddress &received_address,
+                             uint32_t host_incoming_bandwidth,
+                             uint32_t host_outgoing_bandwidth,
+                             uint32_t channel_count)
 {
     net_->state(RUdpPeerState::ACKNOWLEDGING_CONNECT);
-    connect_id_  = cmd->connect.connect_id;
+    connect_id_ = cmd->connect.connect_id;
     address_ = received_address;
     outgoing_peer_id_ = ntohs(cmd->connect.outgoing_peer_id);
     net_->incoming_bandwidth(ntohl(cmd->connect.incoming_bandwidth));
@@ -83,7 +88,118 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd, const RUdpAddress &rec
     net_->segment_throttle_deceleration(ntohl(cmd->connect.segment_throttle_deceleration));
     event_data_ = ntohl(cmd->connect.data);
 
-    // ...
+    auto incoming_session_id = cmd->connect.incoming_session_id == 0xFF ? outgoing_session_id_ :
+                               cmd->connect.incoming_session_id;
+    incoming_session_id = (incoming_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+
+    if (incoming_session_id == outgoing_session_id_)
+        incoming_session_id = (incoming_session_id + 1) &
+            (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+
+    outgoing_session_id_ = incoming_session_id;
+
+    auto outgoing_session_id = cmd->connect.outgoing_session_id == 0xFF ? incoming_session_id :
+                               cmd->connect.outgoing_session_id;
+    outgoing_session_id = (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+
+    if (outgoing_session_id == incoming_session_id)
+        outgoing_session_id =
+            (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+
+    incoming_session_id = outgoing_session_id;
+
+    for (auto &ch : channels_)
+    {
+        ch->outgoing_reliable_sequence_number = 0;
+        ch->outgoing_unreliable_sequence_number = 0;
+        ch->incoming_reliable_sequence_number = 0;
+        ch->incoming_unreliable_sequence_number = 0;
+        ch->used_reliable_windows = 0;
+
+        ch->incoming_reliable_commands.clear();
+        ch->incoming_unreliable_commands.clear();
+        ch->reliable_windows.clear();
+    }
+
+    auto mtu = ntohl(cmd->connect.mtu);
+
+    if (mtu < PROTOCOL_MINIMUM_MTU)
+        mtu = PROTOCOL_MINIMUM_MTU;
+    else if (mtu > PROTOCOL_MAXIMUM_MTU)
+        mtu = PROTOCOL_MAXIMUM_MTU;
+
+    net_->mtu(mtu);
+
+    if (host_outgoing_bandwidth == 0 && net_->incoming_bandwidth() == 0)
+    {
+        net_->window_size(PROTOCOL_MAXIMUM_WINDOW_SIZE);
+    }
+    else if (host_outgoing_bandwidth == 0 || net_->incoming_bandwidth() == 0)
+    {
+        auto ws = (
+            std::max(host_outgoing_bandwidth, net_->incoming_bandwidth()) / PEER_WINDOW_SIZE_SCALE
+        ) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+        net_->window_size(ws);
+    }
+    else
+    {
+        auto ws = (
+            std::min(host_outgoing_bandwidth, net_->incoming_bandwidth()) / PEER_WINDOW_SIZE_SCALE
+        ) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+        net_->window_size(ws);
+    }
+
+    if (net_->window_size() < PROTOCOL_MINIMUM_WINDOW_SIZE)
+    {
+        net_->window_size(PROTOCOL_MINIMUM_WINDOW_SIZE);
+    }
+    else if (net_->window_size() > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+    {
+        net_->window_size(PROTOCOL_MAXIMUM_WINDOW_SIZE);
+    }
+
+    auto window_size = 0;
+
+    if (host_incoming_bandwidth == 0)
+    {
+        window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    }
+    else
+    {
+        window_size = (host_incoming_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+    }
+
+    if (window_size > ntohl(cmd->connect.window_size))
+        window_size = ntohl(cmd->connect.window_size);
+
+    if (window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
+    {
+        window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
+    }
+    else if (window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+    {
+        window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    }
+
+    std::shared_ptr<RUdpProtocolType> verify_cmd = std::make_shared<RUdpProtocolType>();
+
+    verify_cmd->header.command = PROTOCOL_COMMAND_VERIFY_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    verify_cmd->header.channel_id = 0xFF;
+    verify_cmd->verify_connect.outgoing_peer_id = htons(incoming_peer_id_);
+    verify_cmd->verify_connect.incoming_session_id = incoming_session_id;
+    verify_cmd->verify_connect.outgoing_session_id = outgoing_session_id;
+    verify_cmd->verify_connect.mtu = htonl(net_->mtu());
+    verify_cmd->verify_connect.window_size = htonl(window_size);
+    verify_cmd->verify_connect.channel_count = htonl(channel_count);
+    verify_cmd->verify_connect.incoming_bandwidth = htonl(host_incoming_bandwidth);
+    verify_cmd->verify_connect.outgoing_bandwidth = htonl(host_outgoing_bandwidth);
+    verify_cmd->verify_connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
+    verify_cmd->verify_connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
+    verify_cmd->verify_connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
+
+    QueueOutgoingCommand(verify_cmd, nullptr, 0, 0);
 }
 
 void
@@ -104,8 +220,8 @@ RUdpPeer::Ping()
 
 // TODO: Is segment necessary as an argument?
 void
-RUdpPeer::QueueOutgoingCommand(std::shared_ptr<RUdpProtocolType> &protocol_type,
-                               std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
+RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
+                               const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
 

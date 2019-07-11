@@ -23,7 +23,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
         // ...
     }
 
-    peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_);
+    peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_, incoming_bandwidth_, outgoing_bandwidth_);
 }
 
 /** Initiates a connection to a foreign host.

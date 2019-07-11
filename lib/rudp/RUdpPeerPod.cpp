@@ -2,7 +2,10 @@
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
 
-RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn)
+RUdpPeerPod::RUdpPeerPod(size_t peer_count,
+                         std::shared_ptr<RUdpConnection> &conn,
+                         uint32_t host_incoming_bandwidth,
+                         uint32_t host_outgoing_bandwidth)
     :
     checksum_(nullptr),
     compressor_(std::make_shared<RUdpCompressor>()),
@@ -217,7 +220,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     }
                 }
 
-                protocol_->HandleConnect(peer, header, cmd, received_address_);
+                protocol_->HandleConnect(peer, header, cmd, received_address_, host_incoming_bandwidth_, host_outgoing_bandwidth_);
 
                 if (peer == nullptr || duplicate_peers >= duplicate_peers_)
                 {
