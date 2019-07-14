@@ -11,20 +11,18 @@ RUdpChamber::RUdpChamber()
       _header_flags(),
       _buffer_count(),
       _command_count()
+{}
+
+RUdpBuffer &
+RUdpChamber::EmptyDataBuffer()
 {
-    memset(_commands, 0, sizeof(_commands));
+    return _buffers.at(_buffer_count);
 }
 
-RUdpBuffer *
-RUdpChamber::buffer_insert_pos()
+RUdpProtocolType &
+RUdpChamber::EmptyCommandBuffer()
 {
-    return &_buffers[_buffer_count];
-}
-
-RUdpProtocolType *
-RUdpChamber::command_insert_pos()
-{
-    return &_commands[_command_count];
+    return _commands.at(_command_count);
 }
 
 bool
@@ -40,11 +38,11 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
     //            それぞれで判定する必要がある
 
     // unsent protocol_type exists
-    if (command >= &_commands[sizeof(_commands) / sizeof(RUdpProtocol)])
+    if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
         return true;
 
     // unsent data exists
-    if (buffer + 1 >= &_buffers[sizeof(_buffers) / sizeof(RUdpBuffer)])
+    if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
         return true;
 
     auto command_size = command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK];

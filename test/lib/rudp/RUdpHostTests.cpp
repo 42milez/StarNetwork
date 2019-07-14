@@ -35,7 +35,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     client_address.port = 8889;
 
-    auto host = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
+    auto client = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
 
     IpAddress server_ip{"::FFFF:127.0.0.1"};
 
@@ -45,11 +45,11 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     server_address.port = 8888;
 
-    host->Connect(server_address, SysCh::MAX, 0);
+    client->Connect(server_address, SysCh::MAX, 0);
 
     std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
 
-    host->Service(event, 0);
+    client->Service(event, 0);
 
     auto ret = Service();
 

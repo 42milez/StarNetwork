@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPBUFFER_H
 #define P2P_TECHDEMO_RUDPBUFFER_H
 
+#include <vector>
+
 #include <cstddef>
 
 using RUdpBuffer = struct RUdpBuffer

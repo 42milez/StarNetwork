@@ -366,8 +366,8 @@ RUdpProtocol::ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 {
-    auto *command = chamber_->command_insert_pos();
-    auto *buffer = chamber_->buffer_insert_pos();
+    auto *command = chamber_->EmptyCommandBuffer();
+    auto *buffer = chamber_->EmptyDataBuffer();
 
     while (peer->AcknowledgementExists()) {
         // auto ack = peer->acknowledgements.front();

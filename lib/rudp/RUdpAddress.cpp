@@ -23,6 +23,8 @@ RUdpAddress::operator=(const RUdpAddress &address)
 {
     memcpy(host, address.host, 16);
     port = address.port;
+
+    return *this;
 }
 
 bool

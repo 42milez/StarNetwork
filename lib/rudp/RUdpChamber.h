@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPCHAMBER_H
 #define P2P_TECHDEMO_RUDPCHAMBER_H
 
+#include <array>
+
 #include "RUdpBuffer.h"
 #include "RUdpCommand.h"
 #include "RUdpCommon.h"
@@ -8,9 +10,9 @@
 class RUdpChamber
 {
 private:
-    RUdpBuffer _buffers[BUFFER_MAXIMUM];
+    std::array<RUdpBuffer, BUFFER_MAXIMUM> _buffers;
 
-    RUdpProtocolType _commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
+    std::array<RUdpProtocolType, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> _commands;
 
     size_t _command_count;
 
@@ -25,9 +27,9 @@ private:
 public:
     RUdpChamber();
 
-    RUdpBuffer *buffer_insert_pos();
+    RUdpBuffer & EmptyDataBuffer();
 
-    RUdpProtocolType *command_insert_pos();
+    RUdpProtocolType & EmptyCommandBuffer();
 
     void segment_size(size_t val);
 
