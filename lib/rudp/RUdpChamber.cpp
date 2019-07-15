@@ -163,7 +163,7 @@ RUdpChamber::segment_size()
 //void
 //RUdpChamber::set_data_length(size_t val)
 //{
-//    _buffers[0].data_length = val;
+//    _buffers[0].Length = val;
 //}
 
 int

@@ -2,31 +2,31 @@
 #include "RUdpCommon.h"
 
 uint32_t
-RUdpSegment::add_flag(uint32_t flag)
+RUdpSegment::AddFlag(uint32_t flag)
 {
-    _flags |= flag;
+    flags_ |= flag;
 
-    return _flags;
+    return flags_;
 }
 
 void
-RUdpSegment::destroy()
+RUdpSegment::Destroy()
 {
-    if (_free_callback != nullptr)
-        _free_callback(this);
+    if (free_callback_ != nullptr)
+        free_callback_(this);
 
-    // TODO: free _data
+    // TODO: free data_
     // ...
 }
 
 size_t
-RUdpSegment::data_length()
+RUdpSegment::Length()
 {
-    return _data_length;
+    return data_.size();
 }
 
 uint8_t *
 RUdpSegment::move_data_pointer(uint32_t val)
 {
-    return _data += val;
+    return data_ += val;
 }

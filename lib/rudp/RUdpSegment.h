@@ -8,25 +8,24 @@
 
 class RUdpSegment
 {
-private:
-    std::function<void(RUdpSegment *)> _free_callback;
-
-    uint32_t _flags;
-
-    uint8_t *_data;
-
-    size_t _data_length;
-
-    void *_user_data;
-
 public:
-    uint32_t add_flag(uint32_t flag);
+    uint32_t AddFlag(uint32_t flag);
 
-    size_t data_length();
+    size_t Length();
 
     uint8_t *move_data_pointer(uint32_t val);
 
-    void destroy();
+    void Destroy();
+
+private:
+    std::function<void(RUdpSegment *)> free_callback_;
+
+    std::vector<uint8_t> data_;
+    std::vector<uint8_t> user_data_;
+
+    size_t data_length_;
+
+    uint32_t flags_;
 };
 
-#endif //P2P_TECHDEMO_RUDPSEGMENT_H
+#endif // P2P_TECHDEMO_RUDPSEGMENT_H

@@ -513,9 +513,9 @@ RUdpCommandPod::remove_sent_unreliable_commands()
 
         if (outgoing_command->segment != nullptr) {
             if (outgoing_command->segment.use_count() == 1)
-                outgoing_command->segment->add_flag(static_cast<uint32_t>(RUdpSegmentFlag::SENT));
+                outgoing_command->segment->AddFlag(static_cast<uint32_t>(RUdpSegmentFlag::SENT));
 
-            outgoing_command->segment->destroy();
+            outgoing_command->segment->Destroy();
         }
 
         _sent_unreliable_commands.pop_front();

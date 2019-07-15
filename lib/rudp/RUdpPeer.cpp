@@ -250,7 +250,7 @@ RUdpPeer::Receive(uint8_t &channel_id)
 
     auto segment = incoming_command.segment;
 
-    total_waiting_data_ -= segment->data_length();
+    total_waiting_data_ -= segment->Length();
 
     return segment;
 }
