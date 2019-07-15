@@ -63,9 +63,9 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
     protocol_type->connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
     protocol_type->connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
 
-    std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
+    //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
-    QueueOutgoingCommand(protocol_type, seg, 0, 0);
+    QueueOutgoingCommand(protocol_type, nullptr, 0, 0);
 
     return Error::OK;
 }
@@ -213,9 +213,9 @@ RUdpPeer::Ping()
     cmd->header.command = PROTOCOL_COMMAND_PING | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     cmd->header.channel_id = 0xFF;
 
-    std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
+    //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
-    QueueOutgoingCommand(cmd, seg, 0, 0);
+    QueueOutgoingCommand(cmd, nullptr, 0, 0);
 }
 
 // TODO: Is segment necessary as an argument?
