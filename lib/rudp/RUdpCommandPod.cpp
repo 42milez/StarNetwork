@@ -117,20 +117,24 @@ RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> 
     _outgoing_reliable_commands.push_front(command);
 }
 
+/* enet_protocol_send_reliable_outgoing_commands()
+ *
+ * */
 bool
 RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                                 std::unique_ptr<RUdpPeerNet> &net,
                                                 const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                                 uint32_t service_time)
 {
-    auto *command = chamber->EmptyCommandBuffer();
-    auto *buffer = chamber->EmptyDataBuffer();
     auto window_exceeded = 0;
     auto window_wrap = false;
     auto can_ping = true;
     auto current_command = _outgoing_reliable_commands.begin();
 
     while (current_command != _outgoing_reliable_commands.end()) {
+        auto command = chamber->EmptyCommandBuffer();
+        auto buffer = chamber->EmptyDataBuffer();
+
         auto outgoing_command = current_command;
 
         auto channel = (*outgoing_command)->protocol_type->header.channel_id < channels.size() ?
@@ -201,10 +205,13 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         (*outgoing_command)->sent_time = service_time;
 
-        buffer->data = command;
-        buffer->data_length = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
+        buffer->Push((*outgoing_command)->protocol_type);
+        //buffer->Push(command);
+        //buffer->data_length = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
 
-        chamber->update_segment_size(buffer->data_length);
+        chamber->update_segment_size(
+            command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK]
+        );
 
         auto flags = chamber->header_flags();
         chamber->header_flags(flags | PROTOCOL_HEADER_FLAG_SENT_TIME);
@@ -212,10 +219,11 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
         //       これは受信側でパケットを正しく識別するための基本
 
-        *command = *(*outgoing_command)->protocol_type;
+        //*command = *(*outgoing_command)->protocol_type;
 
         if ((*outgoing_command)->segment != nullptr) {
-            ++buffer;
+            //++buffer;
+            buffer = chamber->EmptyDataBuffer();
 
             buffer->data = (*outgoing_command)->segment->move_data_pointer((*outgoing_command)->fragment_offset);
             buffer->data_length = (*outgoing_command)->fragment_length;
@@ -231,12 +239,12 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         // MEMO: push_sent_reliable_command() でインクリメント
         //++_segments_sent;
 
-        ++command;
-        ++buffer;
+        //++command;
+        //++buffer;
     }
 
-    chamber->update_command_count(command);
-    chamber->update_buffer_count(buffer);
+    //chamber->update_command_count(command);
+    //chamber->update_buffer_count(buffer);
 
     return can_ping;
 }
@@ -245,12 +253,13 @@ bool
 RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                                   std::unique_ptr<RUdpPeerNet> &net)
 {
-    auto *command = chamber->EmptyCommandBuffer();
-    auto *buffer = chamber->EmptyDataBuffer();
     auto can_disconnect = false;
     auto current_command = _outgoing_unreliable_commands.begin();
 
     while (current_command != _outgoing_unreliable_commands.end()) {
+        auto command = chamber->EmptyCommandBuffer();
+        auto buffer = chamber->EmptyDataBuffer();
+
         auto outgoing_command = current_command;
         auto command_size = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
 
@@ -307,12 +316,12 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
             _sent_unreliable_commands.push_back(*outgoing_command);
         }
 
-        ++command;
-        ++buffer;
+        //++command;
+        //++buffer;
     }
 
-    chamber->update_command_count(command);
-    chamber->update_buffer_count(buffer);
+    //chamber->update_command_count(command);
+    //chamber->update_buffer_count(buffer);
 
     // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
     if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&

@@ -70,7 +70,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     std::vector<uint8_t> out;
 
-    auto size = chamber->write(out);
+    auto size = chamber->Write(out);
 
     ssize_t sent = 0;
 

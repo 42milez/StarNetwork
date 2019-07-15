@@ -316,8 +316,8 @@ EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     auto header_data_size = sizeof(RUdpProtocolHeader) + sizeof(uint32_t);
-    uint8_t header_data[header_data_size];
-    auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data);
+    VecUInt8SP header_data = std::make_shared<std::vector<uint8_t>>(header_data_size);
+    auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data.get());
 
     protocol_->continue_sending(true);
 
@@ -391,7 +391,7 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
             // _buffers[1]: コマンド
             // _buffers[2]: コマンド
             // _buffers[n]: コマンド
-            protocol_->chamber()->copy_header_data(header_data, header_data_size);
+            protocol_->chamber()->SetHeader(header_data);
 
             if (protocol_->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
             {

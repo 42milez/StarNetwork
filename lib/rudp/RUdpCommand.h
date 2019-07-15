@@ -21,7 +21,7 @@ using OutgoingCommand = struct OutgoingCommand
 {
     OutgoingCommand();
 
-    std::shared_ptr<RUdpProtocolType> protocol_type;
+    RUdpProtocolTypeSP protocol_type;
     std::shared_ptr<RUdpSegment> segment;
 
     uint32_t fragment_offset;

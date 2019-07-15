@@ -19,4 +19,6 @@ private:
     std::vector<const std::variant<const RUdpProtocolTypeSP, const VecUInt8SP>> data_;
 };
 
+using RUdpBufferSP = std::shared_ptr<RUdpBuffer>;
+
 #endif // P2P_TECHDEMO_RUDPBUFFER_H

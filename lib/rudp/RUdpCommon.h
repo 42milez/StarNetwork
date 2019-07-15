@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <queue>
+#include <variant>
 #include <vector>
 
 #include "core/errors.h"
@@ -276,6 +277,24 @@ using RUdpProtocolType = union RUdpProtocolType
 };
 
 using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
+
+using RUdpProtocolVariant = std::variant<RUdpProtocolCommandHeader,
+                                         RUdpProtocolAcknowledge,
+                                         RUdpProtocolConnect,
+                                         RUdpProtocolVerifyConnect,
+                                         RUdpProtocolDisconnect,
+                                         RUdpProtocolPing,
+                                         RUdpProtocolSendReliable,
+                                         RUdpProtocolSendUnreliable,
+                                         RUdpProtocolSendUnsequenced,
+                                         RUdpProtocolSendFragment,
+                                         RUdpProtocolBandwidthLimit,
+                                         RUdpProtocolThrottleConfigure>;
+
+using RUdpProtocolVariantSP = std::shared_ptr<RUdpProtocolVariant>;
+
+using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
+
 using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
 
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)

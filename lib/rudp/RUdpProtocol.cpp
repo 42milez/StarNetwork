@@ -366,10 +366,9 @@ RUdpProtocol::ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 {
-    auto command = chamber_->EmptyCommandBuffer();
-    auto buffer = chamber_->EmptyDataBuffer();
-
     while (peer->AcknowledgementExists()) {
+        auto command = chamber_->EmptyCommandBuffer();
+        auto buffer = chamber_->EmptyDataBuffer();
         auto ack = peer->PopAcknowledgement();
 
         // 送信継続
@@ -385,7 +384,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
             break;
         }
 
-        buffer->Push(command);
+        //buffer->Push(command);
         //buffer->data_length = sizeof(RUdpProtocolAcknowledge);
 
         chamber_->update_segment_size(sizeof(RUdpProtocolAcknowledge));
@@ -397,6 +396,8 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
         command->header.reliable_sequence_number = reliable_sequence_number;
         command->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
         command->acknowledge.received_sent_time = htons(ack->sent_time);
+
+        buffer->Push(command);
 
         if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
             DispatchState(peer, RUdpPeerState::ZOMBIE);

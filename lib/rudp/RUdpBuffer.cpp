@@ -1,7 +1,7 @@
 #include "RUdpBuffer.h"
 
 void
-RUdpBuffer::Push(const std::shared_ptr<RUdpProtocolType> &cmd)
+RUdpBuffer::Push(const RUdpProtocolTypeSP &cmd)
 {
     data_.emplace_back(cmd);
 }

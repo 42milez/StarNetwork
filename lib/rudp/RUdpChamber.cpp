@@ -20,7 +20,7 @@ RUdpChamber::RUdpChamber()
         cmd = std::make_shared<RUdpProtocolType>();
 }
 
-const std::shared_ptr<RUdpBuffer>
+const RUdpBufferSP
 RUdpChamber::EmptyDataBuffer()
 {
     if (_buffer_count >= _buffers.size())
@@ -29,7 +29,7 @@ RUdpChamber::EmptyDataBuffer()
     return _buffers.at(++_buffer_count);
 }
 
-const std::shared_ptr<RUdpProtocolType>
+const RUdpProtocolTypeSP
 RUdpChamber::EmptyCommandBuffer()
 {
     if (_command_count >= _commands.size())
@@ -39,8 +39,8 @@ RUdpChamber::EmptyCommandBuffer()
 }
 
 bool
-RUdpChamber::sending_continues(RUdpProtocolType *command,
-                               RUdpBuffer *buffer,
+RUdpChamber::sending_continues(const RUdpProtocolTypeSP &command,
+                               const std::shared_ptr<RUdpBuffer> &buffer,
                                uint32_t mtu,
                                const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
@@ -51,11 +51,13 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
     //            それぞれで判定する必要がある
 
     // unsent protocol_type exists
-    if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
+    //if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
+    if (command == nullptr)
         return true;
 
     // unsent data_ exists
-    if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
+    //if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
+    if (buffer == nullptr)
         return true;
 
     auto command_size = command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
@@ -94,17 +96,17 @@ RUdpChamber::update_segment_size(size_t val)
     _segment_size += val;
 }
 
-void
-RUdpChamber::update_command_count(const RUdpProtocolType *command)
-{
-    _command_count = command - _commands;
-}
+//void
+//RUdpChamber::update_command_count(const RUdpProtocolType *command)
+//{
+//    _command_count = command - _commands;
+//}
 
-void
-RUdpChamber::update_buffer_count(const RUdpBuffer *buffer)
-{
-    _buffer_count = buffer - _buffers;
-}
+//void
+//RUdpChamber::update_buffer_count(const RUdpBuffer *buffer)
+//{
+//    _buffer_count = buffer - _buffers;
+//}
 
 bool
 RUdpChamber::continue_sending()
@@ -167,7 +169,7 @@ RUdpChamber::segment_size()
 //}
 
 int
-RUdpChamber::write(std::vector<uint8_t> &out)
+RUdpChamber::Write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 
@@ -187,7 +189,9 @@ RUdpChamber::write(std::vector<uint8_t> &out)
 }
 
 void
-RUdpChamber::copy_header_data(const uint8_t *header_data, int header_data_size)
+//RUdpChamber::SetHeader(const uint8_t *header_data, int header_data_size)
+RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
-    memcpy(_buffers, header_data, header_data_size);
+    //memcpy(_buffers, header_data, header_data_size);
+    _buffers.at(0)->Push(header);
 }
