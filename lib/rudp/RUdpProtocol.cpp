@@ -366,20 +366,20 @@ RUdpProtocol::ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 {
-    auto *command = chamber_->EmptyCommandBuffer();
-    auto *buffer = chamber_->EmptyDataBuffer();
+    auto command = chamber_->EmptyCommandBuffer();
+    auto buffer = chamber_->EmptyDataBuffer();
 
     while (peer->AcknowledgementExists()) {
-        // auto ack = peer->acknowledgements.front();
         auto ack = peer->PopAcknowledgement();
 
         // 送信継続
         // - コマンドバッファに空きがない
         // - データバッファに空きがない
         // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
-        if (!chamber_->command_buffer_have_enough_space(command) ||
-            !chamber_->data_buffer_have_enough_space(buffer) ||
-            peer->net()->mtu() - chamber_->segment_size() < sizeof(RUdpProtocolAcknowledge)) {
+        if (command == nullptr ||
+            buffer == nullptr ||
+            peer->net()->mtu() - chamber_->segment_size() < sizeof(RUdpProtocolAcknowledge))
+        {
             chamber_->continue_sending(true);
 
             break;

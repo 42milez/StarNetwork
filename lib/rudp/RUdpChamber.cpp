@@ -7,22 +7,35 @@
 #include "RUdpProtocol.h"
 
 RUdpChamber::RUdpChamber()
-    : _continue_sending(false),
+    : _buffer_count(),
+      _command_count(),
+      _continue_sending(false),
       _header_flags(),
-      _buffer_count(),
-      _command_count()
-{}
-
-RUdpBuffer &
-RUdpChamber::EmptyDataBuffer()
+      _segment_size()
 {
-    return _buffers.at(_buffer_count);
+    for (auto &buf : _buffers)
+        buf = std::make_shared<RUdpBuffer>();
+
+    for (auto &cmd : _commands)
+        cmd = std::make_shared<RUdpProtocolType>();
 }
 
-RUdpProtocolType &
+const std::shared_ptr<RUdpBuffer>
+RUdpChamber::EmptyDataBuffer()
+{
+    if (_buffer_count >= _buffers.size())
+        return nullptr;
+
+    return _buffers.at(++_buffer_count);
+}
+
+const std::shared_ptr<RUdpProtocolType>
 RUdpChamber::EmptyCommandBuffer()
 {
-    return _commands.at(_command_count);
+    if (_command_count >= _commands.size())
+        return nullptr;
+
+    return _commands.at(++_command_count);
 }
 
 bool

@@ -10,9 +10,9 @@
 class RUdpChamber
 {
 private:
-    std::array<RUdpBuffer, BUFFER_MAXIMUM> _buffers;
+    std::array<std::shared_ptr<RUdpBuffer>, BUFFER_MAXIMUM> _buffers;
 
-    std::array<RUdpProtocolType, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> _commands;
+    std::array<std::shared_ptr<RUdpProtocolType>, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> _commands;
 
     size_t _command_count;
 
@@ -27,9 +27,9 @@ private:
 public:
     RUdpChamber();
 
-    RUdpBuffer & EmptyDataBuffer();
+    const std::shared_ptr<RUdpBuffer> EmptyDataBuffer();
 
-    RUdpProtocolType & EmptyCommandBuffer();
+    const std::shared_ptr<RUdpProtocolType> EmptyCommandBuffer();
 
     void segment_size(size_t val);
 
