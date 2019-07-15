@@ -12,11 +12,11 @@
 using RUdpBuffer = struct RUdpBuffer
 {
 public:
-    void Push(const std::shared_ptr<RUdpProtocolType> &cmd);
-    void Push(const std::vector<uint8_t> &data);
+    void Push(const RUdpProtocolTypeSP &cmd);
+    void Push(const VecUInt8SP &data);
 
 private:
-    std::vector<const std::variant<std::shared_ptr<RUdpProtocolType>, const std::vector<uint8_t>&>> data_;
+    std::vector<const std::variant<const RUdpProtocolTypeSP, const VecUInt8SP>> data_;
 };
 
 #endif // P2P_TECHDEMO_RUDPBUFFER_H

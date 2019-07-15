@@ -275,6 +275,9 @@ using RUdpProtocolType = union RUdpProtocolType
     RUdpProtocolThrottleConfigure throttle_configure;
 };
 
+using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
+using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
+
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
 // TODO: 引数が「A is less than B」の順序になるようにする

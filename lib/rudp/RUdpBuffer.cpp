@@ -7,7 +7,7 @@ RUdpBuffer::Push(const std::shared_ptr<RUdpProtocolType> &cmd)
 }
 
 void
-RUdpBuffer::Push(const std::vector<uint8_t> &data)
+RUdpBuffer::Push(const VecUInt8SP &data)
 {
     // TODO: Does this call copy constructor?
     data_.emplace_back(data);
