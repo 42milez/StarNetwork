@@ -225,10 +225,11 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
             //++buffer;
             buffer = chamber->EmptyDataBuffer();
 
-            buffer->data = (*outgoing_command)->segment->move_data_pointer((*outgoing_command)->fragment_offset);
-            buffer->data_length = (*outgoing_command)->fragment_length;
+            buffer->Push((*outgoing_command)->segment->ReadPosition((*outgoing_command)->fragment_offset));
+            //buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->update_segment_size((*outgoing_command)->fragment_length);
+
             increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
         }
 

@@ -13,10 +13,10 @@ using RUdpBuffer = struct RUdpBuffer
 {
 public:
     void Push(const RUdpProtocolTypeSP &cmd);
-    void Push(const VecUInt8SP &data);
+    void Push(const std::shared_ptr<ReadRange> &range);
 
 private:
-    std::vector<const std::variant<const RUdpProtocolTypeSP, const VecUInt8SP>> data_;
+    std::vector<const std::variant<const RUdpProtocolTypeSP, std::shared_ptr<ReadRange>>> data_;
 };
 
 using RUdpBufferSP = std::shared_ptr<RUdpBuffer>;

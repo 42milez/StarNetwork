@@ -120,17 +120,17 @@ RUdpChamber::continue_sending(bool val)
     _continue_sending = val;
 }
 
-bool
-RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
-{
-    return command < &_commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
-}
+//bool
+//RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
+//{
+//    return command < &_commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
+//}
 
-bool
-RUdpChamber::data_buffer_have_enough_space(RUdpBuffer *buffer)
-{
-    return buffer < &_buffers[BUFFER_MAXIMUM];
-}
+//bool
+//RUdpChamber::data_buffer_have_enough_space(RUdpBuffer *buffer)
+//{
+//    return buffer < &_buffers[BUFFER_MAXIMUM];
+//}
 
 void
 RUdpChamber::command_count(size_t val)

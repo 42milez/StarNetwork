@@ -295,7 +295,17 @@ using RUdpProtocolVariantSP = std::shared_ptr<RUdpProtocolVariant>;
 
 using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 
+using VecUInt8It = std::vector<uint8_t>::iterator;
 using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
+
+struct ReadRange
+{
+    VecUInt8It current;
+    VecUInt8It end;
+
+    ReadRange(VecUInt8It current, VecUInt8It end) : current(current), end(end)
+    {}
+};
 
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
