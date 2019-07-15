@@ -103,7 +103,7 @@ namespace auth_server
      The kevent(), kevent64() and kevent_qos() system calls return the number of events placed in the eventlist, up to
      the value given by nevents.  If an error occurs while processing an element of the changelist and there is enough
      room in the eventlist, then the event will be placed in the eventlist with EV_ERROR set in flags and the system
-     error in data.  Otherwise, -1 will be returned, and errno will be set to indicate the error condition.  If the
+     error in data_.  Otherwise, -1 will be returned, and errno will be set to indicate the error condition.  If the
      time limit expires, then kevent(), kevent64() and kevent_qos() return 0.
      */
     return kevent(kernel_event_queue_fd_, nullptr, 0, events, N_KEVENTS, nullptr);

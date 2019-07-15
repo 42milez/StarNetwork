@@ -385,10 +385,10 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
             break;
         }
 
-        buffer->data = command;
-        buffer->data_length = sizeof(RUdpProtocolAcknowledge);
+        buffer->Push(command);
+        //buffer->data_length = sizeof(RUdpProtocolAcknowledge);
 
-        chamber_->increase_segment_size(buffer->data_length);
+        chamber_->update_segment_size(sizeof(RUdpProtocolAcknowledge));
 
         auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 
@@ -401,12 +401,12 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
         if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
             DispatchState(peer, RUdpPeerState::ZOMBIE);
 
-        ++command;
-        ++buffer;
+        //++command;
+        //++buffer;
     }
 
-    chamber_->update_command_count(command);
-    chamber_->update_buffer_count(buffer);
+    //chamber_->update_command_count(command);
+    //chamber_->update_buffer_count(buffer);
 }
 
 bool

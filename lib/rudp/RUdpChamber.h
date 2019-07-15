@@ -41,7 +41,7 @@ public:
 
     void buffer_count(size_t val);
 
-    void increase_segment_size(size_t val);
+    void update_segment_size(size_t val);
 
     bool sending_continues(RUdpProtocolType *command,
                            RUdpBuffer *buffer,

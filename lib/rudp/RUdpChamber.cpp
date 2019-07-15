@@ -54,7 +54,7 @@ RUdpChamber::sending_continues(RUdpProtocolType *command,
     if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
         return true;
 
-    // unsent data exists
+    // unsent data_ exists
     if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
         return true;
 
@@ -89,7 +89,7 @@ RUdpChamber::header_flags(uint16_t val)
 }
 
 void
-RUdpChamber::increase_segment_size(size_t val)
+RUdpChamber::update_segment_size(size_t val)
 {
     _segment_size += val;
 }
@@ -172,7 +172,7 @@ RUdpChamber::write(std::vector<uint8_t> &out)
     auto size = 0;
 
     for (auto i = 0; i < _buffer_count; ++i) {
-        size += _buffers[i].data.size();
+        size += _buffers[i].data_.size();
     }
 
     out.resize(size);
@@ -180,7 +180,7 @@ RUdpChamber::write(std::vector<uint8_t> &out)
     auto it = out.begin();
 
     for (auto i = 0; i < _buffer_count; ++i) {
-        it = std::copy(_buffers[i].data.begin(), _buffers[i].data.end(), it);
+        it = std::copy(_buffers[i].data_.begin(), _buffers[i].data_.end(), it);
     }
 
     return size;

@@ -204,7 +204,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         buffer->data = command;
         buffer->data_length = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
 
-        chamber->increase_segment_size(buffer->data_length);
+        chamber->update_segment_size(buffer->data_length);
 
         auto flags = chamber->header_flags();
         chamber->header_flags(flags | PROTOCOL_HEADER_FLAG_SENT_TIME);
@@ -220,7 +220,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
             buffer->data = (*outgoing_command)->segment->move_data_pointer((*outgoing_command)->fragment_offset);
             buffer->data_length = (*outgoing_command)->fragment_length;
 
-            chamber->increase_segment_size((*outgoing_command)->fragment_length);
+            chamber->update_segment_size((*outgoing_command)->fragment_length);
             increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
         }
 
@@ -290,7 +290,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         buffer->data = command;
         buffer->data_length = command_size;
 
-        chamber->increase_segment_size(buffer->data_length);
+        chamber->update_segment_size(buffer->data_length);
 
         *command = *(*outgoing_command)->protocol_type;
 
@@ -302,7 +302,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
             buffer->data = (*outgoing_command)->segment->move_data_pointer((*outgoing_command)->fragment_offset);
             buffer->data_length = (*outgoing_command)->fragment_length;
 
-            chamber->increase_segment_size(buffer->data_length);
+            chamber->update_segment_size(buffer->data_length);
 
             _sent_unreliable_commands.push_back(*outgoing_command);
         }
