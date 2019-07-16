@@ -10,15 +10,23 @@
 class RUdpChamber
 {
 public:
+    using CmdBufIt = std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
+    using DataBufIt = std::array<RUdpBufferSP, BUFFER_MAXIMUM>::iterator;
+
+public:
     RUdpChamber();
 
-    const RUdpProtocolTypeSP EmptyCommandBuffer();
-    const RUdpBufferSP EmptyDataBuffer();
+    const CmdBufIt EmptyCommandBuffer();
+    const DataBufIt EmptyDataBuffer();
 
-    bool sending_continues(const RUdpProtocolTypeSP &command,
-                           const std::shared_ptr<RUdpBuffer> &buffer,
-                           uint32_t mtu,
-                           const std::shared_ptr<OutgoingCommand> &outgoing_command);
+    void Reset();
+
+    bool SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
+                          const RUdpChamber::DataBufIt buf_it,
+                          uint32_t mtu,
+                          const std::shared_ptr<OutgoingCommand> &outgoing_command);
+
+    void SetHeader(const VecUInt8SP &header);
 
     //bool command_buffer_have_enough_space(RUdpProtocolType *command);
 
@@ -26,11 +34,7 @@ public:
 
     //void set_data_length(size_t val);
 
-    void Reset();
-
     int Write(std::vector<uint8_t> &out);
-
-    void SetHeader(const VecUInt8SP &header);
 
 public:
     void buffer_count(size_t val);

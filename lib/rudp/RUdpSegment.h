@@ -22,7 +22,7 @@ public:
 
     void Destroy();
 
-    std::shared_ptr<ReadRange> ReadPosition(uint32_t val);
+    std::shared_ptr<DataRange> DataPosition(uint32_t val);
 
 private:
     std::function<void(RUdpSegment *)> free_callback_;

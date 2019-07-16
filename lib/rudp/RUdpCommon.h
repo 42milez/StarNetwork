@@ -298,12 +298,12 @@ using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 using VecUInt8It = std::vector<uint8_t>::iterator;
 using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
 
-struct ReadRange
+struct DataRange
 {
     VecUInt8It current;
     VecUInt8It end;
 
-    ReadRange(VecUInt8It current, VecUInt8It end) : current(current), end(end)
+    DataRange(VecUInt8It current, VecUInt8It end) : current(current), end(end)
     {}
 };
 

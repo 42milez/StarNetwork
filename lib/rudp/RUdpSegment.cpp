@@ -37,8 +37,8 @@ RUdpSegment::Length()
 //    return data_ += val;
 //}
 
-std::shared_ptr<ReadRange>
-RUdpSegment::ReadPosition(uint32_t val)
+std::shared_ptr<DataRange>
+RUdpSegment::DataPosition(uint32_t val)
 {
-    return std::make_shared<ReadRange>(current_read_position_ + val, data_.end());
+    return std::make_shared<DataRange>(current_read_position_ + val, data_.end());
 }

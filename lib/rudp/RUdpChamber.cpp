@@ -20,29 +20,30 @@ RUdpChamber::RUdpChamber()
         cmd = std::make_shared<RUdpProtocolType>();
 }
 
-const RUdpBufferSP
-RUdpChamber::EmptyDataBuffer()
-{
-    if (_buffer_count >= _buffers.size())
-        return nullptr;
-
-    return _buffers.at(++_buffer_count);
-}
-
-const RUdpProtocolTypeSP
+const RUdpChamber::CmdBufIt
 RUdpChamber::EmptyCommandBuffer()
 {
     if (_command_count >= _commands.size())
         return nullptr;
 
-    return _commands.at(++_command_count);
+    return _commands.begin() + (++_command_count);
+}
+
+
+const RUdpChamber::DataBufIt
+RUdpChamber::EmptyDataBuffer()
+{
+    if (_buffer_count >= _buffers.size())
+        return nullptr;
+
+    return _buffers.begin() + (++_buffer_count);
 }
 
 bool
-RUdpChamber::sending_continues(const RUdpProtocolTypeSP &command,
-                               const std::shared_ptr<RUdpBuffer> &buffer,
-                               uint32_t mtu,
-                               const std::shared_ptr<OutgoingCommand> &outgoing_command)
+RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
+                              const RUdpChamber::DataBufIt buf_it,
+                              uint32_t mtu,
+                              const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
     // MEMO: [誤] SendReliableOutgoingCommands() では
     //            buffer に protocol_type が挿入されたら同時にインクリメントされるので、
@@ -52,12 +53,13 @@ RUdpChamber::sending_continues(const RUdpProtocolTypeSP &command,
 
     // unsent protocol_type exists
     //if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
-    if (command == nullptr)
+    if (*cmd_it == nullptr)
         return true;
 
     // unsent data_ exists
     //if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
-    if (buffer == nullptr)
+    // If the next is the end of the iterator, no more data cannot be pushed into buffer.
+    if (*buf_it == nullptr || (std::next(buf_it, 1) == _buffers.end()))
         return true;
 
     auto command_size = command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
@@ -173,17 +175,23 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 
-    for (auto i = 0; i < _buffer_count; ++i) {
-        size += _buffers[i].data_.size();
-    }
+//    for (auto i = 0; i < _buffer_count; ++i) {
+//        size += _buffers.at(i)->Size();
+//    }
+
+    for (auto &buf : _buffers)
+        size += buf->Size();
 
     out.resize(size);
 
     auto it = out.begin();
 
-    for (auto i = 0; i < _buffer_count; ++i) {
-        it = std::copy(_buffers[i].data_.begin(), _buffers[i].data_.end(), it);
-    }
+//    for (auto i = 0; i < _buffer_count; ++i) {
+//        it = std::copy(_buffers[i].data_.begin(), _buffers[i].data_.end(), it);
+//    }
+
+    for (auto &buf : _buffers)
+        it = buf->CopyTo(it);
 
     return size;
 }
@@ -193,5 +201,5 @@ void
 RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
     //memcpy(_buffers, header_data, header_data_size);
-    _buffers.at(0)->Push(header);
+    _buffers.at(0)->Push(std::make_shared<DataRange>(header->begin(), header->end()));
 }
