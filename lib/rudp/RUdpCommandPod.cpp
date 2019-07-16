@@ -297,22 +297,23 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
             }
         }
 
-        buffer->data = command;
-        buffer->data_length = command_size;
+        buffer->Push(command);
+        //buffer->data_length = command_size;
 
-        chamber->update_segment_size(buffer->data_length);
+        chamber->update_segment_size(command_size);
 
         *command = *(*outgoing_command)->protocol_type;
 
         _outgoing_unreliable_commands.erase(outgoing_command);
 
         if ((*outgoing_command)->segment != nullptr) {
-            ++buffer;
+            //++buffer;
+            buffer = chamber->EmptyDataBuffer();
 
-            buffer->data = (*outgoing_command)->segment->move_data_pointer((*outgoing_command)->fragment_offset);
-            buffer->data_length = (*outgoing_command)->fragment_length;
+            buffer->Push((*outgoing_command)->segment->ReadPosition((*outgoing_command)->fragment_offset));
+            //buffer->data_length = (*outgoing_command)->fragment_length;
 
-            chamber->update_segment_size(buffer->data_length);
+            chamber->update_segment_size((*outgoing_command)->fragment_length);
 
             _sent_unreliable_commands.push_back(*outgoing_command);
         }
