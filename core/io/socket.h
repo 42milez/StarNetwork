@@ -70,7 +70,7 @@ public:
 
     Error send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent);
 
-    Error sendto(const std::vector<uint8_t> &buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
+    Error sendto(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
     bool is_open() const;
 

@@ -68,13 +68,13 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     dest.set_ipv6(address.host);
 
-    std::vector<uint8_t> out;
+    RUdpBuffer::VariantBuffer out;
 
     auto size = chamber->Write(out);
 
     ssize_t sent = 0;
 
-    auto err = _socket->sendto(out, size, sent, dest, address.port);
+    auto err = _socket->sendto(&out, size, sent, dest, address.port);
 
     if (err != Error::OK) {
         if (err == Error::ERR_BUSY)

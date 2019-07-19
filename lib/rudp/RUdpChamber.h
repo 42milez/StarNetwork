@@ -11,7 +11,7 @@ class RUdpChamber
 {
 public:
     using CmdBufIt = std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
-    using DataBufIt = std::array<RUdpBufferSP, BUFFER_MAXIMUM>::iterator;
+    using DataBufIt = std::array<std::shared_ptr<RUdpBuffer>, BUFFER_MAXIMUM>::iterator;
 
 public:
     RUdpChamber();
@@ -34,7 +34,7 @@ public:
 
     //void set_data_length(size_t val);
 
-    int Write(std::vector<uint8_t> &out);
+    int Write(RUdpBuffer::VariantBuffer &out);
 
 public:
     void buffer_count(size_t val);
@@ -58,7 +58,7 @@ public:
     void update_segment_size(size_t val);
 
 private:
-    std::array<RUdpBufferSP, BUFFER_MAXIMUM> _buffers;
+    std::array<std::shared_ptr<RUdpBuffer>, BUFFER_MAXIMUM> _buffers;
     std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> _commands;
 
     size_t _buffer_count;

@@ -12,7 +12,10 @@
 class RUdpBuffer
 {
 public:
-    std::vector<uint8_t>::iterator CopyTo(std::vector<uint8_t>::iterator it)
+    using VariantBuffer = std::vector<std::variant<RUdpProtocolTypeSP, std::shared_ptr<DataRange>>>;
+
+public:
+    VariantBuffer::iterator CopyTo(VariantBuffer::iterator it)
     { return std::copy(data_.begin(), data_.end(), it); }
 
     inline void Push(const RUdpProtocolTypeSP &cmd)
@@ -27,9 +30,7 @@ public:
     { return data_.size(); }
 
 private:
-    std::vector<const std::variant<const RUdpProtocolTypeSP, std::shared_ptr<DataRange>>> data_;
+    VariantBuffer data_;
 };
-
-using RUdpBufferSP = std::shared_ptr<RUdpBuffer>;
 
 #endif // P2P_TECHDEMO_RUDPBUFFER_H
