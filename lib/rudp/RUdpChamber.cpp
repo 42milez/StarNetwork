@@ -171,7 +171,7 @@ RUdpChamber::segment_size()
 //}
 
 int
-RUdpChamber::Write(RUdpBuffer::VariantBuffer &out)
+RUdpChamber::Write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 

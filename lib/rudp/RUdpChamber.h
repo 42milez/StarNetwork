@@ -34,7 +34,7 @@ public:
 
     //void set_data_length(size_t val);
 
-    int Write(RUdpBuffer::VariantBuffer &out);
+    int Write(std::vector<uint8_t> &out);
 
 public:
     void buffer_count(size_t val);

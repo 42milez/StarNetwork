@@ -26,8 +26,7 @@ public:
     inline void Push(const std::shared_ptr<DataRange> &range)
     { data_.emplace_back(range); }
 
-    inline size_t Size()
-    { return data_.size(); }
+    size_t Size();
 
 private:
     VariantBuffer data_;
