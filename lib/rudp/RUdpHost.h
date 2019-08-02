@@ -19,7 +19,8 @@ public:
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
 private:
-    static int SocketWait(uint8_t wait_condition, uint32_t timeout) { return 0; };
+    static int SocketWait(uint8_t wait_condition, uint32_t timeout)
+    { return 0; };
 
 private:
     std::shared_ptr<RUdpConnection> conn_;
