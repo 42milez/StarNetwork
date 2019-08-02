@@ -74,7 +74,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     ssize_t sent = 0;
 
-    auto err = _socket->sendto(out, size, sent, dest, address.port);
+    auto err = _socket->sendto(&out, size, sent, dest, address.port);
 
     if (err != Error::OK) {
         if (err == Error::ERR_BUSY)
