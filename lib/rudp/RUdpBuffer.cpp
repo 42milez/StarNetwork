@@ -3,9 +3,12 @@
 size_t
 RUdpBuffer::Size()
 {
-    size_t size = 0;
-
-
-
-    return size;
+    if (data_.index() == static_cast<int>(BufferVariant::RUdpProtocolType))
+    {
+        return sizeof(RUdpProtocolType);
+    }
+    else
+    {
+        return std::get<static_cast<int>(BufferVariant::DataRange)>(data_)->Size();
+    }
 }

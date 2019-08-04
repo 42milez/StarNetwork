@@ -1,32 +1,32 @@
 #ifndef P2P_TECHDEMO_RUDPBUFFER_H
 #define P2P_TECHDEMO_RUDPBUFFER_H
 
+#include <cstddef>
 #include <memory>
 #include <variant>
-#include <vector>
-
-#include <cstddef>
 
 #include "RUdpCommon.h"
 
 class RUdpBuffer
 {
 public:
-    using VariantBuffer = std::vector<std::variant<RUdpProtocolTypeSP, std::shared_ptr<DataRange>>>;
+    using VariantBuffer = std::variant<RUdpProtocolTypeSP, std::shared_ptr<DataRange>>;
 
 public:
-    VariantBuffer::iterator CopyTo(VariantBuffer::iterator it)
-    { return std::copy(data_.begin(), data_.end(), it); }
+    inline void Add(const RUdpProtocolTypeSP &cmd)
+    { data_ = cmd; }
 
-    inline void Push(const RUdpProtocolTypeSP &cmd)
-    {
-        data_.emplace_back(cmd); // TODO: Does this call the copy constructor?
-    }
-
-    inline void Push(const std::shared_ptr<DataRange> &range)
-    { data_.emplace_back(range); }
+    inline void Add(const std::shared_ptr<DataRange> &range)
+    { data_ = range; }
 
     size_t Size();
+
+private:
+    enum class BufferVariant : int
+    {
+        RUdpProtocolType,
+        DataRange
+    };
 
 private:
     VariantBuffer data_;
