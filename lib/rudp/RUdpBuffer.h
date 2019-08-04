@@ -14,12 +14,21 @@ public:
 
 public:
     inline void Add(const RUdpProtocolTypeSP &cmd)
-    { data_ = cmd; }
+    {
+        data_ = cmd;
+        size_ = sizeof(RUdpProtocolType);
+    }
 
     inline void Add(const std::shared_ptr<DataRange> &range)
-    { data_ = range; }
+    {
+        data_ = range;
+        size_ = range->Size();
+    }
 
-    size_t Size();
+    void CopyTo(std::vector<uint8_t>::iterator &it);
+
+    size_t Size()
+    { return size_; };
 
 private:
     enum class BufferVariant : int
@@ -30,6 +39,8 @@ private:
 
 private:
     VariantBuffer data_;
+
+    size_t size_;
 };
 
 #endif // P2P_TECHDEMO_RUDPBUFFER_H

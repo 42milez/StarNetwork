@@ -1,14 +1,6 @@
 #include "RUdpBuffer.h"
 
-size_t
-RUdpBuffer::Size()
+void RUdpBuffer::CopyTo(std::vector<uint8_t>::iterator &it)
 {
-    if (data_.index() == static_cast<int>(BufferVariant::RUdpProtocolType))
-    {
-        return sizeof(RUdpProtocolType);
-    }
-    else
-    {
-        return std::get<static_cast<int>(BufferVariant::DataRange)>(data_)->Size();
-    }
+    memcpy()
 }
