@@ -201,5 +201,5 @@ void
 RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
     //memcpy(_buffers, header_data, header_data_size);
-    _buffers.at(0)->Push(std::make_shared<DataRange>(header->begin(), header->end()));
+    _buffers.at(0)->Add(std::make_shared<DataRange>(header->begin(), header->end()));
 }
