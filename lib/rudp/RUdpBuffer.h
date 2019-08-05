@@ -10,19 +10,20 @@
 class RUdpBuffer
 {
 public:
-    using VariantBuffer = std::variant<RUdpProtocolTypeSP, std::shared_ptr<DataRange>>;
+    using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8SP>;
 
 public:
-    inline void Add(const RUdpProtocolTypeSP &cmd)
+    inline void Add(const RUdpProtocolTypeSP &data)
     {
-        data_ = cmd;
+        data_ = data;
         size_ = sizeof(RUdpProtocolType);
     }
 
-    inline void Add(const std::shared_ptr<DataRange> &range)
+    inline void Add(const VecUInt8SP &data, size_t offset)
     {
-        data_ = range;
-        size_ = range->Size();
+        data_ = data;
+        offset_ = offset;
+        size_ = data->size() * sizeof(uint8_t);
     }
 
     VecUInt8It CopyTo(VecUInt8It it);
@@ -34,12 +35,13 @@ private:
     enum class BufferVariant : int
     {
         RUdpProtocolType,
-        DataRange
+        VecUInt8
     };
 
 private:
     VariantBuffer data_;
 
+    size_t offset_;
     size_t size_;
 };
 

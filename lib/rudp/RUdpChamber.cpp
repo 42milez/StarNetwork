@@ -175,20 +175,12 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 
-//    for (auto i = 0; i < _buffer_count; ++i) {
-//        size += _buffers.at(i)->Size();
-//    }
-
     for (auto &buf : _buffers)
         size += buf->Size();
 
     out.resize(size);
 
     auto it = out.begin();
-
-//    for (auto i = 0; i < _buffer_count; ++i) {
-//        it = std::copy(_buffers[i].data_.begin(), _buffers[i].data_.end(), it);
-//    }
 
     for (auto &buf : _buffers)
         it = buf->CopyTo(it);
@@ -197,9 +189,7 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 }
 
 void
-//RUdpChamber::SetHeader(const uint8_t *header_data, int header_data_size)
 RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
-    //memcpy(_buffers, header_data, header_data_size);
-    _buffers.at(0)->Add(std::make_shared<DataRange>(header->begin(), header->end()));
+    _buffers.at(0)->Add(header, 0);
 }

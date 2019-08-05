@@ -298,26 +298,26 @@ using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 using VecUInt8It = std::vector<uint8_t>::iterator;
 using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
 
-class DataRange
-{
-public:
-    DataRange(VecUInt8It current, VecUInt8It end) :
-        current_(current),
-        end_(end),
-        size_(end - current)
-    {}
-
-
-
-    size_t Size()
-    { return size_; }
-
-private:
-    VecUInt8It current_;
-    VecUInt8It end_;
-
-    size_t size_;
-};
+//class DataRange
+//{
+//public:
+//    DataRange(VecUInt8It current, VecUInt8It end) :
+//        current_(current),
+//        end_(end),
+//        size_(end - current)
+//    {}
+//
+//
+//
+//    size_t Size()
+//    { return size_; }
+//
+//private:
+//    VecUInt8It current_;
+//    VecUInt8It end_;
+//
+//    size_t size_;
+//};
 
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 

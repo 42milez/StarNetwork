@@ -7,11 +7,12 @@ RUdpBuffer::CopyTo(VecUInt8It it)
     {
         auto protocol = std::get_if<static_cast<int>(BufferVariant::RUdpProtocolType)>(&data_);
         memcpy(&*it, &protocol, size_);
+        return it + size_;
     }
     else
     {
-        // ...
+        auto data = std::get<static_cast<int>(BufferVariant::VecUInt8)>(data_);
+        auto current = std::copy(data->begin(), data->end(), it);
+        return current;
     }
-
-    return it + size_;
 }
