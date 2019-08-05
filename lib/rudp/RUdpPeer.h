@@ -33,6 +33,8 @@ public:
 
     void Ping();
 
+    void QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time);
+
     void QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command,
                               const std::shared_ptr<RUdpSegment> &segment,
                               uint32_t offset,

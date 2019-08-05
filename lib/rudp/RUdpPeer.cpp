@@ -218,6 +218,12 @@ RUdpPeer::Ping()
     QueueOutgoingCommand(cmd, nullptr, 0, 0);
 }
 
+void
+RUdpPeer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
+{
+
+}
+
 // TODO: Is segment necessary as an argument?
 void
 RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,

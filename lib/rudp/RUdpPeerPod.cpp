@@ -299,11 +299,11 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 else if (peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
                 {
                     if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-                        peer->QueueAcknowledgement(peer, cmd, sent_time);
+                        peer->QueueAcknowledgement(cmd, sent_time);
                 }
                 else
                 {
-                    peer->QueueAcknowledgement(peer, cmd, sent_time);
+                    peer->QueueAcknowledgement(cmd, sent_time);
                 }
             }
         }
