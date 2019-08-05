@@ -307,6 +307,8 @@ public:
         size_(end - current)
     {}
 
+
+
     size_t Size()
     { return size_; }
 

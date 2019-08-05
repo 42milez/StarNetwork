@@ -25,7 +25,7 @@ public:
         size_ = range->Size();
     }
 
-    void CopyTo(std::vector<uint8_t>::iterator &it);
+    VecUInt8It CopyTo(VecUInt8It it);
 
     size_t Size()
     { return size_; };
