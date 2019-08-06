@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <memory>
+#include <unistd.h>
 
 #include <catch2/catch.hpp>
 
@@ -50,6 +51,8 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
 
     client->Service(event, 0);
+
+    sleep(2);
 
     auto ret = Service();
 

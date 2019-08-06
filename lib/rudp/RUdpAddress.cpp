@@ -9,6 +9,14 @@ RUdpAddress::RUdpAddress()
 }
 
 void
+RUdpAddress::Reset()
+{
+    memset(host, 0, sizeof(host));
+    port = 0;
+    wildcard = 0;
+}
+
+void
 RUdpAddress::SetIP(const uint8_t *ip, size_t size)
 {
     auto len = size > 16 ? 16 : size;

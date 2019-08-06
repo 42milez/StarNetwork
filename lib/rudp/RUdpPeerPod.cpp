@@ -17,8 +17,8 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
     received_address_(),
     received_data_(),
     received_data_length_(),
-    segment_data_1_(),
-    segment_data_2_(),
+    segment_data_1_(PROTOCOL_MAXIMUM_MTU),
+    segment_data_2_(PROTOCOL_MAXIMUM_MTU),
     total_received_data_(),
     total_received_segments_(),
     total_sent_data_(),
@@ -26,10 +26,12 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
 {
     peers_.resize(peer_count);
 
+    uint16_t idx = 0;
     for (auto &peer : peers_)
     {
         peer = std::make_unique<RUdpPeer>();
-        peer->Reset();
+        peer->Reset(idx);
+        idx++;
     }
 }
 
@@ -83,44 +85,28 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         if (received_length == 0)
             return EventStatus::NO_EVENT_OCCURRED;
 
-        total_received_data_ += segment_data_1_.size();
+        received_data_ = &segment_data_1_;
+        received_data_length_ = received_length;
 
-        ++total_received_segments_;
+        total_received_data_ += received_length;
+        total_received_segments_++;
 
-        if (intercept_)
+        if (intercept_ == nullptr)
         {
             // ...
         }
-
-        // ---------- [ enet_protocol_handle_incoming_commands ] ----------
-
-        /*
-
-           switch (enet_protocol_handle_incoming_commands (host, event))
-           {
-           case 1:
-              return 1;
-
-           case -1:
-              return -1;
-
-           default:
-              break;
-           }
-
-         */
 
         if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) nullptr) -> sent_time)
             //return EventStatus::NO_EVENT_OCCURRED;
             continue;
 
-        auto header = reinterpret_cast<RUdpProtocolHeader *>(&received_data_);
-        auto peer_id = header->peer_id;
+        auto header = reinterpret_cast<RUdpProtocolHeader *>(received_data_);
+        auto peer_id = ntohs(header->peer_id);
         auto session_id = (peer_id & PROTOCOL_HEADER_SESSION_MASK) >> PROTOCOL_HEADER_SESSION_SHIFT;
         auto flags = peer_id & PROTOCOL_HEADER_FLAG_MASK;
         auto header_size = (flags & PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(RUdpProtocolHeader) : (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time);
 
-        peer_id &= (PROTOCOL_HEADER_FLAG_MASK | PROTOCOL_HEADER_SESSION_MASK);
+        peer_id &= ~(PROTOCOL_HEADER_FLAG_MASK | PROTOCOL_HEADER_SESSION_MASK);
 
         if (checksum_)
             header_size += sizeof(uint32_t);
@@ -138,7 +124,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         }
         else
         {
-            peer = peers_[peer_id];
+            peer = peers_.at(peer_id); // TODO: How does this access the peers?
 
             if (!peer->EventOccur(received_address_, session_id))
                 //return EventStatus::NO_EVENT_OCCURRED;
@@ -161,21 +147,21 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             peer->incoming_data_total(received_data_length_);
         }
 
-        auto current_data = received_data_.begin() + header_size;
+        auto current_data = received_data_->begin() + header_size;
 
-        while (current_data != received_data_.end())
+        while (current_data != received_data_->end())
         {
-            auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
-
-            if (current_data + sizeof(RUdpProtocolCommandHeader) > received_data_.end())
+            if (current_data + sizeof(RUdpProtocolCommandHeader) > received_data_->end())
                 break;
+
+            auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
 
             auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
             if (cmd_number >= PROTOCOL_COMMAND_COUNT)
                 break;
 
             auto cmd_size = command_sizes.at(cmd_number);
-            if (cmd_size == 0 || current_data + cmd_size > received_data_.end())
+            if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
                 break;
 
             current_data += cmd_size;
@@ -315,9 +301,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
-    auto header_data_size = sizeof(RUdpProtocolHeader) + sizeof(uint32_t);
-    VecUInt8SP header_data = std::make_shared<std::vector<uint8_t>>(header_data_size);
-    auto *header = reinterpret_cast<RUdpProtocolHeader *>(header_data.get());
+    auto header_data{ std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t)) };
+    auto header{ reinterpret_cast<RUdpProtocolHeader *>(&header_data) };
 
     protocol_->continue_sending(true);
 
@@ -416,6 +401,9 @@ RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t se
                 header_flags |= peer->outgoing_session_id() << PROTOCOL_HEADER_SESSION_SHIFT;
                 protocol_->chamber()->header_flags(header_flags);
             }
+
+            auto debug_outgoing_peer_id = peer->outgoing_peer_id();
+            auto debug_header_flags = protocol_->chamber()->header_flags();
 
             header->peer_id = htons(peer->outgoing_peer_id() | protocol_->chamber()->header_flags());
 

@@ -66,6 +66,7 @@ public:
     bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
 
     void Reset();
+    void Reset(uint16_t peer_idx);
 
     bool StateIs(RUdpPeerState state);
     bool StateIsGreaterThanOrEqual(RUdpPeerState state);
@@ -152,37 +153,31 @@ public:
 
 private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
-
-    std::queue<IncomingCommand> dispatched_commands_;
-
     std::vector<std::shared_ptr<RUdpChannel>> channels_;
-
     std::unique_ptr<RUdpCommandPod> command_pod_;
+    std::queue<IncomingCommand> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
 
-    RUdpAddress address_;
+    uint16_t incoming_peer_id_;
+    uint8_t incoming_session_id_;
 
-    size_t total_waiting_data_;
+    uint16_t outgoing_peer_id_;
+    uint8_t outgoing_session_id_;
 
-    uint32_t connect_id_;
-    uint32_t event_data_;
     uint32_t highest_round_trip_time_variance_;
     uint32_t last_receive_time_;
     uint32_t last_round_trip_time_;
     uint32_t last_round_trip_time_variance_;
     uint32_t lowest_round_trip_time_;
-    uint32_t ping_interval_;
-    uint32_t unsequenced_windows_[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
 
-    uint16_t incoming_peer_id_;
-    uint16_t outgoing_peer_id_;
-
-    uint8_t incoming_session_id_;
-    uint8_t outgoing_session_id_;
-
-    bool needs_dispatch_;
-
+    RUdpAddress address_;
+    uint32_t connect_id_;
     void *data_;
+    uint32_t event_data_;
+    bool needs_dispatch_;
+    uint32_t ping_interval_;
+    size_t total_waiting_data_;
+    std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 };
 
 #endif // P2P_TECHDEMO_RUDPPEER_H

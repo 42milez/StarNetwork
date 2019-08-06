@@ -28,7 +28,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<RUdpPeer>> peers_;
-    std::vector<uint8_t> received_data_;
+    std::vector<uint8_t> *received_data_;
 
     std::shared_ptr<RUdpCompressor> compressor_;
     std::shared_ptr<RUdpConnection> conn_;

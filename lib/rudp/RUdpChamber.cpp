@@ -26,7 +26,7 @@ RUdpChamber::EmptyCommandBuffer()
     if (_command_count >= _commands.size())
         return nullptr;
 
-    return _commands.begin() + (++_command_count);
+    return _commands.begin() + (_command_count++);
 }
 
 
@@ -36,7 +36,7 @@ RUdpChamber::EmptyDataBuffer()
     if (_buffer_count >= _buffers.size())
         return nullptr;
 
-    return _buffers.begin() + (++_buffer_count);
+    return _buffers.begin() + (_buffer_count++);
 }
 
 bool

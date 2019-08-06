@@ -9,17 +9,17 @@ RUdpPeer::RUdpPeer()
       data_(nullptr),
       event_data_(),
       highest_round_trip_time_variance_(),
-      incoming_peer_id_(hash32()),
-      incoming_session_id_(0xFF),
+      incoming_peer_id_(),
+      incoming_session_id_(255),
       last_receive_time_(),
-      last_round_trip_time_(),
+      last_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
       last_round_trip_time_variance_(),
-      lowest_round_trip_time_(),
-      needs_dispatch_(false),
+      lowest_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
+      needs_dispatch_(),
       net_(std::make_unique<RUdpPeerNet>()),
-      outgoing_peer_id_(),
-      outgoing_session_id_(0xFF),
-      ping_interval_(),
+      outgoing_peer_id_(PROTOCOL_MAXIMUM_PEER_ID),
+      outgoing_session_id_(255),
+      ping_interval_(PEER_PING_INTERVAL),
       total_waiting_data_(),
       unsequenced_windows_()
 {}
@@ -373,18 +373,38 @@ RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chambe
 void
 RUdpPeer::Reset()
 {
-    outgoing_peer_id_ = PROTOCOL_MAXIMUM_PEER_ID;
-    last_receive_time_ = 0;
-    ping_interval_ = PEER_PING_INTERVAL;
-    last_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
-    lowest_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
-    last_round_trip_time_variance_ = 0;
-    highest_round_trip_time_variance_ = 0;
-    event_data_ = 0;
-    total_waiting_data_ = 0;
-    connect_id_ = 0;
+    this->Reset(incoming_peer_id_);
+}
 
-    memset(unsequenced_windows_, 0, sizeof(unsequenced_windows_));
+void
+RUdpPeer::Reset(uint16_t peer_idx)
+{
+    acknowledgements_.clear();
+    channels_.clear();
+    command_pod_->Reset();
+
+    std::queue<IncomingCommand> empty;
+    dispatched_commands_.swap(empty);
+
+    address_.Reset();
+
+    connect_id_ = 0;
+    data_ = nullptr;
+    event_data_ = 0;
+    highest_round_trip_time_variance_ = 0;
+    incoming_peer_id_ = peer_idx;
+    incoming_session_id_ = 255;
+    last_receive_time_ = 0;
+    last_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
+    last_round_trip_time_variance_ = 0;
+    lowest_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
+    needs_dispatch_ = false;
+    outgoing_peer_id_ = PROTOCOL_MAXIMUM_PEER_ID;
+    outgoing_session_id_ = 255;
+    ping_interval_ = PEER_PING_INTERVAL;
+    total_waiting_data_ = 0;
+
+    memset(&unsequenced_windows_, 0, unsequenced_windows_.size());
 }
 
 bool

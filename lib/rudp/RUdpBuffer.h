@@ -35,8 +35,8 @@ public:
 private:
     enum class BufferVariant : int
     {
-        RUdpProtocolType,
-        VecUInt8
+        RUdpProtocolTypeSP,
+        VecUInt8SP
     };
 
 private:
