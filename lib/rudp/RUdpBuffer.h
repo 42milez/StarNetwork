@@ -28,7 +28,8 @@ public:
 
     VecUInt8It CopyTo(VecUInt8It it);
 
-    size_t Size()
+    [[nodiscard]]
+    size_t Size() const
     { return size_; };
 
 private:

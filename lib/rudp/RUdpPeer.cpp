@@ -219,9 +219,31 @@ RUdpPeer::Ping()
 }
 
 void
-RUdpPeer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
+RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
 {
+    if (cmd->header.channel_id < channels_.size())
+    {
+        auto channel = channels_.at(cmd->header.channel_id);
+        auto reliable_window = cmd->header.reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        auto current_window = channel->incoming_reliable_sequence_number / PEER_FREE_RELIABLE_WINDOWS;
 
+        if (cmd->header.reliable_sequence_number < channel->incoming_reliable_sequence_number)
+            reliable_window += PEER_RELIABLE_WINDOWS;
+
+        if (reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1 && reliable_window <= current_window + PEER_FREE_RELIABLE_WINDOWS)
+            return;
+
+        auto ack = std::make_shared<RUdpAcknowledgement>();
+        if (ack == nullptr)
+            return;
+
+        outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
+
+        ack->sent_time = sent_time;
+        ack->command = *cmd;
+
+        acknowledgements_.push_back(ack);
+    }
 }
 
 // TODO: Is segment necessary as an argument?
@@ -256,7 +278,7 @@ RUdpPeer::Receive(uint8_t &channel_id)
 
     auto segment = incoming_command.segment;
 
-    total_waiting_data_ -= segment->Length();
+    total_waiting_data_ -= segment->Size();
 
     return segment;
 }

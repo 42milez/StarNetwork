@@ -391,11 +391,11 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
         auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 
-        command->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
-        command->header.channel_id = ack->command.header.channel_id;
-        command->header.reliable_sequence_number = reliable_sequence_number;
-        command->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
-        command->acknowledge.received_sent_time = htons(ack->sent_time);
+        (*command)->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
+        (*command)->header.channel_id = ack->command.header.channel_id;
+        (*command)->header.reliable_sequence_number = reliable_sequence_number;
+        (*command)->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
+        (*command)->acknowledge.received_sent_time = htons(ack->sent_time);
 
         (*buffer)->Add(*command);
 

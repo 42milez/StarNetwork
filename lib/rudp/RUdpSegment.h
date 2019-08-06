@@ -16,7 +16,7 @@ public:
 
     uint32_t AddFlag(uint32_t flag);
 
-    size_t Length();
+    size_t Size();
 
     //uint8_t *move_data_pointer(uint32_t val);
 

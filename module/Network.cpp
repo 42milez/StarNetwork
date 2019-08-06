@@ -215,56 +215,58 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
                     std::vector<uint8_t> &out_data,
                     size_t out_limit)
 {
-    if (src_compressor_mem_.size() < in_limit)
-        src_compressor_mem_.resize(in_limit);
+//    if (src_compressor_mem_.size() < in_limit)
+//        src_compressor_mem_.resize(in_limit);
+//
+//    auto total = in_limit;
+//    auto offset = 0;
+//    auto in_buffer_size = in_buffers.size();
+//
+//    while (total) {
+//        for (auto i = 0; i < in_buffer_size; i++) {
+//            auto to_copy = std::min(total, in_buffers.at(i).Size());
+//            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).data_, to_copy);
+//            offset += to_copy;
+//            total -= to_copy;
+//        }
+//    }
+//
+//    Compression::Mode mode;
+//
+//    if (compression_mode_ == CompressionMode::ZSTD) {
+//        mode = Compression::Mode::ZSTD;
+//    }
+//    else if (compression_mode_ == CompressionMode::ZLIB) {
+//        mode = Compression::Mode::DEFLATE;
+//    }
+//    else {
+//        ERR_FAIL_V(0)
+//    }
+//
+//    auto req_size = Compression::get_max_compressed_buffer_size(offset, mode);
+//
+//    if (dst_compressor_mem_.size() < req_size)
+//        dst_compressor_mem_.resize(req_size);
+//
+//    auto ret = Compression::compress(dst_compressor_mem_, src_compressor_mem_, mode);
+//
+//    if (ret < 0)
+//        return 0; // TODO: Is -1 better?
+//
+//    if (ret > out_limit)
+//        return 0; // TODO: Is -1 better?
+//
+//    if (out_data.size() < dst_compressor_mem_.size())
+//        out_data.resize(dst_compressor_mem_.size());
+//
+//    std::copy(dst_compressor_mem_.begin(), dst_compressor_mem_.end(), out_data.begin());
+//
+//    src_compressor_mem_.clear();
+//    dst_compressor_mem_.clear();
+//
+//    return ret;
 
-    auto total = in_limit;
-    auto offset = 0;
-    auto in_buffer_size = in_buffers.size();
-
-    while (total) {
-        for (auto i = 0; i < in_buffer_size; i++) {
-            auto to_copy = std::min(total, in_buffers.at(i).data_length);
-            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).data_, to_copy);
-            offset += to_copy;
-            total -= to_copy;
-        }
-    }
-
-    Compression::Mode mode;
-
-    if (compression_mode_ == CompressionMode::ZSTD) {
-        mode = Compression::Mode::ZSTD;
-    }
-    else if (compression_mode_ == CompressionMode::ZLIB) {
-        mode = Compression::Mode::DEFLATE;
-    }
-    else {
-        ERR_FAIL_V(0)
-    }
-
-    auto req_size = Compression::get_max_compressed_buffer_size(offset, mode);
-
-    if (dst_compressor_mem_.size() < req_size)
-        dst_compressor_mem_.resize(req_size);
-
-    auto ret = Compression::compress(dst_compressor_mem_, src_compressor_mem_, mode);
-
-    if (ret < 0)
-        return 0; // TODO: Is -1 better?
-
-    if (ret > out_limit)
-        return 0; // TODO: Is -1 better?
-
-    if (out_data.size() < dst_compressor_mem_.size())
-        out_data.resize(dst_compressor_mem_.size());
-
-    std::copy(dst_compressor_mem_.begin(), dst_compressor_mem_.end(), out_data.begin());
-
-    src_compressor_mem_.clear();
-    dst_compressor_mem_.clear();
-
-    return ret;
+    return 0;
 }
 
 size_t
@@ -273,19 +275,21 @@ Network::Decompressor(std::vector<uint8_t> &in_data,
                       std::vector<uint8_t> &out_data,
                       size_t out_limit)
 {
-    auto ret = -1;
+//    auto ret = -1;
+//
+//    if (compression_mode_ == CompressionMode::ZLIB) {
+//        ret = Compression::decompress(out_data, out_limit, in_data, in_limit, Compression::Mode::DEFLATE);
+//    }
+//    else if (compression_mode_ == CompressionMode::ZSTD) {
+//        // ...
+//    }
+//
+//    if (ret < 0)
+//        return 0;
+//
+//    return ret;
 
-    if (compression_mode_ == CompressionMode::ZLIB) {
-        ret = Compression::decompress(out_data, out_limit, in_data, in_limit, Compression::Mode::DEFLATE);
-    }
-    else if (compression_mode_ == CompressionMode::ZSTD) {
-        // ...
-    }
-
-    if (ret < 0)
-        return 0;
-
-    return ret;
+    return 0;
 }
 
 void

@@ -3,7 +3,7 @@
 
 RUdpSegment::RUdpSegment() :
     //current_read_position_(data_.begin()),
-    data_length_(),
+    //data_length_(),
     flags_()
 {}
 
@@ -25,11 +25,11 @@ RUdpSegment::Destroy()
     // ...
 }
 
-//size_t
-//RUdpSegment::Length()
-//{
-//    return data_.size();
-//}
+size_t
+RUdpSegment::Size()
+{
+    return data_->size() * sizeof(uint8_t);
+}
 
 //uint8_t *
 //RUdpSegment::move_data_pointer(uint32_t val)
