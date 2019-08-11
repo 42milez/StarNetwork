@@ -24,6 +24,9 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
     total_sent_data_(),
     total_sent_segments_()
 {
+    memset(&segment_data_1_[0], 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
+    memset(&segment_data_2_[0], 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
+
     peers_.resize(peer_count);
 
     uint16_t idx = 0;
@@ -100,7 +103,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             //return EventStatus::NO_EVENT_OCCURRED;
             continue;
 
-        auto header = reinterpret_cast<RUdpProtocolHeader *>(received_data_);
+        auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
         auto peer_id = ntohs(header->peer_id);
         auto session_id = (peer_id & PROTOCOL_HEADER_SESSION_MASK) >> PROTOCOL_HEADER_SESSION_SHIFT;
         auto flags = peer_id & PROTOCOL_HEADER_FLAG_MASK;
@@ -301,8 +304,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 EventStatus
 RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
-    auto header_data{ std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t)) };
-    auto header{ reinterpret_cast<RUdpProtocolHeader *>(&header_data) };
+    auto header_data = std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
+    auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
 
     protocol_->continue_sending(true);
 

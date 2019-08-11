@@ -10,7 +10,7 @@ RUdpPeer::RUdpPeer()
       event_data_(),
       highest_round_trip_time_variance_(),
       incoming_peer_id_(),
-      incoming_session_id_(255),
+      incoming_session_id_(0xFF),
       last_receive_time_(),
       last_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
       last_round_trip_time_variance_(),
@@ -18,7 +18,7 @@ RUdpPeer::RUdpPeer()
       needs_dispatch_(),
       net_(std::make_unique<RUdpPeerNet>()),
       outgoing_peer_id_(PROTOCOL_MAXIMUM_PEER_ID),
-      outgoing_session_id_(255),
+      outgoing_session_id_(0xFF),
       ping_interval_(PEER_PING_INTERVAL),
       total_waiting_data_(),
       unsequenced_windows_()
@@ -393,14 +393,14 @@ RUdpPeer::Reset(uint16_t peer_idx)
     event_data_ = 0;
     highest_round_trip_time_variance_ = 0;
     incoming_peer_id_ = peer_idx;
-    incoming_session_id_ = 255;
+    incoming_session_id_ = 0xFF;
     last_receive_time_ = 0;
     last_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
     last_round_trip_time_variance_ = 0;
     lowest_round_trip_time_ = PEER_DEFAULT_ROUND_TRIP_TIME;
     needs_dispatch_ = false;
     outgoing_peer_id_ = PROTOCOL_MAXIMUM_PEER_ID;
-    outgoing_session_id_ = 255;
+    outgoing_session_id_ = 0xFF;
     ping_interval_ = PEER_PING_INTERVAL;
     total_waiting_data_ = 0;
 
