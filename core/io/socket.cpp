@@ -340,7 +340,7 @@ Socket::recvfrom(std::vector<uint8_t> &buffer, ssize_t &bytes_read, IpAddress &i
     socklen_t len = sizeof(struct sockaddr_storage);
     memset(&addr, 0, len);
 
-    bytes_read = ::recvfrom(_sock, &buffer, buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
+    bytes_read = ::recvfrom(_sock, &(buffer.at(0)), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
 
     if (bytes_read < 0)
     {
