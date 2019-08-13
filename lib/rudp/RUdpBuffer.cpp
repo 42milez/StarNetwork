@@ -18,7 +18,8 @@ RUdpBuffer::CopyTo(VecUInt8It it)
 
         auto debug_data = reinterpret_cast<RUdpProtocolHeader *>(&(data->at(0)));
 
-        auto current = std::copy(data->begin(), data->end(), it);
-        return current;
+        memcpy(&(*it), &(data->at(0)), size_);
+
+        return it + size_;
     }
 }

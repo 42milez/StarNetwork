@@ -97,18 +97,6 @@ RUdpChamber::update_segment_size(size_t val)
     _segment_size += val;
 }
 
-//void
-//RUdpChamber::update_command_count(const RUdpProtocolType *command)
-//{
-//    _command_count = command - _commands;
-//}
-
-//void
-//RUdpChamber::update_buffer_count(const RUdpBuffer *buffer)
-//{
-//    _buffer_count = buffer - _buffers;
-//}
-
 bool
 RUdpChamber::continue_sending()
 {
@@ -120,18 +108,6 @@ RUdpChamber::continue_sending(bool val)
 {
     _continue_sending = val;
 }
-
-//bool
-//RUdpChamber::command_buffer_have_enough_space(RUdpProtocolType *command)
-//{
-//    return command < &_commands[PROTOCOL_MAXIMUM_SEGMENT_COMMANDS];
-//}
-
-//bool
-//RUdpChamber::data_buffer_have_enough_space(RUdpBuffer *buffer)
-//{
-//    return buffer < &_buffers[BUFFER_MAXIMUM];
-//}
 
 void
 RUdpChamber::command_count(size_t val)
@@ -163,12 +139,6 @@ RUdpChamber::segment_size()
     return _segment_size;
 }
 
-//void
-//RUdpChamber::set_data_length(size_t val)
-//{
-//    _buffers[0].Length = val;
-//}
-
 int
 RUdpChamber::Write(std::vector<uint8_t> &out)
 {
@@ -193,5 +163,5 @@ RUdpChamber::SetHeader(const VecUInt8SP &header)
     auto debug_tmp = header;
     auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(debug_tmp->at(0)));
 
-    _buffers.at(0)->Add(header, 0);
+    _buffers.at(0)->Add(header, 0, 4);
 }

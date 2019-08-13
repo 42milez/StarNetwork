@@ -19,11 +19,15 @@ public:
         size_ = sizeof(RUdpProtocolType);
     }
 
-    inline void Add(const VecUInt8SP &data, size_t offset)
+    inline void Add(const VecUInt8SP &data, size_t offset, size_t size = 0)
     {
         data_ = data;
         offset_ = offset;
-        size_ = data->size() * sizeof(uint8_t);
+
+        if (size != 0)
+            size_ = size;
+        else
+            size_ = data->size() * sizeof(uint8_t);
     }
 
     VecUInt8It CopyTo(VecUInt8It it);

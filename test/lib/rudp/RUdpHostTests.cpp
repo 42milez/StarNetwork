@@ -21,7 +21,7 @@ public:
 
     EventStatus Service()
     {
-        std::unique_ptr<RUdpEvent> event = std::make_unique<RUdpEvent>();
+        auto event = std::make_unique<RUdpEvent>();
 
         return host_->Service(event, 0);
     }
