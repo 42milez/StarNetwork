@@ -24,6 +24,9 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
     total_sent_data_(),
     total_sent_segments_()
 {
+    memset(&(segment_data_1_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
+    memset(&(segment_data_2_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
+
     peers_.resize(peer_count);
 
     uint16_t idx = 0;

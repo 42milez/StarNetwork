@@ -37,6 +37,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
     channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
 
     address_ = address;
+
     connect_id_ = hash32();
 
     net_->setup();
@@ -106,7 +107,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
         outgoing_session_id =
             (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
 
-    incoming_session_id = outgoing_session_id;
+    incoming_session_id_ = outgoing_session_id;
 
     for (auto &ch : channels_)
     {
