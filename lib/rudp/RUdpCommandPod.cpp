@@ -58,29 +58,33 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
                                        const std::shared_ptr<RUdpChannel> &channel)
 {
     _outgoing_data_total +=
-        command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK] +
+        command_sizes.at(outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK) +
             outgoing_command->fragment_length;
 
-    if (channel == nullptr) {
+    if (channel == nullptr)
+    {
         ++_outgoing_reliable_sequence_number;
 
         outgoing_command->reliable_sequence_number = _outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) {
+    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    {
         ++channel->outgoing_reliable_sequence_number;
         channel->outgoing_unreliable_sequence_number = 0;
 
         outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED) {
+    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
+    {
         ++_outgoing_unsequenced_group;
 
         outgoing_command->reliable_sequence_number = 0;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else {
+    else
+    {
         if (outgoing_command->fragment_offset == 0)
             ++channel->outgoing_unreliable_sequence_number;
 
@@ -98,8 +102,8 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     auto cmd = outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK;
 
     if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE) {
-        outgoing_command->protocol_type->send_unreliable.unreliable_sequence_number = htons(
-            outgoing_command->unreliable_sequence_number);
+        outgoing_command->protocol_type->send_unreliable.unreliable_sequence_number =
+            htons(outgoing_command->unreliable_sequence_number);
     }
     else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
         outgoing_command->protocol_type->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
