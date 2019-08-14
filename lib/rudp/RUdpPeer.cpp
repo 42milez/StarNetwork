@@ -34,7 +34,9 @@ Error
 RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_bandwidth,
                 uint32_t out_bandwidth, uint32_t data)
 {
-    channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
+    //channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
+    for (auto i = 0; i < static_cast<int>(channel_count); ++i)
+        channels_.emplace_back(std::make_shared<RUdpChannel>());
 
     address_ = address;
 
@@ -99,7 +101,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
 
     outgoing_session_id_ = incoming_session_id;
 
-    auto outgoing_session_id = cmd->connect.outgoing_session_id == 0xFF ? incoming_session_id :
+    auto outgoing_session_id = cmd->connect.outgoing_session_id == 0xFF ? incoming_session_id_ :
                                cmd->connect.outgoing_session_id;
     outgoing_session_id = (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
 
@@ -109,25 +111,22 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
 
     incoming_session_id_ = outgoing_session_id;
 
-    for (auto &ch : channels_)
-    {
-        ch->outgoing_reliable_sequence_number = 0;
-        ch->outgoing_unreliable_sequence_number = 0;
-        ch->incoming_reliable_sequence_number = 0;
-        ch->incoming_unreliable_sequence_number = 0;
-        ch->used_reliable_windows = 0;
+    for (auto i = 0; i < static_cast<int>(channel_count); ++i)
+        channels_.emplace_back(std::make_shared<RUdpChannel>());
 
-        ch->incoming_reliable_commands.clear();
-        ch->incoming_unreliable_commands.clear();
-        ch->reliable_windows.clear();
-    }
+    for (auto &ch : channels_)
+        ch->Reset();
 
     auto mtu = ntohl(cmd->connect.mtu);
 
     if (mtu < PROTOCOL_MINIMUM_MTU)
+    {
         mtu = PROTOCOL_MINIMUM_MTU;
+    }
     else if (mtu > PROTOCOL_MAXIMUM_MTU)
+    {
         mtu = PROTOCOL_MAXIMUM_MTU;
+    }
 
     net_->mtu(mtu);
 
@@ -199,6 +198,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     verify_cmd->verify_connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
     verify_cmd->verify_connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
     verify_cmd->verify_connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
+    verify_cmd->verify_connect.connect_id = connect_id_;
 
     QueueOutgoingCommand(verify_cmd, nullptr, 0, 0);
 }

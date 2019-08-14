@@ -7,10 +7,12 @@ using RUdpChannel = struct RUdpChannel
 {
     RUdpChannel();
 
+    void Reset();
+
     std::list<IncomingCommand> incoming_reliable_commands;
     std::list<IncomingCommand> incoming_unreliable_commands;
 
-    std::vector<uint16_t> reliable_windows;
+    std::array<uint16_t, PEER_RELIABLE_WINDOWS> reliable_windows;
 
     uint16_t incoming_reliable_sequence_number;
     uint16_t incoming_unreliable_sequence_number;

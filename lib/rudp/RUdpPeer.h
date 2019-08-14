@@ -153,7 +153,7 @@ public:
 
 private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
-    std::vector<RUdpChannel> channels_;
+    std::vector<std::shared_ptr<RUdpChannel>> channels_;
     std::unique_ptr<RUdpCommandPod> command_pod_;
     std::queue<IncomingCommand> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
