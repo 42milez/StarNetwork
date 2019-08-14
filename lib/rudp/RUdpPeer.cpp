@@ -31,8 +31,8 @@ RUdpPeer::Disconnect()
 }
 
 Error
-RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_bandwidth,
-                uint32_t out_bandwidth, uint32_t data)
+RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
+                uint32_t host_outgoing_bandwidth, uint32_t data)
 {
     //channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
     for (auto i = 0; i < static_cast<int>(channel_count); ++i)
@@ -44,31 +44,31 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_ban
 
     net_->setup();
 
-    std::shared_ptr<RUdpProtocolType> protocol_type = std::make_shared<RUdpProtocolType>();
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
-    protocol_type->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-    protocol_type->header.channel_id = 0xFF;
+    cmd->header.command = PROTOCOL_COMMAND_CONNECT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.channel_id = 0xFF;
 
-    protocol_type->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    protocol_type->connect.connect_id = connect_id_;
-    protocol_type->connect.data = htonl(data);
-    protocol_type->connect.mtu = htonl(net_->mtu());
-    protocol_type->connect.window_size = htonl(net_->window_size());
+    cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
+    cmd->connect.connect_id = connect_id_;
+    cmd->connect.data = htonl(data);
+    cmd->connect.mtu = htonl(net_->mtu());
+    cmd->connect.window_size = htonl(net_->window_size());
 
-    protocol_type->connect.incoming_bandwidth = htonl(net_->incoming_bandwidth());
-    protocol_type->connect.incoming_session_id = incoming_session_id_;
+    cmd->connect.incoming_bandwidth = htonl(host_incoming_bandwidth);
+    cmd->connect.incoming_session_id = incoming_session_id_;
 
-    protocol_type->connect.outgoing_bandwidth = htonl(net_->outgoing_bandwidth());
-    protocol_type->connect.outgoing_peer_id = htons(incoming_peer_id_);
-    protocol_type->connect.outgoing_session_id = outgoing_session_id_;
+    cmd->connect.outgoing_bandwidth = htonl(host_outgoing_bandwidth);
+    cmd->connect.outgoing_peer_id = htons(incoming_peer_id_);
+    cmd->connect.outgoing_session_id = outgoing_session_id_;
 
-    protocol_type->connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
-    protocol_type->connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
-    protocol_type->connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
+    cmd->connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
+    cmd->connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
+    cmd->connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
 
     //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
-    QueueOutgoingCommand(protocol_type, nullptr, 0, 0);
+    QueueOutgoingCommand(cmd, nullptr, 0, 0);
 
     return Error::OK;
 }

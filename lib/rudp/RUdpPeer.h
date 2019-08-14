@@ -22,8 +22,8 @@ public:
 
     void Disconnect();
 
-    Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t in_bandwidth, uint32_t out_bandwidth,
-                uint32_t data);
+    Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
+                uint32_t host_outgoing_bandwidth, uint32_t data);
 
     void SetupConnectedPeer(const RUdpProtocolType *cmd,
                             const RUdpAddress &received_address,

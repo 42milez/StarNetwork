@@ -75,7 +75,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
     ssize_t sent = 0;
 
     auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(out.at(0)));
-    auto debug_command = reinterpret_cast<RUdpProtocolType *>(&(out.at(8)));
+    auto debug_command = reinterpret_cast<RUdpProtocolType *>(&(out.at(4)));
 
     auto err = _socket->sendto(&(out.at(0)), size, sent, dest, address.port);
 
