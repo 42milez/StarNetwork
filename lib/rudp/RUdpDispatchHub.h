@@ -18,7 +18,7 @@ public:
     inline std::shared_ptr<RUdpPeer> Dequeue()
     { return dispatch_queue_->Dequeue(); }
 
-    static void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
+    void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
     inline bool PeerExists()
     { return dispatch_queue_->PeerExists(); }

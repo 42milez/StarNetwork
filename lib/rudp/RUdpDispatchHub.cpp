@@ -2,14 +2,15 @@
 
 namespace
 {
-    void _dispatch_state(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
+    void _dispatch_state(const std::unique_ptr<RUdpDispatchQueue> &queue, std::shared_ptr<RUdpPeer> &peer,
+                         RUdpPeerState state)
     {
         peer->ChangeState(peer, state);
 
         if (!peer->needs_dispatch()) {
             peer->needs_dispatch(true);
 
-            dispatch_queue_->Enqueue(peer);
+            queue->Enqueue(peer);
         }
     }
 }
@@ -22,7 +23,7 @@ RUdpDispatchHub::RUdpDispatchHub() :
 void
 RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
 {
-    _dispatch_state(peer, state);
+    _dispatch_state(dispatch_queue_, peer, state);
 }
 
 void
@@ -40,6 +41,8 @@ RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, std::unique_ptr<
     }
     else
     {
-        _dispatch_state(peer, )
+        _dispatch_state(dispatch_queue_, peer, peer->StateIs(RUdpPeerState::CONNECTING) ?
+                                                   RUdpPeerState::CONNECTION_SUCCEEDED :
+                                                   RUdpPeerState::CONNECTION_PENDING);
     }
 }
