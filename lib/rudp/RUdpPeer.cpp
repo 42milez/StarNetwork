@@ -24,12 +24,6 @@ RUdpPeer::RUdpPeer()
       unsequenced_windows_()
 {}
 
-void
-RUdpPeer::Disconnect()
-{
-    // ...
-}
-
 Error
 RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth, uint32_t data)
@@ -201,6 +195,30 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     verify_cmd->verify_connect.connect_id = connect_id_;
 
     QueueOutgoingCommand(verify_cmd, nullptr, 0, 0);
+}
+
+void
+RUdpPeer::Connect(size_t &bandwidth_limited_peers, size_t &connected_peers)
+{
+    if (!net_->StateIs(RUdpPeerState::CONNECTED) && !net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        if (net_->incoming_bandwidth() != 0)
+            ++bandwidth_limited_peers;
+
+        ++connected_peers;
+    }
+}
+
+void
+RUdpPeer::Disconnect(size_t &bandwidth_limited_peers, size_t &connected_peers)
+{
+    if (net_->StateIs(RUdpPeerState::CONNECTED) || net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        if (net_->incoming_bandwidth() != 0)
+            --bandwidth_limited_peers;
+
+        --connected_peers;
+    }
 }
 
 void

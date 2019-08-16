@@ -17,10 +17,8 @@ public:
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                            const std::vector<std::shared_ptr<RUdpPeer>> &peers);
 
-    void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
-
-    void Connect(const std::shared_ptr<RUdpPeer> &peer);
-    void Disconnect(const std::shared_ptr<RUdpPeer> &peer);
+    //void Connect(const std::shared_ptr<RUdpPeer> &peer);
+    //void Disconnect(const std::shared_ptr<RUdpPeer> &peer);
     void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
@@ -49,17 +47,17 @@ public:
     inline void continue_sending(bool val)
     { chamber_->continue_sending(val); };
 
-    inline void decrease_bandwidth_limited_peers()
-    { --bandwidth_limited_peers_; };
-
-    inline void decrease_connected_peers()
-    { --connected_peers_; };
-
-    inline void increase_bandwidth_limited_peers()
-    { ++bandwidth_limited_peers_; };
-
-    inline void increase_connected_peers()
-    { ++connected_peers_; };
+//    inline void decrease_bandwidth_limited_peers()
+//    { --bandwidth_limited_peers_; };
+//
+//    inline void decrease_connected_peers()
+//    { --connected_peers_; };
+//
+//    inline void increase_bandwidth_limited_peers()
+//    { ++bandwidth_limited_peers_; };
+//
+//    inline void increase_connected_peers()
+//    { ++connected_peers_; };
 
 public:
     inline const std::unique_ptr<RUdpChamber> & chamber()
@@ -68,9 +66,6 @@ public:
 private:
     std::unique_ptr<RUdpChamber> chamber_;
     std::unique_ptr<RUdpDispatchHub> dispatch_hub_;
-
-    size_t bandwidth_limited_peers_;
-    size_t connected_peers_;
 
     uint32_t bandwidth_throttle_epoch_;
 };

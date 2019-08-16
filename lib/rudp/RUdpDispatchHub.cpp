@@ -1,39 +1,48 @@
 #include "RUdpDispatchHub.h"
 
-namespace
-{
-    void _dispatch_state(const std::unique_ptr<RUdpDispatchQueue> &queue, std::shared_ptr<RUdpPeer> &peer,
-                         RUdpPeerState state)
-    {
-        peer->ChangeState(peer, state);
-
-        if (!peer->needs_dispatch()) {
-            peer->needs_dispatch(true);
-
-            queue->Enqueue(peer);
-        }
-    }
-}
-
 RUdpDispatchHub::RUdpDispatchHub() :
+    bandwidth_limited_peers_(),
+    connected_peers_(),
     dispatch_queue_(std::make_unique<RUdpDispatchQueue>()),
     recalculate_bandwidth_limits_(false)
 {}
 
 void
-RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
+RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state,
+                             size_t &bandwidth_limited_peers, size_t &connected_peers)
 {
-    _dispatch_state(dispatch_queue_, peer, state);
+    if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
+    {
+        peer->Connect(bandwidth_limited_peers_, connected_peers_);
+    }
+    else
+    {
+        peer->Disconnect(bandwidth_limited_peers_, connected_peers_);
+    }
+
+    peer->net()->state(state);
 }
 
 void
-RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, std::unique_ptr<RUdpEvent> &event)
+RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
+{
+    ChangeState(peer, state, bandwidth_limited_peers_, connected_peers_);
+
+    if (!peer->needs_dispatch()) {
+        peer->needs_dispatch(true);
+
+        dispatch_queue_->Enqueue(peer);
+    }
+}
+
+void
+RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event)
 {
     recalculate_bandwidth_limits_ = true;
 
     if (event)
     {
-        peer->ChangeState(RUdpPeerState::CONNECTED);
+        ChangeState(RUdpPeerState::CONNECTED);
 
         event->type = RUdpEventType::CONNECT;
         event->peer = peer;
@@ -41,8 +50,8 @@ RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, std::unique_ptr<
     }
     else
     {
-        _dispatch_state(dispatch_queue_, peer, peer->StateIs(RUdpPeerState::CONNECTING) ?
-                                                   RUdpPeerState::CONNECTION_SUCCEEDED :
-                                                   RUdpPeerState::CONNECTION_PENDING);
+        DispatchState(peer, peer->StateIs(RUdpPeerState::CONNECTING) ?
+                                RUdpPeerState::CONNECTION_SUCCEEDED :
+                                RUdpPeerState::CONNECTION_PENDING);
     }
 }

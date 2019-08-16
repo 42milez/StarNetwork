@@ -4,10 +4,8 @@
 #include "RUdpProtocol.h"
 
 RUdpProtocol::RUdpProtocol()
-    : bandwidth_limited_peers_(),
-      bandwidth_throttle_epoch_(),
+    : bandwidth_throttle_epoch_(),
       chamber_(std::make_unique<RUdpChamber>()),
-      connected_peers_(),
       dispatch_hub_(std::make_unique<RUdpDispatchHub>())
 {}
 
@@ -21,12 +19,12 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
     if (UDP_TIME_DIFFERENCE(service_time, bandwidth_throttle_epoch_) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
         auto time_current = TimeGet();
         auto time_elapsed = time_current - bandwidth_throttle_epoch_;
-        auto peers_remaining = connected_peers_;
+        auto peers_remaining = dispatch_hub_->connected_peers();
         auto data_total = ~0u;
         auto bandwidth = ~0u;
         auto throttle = 0;
         auto bandwidth_limit = 0;
-        auto needs_adjustment = bandwidth_limited_peers_ > 0 ? true : false;
+        auto needs_adjustment = dispatch_hub_->bandwidth_limited_peers() > 0 ? true : false;
 
         if (time_elapsed < HOST_BANDWIDTH_THROTTLE_INTERVAL)
             return;
@@ -125,7 +123,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
 
         if (dispatch_hub_->recalculate_bandwidth_limits()) {
             dispatch_hub_->recalculate_bandwidth_limits(false);
-            peers_remaining = connected_peers_;
+            peers_remaining = dispatch_hub_->connected_peers();
             bandwidth = incoming_bandwidth;
             needs_adjustment = true;
 
@@ -178,17 +176,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
     }
 }
 
-void
-RUdpProtocol::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
-{
-    if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
-        Connect(peer);
-    else
-        Disconnect(peer);
-
-    peer->net()->state(state);
-}
-
+/*
 void
 RUdpProtocol::Connect(const std::shared_ptr<RUdpPeer> &peer)
 {
@@ -210,6 +198,7 @@ RUdpProtocol::Disconnect(const std::shared_ptr<RUdpPeer> &peer)
         decrease_connected_peers();
     }
 }
+*/
 
 void
 RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event)
@@ -369,15 +358,16 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     peer->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
     peer->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
 
-    peer->NotifyConnect(event);
+    dispatch_hub_->NotifyConnect(peer, event);
 
     return Error::OK;
 }
 
+// void enet_peer_reset (ENetPeer * peer)
 void
 RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)
 {
-    Disconnect(peer);
+    peer->Disconnect();
 
     peer->Reset();
 

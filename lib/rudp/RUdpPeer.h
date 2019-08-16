@@ -20,7 +20,8 @@ class RUdpPeer
 public:
     RUdpPeer();
 
-    void Disconnect();
+    void Connect(size_t &bandwidth_limited_peers, size_t &connected_peers);
+    void Disconnect(size_t &bandwidth_limited_peers, size_t &connected_peers);
 
     Error Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth, uint32_t data);

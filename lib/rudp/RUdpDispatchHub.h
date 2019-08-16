@@ -9,7 +9,10 @@ class RUdpDispatchHub
 public:
     RUdpDispatchHub();
 
-    void NotifyConnect(std::shared_ptr<RUdpPeer> &peer, std::unique_ptr<RUdpEvent> &event);
+    void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state,
+                     size_t &bandwidth_limited_peers, size_t &connected_peers);
+
+    void NotifyConnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
 public:
     inline void Enqueue(std::shared_ptr<RUdpPeer> &peer)
@@ -24,6 +27,12 @@ public:
     { return dispatch_queue_->PeerExists(); }
 
 public:
+    inline size_t bandwidth_limited_peers()
+    { return bandwidth_limited_peers_; }
+
+    inline size_t connected_peers()
+    { return connected_peers_; }
+
     inline bool recalculate_bandwidth_limits()
     { return recalculate_bandwidth_limits_; }
 
@@ -32,6 +41,9 @@ public:
 
 private:
     std::unique_ptr<RUdpDispatchQueue> dispatch_queue_;
+
+    size_t bandwidth_limited_peers_;
+    size_t connected_peers_;
 
     bool recalculate_bandwidth_limits_;
 };
