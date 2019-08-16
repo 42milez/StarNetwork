@@ -314,12 +314,9 @@ RUdpProtocol::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state
 }
 
 void
-RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer,
-                            const RUdpProtocolHeader * header,
-                            const RUdpProtocolType * cmd,
-                            const RUdpAddress &received_address,
-                            uint32_t host_outgoing_bandwidth,
-                            uint32_t host_incoming_bandwidth)
+RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header,
+                            const RUdpProtocolType * cmd, const RUdpAddress &received_address,
+                            uint32_t host_outgoing_bandwidth, uint32_t host_incoming_bandwidth)
 {
     auto channel_count = ntohl(cmd->connect.channel_count);
 
@@ -327,6 +324,67 @@ RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer,
         return;
 
     peer->SetupConnectedPeer(cmd, received_address, host_incoming_bandwidth, host_outgoing_bandwidth, channel_count);
+}
+
+Error
+RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+                                  const RUdpProtocolType *cmd)
+{
+    if (peer->StateIs(RUdpPeerState::CONNECTING))
+        return Error::OK;
+
+    auto channel_count = ntohl(cmd->verify_connect.channel_count);
+
+    if (channel_count < PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
+        channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
+        ntohl(cmd->verify_connect.segment_throttle_interval) != peer->segment_throttle_interval() ||
+        ntohl(cmd->verify_connect.segment_throttle_acceleration) != peer->segment_throttle_acceleration() ||
+        ntohl(cmd->verify_connect.segment_throttle_deceleration) != peer->segment_throttle_deceleration() ||
+        cmd->verify_connect.connect_id != peer->connect_id())
+    {
+        peer->event_data(0);
+
+        DispatchState(peer, RUdpPeerState::ZOMBIE);
+
+        return Error::ERROR;
+    }
+
+    peer->command()->RemoveSentReliableCommands(1, 0xFF);
+
+    //if (channel_count < peer->channel_count())
+    //    peer->channel_count(channel_count);
+
+    peer->outgoing_peer_id(ntohs(cmd->verify_connect.outgoing_peer_id));
+    peer->incoming_session_id(cmd->verify_connect.incoming_session_id);
+    peer->outgoing_session_id(cmd->verify_connect.outgoing_session_id);
+
+    auto mtu = ntohl(cmd->verify_connect.mtu);
+
+    if (mtu < PROTOCOL_MINIMUM_MTU)
+        mtu = PROTOCOL_MINIMUM_MTU;
+    else if (mtu > PROTOCOL_MAXIMUM_MTU)
+        mtu = PROTOCOL_MAXIMUM_MTU;
+
+    if (mtu < peer->mtu())
+        peer->mtu(mtu);
+
+    auto window_size = ntohl(cmd->verify_connect.window_size);
+
+    if (window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
+        window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
+
+    if (window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+        window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+
+    if (window_size < peer->net()->window_size())
+        peer->net()->window_size(window_size);
+
+    peer->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
+    peer->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
+
+    peer->NotifyConnect(event);
+
+    return Error::OK;
 }
 
 void

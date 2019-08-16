@@ -33,6 +33,9 @@ public:
                        uint32_t host_incoming_bandwidth,
                        uint32_t host_outgoing_bandwidth);
 
+    Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+                              const RUdpProtocolType *cmd);
+
     void ResetPeer(const std::shared_ptr<RUdpPeer> &peer);
     static void ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer);
 
@@ -60,7 +63,7 @@ public:
     { ++connected_peers_; };
 
 public:
-    inline const std::unique_ptr<RUdpChamber> &chamber()
+    inline const std::unique_ptr<RUdpChamber> & chamber()
     { return chamber_; };
 
 private:

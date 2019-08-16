@@ -58,11 +58,9 @@ public:
     bool EventOccur(const RUdpAddress &address, uint8_t session_id);
 
     bool ExceedsMTU(size_t segment_size);
-
     bool ExceedsPingInterval(uint32_t service_time);
 
     bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
-
     bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
 
     void Reset();
@@ -73,6 +71,9 @@ public:
     bool StateIsLessThanOrEqual(RUdpPeerState state);
 
 public:
+    inline size_t channel_count()
+    { return channels_.size(); }
+
     inline uint32_t connect_id()
     { return connect_id_; }
 
@@ -100,6 +101,12 @@ public:
     inline void incoming_data_total(uint32_t val)
     { command_pod_->incoming_data_total(val); };
 
+    inline uint32_t mtu()
+    { return net_->mtu(); }
+
+    inline void mtu(uint32_t val)
+    { net_->mtu(val); }
+
     inline bool needs_dispatch()
     { return needs_dispatch_; };
 
@@ -121,8 +128,17 @@ public:
     inline uint16_t outgoing_peer_id()
     { return outgoing_peer_id_; };
 
+    inline void outgoing_peer_id(uint16_t val)
+    { outgoing_peer_id_ = val; }
+
+    inline void incoming_session_id(uint8_t val)
+    { incoming_session_id_ = val; }
+
     inline uint8_t outgoing_session_id()
     { return outgoing_session_id_; };
+
+    inline void outgoing_session_id(uint8_t val)
+    { outgoing_session_id_ = val; }
 
     inline uint32_t segment_throttle()
     { return net_->segment_throttle(); };

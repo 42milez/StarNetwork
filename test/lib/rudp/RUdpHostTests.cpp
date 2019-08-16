@@ -54,7 +54,10 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     sleep(2);
 
-    auto ret = Service();
+    auto ret = Service(); // Receive: PROTOCOL_COMMAND_CONNECT
+    ret = Service();      // Send: PROTOCOL_COMMAND_VERIFY_CONNECT
+
+    client->Service(event, 0); // Receive: PROTOCOL_COMMAND_VERIFY_CONNECT
 
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 }

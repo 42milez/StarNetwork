@@ -3,11 +3,11 @@
 
 #include "RUdpPeer.h"
 
-enum class EventStatus: uint8_t
+enum class EventStatus: int
 {
-    AN_EVENT_OCCURRED,
-    NO_EVENT_OCCURRED,
-    ERROR
+    AN_EVENT_OCCURRED = 1,
+    NO_EVENT_OCCURRED = 0,
+    ERROR = -1
 };
 
 enum class RUdpEventType: int

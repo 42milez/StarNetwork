@@ -10,8 +10,10 @@ class RUdpDispatchQueue
 {
 public:
     void Enqueue(std::shared_ptr<RUdpPeer> &peer);
-    bool PeerExists();
     std::shared_ptr<RUdpPeer> Dequeue();
+
+public:
+    bool PeerExists();
 
 private:
     std::queue<std::shared_ptr<RUdpPeer>> queue_;
