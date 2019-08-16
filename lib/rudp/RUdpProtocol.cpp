@@ -4,12 +4,11 @@
 #include "RUdpProtocol.h"
 
 RUdpProtocol::RUdpProtocol()
-    : recalculate_bandwidth_limits_(false),
-      bandwidth_limited_peers_(),
+    : bandwidth_limited_peers_(),
       bandwidth_throttle_epoch_(),
       chamber_(std::make_unique<RUdpChamber>()),
       connected_peers_(),
-      dispatch_queue_(std::make_unique<RUdpDispatchQueue>())
+      dispatch_hub_(std::make_unique<RUdpDispatchHub>())
 {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
@@ -124,8 +123,8 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
         //  Recalculate Bandwidth Limits
         // --------------------------------------------------
 
-        if (recalculate_bandwidth_limits_) {
-            recalculate_bandwidth_limits_ = false;
+        if (dispatch_hub_->recalculate_bandwidth_limits()) {
+            dispatch_hub_->recalculate_bandwidth_limits(false);
             peers_remaining = connected_peers_;
             bandwidth = incoming_bandwidth;
             needs_adjustment = true;
@@ -217,7 +216,7 @@ RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniqu
 {
     if (peer->StateIsGreaterThanOrEqual(RUdpPeerState::CONNECTION_PENDING))
         // ピアを切断するのでバンド幅を再計算する
-        recalculate_bandwidth_limits_ = true;
+        dispatch_hub_->recalculate_bandwidth_limits(true);
 
     // ピアのステートが以下の３つの内のいずれかである場合
     // 1. DISCONNECTED,
@@ -239,15 +238,15 @@ RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniqu
     else {
         peer->event_data(0);
 
-        DispatchState(peer, RUdpPeerState::ZOMBIE);
+        dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
     }
 }
 
 EventStatus
 RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
-    while (dispatch_queue_->PeerExists()) {
-        auto peer = dispatch_queue_->Dequeue();
+    while (dispatch_hub_->PeerExists()) {
+        auto peer = dispatch_hub_->Dequeue();
 
         peer->needs_dispatch(false);
 
@@ -263,7 +262,7 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             return EventStatus::AN_EVENT_OCCURRED;
         }
         else if (peer->StateIs(RUdpPeerState::ZOMBIE)) {
-            recalculate_bandwidth_limits_ = true;
+            dispatch_hub_->recalculate_bandwidth_limits(true);
 
             event->type = RUdpEventType::DISCONNECT;
             event->peer = peer;
@@ -291,7 +290,7 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             if (peer->DispatchedCommandExists()) {
                 peer->needs_dispatch(true);
 
-                dispatch_queue_->Enqueue(peer);
+                dispatch_hub_->Enqueue(peer);
             }
 
             return EventStatus::AN_EVENT_OCCURRED;
@@ -299,18 +298,6 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     }
 
     return EventStatus::NO_EVENT_OCCURRED;
-}
-
-void
-RUdpProtocol::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
-{
-    ChangeState(peer, state);
-
-    if (!peer->needs_dispatch()) {
-        peer->needs_dispatch(true);
-
-        dispatch_queue_->Enqueue(peer);
-    }
 }
 
 void
@@ -344,7 +331,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     {
         peer->event_data(0);
 
-        DispatchState(peer, RUdpPeerState::ZOMBIE);
+        dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
         return Error::ERROR;
     }
@@ -458,7 +445,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
         (*buffer)->Add(*command);
 
         if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
-            DispatchState(peer, RUdpPeerState::ZOMBIE);
+            dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
         //++command;
         //++buffer;

@@ -4,7 +4,7 @@
 #include <array>
 
 #include "RUdpChamber.h"
-#include "RUdpDispatchQueue.h"
+#include "RUdpDispatchHub.h"
 #include "RUdpEvent.h"
 #include "RUdpPeer.h"
 #include "RUdpPeerState.h"
@@ -24,7 +24,6 @@ public:
     void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
-    void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
     void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
                        const RUdpProtocolHeader * header,
@@ -68,14 +67,12 @@ public:
 
 private:
     std::unique_ptr<RUdpChamber> chamber_;
-    std::unique_ptr<RUdpDispatchQueue> dispatch_queue_;
+    std::unique_ptr<RUdpDispatchHub> dispatch_hub_;
 
     size_t bandwidth_limited_peers_;
     size_t connected_peers_;
 
     uint32_t bandwidth_throttle_epoch_;
-
-    bool recalculate_bandwidth_limits_;
 };
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOL_H
