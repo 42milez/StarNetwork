@@ -242,7 +242,7 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         if (peer->StateIs(RUdpPeerState::CONNECTION_PENDING) ||
             peer->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED)) {
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
-            ChangeState(peer, RUdpPeerState::CONNECTED);
+            dispatch_hub_->ChangeState(peer, RUdpPeerState::CONNECTED);
 
             event->type = RUdpEventType::CONNECT;
             event->peer = peer;
@@ -313,9 +313,9 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
 
     if (channel_count < PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
         channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
-        ntohl(cmd->verify_connect.segment_throttle_interval) != peer->segment_throttle_interval() ||
-        ntohl(cmd->verify_connect.segment_throttle_acceleration) != peer->segment_throttle_acceleration() ||
-        ntohl(cmd->verify_connect.segment_throttle_deceleration) != peer->segment_throttle_deceleration() ||
+        ntohl(cmd->verify_connect.segment_throttle_interval) != peer->net()->segment_throttle_interval() ||
+        ntohl(cmd->verify_connect.segment_throttle_acceleration) != peer->net()->segment_throttle_acceleration() ||
+        ntohl(cmd->verify_connect.segment_throttle_deceleration) != peer->net()->segment_throttle_deceleration() ||
         cmd->verify_connect.connect_id != peer->connect_id())
     {
         peer->event_data(0);
@@ -460,5 +460,5 @@ RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, ui
     auto can_disconnect = peer->LoadUnreliableCommandsIntoChamber(chamber_);
 
     if (can_disconnect)
-        peer->Disconnect();
+        dispatch_hub_->Disconnect(peer);
 }
