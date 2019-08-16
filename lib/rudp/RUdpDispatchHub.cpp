@@ -3,21 +3,44 @@
 RUdpDispatchHub::RUdpDispatchHub() :
     bandwidth_limited_peers_(),
     connected_peers_(),
-    dispatch_queue_(std::make_unique<RUdpDispatchQueue>()),
+    queue_(std::make_unique<RUdpDispatchQueue>()),
     recalculate_bandwidth_limits_(false)
 {}
 
 void
-RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state,
-                             size_t &bandwidth_limited_peers, size_t &connected_peers)
+RUdpDispatchHub::Connect(const std::shared_ptr<RUdpPeer> &peer)
+{
+    if (!peer->net()->StateIs(RUdpPeerState::CONNECTED) && !peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            ++bandwidth_limited_peers_;
+
+        ++connected_peers_;
+    }
+}
+
+void
+RUdpDispatchHub::Disconnect(const std::shared_ptr<RUdpPeer> &peer)
+{
+    if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->net()->incoming_bandwidth() != 0)
+            --bandwidth_limited_peers_;
+
+        --connected_peers_;
+    }
+}
+
+void
+RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
 {
     if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
     {
-        peer->Connect(bandwidth_limited_peers_, connected_peers_);
+        Connect(peer);
     }
     else
     {
-        peer->Disconnect(bandwidth_limited_peers_, connected_peers_);
+        Disconnect(peer);
     }
 
     peer->net()->state(state);
@@ -26,12 +49,12 @@ RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPe
 void
 RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
 {
-    ChangeState(peer, state, bandwidth_limited_peers_, connected_peers_);
+    ChangeState(peer, state);
 
     if (!peer->needs_dispatch()) {
         peer->needs_dispatch(true);
 
-        dispatch_queue_->Enqueue(peer);
+        queue_->Enqueue(peer);
     }
 }
 
@@ -42,7 +65,7 @@ RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, const std::uniqu
 
     if (event)
     {
-        ChangeState(RUdpPeerState::CONNECTED);
+        ChangeState(peer, RUdpPeerState::CONNECTED);
 
         event->type = RUdpEventType::CONNECT;
         event->peer = peer;

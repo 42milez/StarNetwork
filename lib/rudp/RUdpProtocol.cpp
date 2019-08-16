@@ -367,7 +367,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
 void
 RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)
 {
-    peer->Disconnect();
+    dispatch_hub_->Disconnect(peer);
 
     peer->Reset();
 

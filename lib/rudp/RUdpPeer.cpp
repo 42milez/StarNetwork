@@ -198,30 +198,6 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
 }
 
 void
-RUdpPeer::Connect(size_t &bandwidth_limited_peers, size_t &connected_peers)
-{
-    if (!net_->StateIs(RUdpPeerState::CONNECTED) && !net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
-    {
-        if (net_->incoming_bandwidth() != 0)
-            ++bandwidth_limited_peers;
-
-        ++connected_peers;
-    }
-}
-
-void
-RUdpPeer::Disconnect(size_t &bandwidth_limited_peers, size_t &connected_peers)
-{
-    if (net_->StateIs(RUdpPeerState::CONNECTED) || net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
-    {
-        if (net_->incoming_bandwidth() != 0)
-            --bandwidth_limited_peers;
-
-        --connected_peers;
-    }
-}
-
-void
 RUdpPeer::Ping()
 {
     if (!net_->StateIs(RUdpPeerState::CONNECTED))
