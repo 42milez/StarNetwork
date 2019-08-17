@@ -6,17 +6,16 @@
 #include "RUdpHost.h"
 #include "RUdpPeerPod.h"
 
-RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
-                   uint32_t out_bandwidth)
-    :
-    channel_count_(channel_count),
-    conn_(std::make_shared<RUdpConnection>(address)),
-    incoming_bandwidth_(in_bandwidth),
-    maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
-    maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
-    mtu_(HOST_DEFAULT_MTU),
-    outgoing_bandwidth_(out_bandwidth),
-    service_time_()
+RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count,
+                   uint32_t in_bandwidth, uint32_t out_bandwidth)
+    : channel_count_(channel_count),
+      conn_(std::make_shared<RUdpConnection>(address)),
+      incoming_bandwidth_(in_bandwidth),
+      maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
+      maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
+      mtu_(HOST_DEFAULT_MTU),
+      outgoing_bandwidth_(out_bandwidth),
+      service_time_()
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
         // TODO: throw exception
@@ -114,11 +113,11 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
         CHECK_RETURN_VALUE(ret)
 
-        //ret = protocol_send_outgoing_commands(host, event, 1);
+        ret = peer_pod_->SendOutgoingCommands(event, service_time_, true);
 
         CHECK_RETURN_VALUE(ret)
 
-        //ret = _udp_protocol_dispatch_incoming_commands(event);
+        ret = peer_pod_->DispatchIncomingCommands(event);
 
         CHECK_RETURN_VALUE(ret)
 

@@ -306,12 +306,12 @@ Error
 RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                                   const RUdpProtocolType *cmd)
 {
-    if (peer->StateIs(RUdpPeerState::CONNECTING))
+    if (!peer->StateIs(RUdpPeerState::CONNECTING))
         return Error::OK;
 
     auto channel_count = ntohl(cmd->verify_connect.channel_count);
 
-    if (channel_count < PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
+    if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT ||
         channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
         ntohl(cmd->verify_connect.segment_throttle_interval) != peer->net()->segment_throttle_interval() ||
         ntohl(cmd->verify_connect.segment_throttle_acceleration) != peer->net()->segment_throttle_acceleration() ||
@@ -358,7 +358,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     peer->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
     peer->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
 
-    dispatch_hub_->NotifyConnect(peer, event);
+    dispatch_hub_->NotifyConnect(event, peer);
 
     return Error::OK;
 }

@@ -59,7 +59,7 @@ RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState st
 }
 
 void
-RUdpDispatchHub::NotifyConnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event)
+RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
 {
     recalculate_bandwidth_limits_ = true;
 

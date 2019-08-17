@@ -14,7 +14,7 @@ public:
 
     void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 
-    void NotifyConnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
+    void NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
 
 public:
     inline void Enqueue(std::shared_ptr<RUdpPeer> &peer)

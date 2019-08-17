@@ -211,12 +211,12 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     }
                 }
 
-                protocol_->HandleConnect(peer, header, cmd, received_address_, host_incoming_bandwidth_, host_outgoing_bandwidth_);
-
                 if (peer == nullptr || duplicate_peers >= duplicate_peers_)
                 {
                     IS_EVENT_AVAILABLE()
                 }
+
+                protocol_->HandleConnect(peer, header, cmd, received_address_, host_incoming_bandwidth_, host_outgoing_bandwidth_);
             }
             else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
             {
