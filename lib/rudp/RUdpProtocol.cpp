@@ -363,6 +363,50 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     return Error::OK;
 }
 
+Error
+RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTED) ||
+        peer->StateIs(RUdpPeerState::ZOMBIE) ||
+        peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
+    {
+        return Error::OK;
+    }
+
+    ResetPeerQueues(peer);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED) ||
+        peer->StateIs(RUdpPeerState::DISCONNECTING) ||
+        peer->StateIs(RUdpPeerState::CONNECTING))
+    {
+        dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
+    }
+    else if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        if (peer->StateIs(RUdpPeerState::CONNECTION_PENDING))
+        {
+            dispatch_hub_->recalculate_bandwidth_limits(true);
+        }
+
+        peer->Reset();
+    }
+    else if (cmd->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    {
+        dispatch_hub_->ChangeState(peer, RUdpPeerState::ACKNOWLEDGING_DISCONNECT);
+    }
+    else
+    {
+        dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
+    }
+
+    if (!peer->StateIs(RUdpPeerState::DISCONNECTED))
+    {
+        peer->event_data(ntohl(cmd->disconnect.data));
+    }
+
+    return Error::OK;
+}
+
 // void enet_peer_reset (ENetPeer * peer)
 void
 RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)

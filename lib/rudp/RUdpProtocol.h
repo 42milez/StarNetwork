@@ -33,6 +33,8 @@ public:
     Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                               const RUdpProtocolType *cmd);
 
+    Error HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd);
+
     void ResetPeer(const std::shared_ptr<RUdpPeer> &peer);
     static void ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer);
 

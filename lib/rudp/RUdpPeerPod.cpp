@@ -102,7 +102,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         }
 
         if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) nullptr) -> sent_time)
-            //return EventStatus::NO_EVENT_OCCURRED;
             continue;
 
         auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
@@ -124,7 +123,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
         }
         else if (peer_id >= peer_count_)
         {
-            //return EventStatus::NO_EVENT_OCCURRED;
             continue;
         }
         else
@@ -132,7 +130,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             peer = peers_.at(peer_id); // TODO: How does this access the peers?
 
             if (!peer->EventOccur(received_address_, session_id))
-                //return EventStatus::NO_EVENT_OCCURRED;
                 continue;
         }
 
@@ -227,8 +224,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             }
             else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
             {
-//                if (protocol_->HandleDisconnect(peer, cmd))
-//                    IS_EVENT_AVAILABLE()
+                if (protocol_->HandleDisconnect(peer, cmd))
+                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == PROTOCOL_COMMAND_PING)
             {
