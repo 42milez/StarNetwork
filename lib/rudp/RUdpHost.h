@@ -16,6 +16,10 @@ public:
 
     Error Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data);
 
+    Error Disconnect();
+    Error DisconnectNow();
+    Error DisconnectLater();
+
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
 private:

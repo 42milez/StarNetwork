@@ -64,6 +64,9 @@ public:
     void Reset();
     void Reset(uint16_t peer_idx);
 
+    inline uint8_t StateAsNumber()
+    { return static_cast<uint8_t>(net_->state()); }
+
     bool StateIs(RUdpPeerState state);
     bool StateIsGreaterThanOrEqual(RUdpPeerState state);
     bool StateIsLessThanOrEqual(RUdpPeerState state);

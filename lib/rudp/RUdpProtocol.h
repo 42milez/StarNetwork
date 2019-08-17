@@ -17,8 +17,8 @@ public:
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                            const std::vector<std::shared_ptr<RUdpPeer>> &peers);
 
-    //void Connect(const std::shared_ptr<RUdpPeer> &peer);
-    //void Disconnect(const std::shared_ptr<RUdpPeer> &peer);
+    //void PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer);
+    //void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer);
     void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
 
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);

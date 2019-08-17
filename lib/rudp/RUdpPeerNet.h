@@ -39,6 +39,9 @@ public:
 
     void mtu(uint32_t val);
 
+    RUdpPeerState state()
+    { return _state; }
+    
     void state(const RUdpPeerState &state);
 
     uint32_t incoming_bandwidth();

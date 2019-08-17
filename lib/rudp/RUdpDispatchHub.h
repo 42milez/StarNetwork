@@ -9,12 +9,13 @@ class RUdpDispatchHub
 public:
     RUdpDispatchHub();
 
-    void Connect(const std::shared_ptr<RUdpPeer> &peer);
-    void Disconnect(const std::shared_ptr<RUdpPeer> &peer);
+    void PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer);
+    void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer);
 
     void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 
     void NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
+    void NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
 
 public:
     inline void Enqueue(std::shared_ptr<RUdpPeer> &peer)

@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPPEERSTATE_H
 #define P2P_TECHDEMO_RUDPPEERSTATE_H
 
-enum class RUdpPeerState: int
+enum class RUdpPeerState: uint8_t
 {
     DISCONNECTED = 0,
     CONNECTING,

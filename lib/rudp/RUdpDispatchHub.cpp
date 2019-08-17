@@ -8,7 +8,7 @@ RUdpDispatchHub::RUdpDispatchHub() :
 {}
 
 void
-RUdpDispatchHub::Connect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpDispatchHub::PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (!peer->net()->StateIs(RUdpPeerState::CONNECTED) && !peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -20,7 +20,7 @@ RUdpDispatchHub::Connect(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 void
-RUdpDispatchHub::Disconnect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpDispatchHub::PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -36,11 +36,11 @@ RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPe
 {
     if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
     {
-        Connect(peer);
+        PeerOnConnect(peer);
     }
     else
     {
-        Disconnect(peer);
+        PeerOnDisconnect(peer);
     }
 
     peer->net()->state(state);
@@ -76,5 +76,32 @@ RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::sha
         DispatchState(peer, peer->StateIs(RUdpPeerState::CONNECTING) ?
                                 RUdpPeerState::CONNECTION_SUCCEEDED :
                                 RUdpPeerState::CONNECTION_PENDING);
+    }
+}
+
+void
+RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
+{
+    if (peer->StateIs(RUdpPeerState::CONNECTION_PENDING))
+        recalculate_bandwidth_limits_ = true;
+
+    if (!peer->StateIs(RUdpPeerState::CONNECTING) &&
+        peer->StateAsNumber() < static_cast<uint8_t>(RUdpPeerState::CONNECTION_SUCCEEDED))
+    {
+        peer->Reset();
+    }
+    else if (event)
+    {
+        event->type = RUdpEventType::DISCONNECT;
+        event->peer = peer;
+        event->data = 0;
+
+        peer->Reset();
+    }
+    else
+    {
+        peer->event_data(0);
+
+        DispatchState(peer, RUdpPeerState::ZOMBIE);
     }
 }
