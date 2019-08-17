@@ -506,3 +506,21 @@ RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, ui
     if (can_disconnect)
         dispatch_hub_->PeerOnDisconnect(peer);
 }
+
+Error
+Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    
+}
+
+Error
+DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+
+}
+
+Error
+DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+
+}
