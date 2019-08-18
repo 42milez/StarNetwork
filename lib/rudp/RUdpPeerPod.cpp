@@ -224,8 +224,10 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             }
             else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
             {
-                if (protocol_->HandleDisconnect(peer, cmd))
+                if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR)
+                {
                     IS_EVENT_AVAILABLE()
+                }
             }
             else if (cmd_number == PROTOCOL_COMMAND_PING)
             {
@@ -303,7 +305,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 EventStatus
-RUdpPeerPod::SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
+RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
 {
     auto header_data = std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
     auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));

@@ -14,8 +14,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
       maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
       maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
       mtu_(HOST_DEFAULT_MTU),
-      outgoing_bandwidth_(out_bandwidth),
-      service_time_()
+      outgoing_bandwidth_(out_bandwidth)
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
         // TODO: throw exception
@@ -96,16 +95,16 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         CHECK_RETURN_VALUE(ret)
     }
 
-    service_time_ = TimeGet();
+    peer_pod_->update_service_time();
 
-    timeout += service_time_;
+    timeout += peer_pod_->service_time();
 
     uint8_t wait_condition;
 
     do {
-        peer_pod_->BandwidthThrottle(service_time_, incoming_bandwidth_, outgoing_bandwidth_);
+        peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
 
-        ret = peer_pod_->SendOutgoingCommands(event, service_time_, true);
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
 
         CHECK_RETURN_VALUE(ret)
 
@@ -113,7 +112,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
         CHECK_RETURN_VALUE(ret)
 
-        ret = peer_pod_->SendOutgoingCommands(event, service_time_, true);
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
 
         CHECK_RETURN_VALUE(ret)
 
@@ -121,26 +120,88 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
         CHECK_RETURN_VALUE(ret)
 
-        if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
+        if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
             return EventStatus::NO_EVENT_OCCURRED;
 
         do {
-            service_time_ = TimeGet();
+            peer_pod_->update_service_time();
 
-            if (UDP_TIME_GREATER_EQUAL(service_time_, timeout))
+            if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
                 return EventStatus::NO_EVENT_OCCURRED;
 
             wait_condition =
                 static_cast<uint8_t>(SocketWait::RECEIVE) | static_cast<uint8_t>(SocketWait::INTERRUPT);
 
-            if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, service_time_)) != 0)
+            if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, peer_pod_->service_time())) != 0)
                 return EventStatus::ERROR;
         }
         while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
-        service_time_ = TimeGet();
+        peer_pod_->update_service_time();
     }
     while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
     return EventStatus::NO_EVENT_OCCURRED;
+}
+
+Error
+RUdpHost::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTING) ||
+        peer->StateIs(RUdpPeerState::DISCONNECTED) ||
+        peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) ||
+        peer->StateIs(RUdpPeerState::ZOMBIE))
+    {
+        return Error::ERROR;
+    }
+
+    peer->ResetPeerQueues();
+
+    std::shared_ptr<RUdpProtocolType> cmd;
+
+    cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
+    cmd->header.channel_id = 0xFF;
+    cmd->disconnect.data = htonl(data);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    }
+    else
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
+    }
+
+    peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        dispatch_hub_->PeerOnDisconnect(peer);
+
+        peer->net()->state(RUdpPeerState::DISCONNECTING);
+    }
+    else
+    {
+
+    }
+}
+
+Error
+RUdpHost::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+
+}
+
+Error
+RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+
+}
+
+void
+RUdpPeerPod::Flush()
+{
+    update_service_time();
+
+    SendOutgoingCommands(nullptr, service_time_, true);
 }

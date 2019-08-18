@@ -18,6 +18,12 @@ public:
 
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
+    Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+
+    void Flush();
+
 private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout)
     { return 0; };
@@ -35,7 +41,6 @@ private:
     uint32_t incoming_bandwidth_;
     uint32_t mtu_;
     uint32_t outgoing_bandwidth_;
-    uint32_t service_time_;
 };
 
 #endif // P2P_TECHDEMO_RUDPHOST_H

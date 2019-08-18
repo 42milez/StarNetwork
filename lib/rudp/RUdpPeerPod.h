@@ -21,7 +21,15 @@ public:
     void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth);
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
-    EventStatus SendOutgoingCommands(std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    EventStatus SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    void Flush();
+
+public:
+    inline uint32_t service_time()
+    { return service_time_; }
+
+    inline void update_service_time()
+    { service_time_ = TimeGet(); }
 
 public:
     using InterceptCallback = std::function<int (RUdpEvent &event)>;
@@ -45,6 +53,7 @@ private:
 
     uint32_t host_incoming_bandwidth_;
     uint32_t host_outgoing_bandwidth_;
+    uint32_t service_time_;
     uint32_t total_received_data_;
     uint32_t total_received_segments_;
     uint32_t total_sent_data_;

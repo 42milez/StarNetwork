@@ -36,15 +36,10 @@ public:
     Error HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd);
 
     void ResetPeer(const std::shared_ptr<RUdpPeer> &peer);
-    static void ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer);
 
     void SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer);
     bool SendReliableOutgoingCommands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
     void SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
-
-    Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
-    Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
-    Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
 
 public:
     inline bool continue_sending()
@@ -52,18 +47,6 @@ public:
 
     inline void continue_sending(bool val)
     { chamber_->continue_sending(val); };
-
-//    inline void decrease_bandwidth_limited_peers()
-//    { --bandwidth_limited_peers_; };
-//
-//    inline void decrease_connected_peers()
-//    { --connected_peers_; };
-//
-//    inline void increase_bandwidth_limited_peers()
-//    { ++bandwidth_limited_peers_; };
-//
-//    inline void increase_connected_peers()
-//    { ++connected_peers_; };
 
 public:
     inline const std::unique_ptr<RUdpChamber> & chamber()

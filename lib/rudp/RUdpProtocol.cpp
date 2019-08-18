@@ -3,10 +3,10 @@
 #include "RUdpCommon.h"
 #include "RUdpProtocol.h"
 
-RUdpProtocol::RUdpProtocol()
-    : bandwidth_throttle_epoch_(),
-      chamber_(std::make_unique<RUdpChamber>()),
-      dispatch_hub_(std::make_unique<RUdpDispatchHub>())
+RUdpProtocol::RUdpProtocol() :
+    bandwidth_throttle_epoch_(),
+    chamber_(std::make_unique<RUdpChamber>()),
+    dispatch_hub_(std::make_unique<RUdpDispatchHub>())
 {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
@@ -373,7 +373,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtoc
         return Error::OK;
     }
 
-    ResetPeerQueues(peer);
+    peer->ResetPeerQueues();
 
     if (peer->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED) ||
         peer->StateIs(RUdpPeerState::DISCONNECTING) ||
@@ -414,32 +414,7 @@ RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)
     dispatch_hub_->PeerOnDisconnect(peer);
 
     peer->Reset();
-
-    ResetPeerQueues(peer);
-}
-
-void
-RUdpProtocol::ResetPeerQueues(const std::shared_ptr<RUdpPeer> &peer)
-{
-    std::unique_ptr<RUdpChannel> channel;
-
-    if (peer->needs_dispatch())
-        peer->needs_dispatch(false);
-
-    if (peer->AcknowledgementExists())
-        peer->ClearAcknowledgement();
-
-    peer->command()->clear_sent_reliable_command();
-    peer->command()->clear_sent_unreliable_command();
-
-    peer->command()->clear_outgoing_reliable_command();
-    peer->command()->clear_outgoing_unreliable_command();
-
-    while (peer->DispatchedCommandExists())
-        peer->ClearDispatchedCommandQueue();
-
-    if (peer->ChannelExists())
-        peer->ClearChannel();
+    peer->ResetPeerQueues();
 }
 
 void
@@ -490,8 +465,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 }
 
 bool
-RUdpProtocol::SendReliableOutgoingCommands(const std::shared_ptr<RUdpPeer> &peer,
-                                           uint32_t service_time)
+RUdpProtocol::SendReliableOutgoingCommands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time)
 {
     auto can_ping = peer->LoadReliableCommandsIntoChamber(chamber_, service_time);
 
@@ -505,22 +479,4 @@ RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, ui
 
     if (can_disconnect)
         dispatch_hub_->PeerOnDisconnect(peer);
-}
-
-Error
-Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
-{
-    
-}
-
-Error
-DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
-{
-
-}
-
-Error
-DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
-{
-
 }

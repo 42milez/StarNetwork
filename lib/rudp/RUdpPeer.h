@@ -63,6 +63,7 @@ public:
 
     void Reset();
     void Reset(uint16_t peer_idx);
+    void ResetPeerQueues();
 
     inline uint8_t StateAsNumber()
     { return static_cast<uint8_t>(net_->state()); }

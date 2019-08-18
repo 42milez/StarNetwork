@@ -402,6 +402,32 @@ RUdpPeer::Reset(uint16_t peer_idx)
     memset(&unsequenced_windows_, 0, unsequenced_windows_.size());
 }
 
+void
+RUdpPeer::ResetPeerQueues()
+{
+    std::unique_ptr<RUdpChannel> channel;
+
+    if (needs_dispatch_)
+        needs_dispatch_ = false;
+
+    if (!acknowledgements_.empty())
+        acknowledgements_.clear();
+
+    command_pod_->clear_sent_reliable_command();
+    command_pod_->clear_sent_unreliable_command();
+    command_pod_->clear_outgoing_reliable_command();
+    command_pod_->clear_outgoing_unreliable_command();
+
+    while (!dispatched_commands_.empty())
+    {
+        std::queue<IncomingCommand> empty;
+        std::swap(dispatched_commands_, empty);
+    }
+
+    if (!channels_.empty())
+        channels_.clear();
+}
+
 bool
 RUdpPeer::StateIs(RUdpPeerState state)
 {
