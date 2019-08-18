@@ -41,6 +41,9 @@ public:
     bool SendReliableOutgoingCommands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
     void SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
 
+    inline void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
+    { dispatch_hub_->PeerOnDisconnect(peer); }
+
 public:
     inline bool continue_sending()
     { return chamber_->continue_sending(); };

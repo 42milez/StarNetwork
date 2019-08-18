@@ -24,6 +24,9 @@ public:
     EventStatus SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
     void Flush();
 
+    inline void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
+    { protocol_->PeerOnDisconnect(peer); }
+
 public:
     inline uint32_t service_time()
     { return service_time_; }
