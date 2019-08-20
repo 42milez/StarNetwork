@@ -209,6 +209,25 @@ Network::CloseConnection(uint32_t wait_usec)
     // ...
 }
 
+void
+Network::Disconnect(int peer_idx, bool now)
+{
+    ERR_FAIL_COND(!active_)
+    ERR_FAIL_COND(!server_)
+    ERR_FAIL_COND(!host_->HasPeer(peer_idx))
+
+    if (now)
+    {
+        host_->DisconnectNow(host_->Peer(peer_idx), 0);
+
+        // ...
+    }
+    else
+    {
+
+    }
+}
+
 size_t
 Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
                     size_t in_limit,

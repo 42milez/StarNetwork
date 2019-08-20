@@ -440,3 +440,11 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
 
     return EventStatus::NO_EVENT_OCCURRED;
 }
+
+void
+RUdpPeerPod::Flush()
+{
+    update_service_time();
+
+    SendOutgoingCommands(nullptr, service_time_, true);
+}

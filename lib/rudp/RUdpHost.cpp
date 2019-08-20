@@ -202,7 +202,7 @@ RUdpHost::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
         peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
 
-        Flush();
+        peer_pod_->Flush();
     }
 
     peer->Reset();
@@ -223,12 +223,4 @@ RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     {
         Disconnect(peer, data);
     }
-}
-
-void
-RUdpPeerPod::Flush()
-{
-    update_service_time();
-
-    SendOutgoingCommands(nullptr, service_time_, true);
 }

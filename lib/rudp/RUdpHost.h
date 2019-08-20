@@ -21,6 +21,7 @@ public:
     Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
     Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
     Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    void RequestPeerRemoval(int peer_idx);
 
     void Flush();
 

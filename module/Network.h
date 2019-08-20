@@ -31,7 +31,7 @@ public:
     void Poll();
 
     void CloseConnection(uint32_t wait_usec = 100);
-    void disconnect(int peer, bool now = false);
+    void Disconnect(int peer_idx, bool now);
 
     Error get_segment(const uint8_t **buffer, int &buffer_size);
     Error put_segment(const uint8_t *buffer, int buffer_size);
