@@ -8,7 +8,7 @@ RUdpDispatchHub::RUdpDispatchHub() :
 {}
 
 void
-RUdpDispatchHub::PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpDispatchHub::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (!peer->net()->StateIs(RUdpPeerState::CONNECTED) && !peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -20,7 +20,7 @@ RUdpDispatchHub::PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 void
-RUdpDispatchHub::PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpDispatchHub::PurgePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
@@ -36,11 +36,11 @@ RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPe
 {
     if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
     {
-        PeerOnConnect(peer);
+        MergePeer(peer);
     }
     else
     {
-        PeerOnDisconnect(peer);
+        PurgePeer(peer);
     }
 
     peer->net()->state(state);

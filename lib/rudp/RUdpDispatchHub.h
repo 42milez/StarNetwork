@@ -9,8 +9,8 @@ class RUdpDispatchHub
 public:
     RUdpDispatchHub();
 
-    void PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer);
-    void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer);
+    void MergePeer(const std::shared_ptr<RUdpPeer> &peer);
+    void PurgePeer(const std::shared_ptr<RUdpPeer> &peer);
 
     void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 

@@ -178,7 +178,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
 
 /*
 void
-RUdpProtocol::PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpProtocol::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (!peer->net()->StateIs(RUdpPeerState::CONNECTED) && !peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER)) {
         if (peer->net()->incoming_bandwidth() != 0)
@@ -189,7 +189,7 @@ RUdpProtocol::PeerOnConnect(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 void
-RUdpProtocol::PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
+RUdpProtocol::PurgePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
     if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER)) {
         if (peer->net()->incoming_bandwidth() != 0)
@@ -411,7 +411,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtoc
 void
 RUdpProtocol::ResetPeer(const std::shared_ptr<RUdpPeer> &peer)
 {
-    dispatch_hub_->PeerOnDisconnect(peer);
+    dispatch_hub_->PurgePeer(peer);
 
     peer->Reset();
     peer->ResetPeerQueues();
@@ -478,5 +478,5 @@ RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, ui
     auto can_disconnect = peer->LoadUnreliableCommandsIntoChamber(chamber_);
 
     if (can_disconnect)
-        dispatch_hub_->PeerOnDisconnect(peer);
+        dispatch_hub_->PurgePeer(peer);
 }

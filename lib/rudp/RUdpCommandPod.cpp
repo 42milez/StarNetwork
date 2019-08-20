@@ -338,7 +338,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
     }
 
     // ↑のロジックの結果次第でtrue/falseを返す
-    // PeerOnDisconnect() はRUdpPeerPodから呼ぶ
+    // PurgePeer() はRUdpPeerPodから呼ぶ
     return can_disconnect;
 }
 
