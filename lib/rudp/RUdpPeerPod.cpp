@@ -442,6 +442,18 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
 }
 
 void
+RUdpPeerPod::RequestPeerRemoval(std::shared_ptr<RUdpPeer> &peer)
+{
+    for (auto &p : peers_)
+    {
+        if (p == peer)
+            continue;
+
+        // ...
+    }
+}
+
+void
 RUdpPeerPod::Flush()
 {
     update_service_time();

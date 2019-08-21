@@ -214,17 +214,16 @@ Network::Disconnect(int peer_idx, bool now)
 {
     ERR_FAIL_COND(!active_)
     ERR_FAIL_COND(!server_)
-    ERR_FAIL_COND(!host_->HasPeer(peer_idx))
 
     if (now)
     {
-        host_->DisconnectNow(host_->Peer(peer_idx), 0);
+        host_->DisconnectNow(host_->peer(), 0);
 
         // ...
     }
     else
     {
-
+        host_->DisconnectLater(host_->peer(), 0);
     }
 }
 
