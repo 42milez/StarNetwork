@@ -215,15 +215,18 @@ Network::Disconnect(int peer_idx, bool now)
     ERR_FAIL_COND(!active_)
     ERR_FAIL_COND(!server_)
 
+    auto peer = peers_.at(peer_idx);
+
     if (now)
     {
-        host_->DisconnectNow(host_->peer(), 0);
+        host_->DisconnectNow(peer, 0);
+        host_->RequestPeerRemoval(peer_idx, peer);
 
-        // ...
+        peers_.erase(peer_idx);
     }
     else
     {
-        host_->DisconnectLater(host_->peer(), 0);
+        host_->DisconnectLater(peer, 0);
     }
 }
 

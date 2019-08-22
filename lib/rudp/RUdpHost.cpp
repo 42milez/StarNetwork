@@ -14,8 +14,7 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
       maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
       maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
       mtu_(HOST_DEFAULT_MTU),
-      outgoing_bandwidth_(out_bandwidth),
-      peer_(nullptr)
+      outgoing_bandwidth_(out_bandwidth)
 {
     if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
         // TODO: throw exception
@@ -40,12 +39,12 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
 Error
 RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data)
 {
-    peer_ = peer_pod_->AvailablePeer();
+    auto peer = peer_pod_->AvailablePeer();
 
-    if (peer_ == nullptr)
+    if (peer == nullptr)
         return Error::CANT_CREATE;
 
-    auto err = peer_->Setup(address, channel_count, incoming_bandwidth_, outgoing_bandwidth_, data);
+    auto err = peer->Setup(address, channel_count, incoming_bandwidth_, outgoing_bandwidth_, data);
 
     return err;
 }
@@ -227,7 +226,7 @@ RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 }
 
 void
-RUdpHost::RequestPeerRemoval()
+RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
 {
-    peer_pod_->RequestPeerRemoval(peer_);
+    peer_pod_->RequestPeerRemoval(peer_idx, peer);
 }

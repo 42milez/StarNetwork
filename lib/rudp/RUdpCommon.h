@@ -126,12 +126,18 @@ constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
 
 constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
-enum class SysCh: uint8_t
+enum class SysCh: uint32_t
 {
     CONFIG,
     RELIABLE,
     UNRELIABLE,
     MAX
+};
+
+enum class SysMsg: uint32_t
+{
+    ADD_PEER,
+    REMOVE_PEER
 };
 
 enum class SocketWait: uint8_t

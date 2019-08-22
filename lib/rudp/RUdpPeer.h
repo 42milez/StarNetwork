@@ -39,6 +39,7 @@ public:
                               uint16_t length);
 
     std::shared_ptr<RUdpSegment> Receive(uint8_t &channel_id);
+    Error Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment);
 
 public:
     bool AcknowledgementExists();
@@ -132,6 +133,9 @@ public:
 
     inline void outgoing_peer_id(uint16_t val)
     { outgoing_peer_id_ = val; }
+
+    inline uint16_t incoming_peer_id()
+    { return incoming_peer_id_; }
 
     inline void incoming_session_id(uint8_t val)
     { incoming_session_id_ = val; }

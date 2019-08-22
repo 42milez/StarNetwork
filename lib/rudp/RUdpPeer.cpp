@@ -278,6 +278,12 @@ RUdpPeer::Receive(uint8_t &channel_id)
     return segment;
 }
 
+Error
+RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment)
+{
+    // ...
+}
+
 bool
 RUdpPeer::AcknowledgementExists()
 {

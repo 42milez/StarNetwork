@@ -12,7 +12,7 @@
 class RUdpSegment
 {
 public:
-    RUdpSegment();
+    RUdpSegment(const VecUInt8SP &data, uint32_t flags);
 
     uint32_t AddFlag(uint32_t flag);
 
@@ -26,6 +26,10 @@ public:
 
     VecUInt8SP Data()
     { return data_; }
+
+    void AddSysMsg(SysMsg msg);
+
+    void AddPeerIdx(uint32_t peer_idx);
 
 private:
     std::function<void(RUdpSegment *)> free_callback_;

@@ -22,11 +22,14 @@ public:
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
     EventStatus SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
-    void RequestPeerRemoval(std::shared_ptr<RUdpPeer> &peer);
+    static void RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
     void Flush();
 
     inline void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
     { protocol_->PeerOnDisconnect(peer); }
+
+    inline std::shared_ptr<RUdpPeer> Peer(size_t peer_idx)
+    { return peers_.at(peer_idx); }
 
 public:
     inline uint32_t service_time()

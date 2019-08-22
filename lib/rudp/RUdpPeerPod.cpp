@@ -1,6 +1,7 @@
 #include "RUdpCommandSize.h"
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
+#include "RUdpSegmentFlag.h"
 
 RUdpPeerPod::RUdpPeerPod(size_t peer_count,
                          std::shared_ptr<RUdpConnection> &conn,
@@ -442,15 +443,14 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
 }
 
 void
-RUdpPeerPod::RequestPeerRemoval(std::shared_ptr<RUdpPeer> &peer)
+RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
 {
-    for (auto &p : peers_)
-    {
-        if (p == peer)
-            continue;
+    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, RUdpSegmentFlag::RELIABLE);
 
-        // ...
-    }
+    segment->AddSysMsg(SysMsg::REMOVE_PEER);
+    segment->AddPeerIdx(peer_idx);
+
+    peer->Send(SysCh::CONFIG, segment);
 }
 
 void

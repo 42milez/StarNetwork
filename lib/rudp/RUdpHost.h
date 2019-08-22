@@ -21,11 +21,8 @@ public:
     Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
     Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
     Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
-    void RequestPeerRemoval();
 
-public:
-    std::shared_ptr<RUdpPeer> peer()
-    { return peer_; }
+    void RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
 
 private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout)
@@ -33,7 +30,6 @@ private:
 
 private:
     std::shared_ptr<RUdpConnection> conn_;
-    std::shared_ptr<RUdpPeer> peer_;
     std::unique_ptr<RUdpPeerPod> peer_pod_;
 
     SysCh channel_count_;

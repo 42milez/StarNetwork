@@ -85,7 +85,7 @@ private:
     };
 
     std::list<Segment> incoming_segments_;
-    std::map<int, std::shared_ptr<RUdpPeer>> peer_map_;
+    std::map<int, std::shared_ptr<RUdpPeer>> peers_;
 
     std::vector<uint8_t> dst_compressor_mem_;
     std::vector<uint8_t> src_compressor_mem_;
