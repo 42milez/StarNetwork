@@ -39,24 +39,41 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     memcpy(server_address.host, server_ip.GetIPv6(), sizeof(server_address.host));
     server_address.port = 8888;
 
-    client->Connect(server_address, SysCh::MAX, 0);
     std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
+
+    //  Queue command: PROTOCOL_COMMAND_CONNECT with PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE
+    // --------------------------------------------------
+    client->Connect(server_address, SysCh::MAX, 0);
+
+    //  Send command: PROTOCOL_COMMAND_CONNECT with PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE
+    // --------------------------------------------------
     client->Service(client_event, 0);
 
     sleep(1);
 
     std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
-    auto ret = Service(server_event, 0); // Receive: PROTOCOL_COMMAND_CONNECT
-    ret = Service(server_event, 0);      // Send: PROTOCOL_COMMAND_VERIFY_CONNECT
+
+    //  Receive command: PROTOCOL_COMMAND_CONNECT
+    //  Queue command: PROTOCOL_COMMAND_VERIFY_CONNECT
+    //  Send command: PROTOCOL_COMMAND_VERIFY_CONNECT
+    // --------------------------------------------------
+    Service(server_event, 0);
 
     sleep(1);
 
-    client->Service(client_event, 0); // Receive: PROTOCOL_COMMAND_VERIFY_CONNECT
+    //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
+    // --------------------------------------------------
+    client->Service(client_event, 0);
+
+    //
+    // --------------------------------------------------
     client->Service(client_event, 0);
 
     sleep(1);
 
-    ret = Service(server_event, 0);
+    //
+    // --------------------------------------------------
+    auto ret = Service(server_event, 0);
 
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 }
