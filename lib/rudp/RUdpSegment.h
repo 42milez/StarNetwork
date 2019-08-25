@@ -16,7 +16,7 @@ public:
 
     uint32_t AddFlag(uint32_t flag);
 
-    size_t Size();
+    size_t DataLength();
 
     //uint8_t *move_data_pointer(uint32_t val);
 
@@ -30,6 +30,10 @@ public:
     void AddSysMsg(SysMsg msg);
 
     void AddPeerIdx(uint32_t peer_idx);
+
+public:
+    uint32_t flags()
+    { return flags_; }
 
 private:
     std::function<void(RUdpSegment *)> free_callback_;

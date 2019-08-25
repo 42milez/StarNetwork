@@ -68,6 +68,8 @@ constexpr uint16_t PROTOCOL_MAXIMUM_SEGMENT_COMMANDS = 32;
 
 constexpr uint16_t PROTOCOL_MAXIMUM_PEER_ID = 0xFFF;
 
+constexpr uint32_t PROTOCOL_MAXIMUM_FRAGMENT_COUNT = 1024 * 1024;
+
 constexpr int PROTOCOL_MAXIMUM_WINDOW_SIZE = 65536;
 
 constexpr int PROTOCOL_FRAGMENT_COUNT = 1024 * 1024;
@@ -126,7 +128,7 @@ constexpr uint32_t SOCKET_WAIT_RECEIVE = (1u << 1u);
 
 constexpr uint32_t SOCKET_WAIT_INTERRUPT = (1u << 2u);
 
-enum class SysCh: uint32_t
+enum class SysCh: uint32_t // TODO: change to uint8_t
 {
     CONFIG,
     RELIABLE,

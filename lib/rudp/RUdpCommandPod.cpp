@@ -58,7 +58,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
                                        const std::shared_ptr<RUdpChannel> &channel)
 {
     _outgoing_data_total +=
-        command_sizes.at(outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK) +
+        command_sizes.at(outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK) +
             outgoing_command->fragment_length;
 
     if (channel == nullptr)
@@ -68,7 +68,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
         outgoing_command->reliable_sequence_number = _outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    else if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
     {
         ++channel->outgoing_reliable_sequence_number;
         channel->outgoing_unreliable_sequence_number = 0;
@@ -76,7 +76,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
         outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
+    else if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
     {
         ++_outgoing_unsequenced_group;
 
@@ -96,20 +96,20 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     outgoing_command->sent_time = 0;
     outgoing_command->round_trip_timeout = 0;
     outgoing_command->round_trip_timeout_limit = 0;
-    outgoing_command->protocol_type->header.reliable_sequence_number =
+    outgoing_command->command->header.reliable_sequence_number =
         htons(outgoing_command->reliable_sequence_number);
 
-    auto cmd = outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK;
+    auto cmd = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
 
     if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE) {
-        outgoing_command->protocol_type->send_unreliable.unreliable_sequence_number =
+        outgoing_command->command->send_unreliable.unreliable_sequence_number =
             htons(outgoing_command->unreliable_sequence_number);
     }
     else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
-        outgoing_command->protocol_type->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
+        outgoing_command->command->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
     }
 
-    if (outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
         _outgoing_reliable_commands.push_back(outgoing_command);
     else
         _outgoing_unreliable_commands.push_back(outgoing_command);
@@ -141,8 +141,8 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         auto outgoing_command = current_command;
 
-        auto channel = (*outgoing_command)->protocol_type->header.channel_id < channels.size() ?
-                       channels.at((*outgoing_command)->protocol_type->header.channel_id) :
+        auto channel = (*outgoing_command)->command->header.channel_id < channels.size() ?
+                       channels.at((*outgoing_command)->command->header.channel_id) :
                        nullptr;
 
         auto reliable_window = (*outgoing_command)->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
@@ -209,12 +209,12 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         (*outgoing_command)->sent_time = service_time;
 
-        (*buffer)->Add((*outgoing_command)->protocol_type);
+        (*buffer)->Add((*outgoing_command)->command);
         //buffer->Add(command);
-        //buffer->data_length = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
+        //buffer->data_length = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         chamber->update_segment_size(
-            command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK]
+            command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK]
         );
 
         auto flags = chamber->header_flags();
@@ -223,7 +223,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
         //       これは受信側でパケットを正しく識別するための基本
 
-        //*command = *(*outgoing_command)->protocol_type;
+        //*command = *(*outgoing_command)->command;
 
         if ((*outgoing_command)->segment != nullptr) {
             //++buffer;
@@ -266,7 +266,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         auto buffer = chamber->EmptyDataBuffer();
 
         auto outgoing_command = current_command;
-        auto command_size = command_sizes[(*outgoing_command)->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
+        auto command_size = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command))) {
             chamber->continue_sending(true);
@@ -301,7 +301,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
             }
         }
 
-        *command = (*outgoing_command)->protocol_type;
+        *command = (*outgoing_command)->command;
 
         (*buffer)->Add(*command);
         //buffer->data_length = command_size;

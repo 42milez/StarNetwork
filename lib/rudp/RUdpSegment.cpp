@@ -51,7 +51,7 @@ RUdpSegment::Destroy()
 }
 
 size_t
-RUdpSegment::Size()
+RUdpSegment::DataLength()
 {
     return data_->size() * sizeof(uint8_t);
 }

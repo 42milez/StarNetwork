@@ -450,7 +450,7 @@ RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer>
     segment->AddSysMsg(SysMsg::REMOVE_PEER);
     segment->AddPeerIdx(peer_idx);
 
-    peer->Send(SysCh::CONFIG, segment);
+    peer->Send(SysCh::CONFIG, segment, checksum_ != nullptr);
 }
 
 void

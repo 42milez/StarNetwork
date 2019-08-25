@@ -45,12 +45,12 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
                               const std::shared_ptr<OutgoingCommand> &outgoing_command)
 {
     // MEMO: [誤] SendReliableOutgoingCommands() では
-    //            buffer に protocol_type が挿入されたら同時にインクリメントされるので、
-    //            protocol_type か buffer どちらかでよいのでは？
+    //            buffer に command が挿入されたら同時にインクリメントされるので、
+    //            command か buffer どちらかでよいのでは？
     //       [正] コマンドがパケットを持っている際に buffer がインクリメントされる（コマンドに続くデータがバッファに投入される）ので、
     //            それぞれで判定する必要がある
 
-    // unsent protocol_type exists
+    // unsent command exists
     //if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
     if (*cmd_it == nullptr)
         return true;
@@ -61,16 +61,16 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     if (*buf_it == nullptr || (std::next(buf_it, 1) == _buffers.end()))
         return true;
 
-    auto command_size = command_sizes[outgoing_command->protocol_type->header.command & PROTOCOL_COMMAND_MASK];
+    auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
 
-    // has not enough space for protocol_type（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
+    // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
     if (mtu - _segment_size < command_size)
         return true;
 
     if (outgoing_command->segment != nullptr)
         return false;
 
-    // has not enough space for protocol_type with payload
+    // has not enough space for command with payload
     if (static_cast<uint16_t>(mtu - _segment_size) <
         static_cast<uint16_t>(command_size + outgoing_command->fragment_length)) {
         return true;

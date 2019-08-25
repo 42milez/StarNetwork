@@ -182,8 +182,11 @@ RUdpHost::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     }
     else
     {
-
+        peer_pod_->Flush();
+        peer->Reset();
     }
+
+    return Error::OK;
 }
 
 Error
@@ -196,6 +199,8 @@ RUdpHost::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
     if (!peer->StateIs(RUdpPeerState::ZOMBIE) && !peer->StateIs(RUdpPeerState::DISCONNECTING))
     {
+        peer->ResetPeerQueues();
+
         cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
         cmd->header.channel_id = 0xFF;
         cmd->disconnect.data = htonl(data);
@@ -206,15 +211,17 @@ RUdpHost::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     }
 
     peer->Reset();
+
+    return Error::OK;
 }
 
 Error
 RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
     if ((peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
-        !(peer->command()->outgoing_reliable_command_exists() &&
-          peer->command()->outgoing_unreliable_command_exists() &&
-          peer->command()->sent_reliable_command_exists()))
+        (peer->command()->outgoing_reliable_command_exists() ||
+         peer->command()->outgoing_unreliable_command_exists() ||
+         peer->command()->sent_reliable_command_exists()))
     {
         peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
         peer->event_data(data);
@@ -223,6 +230,8 @@ RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     {
         Disconnect(peer, data);
     }
+
+    return Error::OK;
 }
 
 void

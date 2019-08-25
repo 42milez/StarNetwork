@@ -56,7 +56,7 @@ git submodule add https://github.com/ethereum/cable cmake/cable
 Cable contains the `bootstrap.cmake` file that initializes the library.
 Start by including this file in your main `CMakeLists.txt` from the Cable 
 submodule/subtree or any other location. The `bootstrap.cmake` must be included 
-before the `project()` protocol_type. After that, you can include and use other
+before the `project()` command. After that, you can include and use other
 Cable modules.
 
 ### Example

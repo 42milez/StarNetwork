@@ -39,7 +39,7 @@ public:
                               uint16_t length);
 
     std::shared_ptr<RUdpSegment> Receive(uint8_t &channel_id);
-    Error Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment);
+    Error Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool checksum);
 
 public:
     bool AcknowledgementExists();
@@ -194,7 +194,7 @@ private:
 
     RUdpAddress address_;
     uint32_t connect_id_;
-    void *data_;
+    std::vector<uint8_t> data_;
     uint32_t event_data_;
     bool needs_dispatch_;
     uint32_t ping_interval_;
