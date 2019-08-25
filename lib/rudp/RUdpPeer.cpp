@@ -463,9 +463,9 @@ RUdpPeer::Reset(uint16_t peer_idx)
     dispatched_commands_.swap(empty);
 
     address_.Reset();
+    data_.clear();
 
     connect_id_ = 0;
-    data_ = nullptr;
     event_data_ = 0;
     highest_round_trip_time_variance_ = 0;
     incoming_peer_id_ = peer_idx;

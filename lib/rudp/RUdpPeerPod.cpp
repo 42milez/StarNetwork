@@ -7,25 +7,25 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
                          std::shared_ptr<RUdpConnection> &conn,
                          uint32_t host_incoming_bandwidth,
                          uint32_t host_outgoing_bandwidth)
-    :
-    checksum_(nullptr),
-    compressor_(std::make_shared<RUdpCompressor>()),
-    conn_(conn),
-    duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
-    host_incoming_bandwidth_(host_incoming_bandwidth),
-    host_outgoing_bandwidth_(host_outgoing_bandwidth),
-    intercept_(nullptr),
-    peer_count_(peer_count),
-    protocol_(std::make_unique<RUdpProtocol>()),
-    received_address_(),
-    received_data_(),
-    received_data_length_(),
-    segment_data_1_(PROTOCOL_MAXIMUM_MTU),
-    segment_data_2_(PROTOCOL_MAXIMUM_MTU),
-    total_received_data_(),
-    total_received_segments_(),
-    total_sent_data_(),
-    total_sent_segments_()
+    : checksum_(nullptr),
+      compressor_(std::make_shared<RUdpCompressor>()),
+      conn_(conn),
+      duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
+      host_incoming_bandwidth_(host_incoming_bandwidth),
+      host_outgoing_bandwidth_(host_outgoing_bandwidth),
+      intercept_(nullptr),
+      peer_count_(peer_count),
+      protocol_(std::make_unique<RUdpProtocol>()),
+      received_address_(),
+      received_data_(),
+      received_data_length_(),
+      segment_data_1_(PROTOCOL_MAXIMUM_MTU),
+      segment_data_2_(PROTOCOL_MAXIMUM_MTU),
+      service_time_(),
+      total_received_data_(),
+      total_received_segments_(),
+      total_sent_data_(),
+      total_sent_segments_()
 {
     memset(&(segment_data_1_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
     memset(&(segment_data_2_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
@@ -102,14 +102,16 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             // ...
         }
 
-        if (received_data_length_ < (size_t) & ((RUdpProtocolHeader *) nullptr) -> sent_time)
+        if (received_data_length_ < (size_t) &((RUdpProtocolHeader *) nullptr)->sent_time)
             continue;
 
         auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
         auto peer_id = ntohs(header->peer_id);
         auto session_id = (peer_id & PROTOCOL_HEADER_SESSION_MASK) >> PROTOCOL_HEADER_SESSION_SHIFT;
         auto flags = peer_id & PROTOCOL_HEADER_FLAG_MASK;
-        auto header_size = (flags & PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(RUdpProtocolHeader) : (size_t) & ((RUdpProtocolHeader *) 0) -> sent_time);
+        auto header_size =
+            (flags & PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(RUdpProtocolHeader) : (size_t) &((RUdpProtocolHeader *) 0)
+                ->sent_time);
 
         peer_id &= ~(PROTOCOL_HEADER_FLAG_MASK | PROTOCOL_HEADER_SESSION_MASK);
 
@@ -214,7 +216,12 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     IS_EVENT_AVAILABLE()
                 }
 
-                protocol_->HandleConnect(peer, header, cmd, received_address_, host_incoming_bandwidth_, host_outgoing_bandwidth_);
+                protocol_->HandleConnect(peer,
+                                         header,
+                                         cmd,
+                                         received_address_,
+                                         host_incoming_bandwidth_,
+                                         host_outgoing_bandwidth_);
             }
             else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
             {
@@ -306,7 +313,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 EventStatus
-RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts)
+RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
+                                  uint32_t service_time,
+                                  bool check_for_timeouts)
 {
     auto header_data = std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
     auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
@@ -445,7 +454,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
 void
 RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
 {
-    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, RUdpSegmentFlag::RELIABLE);
+    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
 
     segment->AddSysMsg(SysMsg::REMOVE_PEER);
     segment->AddPeerIdx(peer_idx);
