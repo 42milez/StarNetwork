@@ -289,6 +289,14 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
     return EventStatus::NO_EVENT_OCCURRED;
 }
 
+Error
+RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+                                const RUdpProtocolType *cmd)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTED) || peer->StateIs(RUdpPeerState::ZOMBIE))
+        return Error::OK;
+}
+
 void
 RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header,
                             const RUdpProtocolType * cmd, const RUdpAddress &received_address,

@@ -50,6 +50,9 @@ RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buf
 
     err = _socket->recvfrom(buffer, read_count, ip, received_address.port);
 
+    auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(buffer.at(0)));
+    auto debug_command = reinterpret_cast<RUdpProtocolType *>(&(buffer.at(4)));
+
     if (err == Error::ERR_BUSY)
         return 0;
 

@@ -23,6 +23,9 @@ public:
 
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
 
+    Error HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+                            const RUdpProtocolType *cmd);
+
     void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
                        const RUdpProtocolHeader * header,
                        const RUdpProtocolType * cmd,

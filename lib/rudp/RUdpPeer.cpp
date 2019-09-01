@@ -227,18 +227,18 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
 
         if (reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1 && reliable_window <= current_window + PEER_FREE_RELIABLE_WINDOWS)
             return;
-
-        auto ack = std::make_shared<RUdpAcknowledgement>();
-        if (ack == nullptr)
-            return;
-
-        outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
-
-        ack->sent_time = sent_time;
-        ack->command = *cmd;
-
-        acknowledgements_.push_back(ack);
     }
+
+    auto ack = std::make_shared<RUdpAcknowledgement>();
+    if (ack == nullptr)
+        return;
+
+    outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
+
+    ack->sent_time = sent_time;
+    ack->command = *cmd;
+
+    acknowledgements_.push_back(ack);
 }
 
 // TODO: Is segment necessary as an argument?

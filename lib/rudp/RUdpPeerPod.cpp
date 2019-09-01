@@ -178,8 +178,10 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
             {
-//                if (protocol_->HandleAcknowledge(event, peer, cmd))
-//                    IS_EVENT_AVAILABLE()
+                if (protocol_->HandleAcknowledge(event, peer, cmd) == Error::ERROR)
+                {
+                    IS_EVENT_AVAILABLE()
+                }
             }
             else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
             {
