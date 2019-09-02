@@ -62,7 +62,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     sleep(1);
 
     //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
+    //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGE
     // --------------------------------------------------
     client->Service(client_event, 0);
 
