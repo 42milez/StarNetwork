@@ -30,7 +30,7 @@ public:
             size_ = data->size() * sizeof(uint8_t);
     }
 
-    VecUInt8It CopyTo(VecUInt8It it);
+    VecUInt8It CopyTo(VecUInt8It it, bool drop_peer_id);
 
     [[nodiscard]]
     size_t Size() const

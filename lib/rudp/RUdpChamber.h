@@ -32,7 +32,8 @@ public:
 
     //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
-    //void set_data_length(size_t val);
+    void DropPeerID(bool val)
+    { drop_peer_id_ = val; }
 
     int Write(std::vector<uint8_t> &out);
 
@@ -68,6 +69,7 @@ private:
     uint16_t _header_flags;
 
     bool _continue_sending;
+    bool drop_peer_id_;
 };
 
 #endif // P2P_TECHDEMO_RUDPCHAMBER_H
