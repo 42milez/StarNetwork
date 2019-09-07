@@ -30,11 +30,14 @@ public:
             size_ = data->size() * sizeof(uint8_t);
     }
 
-    VecUInt8It CopyTo(VecUInt8It it, bool drop_peer_id);
+    VecUInt8It CopyTo(VecUInt8It it);
 
     [[nodiscard]]
     size_t Size() const
     { return size_; };
+
+    void Size(size_t val)
+    { size_ = val; }
 
 private:
     enum class BufferVariant : int

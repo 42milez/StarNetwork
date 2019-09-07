@@ -32,8 +32,8 @@ public:
 
     //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
-    void DropPeerID(bool val)
-    { drop_peer_id_ = val; }
+    void DropSentTime()
+    { _buffers.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }
 
     int Write(std::vector<uint8_t> &out);
 

@@ -400,12 +400,11 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             {
                 header->sent_time = htons(service_time & 0xFFFF);
                 //protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
-                protocol_->chamber()->DropPeerID(false);
             }
             else
             {
                 //protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
-                protocol_->chamber()->DropPeerID(true);
+                protocol_->chamber()->DropSentTime();
             }
 
             auto should_compress = false;

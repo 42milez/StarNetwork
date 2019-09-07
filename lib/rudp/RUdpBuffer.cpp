@@ -1,7 +1,7 @@
 #include "RUdpBuffer.h"
 
 VecUInt8It
-RUdpBuffer::CopyTo(VecUInt8It it, bool drop_peer_id)
+RUdpBuffer::CopyTo(VecUInt8It it)
 {
     if (data_.index() == static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
     {
@@ -18,10 +18,7 @@ RUdpBuffer::CopyTo(VecUInt8It it, bool drop_peer_id)
 
         auto debug_data = reinterpret_cast<RUdpProtocolHeader *>(&(data->at(0)));
 
-        if (drop_peer_id)
-            memcpy(&(*it), &(data->at(2)), 2);
-        else
-            memcpy(&(*it), &(data->at(0)), size_);
+        memcpy(&(*it), &(data->at(0)), size_);
 
         return it + size_;
     }

@@ -156,7 +156,7 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
     auto it = out.begin();
 
     for (auto &buf : _buffers)
-        it = buf->CopyTo(it, drop_peer_id_);
+        it = buf->CopyTo(it);
 
     return size;
 }
