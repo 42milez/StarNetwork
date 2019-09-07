@@ -11,7 +11,6 @@ RUdpChamber::RUdpChamber()
       _command_count(),
       _continue_sending(false),
       _header_flags(),
-      drop_peer_id_(true),
       _segment_size()
 {
     for (auto &buf : _buffers)
@@ -147,9 +146,6 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 
     for (auto &buf : _buffers)
         size += buf->Size();
-
-    if (drop_peer_id_)
-        size -= (size_t) &((RUdpProtocolHeader *) nullptr)->sent_time;
 
     out.resize(size);
 
