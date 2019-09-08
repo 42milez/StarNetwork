@@ -291,7 +291,8 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
 Error
 RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
-                                const RUdpProtocolType *cmd, uint32_t service_time)
+                                const RUdpProtocolType *cmd, uint32_t service_time,
+                                std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect)
 {
      if (peer->StateIs(RUdpPeerState::DISCONNECTED) || peer->StateIs(RUdpPeerState::ZOMBIE))
         return Error::OK;
@@ -337,7 +338,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
              !peer->command()->outgoing_unreliable_command_exists() &&
              !peer->command()->sent_reliable_command_exists())
          {
-            peer->Disconnect();
+            disconnect(peer);
          }
      }
      
@@ -380,7 +381,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
         return Error::ERROR;
     }
 
-    peer->command()->RemoveSentReliableCommands(1, 0xFF);
+    peer->command()->RemoveSentReliableCommand(1, 0xFF);
 
     //if (channel_count < peer->channel_count())
     //    peer->channel_count(channel_count);

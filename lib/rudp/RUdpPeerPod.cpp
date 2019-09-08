@@ -178,7 +178,11 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
             {
-                if (protocol_->HandleAcknowledge(event, peer, cmd) == Error::ERROR)
+                auto disconnect = [this](std::shared_ptr<RUdpPeer> &peer){
+                    Disconnect(peer, peer->event_data());
+                };
+
+                if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == Error::ERROR)
                 {
                     IS_EVENT_AVAILABLE()
                 }
@@ -471,4 +475,94 @@ RUdpPeerPod::Flush()
     update_service_time();
 
     SendOutgoingCommands(nullptr, service_time_, true);
+}
+
+Error
+RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTING) ||
+        peer->StateIs(RUdpPeerState::DISCONNECTED) ||
+        peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) ||
+        peer->StateIs(RUdpPeerState::ZOMBIE))
+    {
+        return Error::ERROR;
+    }
+
+    peer->ResetPeerQueues();
+
+    std::shared_ptr<RUdpProtocolType> cmd;
+
+    cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
+    cmd->header.channel_id = 0xFF;
+    cmd->disconnect.data = htonl(data);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    }
+    else
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
+    }
+
+    peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        PeerOnDisconnect(peer);
+
+        peer->net()->state(RUdpPeerState::DISCONNECTING);
+    }
+    else
+    {
+        Flush();
+        peer->Reset();
+    }
+
+    return Error::OK;
+}
+
+Error
+RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTED))
+        return Error::ERROR;
+
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+
+    if (!peer->StateIs(RUdpPeerState::ZOMBIE) && !peer->StateIs(RUdpPeerState::DISCONNECTING))
+    {
+        peer->ResetPeerQueues();
+
+        cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
+        cmd->header.channel_id = 0xFF;
+        cmd->disconnect.data = htonl(data);
+
+        peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+
+        Flush();
+    }
+
+    peer->Reset();
+
+    return Error::OK;
+}
+
+Error
+RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if ((peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
+        (peer->command()->outgoing_reliable_command_exists() ||
+            peer->command()->outgoing_unreliable_command_exists() ||
+            peer->command()->sent_reliable_command_exists()))
+    {
+        peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
+        peer->event_data(data);
+    }
+    else
+    {
+        Disconnect(peer, data);
+    }
+
+    return Error::OK;
 }

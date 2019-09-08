@@ -521,7 +521,7 @@ RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t
 }
 
 void
-RUdpCommandPod::RemoveSentReliableCommands(uint16_t reliable_sequence_number, uint8_t channel_id)
+RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
 {
     // ...
 }
