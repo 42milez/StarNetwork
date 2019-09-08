@@ -73,6 +73,8 @@ public:
     bool StateIsGreaterThanOrEqual(RUdpPeerState state);
     bool StateIsLessThanOrEqual(RUdpPeerState state);
 
+    void UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time);
+
 public:
     inline size_t channel_count()
     { return channels_.size(); }
@@ -82,6 +84,9 @@ public:
 
     inline void connect_id(uint32_t val)
     { connect_id_ = val; }
+
+    inline void earliest_timeout(uint32_t val)
+    { earliest_timeout_ = val; }
 
     inline uint32_t event_data()
     { return event_data_; };
@@ -103,6 +108,9 @@ public:
 
     inline void incoming_data_total(uint32_t val)
     { command_pod_->incoming_data_total(val); };
+
+    inline void last_receive_time(uint32_t val)
+    { last_receive_time_ = val; }
 
     inline uint32_t mtu()
     { return net_->mtu(); }
@@ -186,6 +194,7 @@ private:
     uint16_t outgoing_peer_id_;
     uint8_t outgoing_session_id_;
 
+    uint32_t earliest_timeout_;
     uint32_t highest_round_trip_time_variance_;
     uint32_t last_receive_time_;
     uint32_t last_round_trip_time_;

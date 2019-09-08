@@ -107,6 +107,18 @@ public:
     void RemoveSentReliableCommands(uint16_t reliable_sequence_number, uint8_t channel_id);
 
     void remove_sent_unreliable_commands();
+
+    inline uint32_t round_trip_time()
+    { return _round_trip_time; }
+
+    inline void round_trip_time(uint32_t val)
+    { _round_trip_time = val; }
+
+    inline uint32_t round_trip_time_variance()
+    { return _round_trip_time_variance; }
+
+    inline void round_trip_time_variance(uint32_t val)
+    { _round_trip_time_variance = val; }
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H

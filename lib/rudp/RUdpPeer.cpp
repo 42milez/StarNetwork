@@ -538,3 +538,46 @@ RUdpPeer::ExceedsPingInterval(uint32_t service_time)
 {
     return UDP_TIME_DIFFERENCE(service_time, last_receive_time_) >= ping_interval_;
 }
+
+void
+RUdpPeer::UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time)
+{
+    auto rttv = command_pod_->round_trip_time_variance();
+    command_pod_->round_trip_time_variance(rttv - (rttv / 4));
+
+    if (round_trip_time >= command_pod_->round_trip_time())
+    {
+        auto rtt = command_pod_->round_trip_time();
+        command_pod_->round_trip_time(rtt + ((round_trip_time - rtt) / 8));
+
+        rttv = command_pod_->round_trip_time_variance();
+        command_pod_->round_trip_time_variance(rttv + ((round_trip_time - rtt) / 4));
+    }
+    else
+    {
+        auto rtt = command_pod_->round_trip_time();
+        command_pod_->round_trip_time(rtt - ((round_trip_time - rtt) / 8));
+
+        rttv = command_pod_->round_trip_time_variance();
+        command_pod_->round_trip_time_variance(rttv + ((round_trip_time - rtt) / 4));
+    }
+
+    auto rtt = command_pod_->round_trip_time();
+    if (rtt < lowest_round_trip_time_)
+        lowest_round_trip_time_ = rtt;
+
+    rttv = command_pod_->round_trip_time_variance();
+    if (rttv > highest_round_trip_time_variance_)
+        highest_round_trip_time_variance_ = rttv;
+
+    if (net_->segment_throttle_epoch() == 0 ||
+        UDP_TIME_DIFFERENCE(service_time, net_->segment_throttle_epoch() >= net_->segment_throttle_interval()))
+    {
+        last_round_trip_time_             = lowest_round_trip_time_;
+        last_round_trip_time_variance_    = highest_round_trip_time_variance_;
+        lowest_round_trip_time_           = command_pod_->round_trip_time();
+        highest_round_trip_time_variance_ = command_pod_->round_trip_time_variance();
+
+        net_->segment_throttle_epoch(service_time);
+    }
+}

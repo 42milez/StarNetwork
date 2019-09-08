@@ -291,10 +291,55 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
 Error
 RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
-                                const RUdpProtocolType *cmd)
+                                const RUdpProtocolType *cmd, uint32_t service_time)
 {
      if (peer->StateIs(RUdpPeerState::DISCONNECTED) || peer->StateIs(RUdpPeerState::ZOMBIE))
         return Error::OK;
+
+     auto received_sent_time = ntohs(cmd->acknowledge.received_sent_time);
+     received_sent_time |= service_time & 0xFFFF0000;
+
+     if ((received_sent_time & 0x8000) > (service_time & 0x8000))
+         received_sent_time -= 0x10000;
+
+     if (UDP_TIME_LESS(service_time, received_sent_time))
+         return Error::OK;
+
+     peer->last_receive_time(service_time);
+     peer->earliest_timeout(0);
+
+     auto round_trip_time = UDP_TIME_DIFFERENCE(service_time, received_sent_time);
+
+     peer->segment_throttle(round_trip_time);
+     peer->UpdateRoundTripTimeVariance(service_time, round_trip_time);
+
+     auto received_reliable_sequence_number = ntohs(cmd->acknowledge.received_reliable_sequence_number);
+     auto command_number = peer->RemoveSentReliableCommand(received_reliable_sequence_number, cmd->header.channel_id);
+
+     auto state = peer->net()->state();
+     if (state == RUdpPeerState::ACKNOWLEDGING_CONNECT)
+     {
+         if (command_number != PROTOCOL_COMMAND_VERIFY_CONNECT)
+             return Error::ERROR;
+
+         dispatch_hub_->NotifyConnect(event, peer);
+     }
+     else if (state == RUdpPeerState::DISCONNECTING)
+     {
+         if (command_number != PROTOCOL_COMMAND_DISCONNECT)
+             return Error::ERROR;
+
+         dispatch_hub_->NotifyDisconnect(event, peer);
+     }
+     else if (state == RUdpPeerState::DISCONNECT_LATER)
+     {
+         if (!peer->command()->outgoing_reliable_command_exists() &&
+             !peer->command()->outgoing_unreliable_command_exists() &&
+             !peer->command()->sent_reliable_command_exists())
+         {
+
+         }
+     }
 }
 
 void

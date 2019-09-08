@@ -68,6 +68,12 @@ public:
 
     void segment_throttle(uint32_t val);
 
+    inline uint32_t segment_throttle_epoch()
+    { return _segment_throttle_epoch; }
+
+    inline void segment_throttle_epoch(uint32_t val)
+    { _segment_loss_epoch = val; }
+
     uint32_t segment_throttle_limit();
 
     void segment_throttle_limit(uint32_t val);
