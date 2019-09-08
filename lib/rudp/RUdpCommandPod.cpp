@@ -520,9 +520,50 @@ RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t
     return 0;
 }
 
-void
-RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
+RUdpProtocolCommand
+RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, size_t channel_count)
 {
+    std::shared_ptr<OutgoingCommand> command;
+
+    for (auto &cmd : _sent_reliable_commands)
+    {
+        if (cmd->reliable_sequence_number == reliable_sequence_number && cmd->command->header.channel_id)
+        {
+            command = cmd;
+            break;
+        }
+    }
+
+    auto was_sent = true;
+
+    if (command == (*_sent_reliable_commands.end()))
+    {
+        for (auto &cmd : _outgoing_reliable_commands)
+        {
+            if (cmd->send_attempts < 1)
+                return RUdpProtocolCommand::NONE;
+
+            if ((cmd->reliable_sequence_number == reliable_sequence_number) &&
+                (cmd->command->header.channel_id == channel_id))
+            {
+                break;
+            }
+
+            if (cmd == (*_outgoing_reliable_commands.end()))
+                return RUdpProtocolCommand::NONE;
+
+            was_sent = false;
+        }
+    }
+
+    if (command == nullptr)
+        return RUdpProtocolCommand::NONE;
+
+    if (channel_id < channel_count)
+    {
+        // ...
+    }
+
     // ...
 }
 

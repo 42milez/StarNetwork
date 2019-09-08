@@ -104,7 +104,8 @@ public:
 
     int check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
 
-    void RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id);
+    RUdpProtocolCommand RemoveSentReliableCommand(uint16_t reliable_sequence_number,
+        uint8_t channel_id, size_t channel_count);
 
     void remove_sent_unreliable_commands();
 

@@ -10,33 +10,23 @@
 #include "core/errors.h"
 #include "core/io/socket.h"
 
-constexpr uint8_t PROTOCOL_COMMAND_NONE = 0;
-
-constexpr uint8_t PROTOCOL_COMMAND_ACKNOWLEDGE = 1;
-
-constexpr uint8_t PROTOCOL_COMMAND_CONNECT = 2;
-
-constexpr uint8_t PROTOCOL_COMMAND_VERIFY_CONNECT = 3;
-
-constexpr uint8_t PROTOCOL_COMMAND_DISCONNECT = 4;
-
-constexpr uint8_t PROTOCOL_COMMAND_PING = 5;
-
-constexpr uint8_t PROTOCOL_COMMAND_SEND_RELIABLE = 6;
-
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNRELIABLE = 7;
-
-constexpr uint8_t PROTOCOL_COMMAND_SEND_FRAGMENT = 8;
-
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNSEQUENCED = 9;
-
-constexpr uint8_t PROTOCOL_COMMAND_BANDWIDTH_LIMIT = 10;
-
-constexpr uint8_t PROTOCOL_COMMAND_THROTTLE_CONFIGURE = 11;
-
-constexpr uint8_t PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT = 12;
-
-constexpr uint8_t PROTOCOL_COMMAND_COUNT = 13;
+enum class RUdpProtocolCommand : uint8_t
+{
+    NONE                     = 0,
+    ACKNOWLEDGE              = 1,
+    CONNECT                  = 2,
+    VERIFY_CONNECT           = 3,
+    DISCONNECT               = 4,
+    PING                     = 5,
+    SEND_RELIABLE            = 6,
+    SEND_UNRELIABLE          = 7,
+    SEND_FRAGMENT            = 8,
+    SEND_UNSEQUENCED         = 9,
+    BANDWIDTH_LIMIT          = 10,
+    THROTTLE_CONFIGURE       = 11,
+    SEND_UNRELIABLE_FRAGMENT = 12,
+    COUNT                    = 13
+};
 
 constexpr uint8_t PROTOCOL_COMMAND_MASK = 0x0F;
 
