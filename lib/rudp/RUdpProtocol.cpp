@@ -337,9 +337,11 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
              !peer->command()->outgoing_unreliable_command_exists() &&
              !peer->command()->sent_reliable_command_exists())
          {
-
+            peer->Disconnect();
          }
      }
+     
+     return Error::OK;
 }
 
 void
