@@ -581,3 +581,16 @@ RUdpPeer::UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip
         net_->segment_throttle_epoch(service_time);
     }
 }
+
+RUdpProtocolCommand
+RUdpPeer::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
+{
+    std::shared_ptr<RUdpChannel> channel;
+
+    if (channel_id < channels_.size())
+        channel = channels_.at(channel_id);
+    else
+        channel = nullptr;
+
+    command_pod_->RemoveSentReliableCommand(reliable_sequence_number, channel_id, channel);
+}

@@ -75,6 +75,8 @@ public:
 
     void UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time);
 
+    RUdpProtocolCommand RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id);
+
 public:
     inline size_t channel_count()
     { return channels_.size(); }
@@ -174,6 +176,9 @@ public:
     {
         address_ = address;
     }
+
+    inline std::shared_ptr<RUdpChannel> channel(size_t channel_id)
+    { return channels_.at(channel_id); }
 
     inline const std::unique_ptr<RUdpCommandPod> &command()
     { return command_pod_; };

@@ -315,9 +315,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      peer->UpdateRoundTripTimeVariance(service_time, round_trip_time);
 
      auto received_reliable_sequence_number = ntohs(cmd->acknowledge.received_reliable_sequence_number);
-     auto command_number = peer->command()->RemoveSentReliableCommand(received_reliable_sequence_number,
-                                                                      cmd->header.channel_id,
-                                                                      peer->channel_count());
+     auto command_number = peer->RemoveSentReliableCommand(received_reliable_sequence_number, cmd->header.channel_id);
 
      auto state = peer->net()->state();
      if (state == RUdpPeerState::ACKNOWLEDGING_CONNECT)
@@ -383,7 +381,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
         return Error::ERROR;
     }
 
-    peer->command()->RemoveSentReliableCommand(1, 0xFF, peer->channel_count());
+    peer->RemoveSentReliableCommand(1, 0xFF);
 
     //if (channel_count < peer->channel_count())
     //    peer->channel_count(channel_count);

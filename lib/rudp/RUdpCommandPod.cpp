@@ -521,22 +521,25 @@ RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t
 }
 
 RUdpProtocolCommand
-RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, size_t channel_count)
+RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
+    std::shared_ptr<RUdpChannel> &channel)
 {
-    std::shared_ptr<OutgoingCommand> command;
+    std::shared_ptr<OutgoingCommand> outgoing_command;
 
-    for (auto &cmd : _sent_reliable_commands)
+    std::list<std::shared_ptr<OutgoingCommand>>::iterator it;
+
+    for (it = _sent_reliable_commands.begin(); it != _sent_reliable_commands.end(); ++it)
     {
-        if (cmd->reliable_sequence_number == reliable_sequence_number && cmd->command->header.channel_id)
+        if ((*it)->reliable_sequence_number == reliable_sequence_number && (*it)->command->header.channel_id)
         {
-            command = cmd;
+            outgoing_command = (*it);
             break;
         }
     }
 
     auto was_sent = true;
 
-    if (command == (*_sent_reliable_commands.end()))
+    if (outgoing_command == (*_sent_reliable_commands.end()))
     {
         for (auto &cmd : _outgoing_reliable_commands)
         {
@@ -556,15 +559,38 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
         }
     }
 
-    if (command == nullptr)
+    if (outgoing_command == nullptr)
         return RUdpProtocolCommand::NONE;
 
-    if (channel_id < channel_count)
+    if (channel)
     {
-        // ...
+        auto reliable_window = reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        if (channel->reliable_windows.at(reliable_window) > 0)
+        {
+            -- channel->reliable_windows.at(reliable_window);
+            if (!channel->reliable_windows.at(reliable_window))
+                channel->used_reliable_windows &= ~ (1 << reliable_window);
+        }
     }
 
-    // ...
+    auto command_number = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
+
+    _outgoing_reliable_commands.erase(it);
+
+    if (outgoing_command->segment != nullptr)
+    {
+        if (was_sent)
+            _reliable_data_in_transit -= outgoing_command->fragment_length;
+    }
+
+    if (_sent_reliable_commands.empty())
+        return static_cast<RUdpProtocolCommand>(command_number);
+
+    outgoing_command = _sent_reliable_commands.front();
+
+    _next_timeout = outgoing_command->sent_time + outgoing_command->round_trip_timeout;
+
+    return static_cast<RUdpProtocolCommand>(command_number);
 }
 
 void
