@@ -162,7 +162,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
 
             auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
-            if (cmd_number >= PROTOCOL_COMMAND_COUNT)
+            if (cmd_number >= static_cast<uint8_t>(RUdpProtocolCommand::COUNT))
                 break;
 
             auto cmd_size = command_sizes.at(cmd_number);
@@ -171,12 +171,12 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             current_data += cmd_size;
 
-            if (peer == nullptr && cmd_number != PROTOCOL_COMMAND_CONNECT)
+            if (peer == nullptr && cmd_number != static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
                 break;
 
             cmd->header.reliable_sequence_number = ntohs(cmd->header.reliable_sequence_number);
 
-            if (cmd_number == PROTOCOL_COMMAND_ACKNOWLEDGE)
+            if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE))
             {
                 auto disconnect = [this](std::shared_ptr<RUdpPeer> &peer){
                     Disconnect(peer, peer->event_data());
@@ -187,7 +187,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     IS_EVENT_AVAILABLE()
                 }
             }
-            else if (cmd_number == PROTOCOL_COMMAND_CONNECT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
             {
                 if (peer)
                 {
@@ -229,56 +229,56 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                                          host_incoming_bandwidth_,
                                          host_outgoing_bandwidth_);
             }
-            else if (cmd_number == PROTOCOL_COMMAND_VERIFY_CONNECT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT))
             {
                 if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR)
                 {
                     IS_EVENT_AVAILABLE()
                 }
             }
-            else if (cmd_number == PROTOCOL_COMMAND_DISCONNECT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             {
                 if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR)
                 {
                     IS_EVENT_AVAILABLE()
                 }
             }
-            else if (cmd_number == PROTOCOL_COMMAND_PING)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
             {
 //                if (protocol_->HandlePing(peer, cmd))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_SEND_RELIABLE)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
             {
 //                if (protocol_->HandleSendReliable(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE))
             {
 //                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNSEQUENCED)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
             {
 //                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_SEND_FRAGMENT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT))
             {
 //                if (protocol_->HandleSendFragment(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_BANDWIDTH_LIMIT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT))
             {
 //                if (protocol_->HandleBandwidthLimit(peer, cmd))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_THROTTLE_CONFIGURE)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::THROTTLE_CONFIGURE))
             {
 //                if (protocol_->HandleThrottleConfigure(peer, cmd))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT)
+            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT))
             {
 //                if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
@@ -304,7 +304,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 }
                 else if (peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
                 {
-                    if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+                    if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
                         peer->QueueAcknowledgement(cmd, sent_time);
                 }
                 else
@@ -492,7 +492,7 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
     std::shared_ptr<RUdpProtocolType> cmd;
 
-    cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
+    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
     cmd->header.channel_id = 0xFF;
     cmd->disconnect.data = htonl(data);
 
@@ -534,7 +534,7 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     {
         peer->ResetPeerQueues();
 
-        cmd->header.command = PROTOCOL_COMMAND_DISCONNECT;
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
         cmd->header.channel_id = 0xFF;
         cmd->disconnect.data = htonl(data);
 

@@ -161,7 +161,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
 
-                cmd->header.command = PROTOCOL_COMMAND_BANDWIDTH_LIMIT | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+                cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT) | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
                 cmd->header.channel_id = 0xFF;
                 cmd->bandwidth_limit.outgoing_bandwidth = htonl(outgoing_bandwidth);
 
@@ -501,7 +501,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
         auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
 
-        (*command)->header.command = PROTOCOL_COMMAND_ACKNOWLEDGE;
+        (*command)->header.command = static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE);
         (*command)->header.channel_id = ack->command.header.channel_id;
         (*command)->header.reliable_sequence_number = reliable_sequence_number;
         (*command)->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
@@ -509,7 +509,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
         (*buffer)->Add(*command);
 
-        if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == PROTOCOL_COMMAND_DISCONNECT)
+        if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
         //++command;

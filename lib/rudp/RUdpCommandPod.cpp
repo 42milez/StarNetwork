@@ -101,11 +101,11 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
 
     auto cmd = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
 
-    if (cmd == PROTOCOL_COMMAND_SEND_UNRELIABLE) {
+    if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNRELIABLE) {
         outgoing_command->command->send_unreliable.unreliable_sequence_number =
             htons(outgoing_command->unreliable_sequence_number);
     }
-    else if (cmd == PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
+    else if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNSEQUENCED) {
         outgoing_command->command->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
     }
 
