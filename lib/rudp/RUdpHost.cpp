@@ -149,3 +149,101 @@ RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> 
 {
     peer_pod_->RequestPeerRemoval(peer_idx, peer);
 }
+
+Error
+RUdpHost::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTING) ||
+        peer->StateIs(RUdpPeerState::DISCONNECTED) ||
+        peer->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) ||
+        peer->StateIs(RUdpPeerState::ZOMBIE))
+    {
+        return Error::ERROR;
+    }
+
+    peer->ResetPeerQueues();
+
+    std::shared_ptr<RUdpProtocolType> cmd;
+
+    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
+    cmd->header.channel_id = 0xFF;
+    cmd->disconnect.data = htonl(data);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    }
+    else
+    {
+        cmd->header.command |= PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
+    }
+
+    peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+
+    if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    {
+        peer_pod_->PeerOnDisconnect(peer);
+
+        peer->net()->state(RUdpPeerState::DISCONNECTING);
+    }
+    else
+    {
+        Flush();
+        peer->Reset();
+    }
+
+    return Error::OK;
+}
+
+Error
+RUdpHost::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if (peer->StateIs(RUdpPeerState::DISCONNECTED))
+        return Error::ERROR;
+
+    std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+
+    if (!peer->StateIs(RUdpPeerState::ZOMBIE) && !peer->StateIs(RUdpPeerState::DISCONNECTING))
+    {
+        peer->ResetPeerQueues();
+
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
+        cmd->header.channel_id = 0xFF;
+        cmd->disconnect.data = htonl(data);
+
+        peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+
+        Flush();
+    }
+
+    peer->Reset();
+
+    return Error::OK;
+}
+
+Error
+RUdpHost::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+{
+    if ((peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
+        (peer->command()->outgoing_reliable_command_exists() ||
+            peer->command()->outgoing_unreliable_command_exists() ||
+            peer->command()->sent_reliable_command_exists()))
+    {
+        peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
+        peer->event_data(data);
+    }
+    else
+    {
+        Disconnect(peer, data);
+    }
+
+    return Error::OK;
+}
+
+void
+RUdpHost::Flush()
+{
+    peer_pod_->update_service_time();
+
+    peer_pod_->SendOutgoingCommands(nullptr, peer_pod_->service_time(), true);
+}
