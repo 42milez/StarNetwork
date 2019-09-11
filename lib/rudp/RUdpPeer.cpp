@@ -593,5 +593,5 @@ RUdpPeer::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t c
     else
         channel = nullptr;
 
-    command_pod_->RemoveSentReliableCommand(reliable_sequence_number, channel_id, channel);
+    return command_pod_->RemoveSentReliableCommand(reliable_sequence_number, channel_id, channel);
 }
