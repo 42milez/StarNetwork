@@ -30,6 +30,12 @@ public:
     inline std::shared_ptr<RUdpPeer> Peer(size_t peer_idx)
     { return peers_.at(peer_idx); }
 
+    Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+
+    void Flush();
+
 public:
     inline uint32_t service_time()
     { return service_time_; }

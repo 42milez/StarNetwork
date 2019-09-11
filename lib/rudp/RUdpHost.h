@@ -20,11 +20,11 @@ public:
 
     void RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
 
-    Error Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
-    Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
-    Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    inline Error DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+    { return peer_pod_->DisconnectNow(peer, data); }
 
-    void Flush();
+    inline Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+    { return peer_pod_->DisconnectLater(peer, data); }
 
 private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout)
