@@ -525,12 +525,12 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     std::shared_ptr<RUdpChannel> &channel)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command;
-
     std::list<std::shared_ptr<OutgoingCommand>>::iterator it;
 
     for (it = _sent_reliable_commands.begin(); it != _sent_reliable_commands.end(); ++it)
     {
-        if ((*it)->reliable_sequence_number == reliable_sequence_number && (*it)->command->header.channel_id)
+        if ((*it)->reliable_sequence_number == reliable_sequence_number &&
+            (*it)->command->header.channel_id == channel_id)
         {
             outgoing_command = (*it);
             break;
@@ -539,24 +539,25 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
 
     auto was_sent = true;
 
-    if (outgoing_command == (*_sent_reliable_commands.end()))
+    if (it == _sent_reliable_commands.end())
     {
-        for (auto &cmd : _outgoing_reliable_commands)
+        for (it = _sent_reliable_commands.begin(); it != _sent_reliable_commands.end(); ++it)
         {
-            if (cmd->send_attempts < 1)
+            if ((*it)->send_attempts < 1)
                 return RUdpProtocolCommand::NONE;
 
-            if ((cmd->reliable_sequence_number == reliable_sequence_number) &&
-                (cmd->command->header.channel_id == channel_id))
+            if (((*it)->reliable_sequence_number == reliable_sequence_number) &&
+                ((*it)->command->header.channel_id == channel_id))
             {
+                outgoing_command = (*it);
                 break;
             }
-
-            if (cmd == (*_outgoing_reliable_commands.end()))
-                return RUdpProtocolCommand::NONE;
-
-            was_sent = false;
         }
+
+        if (it == _outgoing_reliable_commands.end())
+            return RUdpProtocolCommand::NONE;
+
+        was_sent = false;
     }
 
     if (outgoing_command == nullptr)
@@ -568,14 +569,12 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
         if (channel->reliable_windows.at(reliable_window) > 0)
         {
             -- channel->reliable_windows.at(reliable_window);
-            if (!channel->reliable_windows.at(reliable_window))
+            if (channel->reliable_windows.at(reliable_window) == 0)
                 channel->used_reliable_windows &= ~ (1 << reliable_window);
         }
     }
 
     auto command_number = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
-
-    _outgoing_reliable_commands.erase(it);
 
     if (outgoing_command->segment != nullptr)
     {
@@ -589,6 +588,8 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     outgoing_command = _sent_reliable_commands.front();
 
     _next_timeout = outgoing_command->sent_time + outgoing_command->round_trip_timeout;
+
+    _outgoing_reliable_commands.erase(it);
 
     return static_cast<RUdpProtocolCommand>(command_number);
 }
