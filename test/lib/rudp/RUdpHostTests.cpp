@@ -24,6 +24,11 @@ public:
         return host_->Service(event, timeout);
     }
 
+    RUdpPeerState PeerState(size_t idx)
+    {
+        return host_->PeerState(0);
+    }
+
 private:
     std::shared_ptr<RUdpHost> host_;
 };
@@ -66,11 +71,14 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     // --------------------------------------------------
     client->Service(client_event, 0);
 
+    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
+
     sleep(1);
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
     auto ret = Service(server_event, 0);
 
+    REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 }

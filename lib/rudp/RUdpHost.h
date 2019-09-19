@@ -26,6 +26,9 @@ public:
     inline Error DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     { return peer_pod_->DisconnectLater(peer, data); }
 
+    inline RUdpPeerState PeerState(size_t idx)
+    { return peer_pod_->Peer(idx)->net()->state(); }
+
 private:
     static int SocketWait(uint8_t wait_condition, uint32_t timeout)
     { return 0; };
