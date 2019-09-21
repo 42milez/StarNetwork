@@ -540,8 +540,8 @@ RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t dat
 {
     if ((peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
         (peer->command()->outgoing_reliable_command_exists() ||
-            peer->command()->outgoing_unreliable_command_exists() ||
-            peer->command()->sent_reliable_command_exists()))
+         peer->command()->outgoing_unreliable_command_exists() ||
+         peer->command()->sent_reliable_command_exists()))
     {
         peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
         peer->event_data(data);
@@ -559,5 +559,5 @@ RUdpPeerPod::Flush()
 {
     update_service_time();
 
-    SendOutgoingCommands(nullptr, service_time_, true);
+    SendOutgoingCommands(nullptr, service_time_, false);
 }
