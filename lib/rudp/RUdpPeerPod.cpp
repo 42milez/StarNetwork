@@ -483,26 +483,20 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     peer->ResetPeerQueues();
 
     std::shared_ptr<RUdpProtocolType> cmd;
-
     cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
     cmd->header.channel_id = 0xFF;
     cmd->disconnect.data = htonl(data);
 
     if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
-    {
         cmd->header.command |= PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
-    }
     else
-    {
         cmd->header.command |= PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
-    }
 
     peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
 
     if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
         PeerOnDisconnect(peer);
-
         peer->net()->state(RUdpPeerState::DISCONNECTING);
     }
     else
