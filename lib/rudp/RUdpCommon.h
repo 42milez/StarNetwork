@@ -30,20 +30,6 @@ enum class RUdpProtocolCommand : uint8_t
 
 constexpr uint8_t PROTOCOL_COMMAND_MASK = 0x0F;
 
-constexpr uint8_t PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1u << 7u);
-
-constexpr uint8_t PROTOCOL_COMMAND_FLAG_UNSEQUENCED = (1u << 6u);
-
-constexpr uint16_t PROTOCOL_HEADER_FLAG_COMPRESSED = (1u << 14u);
-
-constexpr uint16_t PROTOCOL_HEADER_FLAG_SENT_TIME = (1u << 15u);
-
-constexpr uint16_t PROTOCOL_HEADER_FLAG_MASK = PROTOCOL_HEADER_FLAG_COMPRESSED | PROTOCOL_HEADER_FLAG_SENT_TIME;
-
-constexpr uint16_t PROTOCOL_HEADER_SESSION_MASK = (3u << 12u);
-
-constexpr uint8_t PROTOCOL_HEADER_SESSION_SHIFT = 12;
-
 constexpr uint16_t PROTOCOL_MINIMUM_CHANNEL_COUNT = 1;
 
 constexpr uint16_t PROTOCOL_MINIMUM_MTU = 576;
@@ -140,10 +126,15 @@ enum class SocketWait: uint8_t
     INTERRUPT = (1u << 2u)
 };
 
-enum class RUdpProtocolCommandFlag: uint32_t
+enum class RUdpProtocolFlag : uint16_t
 {
-    ACKNOWLEDGE = (1u << 7u),
-    UNSEQUENCED = (1u << 6u)
+    COMMAND_ACKNOWLEDGE  = (1u << 7u),
+    COMMAND_UNSEQUENCED  = (1u << 6u),
+    HEADER_COMPRESSED    = (1u << 14u),
+    HEADER_SENT_TIME     = (1u << 15u),
+    HEADER_MASK          = HEADER_COMPRESSED | HEADER_SENT_TIME,
+    HEADER_SESSION_MASK  = (3u << 12u),
+    HEADER_SESSION_SHIFT = 12
 };
 
 using RUdpProtocolHeader = struct RUdpProtocolHeader

@@ -161,7 +161,8 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
 
-                cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT) | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+                cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT) |
+                                      static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
                 cmd->header.channel_id = 0xFF;
                 cmd->bandwidth_limit.outgoing_bandwidth = htonl(outgoing_bandwidth);
 
@@ -446,7 +447,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtoc
 
         peer->Reset();
     }
-    else if (cmd->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    else if (cmd->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
     {
         dispatch_hub_->ChangeState(peer, RUdpPeerState::ACKNOWLEDGING_DISCONNECT);
     }

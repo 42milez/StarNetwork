@@ -40,7 +40,8 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
-    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::CONNECT) | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::CONNECT) |
+                          static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     cmd->header.channel_id = 0xFF;
 
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
@@ -87,21 +88,22 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
 
     auto incoming_session_id = cmd->connect.incoming_session_id == 0xFF ? outgoing_session_id_ :
                                cmd->connect.incoming_session_id;
-    incoming_session_id = (incoming_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+    incoming_session_id = (incoming_session_id + 1) &
+        (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
     if (incoming_session_id == outgoing_session_id_)
         incoming_session_id = (incoming_session_id + 1) &
-            (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+            (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
     outgoing_session_id_ = incoming_session_id;
 
     auto outgoing_session_id = cmd->connect.outgoing_session_id == 0xFF ? incoming_session_id_ :
                                cmd->connect.outgoing_session_id;
-    outgoing_session_id = (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+    outgoing_session_id = (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
     if (outgoing_session_id == incoming_session_id)
         outgoing_session_id =
-            (outgoing_session_id + 1) & (PROTOCOL_HEADER_SESSION_MASK >> PROTOCOL_HEADER_SESSION_SHIFT);
+            (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
     incoming_session_id_ = outgoing_session_id;
 
@@ -180,7 +182,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     std::shared_ptr<RUdpProtocolType> verify_cmd = std::make_shared<RUdpProtocolType>();
 
     verify_cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT) |
-        PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+        static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     verify_cmd->header.channel_id = 0xFF;
     verify_cmd->verify_connect.outgoing_peer_id = htons(incoming_peer_id_);
     verify_cmd->verify_connect.incoming_session_id = incoming_session_id;
@@ -206,7 +208,8 @@ RUdpPeer::Ping()
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
-    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::PING) | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::PING) |
+                          static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     cmd->header.channel_id = 0xFF;
 
     //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
@@ -317,7 +320,8 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
         }
         else
         {
-            command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) | PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+            command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
+                             static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
             start_sequence_number = htons(channel->outgoing_reliable_sequence_number + 1);
         }
 

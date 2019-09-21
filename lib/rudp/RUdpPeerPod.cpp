@@ -107,13 +107,13 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
         auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
         auto peer_id = ntohs(header->peer_id);
-        auto session_id = (peer_id & PROTOCOL_HEADER_SESSION_MASK) >> PROTOCOL_HEADER_SESSION_SHIFT;
-        auto flags = peer_id & PROTOCOL_HEADER_FLAG_MASK;
+        auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
+        auto flags = peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
         auto header_size =
-            (flags & PROTOCOL_HEADER_FLAG_SENT_TIME ? sizeof(RUdpProtocolHeader) : (size_t) &((RUdpProtocolHeader *) 0)
+            (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME) ? sizeof(RUdpProtocolHeader) : (size_t) &((RUdpProtocolHeader *) 0)
                 ->sent_time);
 
-        peer_id &= ~(PROTOCOL_HEADER_FLAG_MASK | PROTOCOL_HEADER_SESSION_MASK);
+        peer_id &= ~(static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK) | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK));
 
         if (checksum_)
             header_size += sizeof(uint32_t);
@@ -136,7 +136,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 continue;
         }
 
-        if (flags & PROTOCOL_HEADER_FLAG_COMPRESSED)
+        if (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_COMPRESSED))
         {
             // ...
         }
@@ -288,9 +288,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 IS_EVENT_AVAILABLE()
             }
 
-            if (peer && (cmd->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) != 0)
+            if (peer && (cmd->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE)) != 0)
             {
-                if (!(flags & PROTOCOL_HEADER_FLAG_SENT_TIME))
+                if (!(flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME)))
                     break;
 
                 auto sent_time = ntohs(header->sent_time);
@@ -400,7 +400,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             // _buffers[n]: コマンド
             protocol_->chamber()->SetHeader(header_data);
 
-            if (protocol_->chamber()->header_flags() & PROTOCOL_HEADER_FLAG_SENT_TIME)
+            if (protocol_->chamber()->header_flags() & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME))
             {
                 header->sent_time = htons(service_time & 0xFFFF);
                 //protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
@@ -421,7 +421,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             if (peer->outgoing_peer_id() < PROTOCOL_MAXIMUM_PEER_ID)
             {
                 auto header_flags = protocol_->chamber()->header_flags();
-                header_flags |= peer->outgoing_session_id() << PROTOCOL_HEADER_SESSION_SHIFT;
+                header_flags |= peer->outgoing_session_id() << static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
                 protocol_->chamber()->header_flags(header_flags);
             }
 
@@ -488,9 +488,9 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     cmd->disconnect.data = htonl(data);
 
     if (peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
-        cmd->header.command |= PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+        cmd->header.command |= static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     else
-        cmd->header.command |= PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
+        cmd->header.command |= static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED);
 
     peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
 
@@ -520,7 +520,8 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     {
         peer->ResetPeerQueues();
 
-        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT) |
+                              static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED);
         cmd->header.channel_id = 0xFF;
         cmd->disconnect.data = htonl(data);
 

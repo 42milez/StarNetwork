@@ -46,11 +46,11 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
 
-    //  Queue command: PROTOCOL_COMMAND_CONNECT with PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE
+    //  Queue command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // --------------------------------------------------
     client->Connect(server_address, SysCh::MAX, 0);
 
-    //  Send command: PROTOCOL_COMMAND_CONNECT with PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE
+    //  Send command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // --------------------------------------------------
     client->Service(client_event, 0);
 

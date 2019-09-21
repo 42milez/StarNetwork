@@ -68,7 +68,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
         outgoing_command->reliable_sequence_number = _outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
     {
         ++channel->outgoing_reliable_sequence_number;
         channel->outgoing_unreliable_sequence_number = 0;
@@ -76,7 +76,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
         outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
         outgoing_command->unreliable_sequence_number = 0;
     }
-    else if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_UNSEQUENCED)
+    else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED))
     {
         ++_outgoing_unsequenced_group;
 
@@ -109,7 +109,7 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
         outgoing_command->command->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
     }
 
-    if (outgoing_command->command->header.command & PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
+    if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
         _outgoing_reliable_commands.push_back(outgoing_command);
     else
         _outgoing_unreliable_commands.push_back(outgoing_command);
@@ -218,7 +218,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         );
 
         auto flags = chamber->header_flags();
-        chamber->header_flags(flags | PROTOCOL_HEADER_FLAG_SENT_TIME);
+        chamber->header_flags(flags | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME));
 
         // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
         //       これは受信側でパケットを正しく識別するための基本
