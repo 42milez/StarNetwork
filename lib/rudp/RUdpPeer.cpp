@@ -463,6 +463,7 @@ RUdpPeer::Reset(uint16_t peer_idx)
     acknowledgements_.clear();
     channels_.clear();
     command_pod_->Reset();
+    net_->Reset();
 
     std::queue<IncomingCommand> empty;
     dispatched_commands_.swap(empty);

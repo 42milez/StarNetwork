@@ -44,6 +44,10 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     memcpy(server_address.host, server_ip.GetIPv6(), sizeof(server_address.host));
     server_address.port = 8888;
 
+    // ==================================================
+    //  Step 1 : Connect to the server
+    // ==================================================
+
     std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
 
     //  Queue command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
@@ -82,8 +86,11 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 
+    // ==================================================
+    //  Step 2 : Disconnect from the server
+    // ==================================================
+
     client->DisconnectNow(client_event->peer, 0);
-    client->Service(client_event, 0);
 
     sleep(1);
 
