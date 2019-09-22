@@ -81,4 +81,22 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ConnectToServer", "[IPv4][RUdpHost]")
 
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
+
+    client->DisconnectNow(client_event->peer, 0);
+    client->Service(client_event, 0);
+
+    sleep(1);
+
+    Service(server_event, 0);
+
+    sleep(1);
+
+    client->Service(client_event, 0);
+
+    sleep(1);
+
+    Service(server_event, 0);
+
+    REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
+    REQUIRE(client->PeerState(0) == RUdpPeerState::DISCONNECTED);
 }

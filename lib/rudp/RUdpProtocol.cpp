@@ -441,9 +441,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtoc
     else if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
         if (peer->StateIs(RUdpPeerState::CONNECTION_PENDING))
-        {
             dispatch_hub_->recalculate_bandwidth_limits(true);
-        }
 
         peer->Reset();
     }
@@ -457,9 +455,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtoc
     }
 
     if (!peer->StateIs(RUdpPeerState::DISCONNECTED))
-    {
         peer->event_data(ntohl(cmd->disconnect.data));
-    }
 
     return Error::OK;
 }
