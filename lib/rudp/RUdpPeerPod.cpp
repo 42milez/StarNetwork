@@ -482,7 +482,7 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
     peer->ResetPeerQueues();
 
-    std::shared_ptr<RUdpProtocolType> cmd;
+    auto cmd = std::make_shared<RUdpProtocolType>();
     cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
     cmd->header.channel_id = 0xFF;
     cmd->disconnect.data = htonl(data);

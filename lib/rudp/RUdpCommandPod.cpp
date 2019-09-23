@@ -50,7 +50,11 @@ RUdpCommandPod::RUdpCommandPod()
       _earliest_timeout(),
       _timeout_minimum(),
       _timeout_maximum(),
-      _reliable_data_in_transit()
+      _reliable_data_in_transit(),
+      _outgoing_reliable_commands(),
+      _outgoing_unreliable_commands(),
+      _sent_reliable_commands(),
+      _sent_unreliable_commands()
 {}
 
 void
@@ -525,9 +529,11 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     std::shared_ptr<RUdpChannel> &channel)
 {
     std::shared_ptr<OutgoingCommand> outgoing_command;
-    std::list<std::shared_ptr<OutgoingCommand>>::iterator it;
+    auto it = _sent_reliable_commands.begin();
+    auto it_end = _sent_reliable_commands.end();
+    auto no_sent_reliable_command_matched = false;
 
-    for (it = _sent_reliable_commands.begin(); it != _sent_reliable_commands.end(); ++it)
+    for (; it != it_end; ++it)
     {
         if ((*it)->reliable_sequence_number == reliable_sequence_number &&
             (*it)->command->header.channel_id == channel_id)
@@ -535,13 +541,19 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
             outgoing_command = (*it);
             break;
         }
+
+        if (it == _sent_reliable_commands.end())
+            no_sent_reliable_command_matched = true;
     }
 
     auto was_sent = true;
 
-    if (it == _sent_reliable_commands.end())
+    if (no_sent_reliable_command_matched)
     {
-        for (it = _sent_reliable_commands.begin(); it != _sent_reliable_commands.end(); ++it)
+        it = _outgoing_reliable_commands.begin();
+        it_end = _outgoing_reliable_commands.end();
+
+        for (; it != it_end; ++it)
         {
             if ((*it)->send_attempts < 1)
                 return RUdpProtocolCommand::NONE;
@@ -554,7 +566,7 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
             }
         }
 
-        if (it == _outgoing_reliable_commands.end())
+        if (it == it_end)
             return RUdpProtocolCommand::NONE;
 
         was_sent = false;
@@ -579,7 +591,9 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     if (outgoing_command->segment != nullptr)
     {
         if (was_sent)
+        {
             _reliable_data_in_transit -= outgoing_command->fragment_length;
+        }
     }
 
     if (_sent_reliable_commands.empty())
@@ -589,7 +603,10 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
 
     _next_timeout = outgoing_command->sent_time + outgoing_command->round_trip_timeout;
 
-    _outgoing_reliable_commands.erase(it);
+    if (no_sent_reliable_command_matched)
+        _outgoing_reliable_commands.erase(it);
+    else
+        _sent_reliable_commands.erase(it);
 
     return static_cast<RUdpProtocolCommand>(command_number);
 }
