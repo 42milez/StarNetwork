@@ -239,8 +239,8 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
 
     outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
 
-    ack->sent_time = sent_time;
-    ack->command = *cmd;
+    ack->sent_time(sent_time);
+    ack->command(*cmd);
 
     acknowledgements_.push_back(ack);
 }

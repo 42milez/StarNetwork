@@ -496,17 +496,17 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
         chamber_->update_segment_size(sizeof(RUdpProtocolAcknowledge));
 
-        auto reliable_sequence_number = htons(ack->command.header.reliable_sequence_number);
+        auto reliable_sequence_number = htons(ack->command().header.reliable_sequence_number);
 
         (*command)->header.command = static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE);
-        (*command)->header.channel_id = ack->command.header.channel_id;
+        (*command)->header.channel_id = ack->command().header.channel_id;
         (*command)->header.reliable_sequence_number = reliable_sequence_number;
         (*command)->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
-        (*command)->acknowledge.received_sent_time = htons(ack->sent_time);
+        (*command)->acknowledge.received_sent_time = htons(ack->sent_time());
 
         (*buffer)->Add(*command);
 
-        if ((ack->command.header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
+        if ((ack->command().header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
         //++command;

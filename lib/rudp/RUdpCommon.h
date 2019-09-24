@@ -267,23 +267,6 @@ using RUdpProtocolType = union RUdpProtocolType
 
 using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 
-using RUdpProtocolVariant = std::variant<RUdpProtocolCommandHeader,
-                                         RUdpProtocolAcknowledge,
-                                         RUdpProtocolConnect,
-                                         RUdpProtocolVerifyConnect,
-                                         RUdpProtocolDisconnect,
-                                         RUdpProtocolPing,
-                                         RUdpProtocolSendReliable,
-                                         RUdpProtocolSendUnreliable,
-                                         RUdpProtocolSendUnsequenced,
-                                         RUdpProtocolSendFragment,
-                                         RUdpProtocolBandwidthLimit,
-                                         RUdpProtocolThrottleConfigure>;
-
-using RUdpProtocolVariantSP = std::shared_ptr<RUdpProtocolVariant>;
-
-using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
-
 using VecUInt8It = std::vector<uint8_t>::iterator;
 using VecUInt8Ptr = std::vector<uint8_t> *;
 using VecUInt8SP = std::shared_ptr<std::vector<uint8_t>>;
