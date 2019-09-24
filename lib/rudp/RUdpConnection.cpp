@@ -19,12 +19,16 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
 
     IpAddress ip{};
 
-    if (address.wildcard)
+    if (address.wildcard())
+    {
         ip = IpAddress("*");
+    }
     else
-        ip.set_ipv6(address.host);
+    {
+        ip.set_ipv6(address.host());
+    }
 
-    auto ret = _socket->bind(ip, address.port);
+    auto ret = _socket->bind(ip, address.port());
 
     if (ret != Error::OK) {
         // throw exception
@@ -48,7 +52,9 @@ RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buf
     ssize_t read_count;
     IpAddress ip;
 
-    err = _socket->recvfrom(buffer, read_count, ip, received_address.port);
+    uint16_t port = 0;
+    err = _socket->recvfrom(buffer, read_count, ip, port);
+    received_address.port(port);
 
     if (err == Error::ERR_BUSY)
         return 0;
@@ -66,7 +72,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 {
     IpAddress dest;
 
-    dest.set_ipv6(address.host);
+    dest.set_ipv6(address.host());
 
     std::vector<uint8_t> out;
 
@@ -74,7 +80,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     ssize_t sent = 0;
 
-    auto err = _socket->sendto(&(out.at(0)), size, sent, dest, address.port);
+    auto err = _socket->sendto(&(out.at(0)), size, sent, dest, address.port());
 
     if (err != Error::OK) {
         if (err == Error::ERR_BUSY)

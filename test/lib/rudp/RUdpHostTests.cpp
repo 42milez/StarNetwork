@@ -13,7 +13,7 @@ public:
     ServerIPv4Fixture()
     {
         RUdpAddress address;
-        address.port = 8888;
+        address.port(8888);
 
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
     }
@@ -31,13 +31,13 @@ private:
 TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (1)", "[IPv4][RUdpHost]")
 {
     RUdpAddress client_address;
-    client_address.port = 8889;
+    client_address.port(8889);
     auto client = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
 
     IpAddress server_ip{"::FFFF:127.0.0.1"};
     RUdpAddress server_address;
-    memcpy(server_address.host, server_ip.GetIPv6(), sizeof(server_address.host));
-    server_address.port = 8888;
+    server_address.host(server_ip.GetIPv6());
+    server_address.port(8888);
 
     auto sleep_duration = 100 * 1000; // millisecond
 
@@ -108,13 +108,13 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (2)", "[IPv4][RUdpHost]")
 {
     RUdpAddress client_address;
-    client_address.port = 8889;
+    client_address.port(8889);
     auto client = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
 
     IpAddress server_ip{"::FFFF:127.0.0.1"};
     RUdpAddress server_address;
-    memcpy(server_address.host, server_ip.GetIPv6(), sizeof(server_address.host));
-    server_address.port = 8888;
+    server_address.host(server_ip.GetIPv6());
+    server_address.port(8888);
 
     auto sleep_duration = 100 * 1000; // millisecond
 

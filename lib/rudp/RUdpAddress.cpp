@@ -3,34 +3,38 @@
 #include <cstring>
 
 RUdpAddress::RUdpAddress()
-    : port(), wildcard(false)
-{
-    memset(&host, 0, sizeof(host));
-}
+    : host_(),
+      port_(),
+      wildcard_()
+{}
 
 void
 RUdpAddress::Reset()
 {
-    memset(host, 0, sizeof(host));
-    port = 0;
-    wildcard = 0;
+    std::fill_n(host_.begin(), HOST_LENGTH, 0);
+    port_ = 0;
+    wildcard_ = 0;
 }
 
 void
 RUdpAddress::SetIP(const uint8_t *ip, size_t size)
 {
-    auto len = size > 16 ? 16 : size;
+    auto len = size > HOST_LENGTH ? HOST_LENGTH : size;
 
-    memset(host, 0, 16);
+    std::fill_n(host_.begin(), HOST_LENGTH, 0);
 
-    memcpy(host, ip, len); // network byte-order (big endian)
+    memcpy(&host_, ip, len); // network byte-order (big endian)
 }
 
 RUdpAddress &
 RUdpAddress::operator=(const RUdpAddress &address)
 {
-    memcpy(host, address.host, 16);
-    port = address.port;
+    if (this == &address)
+        return *this;
+
+    auto host_src = address.host();
+    std::copy(host_src.begin(), host_src.end(), host_.begin());
+    port_ = address.port();
 
     return *this;
 }
@@ -38,8 +42,9 @@ RUdpAddress::operator=(const RUdpAddress &address)
 bool
 RUdpAddress::operator==(const RUdpAddress &address) const
 {
-    auto same_host = memcmp(address.host, address.host, 16) == 0;
-    auto same_port = port == address.port;
+    auto host_compared = address.host();
+    auto same_host = memcmp(&host_, &host_compared, HOST_LENGTH) == 0;
+    auto same_port = port_ == address.port();
 
     return same_host & same_port;
 }
@@ -47,8 +52,9 @@ RUdpAddress::operator==(const RUdpAddress &address) const
 bool
 RUdpAddress::operator!=(const RUdpAddress &address) const
 {
-    auto same_host = memcmp(address.host, address.host, 16) == 0;
-    auto same_port = port == address.port;
+    auto host_compared = address.host();
+    auto same_host = memcmp(&host_, &host_compared, HOST_LENGTH) == 0;
+    auto same_port = port_ == address.port();
 
     return !(same_host & same_port);
 }

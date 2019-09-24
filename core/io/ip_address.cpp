@@ -331,9 +331,22 @@ IpAddress::set_ipv6(const uint8_t (&ip)[16])
 
     _valid = true;
 
-    for (auto i = 0; i < 16; i++)
+    for (auto i = 0; i < 16; ++i)
     {
         _field8[i] = ip[i];
+    }
+}
+
+void
+IpAddress::set_ipv6(const std::array<uint8_t, 16> &host)
+{
+    clear();
+
+    _valid = true;
+
+    for (auto i = 0; i < 16; ++i)
+    {
+        _field8[i] = host.at(i);
     }
 }
 

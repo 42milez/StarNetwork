@@ -84,7 +84,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
             client_address.SetIP(bind_ip_.GetIPv4(), 8);
         }
 #endif
-        client_address.port = client_port;
+        client_address.port(client_port);
 
         host_ = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
@@ -117,9 +117,9 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
     dst_address.SetIP(ip.get_ipv6(), 16);
 #else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-    memcpy(dst_address.host, ip.GetIPv4(), sizeof(dst_address.host));
+    dst_address.host(ip.GetIPv4());
 #endif
-    dst_address.port = server_port;
+    dst_address.port(server_port);
 
     unique_id_ = hash32();
 
@@ -153,7 +153,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
     }
 #endif
 
-    address.port = port;
+    address.port(port);
 
     host_ = std::make_unique<RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 

@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_CORE_IP_ADDRESS_H
 #define P2P_TECHDEMO_CORE_IP_ADDRESS_H
 
+#include <array>
+
 struct IpAddress
 {
 private:
@@ -42,6 +44,7 @@ public:
     void set_ipv4(const uint8_t (&ip)[4]);
 
     void set_ipv6(const uint8_t (&ip)[16]);
+    void set_ipv6(const std::array<uint8_t, 16> &host);
 
     explicit IpAddress(const std::string &str);
 
