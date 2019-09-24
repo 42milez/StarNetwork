@@ -32,8 +32,7 @@ RUdpAddress::operator=(const RUdpAddress &address)
     if (this == &address)
         return *this;
 
-    auto host_src = address.host();
-    std::copy(host_src.begin(), host_src.end(), host_.begin());
+    std::copy(address.host().begin(), address.host().end(), host_.begin());
     port_ = address.port();
 
     return *this;
@@ -42,8 +41,7 @@ RUdpAddress::operator=(const RUdpAddress &address)
 bool
 RUdpAddress::operator==(const RUdpAddress &address) const
 {
-    auto host_compared = address.host();
-    auto same_host = memcmp(&host_, &host_compared, HOST_LENGTH) == 0;
+    auto same_host = memcmp(&host_, &address.host(), HOST_LENGTH) == 0;
     auto same_port = port_ == address.port();
 
     return same_host & same_port;
@@ -52,8 +50,7 @@ RUdpAddress::operator==(const RUdpAddress &address) const
 bool
 RUdpAddress::operator!=(const RUdpAddress &address) const
 {
-    auto host_compared = address.host();
-    auto same_host = memcmp(&host_, &host_compared, HOST_LENGTH) == 0;
+    auto same_host = memcmp(&host_, &address.host(), HOST_LENGTH) == 0;
     auto same_port = port_ == address.port();
 
     return !(same_host & same_port);

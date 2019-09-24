@@ -18,7 +18,7 @@ public:
 
 public:
     [[nodiscard]]
-    inline std::array<uint8_t, HOST_LENGTH> host() const
+    inline const std::array<uint8_t, HOST_LENGTH> & host() const
     { return host_; }
 
     void host(const uint8_t *ip_address)
