@@ -50,9 +50,6 @@ RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buf
 
     err = _socket->recvfrom(buffer, read_count, ip, received_address.port);
 
-    auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(buffer.at(0)));
-    auto debug_command = reinterpret_cast<RUdpProtocolType *>(&(buffer.at(4)));
-
     if (err == Error::ERR_BUSY)
         return 0;
 
@@ -76,9 +73,6 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
     auto size = chamber->Write(out);
 
     ssize_t sent = 0;
-
-    auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(out.at(0)));
-    auto debug_command = reinterpret_cast<RUdpProtocolType *>(&(out.at(4)));
 
     auto err = _socket->sendto(&(out.at(0)), size, sent, dest, address.port);
 

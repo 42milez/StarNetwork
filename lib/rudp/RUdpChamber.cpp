@@ -160,8 +160,5 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 void
 RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
-    auto debug_tmp = header;
-    auto debug_header = reinterpret_cast<RUdpProtocolHeader *>(&(debug_tmp->at(0)));
-
     _buffers.at(0)->Add(header, 0, 4);
 }

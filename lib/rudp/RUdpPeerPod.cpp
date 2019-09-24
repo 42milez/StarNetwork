@@ -425,9 +425,6 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                 protocol_->chamber()->header_flags(header_flags);
             }
 
-            auto debug_outgoing_peer_id = peer->outgoing_peer_id();
-            auto debug_header_flags = protocol_->chamber()->header_flags();
-
             header->peer_id = htons(peer->outgoing_peer_id() | protocol_->chamber()->header_flags());
 
             if (checksum_ != nullptr)
