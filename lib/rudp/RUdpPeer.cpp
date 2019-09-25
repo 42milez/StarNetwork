@@ -224,9 +224,9 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
     {
         auto channel = channels_.at(cmd->header.channel_id);
         auto reliable_window = cmd->header.reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
-        auto current_window = channel->incoming_reliable_sequence_number / PEER_FREE_RELIABLE_WINDOWS;
+        auto current_window = channel->incoming_reliable_sequence_number() / PEER_FREE_RELIABLE_WINDOWS;
 
-        if (cmd->header.reliable_sequence_number < channel->incoming_reliable_sequence_number)
+        if (cmd->header.reliable_sequence_number < channel->incoming_reliable_sequence_number())
             reliable_window += PEER_RELIABLE_WINDOWS;
 
         if (reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1 && reliable_window <= current_window + PEER_FREE_RELIABLE_WINDOWS)
@@ -313,16 +313,16 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
                 static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
                 static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT)
             )) == static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT) &&
-            channel->outgoing_unreliable_sequence_number < 0xFFFF)
+            channel->outgoing_unreliable_sequence_number() < 0xFFFF)
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
-            start_sequence_number = htons(channel->outgoing_unreliable_sequence_number + 1);
+            start_sequence_number = htons(channel->outgoing_unreliable_sequence_number() + 1);
         }
         else
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
                              static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
-            start_sequence_number = htons(channel->outgoing_reliable_sequence_number + 1);
+            start_sequence_number = htons(channel->outgoing_reliable_sequence_number() + 1);
         }
 
         std::list<std::shared_ptr<OutgoingCommand>> fragments;

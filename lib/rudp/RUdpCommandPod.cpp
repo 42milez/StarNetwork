@@ -13,11 +13,11 @@ window_wraps(const std::shared_ptr<RUdpChannel> &channel,
 
     auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
 
-    auto all_available_windows_are_in_use = channel->reliable_windows.at(
+    auto all_available_windows_are_in_use = channel->ReliableWindow(
         (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
     ) >= PEER_RELIABLE_WINDOW_SIZE;
 
-    auto existing_commands_are_in_flight = channel->used_reliable_windows & (
+    auto existing_commands_are_in_flight = channel->used_reliable_windows() & (
         (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) << reliable_window) |
             (((1 << PEER_FREE_RELIABLE_WINDOWS) - 1) >> (PEER_RELIABLE_WINDOWS - reliable_window))
     );
@@ -74,10 +74,10 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     }
     else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
     {
-        ++channel->outgoing_reliable_sequence_number;
-        channel->outgoing_unreliable_sequence_number = 0;
+        channel->IncrementOutgoingReliableSequenceNumber();
+        channel->outgoing_unreliable_sequence_number(0);
 
-        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
+        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number();
         outgoing_command->unreliable_sequence_number = 0;
     }
     else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED))
@@ -90,10 +90,10 @@ RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoin
     else
     {
         if (outgoing_command->fragment_offset == 0)
-            ++channel->outgoing_unreliable_sequence_number;
+            channel->IncrementOutgoingUnreliableSequenceNumber();
 
-        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number;
-        outgoing_command->unreliable_sequence_number = channel->outgoing_unreliable_sequence_number;
+        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number();
+        outgoing_command->unreliable_sequence_number = channel->outgoing_unreliable_sequence_number();
     }
 
     outgoing_command->send_attempts = 0;
@@ -197,8 +197,8 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         ++current_command;
 
         if (channel != nullptr && (*outgoing_command)->send_attempts < 1) {
-            channel->used_reliable_windows |= 1 << reliable_window;
-            ++channel->reliable_windows[reliable_window];
+            channel->MarkReliableWindowAsUsed(reliable_window);
+            channel->IncrementReliableWindow(reliable_window);
         }
 
         ++(*outgoing_command)->send_attempts;
@@ -578,11 +578,11 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     if (channel)
     {
         auto reliable_window = reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
-        if (channel->reliable_windows.at(reliable_window) > 0)
+        if (channel->ReliableWindow(reliable_window) > 0)
         {
-            -- channel->reliable_windows.at(reliable_window);
-            if (channel->reliable_windows.at(reliable_window) == 0)
-                channel->used_reliable_windows &= ~ (1 << reliable_window);
+            channel->DecrementReliableWindow(reliable_window);
+            if (channel->ReliableWindow(reliable_window) == 0)
+                channel->MarkReliableWindowAsUnused(reliable_window);
         }
     }
 
