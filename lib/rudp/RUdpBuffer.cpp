@@ -1,5 +1,30 @@
 #include "RUdpBuffer.h"
 
+RUdpBuffer::RUdpBuffer()
+    : data_(),
+      offset_(),
+      size_()
+{}
+
+void
+RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
+{
+    data_ = data;
+    size_ = sizeof(RUdpProtocolType);
+}
+
+void
+RUdpBuffer::Add(const VecUInt8SP &data, size_t offset, size_t size)
+{
+    data_ = data;
+    offset_ = offset;
+
+    if (size != 0)
+        size_ = size;
+    else
+        size_ = data->size() * sizeof(uint8_t);
+}
+
 VecUInt8It
 RUdpBuffer::CopyTo(VecUInt8It it)
 {
@@ -10,12 +35,9 @@ RUdpBuffer::CopyTo(VecUInt8It it)
 
         return it + size_;
     }
-    else
-    {
-        auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SP)>(data_);
 
-        memcpy(&(*it), &(data->at(0)), size_);
+    auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SP)>(data_);
+    memcpy(&(*it), &(data->at(0)), size_);
 
-        return it + size_;
-    }
+    return it + size_;
 }

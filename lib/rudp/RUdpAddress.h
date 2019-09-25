@@ -2,7 +2,6 @@
 #define P2P_TECHDEMO_RUDPADDRESS_H
 
 #include <array>
-
 #include <cstdint>
 #include <cstring>
 
