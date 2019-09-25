@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "lib/rudp/RUdpCommon.h"
+#include "lib/rudp/protocol/RUdpProtocolType.h"
 
 constexpr std::array<size_t, 13> command_sizes{
     0,

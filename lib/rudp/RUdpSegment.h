@@ -1,13 +1,13 @@
 #ifndef P2P_TECHDEMO_RUDPSEGMENT_H
 #define P2P_TECHDEMO_RUDPSEGMENT_H
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <vector>
 
-#include <cstddef>
-#include <cstdint>
-
-#include "RUdpCommon.h"
+#include "RUdpEnum.h"
+#include "RUdpType.h"
 
 class RUdpSegment
 {

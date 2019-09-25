@@ -6,6 +6,7 @@
 #include "lib/rudp/RUdpCommon.h"
 #include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/RUdpCommon.h"
+#include "lib/rudp/protocol/RUdpProtocolType.h"
 
 class RUdpCommand
 {

@@ -5,7 +5,8 @@
 #include <memory>
 #include <variant>
 
-#include "RUdpCommon.h"
+#include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "RUdpType.h"
 
 class RUdpBuffer
 {

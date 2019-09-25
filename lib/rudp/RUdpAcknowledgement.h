@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPACKNOWLEDGEMENT_H
 #define P2P_TECHDEMO_RUDPACKNOWLEDGEMENT_H
 
-#include "RUdpCommon.h"
+#include "lib/rudp/protocol/RUdpProtocolType.h"
 
 class RUdpAcknowledgement
 {
