@@ -7,35 +7,35 @@
 #include "RUdpProtocol.h"
 
 RUdpChamber::RUdpChamber()
-    : _buffer_count(),
-      _command_count(),
-      _continue_sending(false),
-      _header_flags(),
-      _segment_size()
+    : buffer_count_(),
+      command_count_(),
+      continue_sending_(false),
+      header_flags_(),
+      segment_size_()
 {
-    for (auto &buf : _buffers)
+    for (auto &buf : buffers_)
         buf = std::make_shared<RUdpBuffer>();
 
-    for (auto &cmd : _commands)
+    for (auto &cmd : commands_)
         cmd = std::make_shared<RUdpProtocolType>();
 }
 
 const RUdpChamber::CmdBufIt
 RUdpChamber::EmptyCommandBuffer()
 {
-    if (_command_count >= _commands.size())
+    if (command_count_ >= commands_.size())
         return nullptr;
 
-    return _commands.begin() + (_command_count++);
+    return commands_.begin() + (command_count_++);
 }
 
 const RUdpChamber::DataBufIt
 RUdpChamber::EmptyDataBuffer()
 {
-    if (_buffer_count >= _buffers.size())
+    if (buffer_count_ >= buffers_.size())
         return nullptr;
 
-    return _buffers.begin() + (_buffer_count++);
+    return buffers_.begin() + (buffer_count_++);
 }
 
 bool
@@ -51,27 +51,27 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     //            それぞれで判定する必要がある
 
     // unsent command exists
-    //if (command >= &_commands.at(sizeof(_commands) / sizeof(RUdpProtocol)))
+    //if (command >= &commands_.at(sizeof(commands_) / sizeof(RUdpProtocol)))
     if (*cmd_it == nullptr)
         return true;
 
     // unsent data_ exists
-    //if (buffer + 1 >= &_buffers.at(sizeof(_buffers) / sizeof(RUdpBuffer)))
+    //if (buffer + 1 >= &buffers_.at(sizeof(buffers_) / sizeof(RUdpBuffer)))
     // If the next is the end of the iterator, no more data cannot be pushed into buffer.
-    if (*buf_it == nullptr || (std::next(buf_it, 1) == _buffers.end()))
+    if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))
         return true;
 
     auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
 
     // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
-    if (mtu - _segment_size < command_size)
+    if (mtu - segment_size_ < command_size)
         return true;
 
     if (outgoing_command->segment != nullptr)
         return false;
 
     // has not enough space for command with payload
-    if (static_cast<uint16_t>(mtu - _segment_size) <
+    if (static_cast<uint16_t>(mtu - segment_size_) <
         static_cast<uint16_t>(command_size + outgoing_command->fragment_length)) {
         return true;
     }
@@ -82,61 +82,61 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
 uint16_t
 RUdpChamber::header_flags()
 {
-    return _header_flags;
+    return header_flags_;
 }
 
 void
 RUdpChamber::header_flags(uint16_t val)
 {
-    _header_flags = val;
+    header_flags_ = val;
 }
 
 void
 RUdpChamber::update_segment_size(size_t val)
 {
-    _segment_size += val;
+    segment_size_ += val;
 }
 
 bool
 RUdpChamber::continue_sending()
 {
-    return _continue_sending;
+    return continue_sending_;
 }
 
 void
 RUdpChamber::continue_sending(bool val)
 {
-    _continue_sending = val;
+    continue_sending_ = val;
 }
 
 void
 RUdpChamber::command_count(size_t val)
 {
-    _command_count = val;
+    command_count_ = val;
 }
 
 size_t
 RUdpChamber::command_count()
 {
-    return _command_count;
+    return command_count_;
 }
 
 void
 RUdpChamber::buffer_count(size_t val)
 {
-    _buffer_count = val;
+    buffer_count_ = val;
 }
 
 void
 RUdpChamber::segment_size(size_t val)
 {
-    _segment_size = val;
+    segment_size_ = val;
 }
 
 size_t
 RUdpChamber::segment_size()
 {
-    return _segment_size;
+    return segment_size_;
 }
 
 int
@@ -144,14 +144,14 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 {
     auto size = 0;
 
-    for (auto &buf : _buffers)
+    for (auto &buf : buffers_)
         size += buf->Size();
 
     out.resize(size);
 
     auto it = out.begin();
 
-    for (auto &buf : _buffers)
+    for (auto &buf : buffers_)
         it = buf->CopyTo(it);
 
     return size;
@@ -160,5 +160,5 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
 void
 RUdpChamber::SetHeader(const VecUInt8SP &header)
 {
-    _buffers.at(0)->Add(header, 0, 4);
+    buffers_.at(0)->Add(header, 0, 4);
 }

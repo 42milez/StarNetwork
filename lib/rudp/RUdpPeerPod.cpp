@@ -392,12 +392,12 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                 peer->net()->calculate_segment_loss(service_time);
             }
 
-            // ⚠️ _buffers[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる
+            // ⚠️ buffers_[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる
             //
-            // _buffers[0]: ヘッダ
-            // _buffers[1]: コマンド
-            // _buffers[2]: コマンド
-            // _buffers[n]: コマンド
+            // buffers_[0]: ヘッダ
+            // buffers_[1]: コマンド
+            // buffers_[2]: コマンド
+            // buffers_[n]: コマンド
             protocol_->chamber()->SetHeader(header_data);
 
             if (protocol_->chamber()->header_flags() & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME))
