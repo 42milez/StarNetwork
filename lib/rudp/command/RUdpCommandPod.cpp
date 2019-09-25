@@ -144,8 +144,8 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         auto outgoing_command = current_command;
 
-        auto channel = (*outgoing_command)->channel_id() < channels.size() ?
-                       channels.at((*outgoing_command)->channel_id()) :
+        auto channel = (*outgoing_command)->header_channel_id() < channels.size() ?
+                       channels.at((*outgoing_command)->header_channel_id()) :
                        nullptr;
 
         auto reliable_window = (*outgoing_command)->reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
@@ -535,7 +535,7 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     for (; it != it_end; ++it)
     {
         if ((*it)->reliable_sequence_number() == reliable_sequence_number &&
-            (*it)->channel_id() == channel_id)
+            (*it)->header_channel_id() == channel_id)
         {
             outgoing_command = (*it);
             break;
@@ -558,7 +558,7 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
                 return RUdpProtocolCommand::NONE;
 
             if (((*it)->reliable_sequence_number() == reliable_sequence_number) &&
-                ((*it)->channel_id() == channel_id))
+                ((*it)->header_channel_id() == channel_id))
             {
                 outgoing_command = (*it);
                 break;

@@ -273,7 +273,7 @@ RUdpPeer::Receive(uint8_t &channel_id)
 
     auto incoming_command = dispatched_commands_.front();
 
-    channel_id = incoming_command.channel_id();
+    channel_id = incoming_command.header_channel_id();
 
     auto segment = incoming_command.segment();
 
@@ -343,8 +343,8 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
             fragment->fragment_offset(fragment_offset);
             fragment->fragment_length(fragment_length);
             fragment->segment(segment);
-            fragment->command_number(command_number);
-            fragment->channel_id(static_cast<uint32_t>(ch));
+            fragment->header_command_number(command_number);
+            fragment->header_channel_id(static_cast<uint32_t>(ch));
             fragment->send_fragment_start_sequence_number(start_sequence_number);
             fragment->send_fragment_data_length(htons(fragment_length));
             fragment->send_fragment_fragment_count(htonl(fragment_count));
@@ -357,7 +357,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
 
         for (auto &f : fragments)
         {
-            command_pod_->setup_outgoing_command(f, channels_.at(f->channel_id()));
+            command_pod_->setup_outgoing_command(f, channels_.at(f->header_channel_id()));
         }
     }
 
