@@ -1,6 +1,6 @@
-#include "RUdpChannel.h"
+#include "lib/rudp/RUdpChannel.h"
 #include "lib/rudp/command/RUdpCommandSize.h"
-#include "RUdpCommon.h"
+#include "lib/rudp/RUdpCommon.h"
 #include "RUdpProtocol.h"
 
 RUdpProtocol::RUdpProtocol() :

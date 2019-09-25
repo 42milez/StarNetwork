@@ -7,7 +7,7 @@
 #include "RUdpCompressor.h"
 #include "RUdpConnection.h"
 #include "RUdpPeer.h"
-#include "RUdpProtocol.h"
+#include "lib/rudp/protocol/RUdpProtocol.h"
 
 class RUdpPeerPod
 {

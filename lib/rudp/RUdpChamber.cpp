@@ -1,9 +1,7 @@
 #include <algorithm>
-#include <cstring>
 
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "RUdpChamber.h"
-#include "RUdpProtocol.h"
 
 RUdpChamber::RUdpChamber()
     : buffer_count_(),
