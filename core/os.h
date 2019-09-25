@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_CORE_OS_H
 #define P2P_TECHDEMO_CORE_OS_H
 
+#include <cstdint>
+
 class OS
 {
 private:

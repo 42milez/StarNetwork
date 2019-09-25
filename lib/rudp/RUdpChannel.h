@@ -1,6 +1,9 @@
 #ifndef P2P_TECHDEMO_RUDPCHANNEL_H
 #define P2P_TECHDEMO_RUDPCHANNEL_H
 
+#include <array>
+#include <list>
+
 #include "lib/rudp/command/RUdpIncomingCommand.h"
 
 class RUdpChannel

@@ -5,6 +5,8 @@
 #include <memory>
 #include <queue>
 
+#include "core/errors.h"
+
 #include "lib/rudp/command/RUdpCommand.h"
 #include "lib/rudp/command/RUdpCommandPod.h"
 #include "RUdpAddress.h"

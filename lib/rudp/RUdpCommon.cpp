@@ -1,9 +1,5 @@
-#include <arpa/inet.h>
-
 #include "core/os.h"
 #include "core/singleton.h"
-
-#include "RUdpCommon.h"
 
 static uint32_t time_base;
 

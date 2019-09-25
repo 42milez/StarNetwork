@@ -1,4 +1,5 @@
 #include "RUdpCommon.h"
+#include "RUdpConst.h"
 #include "RUdpPeerNet.h"
 
 RUdpPeerNet::RUdpPeerNet()
