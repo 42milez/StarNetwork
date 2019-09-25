@@ -79,66 +79,6 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     return false;
 }
 
-uint16_t
-RUdpChamber::header_flags()
-{
-    return header_flags_;
-}
-
-void
-RUdpChamber::header_flags(uint16_t val)
-{
-    header_flags_ = val;
-}
-
-void
-RUdpChamber::update_segment_size(size_t val)
-{
-    segment_size_ += val;
-}
-
-bool
-RUdpChamber::continue_sending()
-{
-    return continue_sending_;
-}
-
-void
-RUdpChamber::continue_sending(bool val)
-{
-    continue_sending_ = val;
-}
-
-void
-RUdpChamber::command_count(size_t val)
-{
-    command_count_ = val;
-}
-
-size_t
-RUdpChamber::command_count()
-{
-    return command_count_;
-}
-
-void
-RUdpChamber::buffer_count(size_t val)
-{
-    buffer_count_ = val;
-}
-
-void
-RUdpChamber::segment_size(size_t val)
-{
-    segment_size_ = val;
-}
-
-size_t
-RUdpChamber::segment_size()
-{
-    return segment_size_;
-}
-
 int
 RUdpChamber::Write(std::vector<uint8_t> &out)
 {
@@ -155,10 +95,4 @@ RUdpChamber::Write(std::vector<uint8_t> &out)
         it = buf->CopyTo(it);
 
     return size;
-}
-
-void
-RUdpChamber::SetHeader(const VecUInt8SP &header)
-{
-    buffers_.at(0)->Add(header, 0, 4);
 }

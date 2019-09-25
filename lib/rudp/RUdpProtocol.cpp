@@ -494,7 +494,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
         //buffer->Add(command);
         //buffer->data_length = sizeof(RUdpProtocolAcknowledge);
 
-        chamber_->update_segment_size(sizeof(RUdpProtocolAcknowledge));
+        chamber_->IncrementSegmentSize(sizeof(RUdpProtocolAcknowledge));
 
         auto reliable_sequence_number = htons(ack->command().header.reliable_sequence_number);
 

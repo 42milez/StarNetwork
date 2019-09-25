@@ -17,34 +17,49 @@ public:
     RUdpChamber();
     const CmdBufIt EmptyCommandBuffer();
     const DataBufIt EmptyDataBuffer();
-    void Reset();
     bool SendingContinues(RUdpChamber::CmdBufIt cmd_it, RUdpChamber::DataBufIt buf_it, uint32_t mtu,
                           const std::shared_ptr<OutgoingCommand> &outgoing_command);
-    void SetHeader(const VecUInt8SP &header);
     int Write(std::vector<uint8_t> &out);
 
     inline void DropSentTime()
     { buffers_.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }
 
+    inline void IncrementSegmentSize(size_t val)
+    { segment_size_ += val; }
+
+    inline void SetHeader(const VecUInt8SP &header)
+    { buffers_.at(0)->Add(header, 0, 4); }
+
     //bool command_buffer_have_enough_space(RUdpProtocolType *command);
     //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
 public:
-    void buffer_count(size_t val);
+    inline void buffer_count(size_t val)
+    { buffer_count_ = val; }
 
-    size_t command_count();
-    void command_count(size_t val);
+    inline size_t command_count()
+    { return command_count_; }
 
-    bool continue_sending();
-    void continue_sending(bool val);
+    inline void command_count(size_t val)
+    { command_count_ = val; }
 
-    uint16_t header_flags();
-    void header_flags(uint16_t val);
+    inline bool continue_sending()
+    { return continue_sending_; }
 
-    size_t segment_size();
-    void segment_size(size_t val);
+    inline void continue_sending(bool val)
+    { continue_sending_ = val; }
 
-    void update_segment_size(size_t val);
+    inline uint16_t header_flags()
+    { return header_flags_; }
+
+    inline void header_flags(uint16_t val)
+    { header_flags_ = val; }
+
+    inline size_t segment_size()
+    { return segment_size_; }
+
+    inline void segment_size(size_t val)
+    { segment_size_ = val; }
 
     //void update_buffer_count(const RUdpBuffer *buffer);
     //void update_command_count(const RUdpProtocolType *command);
