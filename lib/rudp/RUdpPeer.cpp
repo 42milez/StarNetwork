@@ -250,12 +250,12 @@ void
 RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
                                const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
 {
-    std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
+    std::shared_ptr<RUdpOutgoingCommand> outgoing_command = std::make_shared<RUdpOutgoingCommand>();
 
-    outgoing_command->command = protocol_type;
-    outgoing_command->segment = segment;
-    outgoing_command->fragment_length = length;
-    outgoing_command->fragment_offset = offset;
+    outgoing_command->command(protocol_type);
+    outgoing_command->segment(segment);
+    outgoing_command->fragment_length(length);
+    outgoing_command->fragment_offset(offset);
 
     auto channel_id = protocol_type->header.channel_id;
 
@@ -273,9 +273,9 @@ RUdpPeer::Receive(uint8_t &channel_id)
 
     auto incoming_command = dispatched_commands_.front();
 
-    channel_id = incoming_command.command->header.channel_id;
+    channel_id = incoming_command.channel_id();
 
-    auto segment = incoming_command.segment;
+    auto segment = incoming_command.segment();
 
     total_waiting_data_ -= segment->DataLength();
 
@@ -325,14 +325,14 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
             start_sequence_number = htons(channel->outgoing_reliable_sequence_number() + 1);
         }
 
-        std::list<std::shared_ptr<OutgoingCommand>> fragments;
+        std::list<std::shared_ptr<RUdpOutgoingCommand>> fragments;
 
         for (auto fragment_number = 0, fragment_offset = 0; fragment_offset < data_length; ++fragment_number, fragment_offset += fragment_length)
         {
             if (data_length - fragment_offset < fragment_length)
                 fragment_length = data_length - fragment_offset;
 
-            std::shared_ptr<OutgoingCommand> fragment = std::make_shared<OutgoingCommand>();
+            std::shared_ptr<RUdpOutgoingCommand> fragment = std::make_shared<RUdpOutgoingCommand>();
 
             if (fragment == nullptr)
             {
@@ -340,24 +340,24 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
                 // ...
             }
 
-            fragment->fragment_offset = fragment_offset;
-            fragment->fragment_length = fragment_length;
-            fragment->segment = segment;
-            fragment->command->header.command = command_number;
-            fragment->command->header.channel_id = static_cast<uint32_t>(ch);
-            fragment->command->send_fragment.start_sequence_number = start_sequence_number;
-            fragment->command->send_fragment.data_length = htons(fragment_length);
-            fragment->command->send_fragment.fragment_count = htonl(fragment_count);
-            fragment->command->send_fragment.fragment_number = htonl(fragment_number);
-            fragment->command->send_fragment.total_length = htonl(segment->DataLength());
-            fragment->command->send_fragment.fragment_offset = ntohl(fragment_offset);
+            fragment->fragment_offset(fragment_offset);
+            fragment->fragment_length(fragment_length);
+            fragment->segment(segment);
+            fragment->command_number(command_number);
+            fragment->channel_id(static_cast<uint32_t>(ch));
+            fragment->send_fragment_start_sequence_number(start_sequence_number);
+            fragment->send_fragment_data_length(htons(fragment_length));
+            fragment->send_fragment_fragment_count(htonl(fragment_count));
+            fragment->send_fragment_fragment_number(htonl(fragment_number));
+            fragment->send_fragment_start_total_length(htonl(segment->DataLength()));
+            fragment->send_fragment_fragment_offset(ntohl(fragment_offset));
 
             fragments.push_back(fragment);
         }
 
         for (auto &f : fragments)
         {
-            command_pod_->setup_outgoing_command(f, channels_.at(f->command->header.channel_id));
+            command_pod_->setup_outgoing_command(f, channels_.at(f->channel_id()));
         }
     }
 
@@ -401,7 +401,7 @@ RUdpPeer::ClearChannel()
 void
 RUdpPeer::ClearDispatchedCommandQueue()
 {
-    std::queue<IncomingCommand> empty;
+    std::queue<RUdpIncomingCommand> empty;
     std::swap(dispatched_commands_, empty);
 }
 
@@ -465,7 +465,7 @@ RUdpPeer::Reset(uint16_t peer_idx)
     command_pod_->Reset();
     net_->Reset();
 
-    std::queue<IncomingCommand> empty;
+    std::queue<RUdpIncomingCommand> empty;
     dispatched_commands_.swap(empty);
 
     address_.Reset();
@@ -507,7 +507,7 @@ RUdpPeer::ResetPeerQueues()
 
     if (!dispatched_commands_.empty())
     {
-        std::queue<IncomingCommand> empty;
+        std::queue<RUdpIncomingCommand> empty;
         std::swap(dispatched_commands_, empty);
     }
 

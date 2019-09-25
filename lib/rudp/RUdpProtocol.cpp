@@ -1,5 +1,5 @@
 #include "RUdpChannel.h"
-#include "RUdpCommandSize.h"
+#include "lib/rudp/command/RUdpCommandSize.h"
 #include "RUdpCommon.h"
 #include "RUdpProtocol.h"
 

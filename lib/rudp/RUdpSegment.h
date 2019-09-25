@@ -48,4 +48,6 @@ private:
     uint32_t flags_;
 };
 
+using RUdpSegmentSP = std::shared_ptr<RUdpSegment>;
+
 #endif // P2P_TECHDEMO_RUDPSEGMENT_H

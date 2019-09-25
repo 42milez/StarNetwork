@@ -1,9 +1,8 @@
 #include <algorithm>
-
 #include <cstring>
 
+#include "lib/rudp/command/RUdpCommandSize.h"
 #include "RUdpChamber.h"
-#include "RUdpCommandSize.h"
 #include "RUdpProtocol.h"
 
 RUdpChamber::RUdpChamber()
@@ -42,7 +41,7 @@ bool
 RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
                               const RUdpChamber::DataBufIt buf_it,
                               uint32_t mtu,
-                              const std::shared_ptr<OutgoingCommand> &outgoing_command)
+                              const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command)
 {
     // MEMO: [誤] SendReliableOutgoingCommands() では
     //            buffer に command が挿入されたら同時にインクリメントされるので、
@@ -61,18 +60,19 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))
         return true;
 
-    auto command_size = command_sizes[outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK];
+    auto command_size = command_sizes[outgoing_command->CommandNumber()];
 
     // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
     if (mtu - segment_size_ < command_size)
         return true;
 
-    if (outgoing_command->segment != nullptr)
+    if (outgoing_command->HasPayload())
         return false;
 
     // has not enough space for command with payload
-    if (static_cast<uint16_t>(mtu - segment_size_) <
-        static_cast<uint16_t>(command_size + outgoing_command->fragment_length)) {
+    auto has_not_enough_space = static_cast<uint16_t>(mtu - segment_size_) <
+                                static_cast<uint16_t>(command_size + outgoing_command->fragment_length());
+    if (has_not_enough_space) {
         return true;
     }
 

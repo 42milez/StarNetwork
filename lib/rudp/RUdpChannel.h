@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPCHANNEL_H
 #define P2P_TECHDEMO_RUDPCHANNEL_H
 
-#include "RUdpCommand.h"
+#include "lib/rudp/command/RUdpIncomingCommand.h"
 
 class RUdpChannel
 {
@@ -47,8 +47,8 @@ public:
     { return used_reliable_windows_; }
 
 private:
-    std::list<IncomingCommand> incoming_reliable_commands_;
-    std::list<IncomingCommand> incoming_unreliable_commands_;
+    std::list<RUdpIncomingCommand> incoming_reliable_commands_;
+    std::list<RUdpIncomingCommand> incoming_unreliable_commands_;
     std::array<uint16_t, PEER_RELIABLE_WINDOWS> reliable_windows_;
 
     uint16_t incoming_reliable_sequence_number_;

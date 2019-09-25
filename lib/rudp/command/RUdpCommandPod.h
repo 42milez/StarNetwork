@@ -4,17 +4,17 @@
 #include <list>
 #include <memory>
 
-#include "RUdpChamber.h"
-#include "RUdpChannel.h"
+#include "lib/rudp/RUdpChamber.h"
+#include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/RUdpPeerNet.h"
 #include "RUdpCommand.h"
-#include "RUdpPeerNet.h"
 
 class RUdpCommandPod
 {
 private:
-    std::list<std::shared_ptr<OutgoingCommand>> _outgoing_reliable_commands;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> _outgoing_reliable_commands;
 
-    std::list<std::shared_ptr<OutgoingCommand>> _outgoing_unreliable_commands;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> _outgoing_unreliable_commands;
 
     uint32_t _incoming_data_total;
 
@@ -36,9 +36,9 @@ private:
 
     uint32_t _reliable_data_in_transit;
 
-    std::list<std::shared_ptr<OutgoingCommand>> _sent_reliable_commands;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> _sent_reliable_commands;
 
-    std::list<std::shared_ptr<OutgoingCommand>> _sent_unreliable_commands;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> _sent_unreliable_commands;
 
     uint32_t _earliest_timeout;
 
@@ -49,10 +49,10 @@ private:
 public:
     RUdpCommandPod();
 
-    void setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command,
+    void setup_outgoing_command(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
                                 const std::shared_ptr<RUdpChannel> &channel);
 
-    void push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command);
+    void push_outgoing_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command);
 
     bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
                                          std::unique_ptr<RUdpPeerNet> &net,
@@ -90,9 +90,9 @@ public:
 
     void reliable_data_in_transit(uint32_t val);
 
-    void sent_reliable_command(std::shared_ptr<OutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
+    void sent_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
 
-    void sent_unreliable_command(std::shared_ptr<OutgoingCommand> &command);
+    void sent_unreliable_command(std::shared_ptr<RUdpOutgoingCommand> &command);
 
     bool sent_reliable_command_exists();
 

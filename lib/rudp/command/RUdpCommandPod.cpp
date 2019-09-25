@@ -1,17 +1,17 @@
+#include "lib/rudp/RUdpSegmentFlag.h"
 #include "RUdpCommandPod.h"
 #include "RUdpCommandSize.h"
-#include "RUdpSegmentFlag.h"
 
 namespace
 {
 bool
 window_wraps(const std::shared_ptr<RUdpChannel> &channel,
              int reliable_window,
-             const std::shared_ptr<OutgoingCommand> &outgoing_command)
+             const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command)
 {
-    auto has_not_sent_once = outgoing_command->send_attempts == 0;
+    auto has_not_sent_once = outgoing_command->send_attempts() == 0;
 
-    auto first_command_in_window = !(outgoing_command->reliable_sequence_number % PEER_RELIABLE_WINDOW_SIZE);
+    auto first_command_in_window = !(outgoing_command->reliable_sequence_number() % PEER_RELIABLE_WINDOW_SIZE);
 
     auto all_available_windows_are_in_use = channel->ReliableWindow(
         (reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS
@@ -31,9 +31,9 @@ bool
 window_exceeds(uint32_t reliable_data_in_transit,
                uint32_t mtu,
                uint32_t window_size,
-               const std::shared_ptr<OutgoingCommand> &outgoing_command)
+               const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command)
 {
-    return (reliable_data_in_transit + outgoing_command->fragment_length) > std::max(window_size, mtu);
+    return (reliable_data_in_transit + outgoing_command->fragment_length()) > std::max(window_size, mtu);
 }
 }
 
@@ -58,69 +58,68 @@ RUdpCommandPod::RUdpCommandPod()
 {}
 
 void
-RUdpCommandPod::setup_outgoing_command(std::shared_ptr<OutgoingCommand> &outgoing_command,
+RUdpCommandPod::setup_outgoing_command(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
                                        const std::shared_ptr<RUdpChannel> &channel)
 {
     _outgoing_data_total +=
-        command_sizes.at(outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK) +
-            outgoing_command->fragment_length;
+        command_sizes.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
 
     if (channel == nullptr)
     {
         ++_outgoing_reliable_sequence_number;
 
-        outgoing_command->reliable_sequence_number = _outgoing_reliable_sequence_number;
-        outgoing_command->unreliable_sequence_number = 0;
+        outgoing_command->reliable_sequence_number(_outgoing_reliable_sequence_number);
+        outgoing_command->unreliable_sequence_number(0);
     }
-    else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
+    else if (outgoing_command->IsAcknowledge())
     {
         channel->IncrementOutgoingReliableSequenceNumber();
         channel->outgoing_unreliable_sequence_number(0);
 
-        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number();
-        outgoing_command->unreliable_sequence_number = 0;
+        outgoing_command->reliable_sequence_number(channel->outgoing_reliable_sequence_number());
+        outgoing_command->unreliable_sequence_number(0);
     }
-    else if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED))
+    else if (outgoing_command->IsUnsequenced())
     {
         ++_outgoing_unsequenced_group;
 
-        outgoing_command->reliable_sequence_number = 0;
-        outgoing_command->unreliable_sequence_number = 0;
+        outgoing_command->reliable_sequence_number(0);
+        outgoing_command->unreliable_sequence_number(0);
     }
     else
     {
-        if (outgoing_command->fragment_offset == 0)
+        if (outgoing_command->fragment_offset() == 0)
             channel->IncrementOutgoingUnreliableSequenceNumber();
 
-        outgoing_command->reliable_sequence_number = channel->outgoing_reliable_sequence_number();
-        outgoing_command->unreliable_sequence_number = channel->outgoing_unreliable_sequence_number();
+        outgoing_command->reliable_sequence_number(channel->outgoing_reliable_sequence_number());
+        outgoing_command->unreliable_sequence_number(channel->outgoing_unreliable_sequence_number());
     }
 
-    outgoing_command->send_attempts = 0;
-    outgoing_command->sent_time = 0;
-    outgoing_command->round_trip_timeout = 0;
-    outgoing_command->round_trip_timeout_limit = 0;
-    outgoing_command->command->header.reliable_sequence_number =
-        htons(outgoing_command->reliable_sequence_number);
+    outgoing_command->send_attempts(0);
+    outgoing_command->sent_time(0);
+    outgoing_command->round_trip_timeout(0);
+    outgoing_command->round_trip_timeout_limit(0);
+    outgoing_command->header_reliable_sequence_number(htons(outgoing_command->reliable_sequence_number()));
 
-    auto cmd = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
+    auto cmd = outgoing_command->CommandNumber();
 
     if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNRELIABLE) {
-        outgoing_command->command->send_unreliable.unreliable_sequence_number =
-            htons(outgoing_command->unreliable_sequence_number);
+        outgoing_command->send_unreliable_unreliable_sequence_number(
+            htons(outgoing_command->unreliable_sequence_number())
+        );
     }
     else if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNSEQUENCED) {
-        outgoing_command->command->send_unsequenced.unsequenced_group = htons(_outgoing_unsequenced_group);
+        outgoing_command->send_unsequenced_unsequenced_group(htons(_outgoing_unsequenced_group));
     }
 
-    if (outgoing_command->command->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE))
+    if (outgoing_command->IsAcknowledge())
         _outgoing_reliable_commands.push_back(outgoing_command);
     else
         _outgoing_unreliable_commands.push_back(outgoing_command);
 }
 
 void
-RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<OutgoingCommand> &command)
+RUdpCommandPod::push_outgoing_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command)
 {
     _outgoing_reliable_commands.push_front(command);
 }
@@ -145,11 +144,11 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         auto outgoing_command = current_command;
 
-        auto channel = (*outgoing_command)->command->header.channel_id < channels.size() ?
-                       channels.at((*outgoing_command)->command->header.channel_id) :
+        auto channel = (*outgoing_command)->channel_id() < channels.size() ?
+                       channels.at((*outgoing_command)->channel_id()) :
                        nullptr;
 
-        auto reliable_window = (*outgoing_command)->reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        auto reliable_window = (*outgoing_command)->reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
 
         //  check reliable window is available
         // --------------------------------------------------
@@ -168,7 +167,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         //  check segment exceeds window size
         // --------------------------------------------------
 
-        if ((*outgoing_command)->segment != nullptr) {
+        if ((*outgoing_command)->HasPayload()) {
             if (!window_exceeded) {
                 auto ws = (net->segment_throttle() * net->window_size()) / PEER_SEGMENT_THROTTLE_SCALE;
 
@@ -196,29 +195,29 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         ++current_command;
 
-        if (channel != nullptr && (*outgoing_command)->send_attempts < 1) {
+        if (channel != nullptr && (*outgoing_command)->send_attempts() < 1) {
             channel->MarkReliableWindowAsUsed(reliable_window);
             channel->IncrementReliableWindow(reliable_window);
         }
 
-        ++(*outgoing_command)->send_attempts;
+        (*outgoing_command)->IncrementSendAttempts();
 
-        if ((*outgoing_command)->round_trip_timeout == 0) {
-            (*outgoing_command)->round_trip_timeout = _round_trip_time + 4 * _round_trip_time_variance;
-            (*outgoing_command)->round_trip_timeout_limit = _timeout_limit * (*outgoing_command)->round_trip_timeout;
+        if ((*outgoing_command)->round_trip_timeout() == 0) {
+            (*outgoing_command)->round_trip_timeout(_round_trip_time + 4 * _round_trip_time_variance);
+            (*outgoing_command)->round_trip_timeout_limit(_timeout_limit * (*outgoing_command)->round_trip_timeout());
         }
 
         if (!_sent_reliable_commands.empty())
-            _next_timeout = service_time + (*outgoing_command)->round_trip_timeout;
+            _next_timeout = service_time + (*outgoing_command)->round_trip_timeout();
 
-        (*outgoing_command)->sent_time = service_time;
+        (*outgoing_command)->sent_time(service_time);
 
-        (*buffer)->Add((*outgoing_command)->command);
+        (*buffer)->Add((*outgoing_command)->command());
         //buffer->Add(command);
         //buffer->data_length = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         chamber->IncrementSegmentSize(
-            command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK]
+            command_sizes[(*outgoing_command)->CommandNumber()]
         );
 
         auto flags = chamber->header_flags();
@@ -229,16 +228,16 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         //*command = *(*outgoing_command)->command;
 
-        if ((*outgoing_command)->segment != nullptr) {
+        if ((*outgoing_command)->HasPayload()) {
             //++buffer;
             buffer = chamber->EmptyDataBuffer();
 
-            (*buffer)->Add((*outgoing_command)->segment->Data(), (*outgoing_command)->fragment_offset);
+            (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
             //buffer->data_length = (*outgoing_command)->fragment_length;
 
-            chamber->IncrementSegmentSize((*outgoing_command)->fragment_length);
+            chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 
-            increse_reliable_data_in_transit((*outgoing_command)->fragment_length);
+            increse_reliable_data_in_transit((*outgoing_command)->fragment_length());
         }
 
         _sent_reliable_commands.push_back(*outgoing_command);
@@ -270,7 +269,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         auto buffer = chamber->EmptyDataBuffer();
 
         auto outgoing_command = current_command;
-        auto command_size = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
+        auto command_size = command_sizes[(*outgoing_command)->CommandNumber()];
 
         if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command))) {
             chamber->continue_sending(true);
@@ -280,12 +279,12 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
 
         ++current_command;
 
-        if ((*outgoing_command)->segment != nullptr && (*outgoing_command)->fragment_offset == 0) {
+        if ((*outgoing_command)->HasPayload() && (*outgoing_command)->fragment_offset() == 0) {
             net->update_segment_throttle_counter();
 
             if (net->exceeds_segment_throttle_counter()) {
-                uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number;
-                uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number;
+                uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number();
+                uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number();
 
                 for (;;) {
                     if (current_command == _outgoing_unreliable_commands.end())
@@ -293,8 +292,8 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
 
                     outgoing_command = current_command;
 
-                    if ((*outgoing_command)->reliable_sequence_number != reliable_sequence_number ||
-                        (*outgoing_command)->unreliable_sequence_number != unreliable_sequence_number) {
+                    if ((*outgoing_command)->reliable_sequence_number() != reliable_sequence_number ||
+                        (*outgoing_command)->unreliable_sequence_number() != unreliable_sequence_number) {
                         break;
                     }
 
@@ -305,7 +304,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
             }
         }
 
-        *command = (*outgoing_command)->command;
+        *command = (*outgoing_command)->command();
 
         (*buffer)->Add(*command);
         //buffer->data_length = command_size;
@@ -314,14 +313,14 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
 
         _outgoing_unreliable_commands.erase(outgoing_command);
 
-        if ((*outgoing_command)->segment != nullptr) {
+        if ((*outgoing_command)->HasPayload()) {
             //++buffer;
             buffer = chamber->EmptyDataBuffer();
 
-            (*buffer)->Add((*outgoing_command)->segment->Data(), (*outgoing_command)->fragment_offset);
+            (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
             //buffer->data_length = (*outgoing_command)->fragment_length;
 
-            chamber->IncrementSegmentSize((*outgoing_command)->fragment_length);
+            chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 
             _sent_unreliable_commands.push_back(*outgoing_command);
         }
@@ -443,7 +442,7 @@ RUdpCommandPod::next_timeout(uint32_t val)
 }
 
 void
-RUdpCommandPod::sent_reliable_command(std::shared_ptr<OutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
+RUdpCommandPod::sent_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net)
 {
     _sent_reliable_commands.push_back(command);
 
@@ -451,7 +450,7 @@ RUdpCommandPod::sent_reliable_command(std::shared_ptr<OutgoingCommand> &command,
 }
 
 void
-RUdpCommandPod::sent_unreliable_command(std::shared_ptr<OutgoingCommand> &command)
+RUdpCommandPod::sent_unreliable_command(std::shared_ptr<RUdpOutgoingCommand> &command)
 {
     _sent_unreliable_commands.push_back(command);
 }
@@ -491,33 +490,33 @@ RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t
         ++current_command;
 
         // 処理をスキップ
-        if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time) < (*outgoing_command)->round_trip_timeout)
+        if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time()) < (*outgoing_command)->round_trip_timeout())
             continue;
 
-        if (_earliest_timeout == 0 || UDP_TIME_LESS((*outgoing_command)->sent_time, _earliest_timeout))
-            _earliest_timeout = (*outgoing_command)->sent_time;
+        if (_earliest_timeout == 0 || UDP_TIME_LESS((*outgoing_command)->sent_time(), _earliest_timeout))
+            _earliest_timeout = (*outgoing_command)->sent_time();
 
         // タイムアウトしたらピアを切断する
         if (_earliest_timeout != 0 &&
             (UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_maximum ||
-                ((*outgoing_command)->round_trip_timeout >= (*outgoing_command)->round_trip_timeout_limit &&
+                ((*outgoing_command)->round_trip_timeout() >= (*outgoing_command)->round_trip_timeout_limit() &&
                     UDP_TIME_DIFFERENCE(service_time, _earliest_timeout) >= _timeout_minimum))) {
             return 1;
         }
 
-        if ((*outgoing_command)->segment != nullptr) {
-            _reliable_data_in_transit -= (*outgoing_command)->fragment_length;
+        if ((*outgoing_command)->HasPayload()) {
+            _reliable_data_in_transit -= (*outgoing_command)->fragment_length();
         }
 
         net->increase_segments_lost(1);
 
-        (*outgoing_command)->round_trip_timeout *= 2;
+        (*outgoing_command)->round_trip_timeout((*outgoing_command)->round_trip_timeout() * 2);
 
         _outgoing_reliable_commands.push_back(*outgoing_command);
 
         // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
         if (!_sent_reliable_commands.empty() && _sent_reliable_commands.size() == 1) {
-            _next_timeout = (*current_command)->sent_time + (*current_command)->round_trip_timeout;
+            _next_timeout = (*current_command)->sent_time() + (*current_command)->round_trip_timeout();
         }
     }
 
@@ -528,15 +527,15 @@ RUdpProtocolCommand
 RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
     std::shared_ptr<RUdpChannel> &channel)
 {
-    std::shared_ptr<OutgoingCommand> outgoing_command;
+    std::shared_ptr<RUdpOutgoingCommand> outgoing_command;
     auto it = _sent_reliable_commands.begin();
     auto it_end = _sent_reliable_commands.end();
     auto no_sent_reliable_command_matched = false;
 
     for (; it != it_end; ++it)
     {
-        if ((*it)->reliable_sequence_number == reliable_sequence_number &&
-            (*it)->command->header.channel_id == channel_id)
+        if ((*it)->reliable_sequence_number() == reliable_sequence_number &&
+            (*it)->channel_id() == channel_id)
         {
             outgoing_command = (*it);
             break;
@@ -555,11 +554,11 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
 
         for (; it != it_end; ++it)
         {
-            if ((*it)->send_attempts < 1)
+            if ((*it)->send_attempts() < 1)
                 return RUdpProtocolCommand::NONE;
 
-            if (((*it)->reliable_sequence_number == reliable_sequence_number) &&
-                ((*it)->command->header.channel_id == channel_id))
+            if (((*it)->reliable_sequence_number() == reliable_sequence_number) &&
+                ((*it)->channel_id() == channel_id))
             {
                 outgoing_command = (*it);
                 break;
@@ -586,14 +585,12 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
         }
     }
 
-    auto command_number = outgoing_command->command->header.command & PROTOCOL_COMMAND_MASK;
+    auto command_number = outgoing_command->CommandNumber();
 
-    if (outgoing_command->segment != nullptr)
+    if (outgoing_command->HasPayload())
     {
         if (was_sent)
-        {
-            _reliable_data_in_transit -= outgoing_command->fragment_length;
-        }
+            _reliable_data_in_transit -= outgoing_command->fragment_length();
     }
 
     if (_sent_reliable_commands.empty())
@@ -601,7 +598,7 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
 
     outgoing_command = _sent_reliable_commands.front();
 
-    _next_timeout = outgoing_command->sent_time + outgoing_command->round_trip_timeout;
+    _next_timeout = outgoing_command->sent_time() + outgoing_command->round_trip_timeout();
 
     if (no_sent_reliable_command_matched)
         _outgoing_reliable_commands.erase(it);
@@ -617,11 +614,11 @@ RUdpCommandPod::remove_sent_unreliable_commands()
     while (!_sent_unreliable_commands.empty()) {
         auto &outgoing_command = _sent_unreliable_commands.front();
 
-        if (outgoing_command->segment != nullptr) {
-            if (outgoing_command->segment.use_count() == 1)
-                outgoing_command->segment->AddFlag(static_cast<uint32_t>(RUdpSegmentFlag::SENT));
+        if (outgoing_command->HasPayload()) {
+            if (outgoing_command->segment().use_count() == 1)
+                outgoing_command->segment()->AddFlag(static_cast<uint32_t>(RUdpSegmentFlag::SENT));
 
-            outgoing_command->segment->Destroy();
+            outgoing_command->segment()->Destroy();
         }
 
         _sent_unreliable_commands.pop_front();

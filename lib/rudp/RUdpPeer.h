@@ -5,12 +5,12 @@
 #include <memory>
 #include <queue>
 
+#include "lib/rudp/command/RUdpCommand.h"
+#include "lib/rudp/command/RUdpCommandPod.h"
 #include "RUdpAddress.h"
 #include "RUdpAcknowledgement.h"
 #include "RUdpChamber.h"
 #include "RUdpChannel.h"
-#include "RUdpCommand.h"
-#include "RUdpCommandPod.h"
 #include "RUdpCommon.h"
 #include "RUdpSegment.h"
 #include "RUdpPeerNet.h"
@@ -190,7 +190,7 @@ private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
     std::vector<std::shared_ptr<RUdpChannel>> channels_;
     std::unique_ptr<RUdpCommandPod> command_pod_;
-    std::queue<IncomingCommand> dispatched_commands_;
+    std::queue<RUdpIncomingCommand> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
 
     uint16_t incoming_peer_id_;

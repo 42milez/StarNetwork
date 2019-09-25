@@ -3,8 +3,8 @@
 
 #include <array>
 
+#include "lib/rudp/command/RUdpOutgoingCommand.h"
 #include "RUdpBuffer.h"
-#include "RUdpCommand.h"
 #include "RUdpCommon.h"
 
 class RUdpChamber
@@ -18,7 +18,7 @@ public:
     const CmdBufIt EmptyCommandBuffer();
     const DataBufIt EmptyDataBuffer();
     bool SendingContinues(RUdpChamber::CmdBufIt cmd_it, RUdpChamber::DataBufIt buf_it, uint32_t mtu,
-                          const std::shared_ptr<OutgoingCommand> &outgoing_command);
+                          const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
     int Write(std::vector<uint8_t> &out);
 
     inline void DropSentTime()
