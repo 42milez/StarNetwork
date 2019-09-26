@@ -3,11 +3,12 @@
 
 #include <vector>
 
+#include "lib/rudp/protocol/RUdpProtocol.h"
 #include "RUdpChecksum.h"
 #include "RUdpCompressor.h"
 #include "RUdpConnection.h"
 #include "RUdpPeer.h"
-#include "lib/rudp/protocol/RUdpProtocol.h"
+#include "RUdpTime.h"
 
 class RUdpPeerPod
 {
@@ -41,7 +42,7 @@ public:
     { return service_time_; }
 
     inline void update_service_time()
-    { service_time_ = TimeGet(); }
+    { service_time_ = RUdpTime::Get(); }
 
 public:
     using InterceptCallback = std::function<int (RUdpEvent &event)>;

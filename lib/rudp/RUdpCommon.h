@@ -12,6 +12,4 @@
 #define UDP_TIME_GREATER_EQUAL(a, b) (!UDP_TIME_LESS(a, b))
 #define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
-uint32_t TimeGet();
-
 #endif // P2P_TECHDEMO_RUDPCOMMON_H

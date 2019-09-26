@@ -1,6 +1,7 @@
-#include "lib/rudp/RUdpChannel.h"
 #include "lib/rudp/command/RUdpCommandSize.h"
+#include "lib/rudp/RUdpChannel.h"
 #include "lib/rudp/RUdpCommon.h"
+#include "lib/rudp/RUdpTime.h"
 #include "RUdpProtocol.h"
 
 RUdpProtocol::RUdpProtocol() :
@@ -17,7 +18,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                                 const std::vector<std::shared_ptr<RUdpPeer>> &peers)
 {
     if (UDP_TIME_DIFFERENCE(service_time, bandwidth_throttle_epoch_) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
-        auto time_current = TimeGet();
+        auto time_current = RUdpTime::Get();
         auto time_elapsed = time_current - bandwidth_throttle_epoch_;
         auto peers_remaining = dispatch_hub_->connected_peers();
         auto data_total = ~0u;
