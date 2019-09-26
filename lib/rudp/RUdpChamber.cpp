@@ -6,7 +6,7 @@
 RUdpChamber::RUdpChamber()
     : buffer_count_(),
       command_count_(),
-      continue_sending_(false),
+      continue_sending_(),
       header_flags_(),
       segment_size_()
 {

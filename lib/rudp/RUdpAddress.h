@@ -17,22 +17,22 @@ public:
 
 public:
     [[nodiscard]]
-    inline const std::array<uint8_t, HOST_LENGTH> & host() const
-    { return host_; }
+    inline const std::array<uint8_t, HOST_LENGTH> &
+    host() const { return host_; }
 
-    void host(const uint8_t *ip_address)
-    { memcpy(&host_, ip_address, host_.size()); }
-
-    [[nodiscard]]
-    inline uint16_t port() const
-    { return port_; }
-
-    void port(uint16_t val)
-    { port_ = val; }
+    inline void
+    host(const uint8_t *ip_address) { memcpy(&host_, ip_address, host_.size()); }
 
     [[nodiscard]]
-    inline uint8_t wildcard() const
-    { return wildcard_; }
+    inline uint16_t
+    port() const { return port_; }
+
+    inline void
+    port(uint16_t val) { port_ = val; }
+
+    [[nodiscard]]
+    inline uint8_t
+    wildcard() const { return wildcard_; }
 
 public:
     RUdpAddress & operator =(const RUdpAddress &address);

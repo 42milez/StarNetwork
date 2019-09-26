@@ -16,11 +16,11 @@ public:
     void Add(const VecUInt8SP &data, size_t offset, size_t size = 0);
     VecUInt8It CopyTo(VecUInt8It it);
 
-    inline size_t Size()
-    { return size_; };
+    inline size_t
+    Size() { return size_; };
 
-    inline void Size(size_t val)
-    { size_ = val; }
+    inline void
+    Size(size_t val) { size_ = val; }
 
 private:
     enum class BufferVariant : uint8_t

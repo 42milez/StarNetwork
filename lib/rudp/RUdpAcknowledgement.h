@@ -9,17 +9,17 @@ public:
     RUdpAcknowledgement();
 
 public:
-    inline RUdpProtocolType & command()
-    { return command_; }
+    inline RUdpProtocolType &
+    command() { return command_; }
 
-    inline void command(RUdpProtocolType val)
-    { command_ = val; }
+    inline void
+    command(RUdpProtocolType val) { command_ = val; }
 
-    inline uint32_t sent_time()
-    { return sent_time_; }
+    inline uint32_t
+    sent_time() { return sent_time_; }
 
-    inline void sent_time(uint32_t val)
-    { sent_time_ = val; }
+    inline void
+    sent_time(uint32_t val) { sent_time_ = val; }
 
 private:
     RUdpProtocolType command_;

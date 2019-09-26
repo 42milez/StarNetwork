@@ -21,45 +21,45 @@ public:
                           const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
     int Write(std::vector<uint8_t> &out);
 
-    inline void DropSentTime()
-    { buffers_.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }
+    inline void
+    DropSentTime() { buffers_.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }
 
-    inline void IncrementSegmentSize(size_t val)
-    { segment_size_ += val; }
+    inline void
+    IncrementSegmentSize(size_t val) { segment_size_ += val; }
 
-    inline void SetHeader(const VecUInt8SP &header)
-    { buffers_.at(0)->Add(header, 0, 4); }
+    inline void
+    SetHeader(const VecUInt8SP &header) { buffers_.at(0)->Add(header, 0, 4); }
 
     //bool command_buffer_have_enough_space(RUdpProtocolType *command);
     //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
 
 public:
-    inline void buffer_count(size_t val)
-    { buffer_count_ = val; }
+    inline void
+    buffer_count(size_t val) { buffer_count_ = val; }
 
-    inline size_t command_count()
-    { return command_count_; }
+    inline size_t
+    command_count() { return command_count_; }
 
-    inline void command_count(size_t val)
-    { command_count_ = val; }
+    inline void
+    command_count(size_t val) { command_count_ = val; }
 
-    inline bool continue_sending()
-    { return continue_sending_; }
+    inline bool
+    continue_sending() { return continue_sending_; }
 
-    inline void continue_sending(bool val)
-    { continue_sending_ = val; }
+    inline void
+    continue_sending(bool val) { continue_sending_ = val; }
 
-    inline uint16_t header_flags()
-    { return header_flags_; }
+    inline uint16_t
+    header_flags() { return header_flags_; }
 
-    inline void header_flags(uint16_t val)
-    { header_flags_ = val; }
+    inline void
+    header_flags(uint16_t val) { header_flags_ = val; }
 
-    inline size_t segment_size()
-    { return segment_size_; }
+    inline size_t
+    segment_size() { return segment_size_; }
 
-    inline void segment_size(size_t val)
-    { segment_size_ = val; }
+    inline void
+    segment_size(size_t val) { segment_size_ = val; }
 
     //void update_buffer_count(const RUdpBuffer *buffer);
     //void update_command_count(const RUdpProtocolType *command);

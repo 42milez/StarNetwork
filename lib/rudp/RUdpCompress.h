@@ -5,7 +5,6 @@
 
 #include "RUdpHost.h"
 
-int
-udp_host_compress_with_range_coder(std::shared_ptr<RUdpHost> &host);
+int udp_host_compress_with_range_coder(std::shared_ptr<RUdpHost> &host);
 
 #endif // P2P_TECHDEMO_RUDPCOMPRESS_H
