@@ -1,6 +1,6 @@
-#include "RUdpAddress.h"
-
 #include <cstring>
+
+#include "RUdpAddress.h"
 
 RUdpAddress::RUdpAddress()
     : host_(),

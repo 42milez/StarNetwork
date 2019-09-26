@@ -5,7 +5,7 @@
 
 #include "lib/rudp/command/RUdpOutgoingCommand.h"
 #include "RUdpBuffer.h"
-#include "RUdpCommon.h"
+#include "RUdpMacro.h"
 
 class RUdpChamber
 {

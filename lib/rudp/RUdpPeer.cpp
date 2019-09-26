@@ -1,6 +1,6 @@
 #include "core/hash.h"
 
-#include "RUdpCommon.h"
+#include "RUdpMacro.h"
 #include "RUdpPeer.h"
 #include "RUdpSegmentFlag.h"
 

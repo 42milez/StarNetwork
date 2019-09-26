@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
-#include "lib/rudp/RUdpCommon.h"
 #include "lib/rudp/RUdpConst.h"
+#include "lib/rudp/RUdpMacro.h"
 #include "lib/rudp/RUdpSegment.h"
 
 class RUdpCommand

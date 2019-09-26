@@ -1,5 +1,4 @@
 #include "RUdpChannel.h"
-#include "RUdpCommon.h"
 
 RUdpChannel::RUdpChannel()
     : incoming_reliable_commands_(),

@@ -6,16 +6,15 @@
 #include <queue>
 
 #include "core/errors.h"
-
 #include "lib/rudp/command/RUdpCommand.h"
 #include "lib/rudp/command/RUdpCommandPod.h"
-#include "RUdpAddress.h"
 #include "RUdpAcknowledgement.h"
+#include "RUdpAddress.h"
 #include "RUdpChamber.h"
 #include "RUdpChannel.h"
-#include "RUdpCommon.h"
-#include "RUdpSegment.h"
+#include "RUdpMacro.h"
 #include "RUdpPeerNet.h"
+#include "RUdpSegment.h"
 
 class RUdpPeer
 {
