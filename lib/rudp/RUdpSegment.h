@@ -14,36 +14,33 @@ class RUdpSegment
 public:
     RUdpSegment(const VecUInt8SP &data, uint32_t flags);
 
-    uint32_t AddFlag(uint32_t flag);
+    void
+    AddPeerIdx(uint32_t peer_idx);
 
-    size_t DataLength();
+    void
+    AddSysMsg(SysMsg msg);
 
-    //uint8_t *move_data_pointer(uint32_t val);
+    void
+    Destroy();
 
-    void Destroy();
+    inline uint32_t
+    AddFlag(uint32_t flag) { return flags_ |= flag; }
 
-    //std::shared_ptr<DataRange> DataPosition(uint32_t val);
+    inline VecUInt8SP
+    Data() { return data_; }
 
-    VecUInt8SP Data()
-    { return data_; }
-
-    void AddSysMsg(SysMsg msg);
-
-    void AddPeerIdx(uint32_t peer_idx);
+    inline size_t
+    DataLength() { return data_->size() * sizeof(uint8_t); }
 
 public:
-    uint32_t flags()
-    { return flags_; }
+    inline uint32_t
+    flags() { return flags_; }
 
 private:
-    std::function<void(RUdpSegment *)> free_callback_;
-
     VecUInt8SP data_;
-    std::vector<uint8_t> user_data_;
+    VecUInt8 user_data_;
 
-    //VecUInt8It current_read_position_;
-
-    //size_t data_length_;
+    std::function<void(RUdpSegment *)> free_callback_;
 
     uint32_t flags_;
 };

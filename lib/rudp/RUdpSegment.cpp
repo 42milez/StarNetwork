@@ -2,8 +2,8 @@
 #include "RUdpSegmentFlag.h"
 
 RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags) :
-    flags_(),
-    free_callback_(nullptr),
+    flags_(flags),
+    free_callback_(),
     user_data_()
 {
     if (flags & static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE))
@@ -27,16 +27,6 @@ RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags) :
         if (data_ != nullptr)
             std::copy(data->begin(), data->end(), data_->begin());
     }
-
-    flags_ = flags;
-}
-
-uint32_t
-RUdpSegment::AddFlag(uint32_t flag)
-{
-    flags_ |= flag;
-
-    return flags_;
 }
 
 void
@@ -47,12 +37,6 @@ RUdpSegment::Destroy()
 
     // TODO: free data_
     // ...
-}
-
-size_t
-RUdpSegment::DataLength()
-{
-    return data_->size() * sizeof(uint8_t);
 }
 
 void
