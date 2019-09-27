@@ -1,8 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPDISPATCHHUB_H
 #define P2P_TECHDEMO_RUDPDISPATCHHUB_H
 
-#include "RUdpDispatchQueue.h"
-#include "RUdpEvent.h"
+#include "lib/rudp/dispatch/RUdpDispatchQueue.h"
+#include "lib/rudp/RUdpEvent.h"
 
 class RUdpDispatchHub
 {
