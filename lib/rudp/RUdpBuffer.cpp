@@ -14,7 +14,7 @@ RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
 }
 
 void
-RUdpBuffer::Add(const VecUInt8SP &data, size_t offset, size_t size)
+RUdpBuffer::Add(const VecUInt8SharedPtr &data, size_t offset, size_t size)
 {
     data_ = data;
     offset_ = offset;
@@ -36,7 +36,7 @@ RUdpBuffer::CopyTo(VecUInt8It it)
         return it + size_;
     }
 
-    auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SP)>(data_);
+    auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SharedPtr)>(data_);
     memcpy(&(*it), &(data->at(0)), size_);
 
     return it + size_;

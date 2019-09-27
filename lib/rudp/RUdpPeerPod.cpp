@@ -420,7 +420,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                                   uint32_t service_time,
                                   bool check_for_timeouts)
 {
-    auto header_data = std::make_shared<std::vector<uint8_t>>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
+    auto header_data = std::make_shared<VecUInt8>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
     auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
 
     protocol_->continue_sending(true);

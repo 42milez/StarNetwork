@@ -78,7 +78,7 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
 }
 
 int
-RUdpChamber::Write(std::vector<uint8_t> &out)
+RUdpChamber::Write(VecUInt8 &out)
 {
     auto size = 0;
 

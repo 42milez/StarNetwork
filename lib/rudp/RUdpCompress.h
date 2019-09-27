@@ -7,12 +7,12 @@
 
 using CompressorType = std::function<size_t(const std::vector<RUdpBuffer> &in_buffers,
                                             size_t in_limit,
-                                            std::vector<uint8_t> &out_data,
+                                            VecUInt8 &out_data,
                                             size_t out_limit)>;
 
-using DecompressorType = std::function<size_t(std::vector<uint8_t> &in_data,
+using DecompressorType = std::function<size_t(VecUInt8 &in_data,
                                               size_t in_limit,
-                                              std::vector<uint8_t> &out_data,
+                                              VecUInt8 &out_data,
                                               size_t out_limit)>;
 
 using CleanerType = std::function<void()>;

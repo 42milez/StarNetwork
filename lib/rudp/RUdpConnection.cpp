@@ -37,7 +37,7 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
 }
 
 ssize_t
-RUdpConnection::Receive(RUdpAddress &received_address, std::vector<uint8_t> &buffer, size_t buffer_count)
+RUdpConnection::Receive(RUdpAddress &received_address, VecUInt8 &buffer, size_t buffer_count)
 {
     ERR_FAIL_COND_V(buffer_count != 1, -1)
 
@@ -74,7 +74,7 @@ RUdpConnection::Send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     dest.set_ipv6(address.host());
 
-    std::vector<uint8_t> out;
+    VecUInt8 out;
 
     auto size = chamber->Write(out);
 

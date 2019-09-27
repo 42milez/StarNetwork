@@ -1,7 +1,7 @@
 #include "RUdpEnum.h"
 #include "RUdpSegment.h"
 
-RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags)
+RUdpSegment::RUdpSegment(const VecUInt8SharedPtr &data, uint32_t flags)
     : flags_(flags),
       free_callback_(),
       user_data_()
@@ -16,7 +16,7 @@ RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags)
     }
     else
     {
-        data_ = std::make_shared<std::vector<uint8_t>>();
+        data_ = std::make_shared<VecUInt8>();
 
         if (data_ == nullptr)
         {

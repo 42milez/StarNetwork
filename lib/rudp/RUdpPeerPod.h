@@ -69,9 +69,9 @@ private:
     std::shared_ptr<RUdpConnection> conn_;
     std::vector<std::shared_ptr<RUdpPeer>> peers_;
     std::unique_ptr<RUdpProtocol> protocol_;
-    VecUInt8Ptr received_data_;
-    std::vector<uint8_t> segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
-    std::vector<uint8_t> segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
+    VecUInt8RawPtr received_data_;
+    VecUInt8 segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
+    VecUInt8 segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
 
     ChecksumCallback checksum_;
     InterceptCallback intercept_;
