@@ -12,8 +12,8 @@ public:
     RUdpTime() = delete;
     ~RUdpTime() = delete;
     RUdpTime(const RUdpTime&) = delete;
-    RUdpTime& operator=(const RUdpTime&) = delete;
     RUdpTime(RUdpTime&&) = delete;
+    RUdpTime& operator=(const RUdpTime&) = delete;
     RUdpTime& operator=(RUdpTime&&) = delete;
 
 public:
