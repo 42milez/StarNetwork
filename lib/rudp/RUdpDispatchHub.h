@@ -18,29 +18,29 @@ public:
     void NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
 
 public:
-    inline void Enqueue(std::shared_ptr<RUdpPeer> &peer)
-    { queue_->Enqueue(peer); }
-
-    inline std::shared_ptr<RUdpPeer> Dequeue()
-    { return queue_->Dequeue(); }
-
     void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
-    inline bool PeerExists()
-    { return queue_->PeerExists(); }
+    inline void
+    Enqueue(std::shared_ptr<RUdpPeer> &peer) { queue_->Enqueue(peer); }
+
+    inline std::shared_ptr<RUdpPeer>
+    Dequeue() { return queue_->Dequeue(); }
+
+    inline bool
+    PeerExists() { return queue_->PeerExists(); }
 
 public:
-    inline size_t bandwidth_limited_peers()
-    { return bandwidth_limited_peers_; }
+    inline size_t
+    bandwidth_limited_peers() { return bandwidth_limited_peers_; }
 
-    inline size_t connected_peers()
-    { return connected_peers_; }
+    inline size_t
+    connected_peers() { return connected_peers_; }
 
-    inline bool recalculate_bandwidth_limits()
-    { return recalculate_bandwidth_limits_; }
+    inline bool
+    recalculate_bandwidth_limits() { return recalculate_bandwidth_limits_; }
 
-    inline void recalculate_bandwidth_limits(bool val)
-    { recalculate_bandwidth_limits_ = val; }
+    inline void
+    recalculate_bandwidth_limits(bool val) { recalculate_bandwidth_limits_ = val; }
 
 private:
     std::unique_ptr<RUdpDispatchQueue> queue_;

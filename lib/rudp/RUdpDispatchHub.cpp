@@ -4,7 +4,7 @@ RUdpDispatchHub::RUdpDispatchHub() :
     bandwidth_limited_peers_(),
     connected_peers_(),
     queue_(std::make_unique<RUdpDispatchQueue>()),
-    recalculate_bandwidth_limits_(false)
+    recalculate_bandwidth_limits_()
 {}
 
 void
@@ -35,13 +35,9 @@ void
 RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
 {
     if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
-    {
         MergePeer(peer);
-    }
     else
-    {
         PurgePeer(peer);
-    }
 
     peer->net()->state(state);
 }

@@ -8,7 +8,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
                          uint32_t host_incoming_bandwidth,
                          uint32_t host_outgoing_bandwidth)
     : checksum_(nullptr),
-      compressor_(std::make_shared<RUdpCompressor>()),
+      compressor_(std::make_shared<RUdpCompress>()),
       conn_(conn),
       duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
       host_incoming_bandwidth_(host_incoming_bandwidth),
@@ -413,7 +413,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             auto should_compress = false;
 
-            if (compressor_->compress != nullptr)
+            if (compressor_->CanCompress())
             {
                 // ...
             }

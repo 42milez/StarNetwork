@@ -30,26 +30,23 @@ Network::Network()
       transfer_mode_(TransferMode::RELIABLE),
       unique_id_()
 {
-    compressor_ = std::make_shared<RUdpCompressor>();
+    compress_ = std::make_shared<RUdpCompress>();
 
-    compressor_->compress = [this](const std::vector<RUdpBuffer> &in_buffers,
-                                   size_t in_limit,
-                                   std::vector<uint8_t> &out_data,
-                                   size_t out_limit) -> size_t
-    {
-        return Compressor(in_buffers, in_limit, out_data, out_limit);
-    };
+    compress_->SetCompressor(
+        [this](const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,
+            size_t out_limit) -> size_t
+        {
+            return Compressor(in_buffers, in_limit, out_data, out_limit);
+        });
 
-    compressor_->decompress =
-        [this](std::vector<uint8_t> &in_data, size_t in_limit, std::vector<uint8_t> &out_data, size_t out_limit) -> size_t
+    compress_->SetDecompressor(
+        [this](std::vector<uint8_t> &in_data, size_t in_limit, std::vector<uint8_t> &out_data,
+            size_t out_limit) -> size_t
         {
             return Decompressor(in_data, in_limit, out_data, out_limit);
-        };
+        });
 
-    compressor_->destroy = [this]() -> void
-    {
-        Destroy();
-    };
+    compress_->SetCleaner([this]() -> void { Cleaner(); });
 }
 
 Network::~Network()
@@ -314,7 +311,7 @@ Network::Decompressor(std::vector<uint8_t> &in_data,
 }
 
 void
-Network::Destroy()
+Network::Cleaner()
 {
     // Nothing to do
 }

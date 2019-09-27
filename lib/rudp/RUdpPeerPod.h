@@ -5,7 +5,7 @@
 
 #include "lib/rudp/protocol/RUdpProtocol.h"
 #include "RUdpChecksum.h"
-#include "RUdpCompressor.h"
+#include "RUdpCompress.h"
 #include "RUdpConnection.h"
 #include "RUdpPeer.h"
 #include "RUdpTime.h"
@@ -51,7 +51,7 @@ private:
     std::vector<std::shared_ptr<RUdpPeer>> peers_;
     VecUInt8Ptr received_data_;
 
-    std::shared_ptr<RUdpCompressor> compressor_;
+    std::shared_ptr<RUdpCompress> compressor_;
     std::shared_ptr<RUdpConnection> conn_;
 
     std::unique_ptr<RUdpProtocol> protocol_;

@@ -9,7 +9,7 @@
 #include "core/errors.h"
 
 #include "lib/rudp/RUdpBuffer.h"
-#include "lib/rudp/RUdpCompressor.h"
+#include "lib/rudp/RUdpCompress.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpHost.h"
 #include "lib/rudp/RUdpSegment.h"
@@ -90,7 +90,7 @@ private:
     std::vector<uint8_t> dst_compressor_mem_;
     std::vector<uint8_t> src_compressor_mem_;
 
-    std::shared_ptr<RUdpCompressor> compressor_;
+    std::shared_ptr<RUdpCompress> compress_;
     std::shared_ptr<RUdpHost> host_;
 
     CompressionMode compression_mode_;
@@ -119,7 +119,7 @@ private:
                         size_t in_limit,
                         std::vector<uint8_t> &out_data,
                         size_t out_limit);
-    void Destroy();
+    void Cleaner();
 
     void PopCurrentSegment();
 

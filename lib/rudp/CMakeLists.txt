@@ -8,4 +8,4 @@ file(GLOB headers_protocol protocol/*.h)
 add_library(rudp STATIC
         ${sources} ${headers}
         ${sources_command} ${headers_command}
-        ${sources_protocol} ${headers_protocol})
+        ${sources_protocol} ${headers_protocol} RUdpCompress.cpp)
