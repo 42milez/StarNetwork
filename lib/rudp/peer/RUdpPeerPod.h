@@ -3,12 +3,12 @@
 
 #include <vector>
 
+#include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/protocol/RUdpProtocol.h"
-#include "RUdpChecksum.h"
-#include "RUdpCompress.h"
-#include "RUdpConnection.h"
-#include "RUdpPeer.h"
-#include "RUdpTime.h"
+#include "lib/rudp/RUdpChecksum.h"
+#include "lib/rudp/RUdpCompress.h"
+#include "lib/rudp/RUdpConnection.h"
+#include "lib/rudp/RUdpTime.h"
 
 using InterceptCallback = std::function<int (RUdpEvent &event)>;
 

@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
-#include "RUdpConst.h"
-#include "RUdpEnum.h"
-#include "RUdpMacro.h"
+#include "lib/rudp/RUdpConst.h"
+#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/RUdpMacro.h"
 
 class RUdpPeerNet
 {

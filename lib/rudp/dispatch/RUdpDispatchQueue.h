@@ -4,7 +4,7 @@
 #include <memory>
 #include <queue>
 
-#include "lib/rudp/RUdpPeer.h"
+#include "lib/rudp/peer/RUdpPeer.h"
 
 class RUdpDispatchQueue
 {

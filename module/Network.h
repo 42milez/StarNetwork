@@ -13,7 +13,7 @@
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpHost.h"
 #include "lib/rudp/RUdpSegment.h"
-#include "lib/rudp/RUdpPeer.h"
+#include "lib/rudp/peer/RUdpPeer.h"
 
 class Network
 {

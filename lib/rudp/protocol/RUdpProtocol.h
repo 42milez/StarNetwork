@@ -3,11 +3,11 @@
 
 #include <array>
 
-#include "lib/rudp/RUdpChamber.h"
 #include "lib/rudp/dispatch/RUdpDispatchHub.h"
+#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/RUdpChamber.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpEvent.h"
-#include "lib/rudp/RUdpPeer.h"
 
 class RUdpProtocol
 {

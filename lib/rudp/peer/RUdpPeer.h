@@ -9,13 +9,13 @@
 #include "core/errors.h"
 #include "lib/rudp/command/RUdpCommand.h"
 #include "lib/rudp/command/RUdpCommandPod.h"
-#include "RUdpAcknowledgement.h"
-#include "RUdpAddress.h"
-#include "RUdpChamber.h"
-#include "RUdpChannel.h"
-#include "RUdpMacro.h"
+#include "lib/rudp/RUdpAcknowledgement.h"
+#include "lib/rudp/RUdpAddress.h"
+#include "lib/rudp/RUdpChamber.h"
+#include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/RUdpMacro.h"
 #include "RUdpPeerNet.h"
-#include "RUdpSegment.h"
+#include "lib/rudp/RUdpSegment.h"
 
 class RUdpPeer
 {

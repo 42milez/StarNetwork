@@ -1,8 +1,8 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
+#include "lib/rudp/peer/RUdpPeer.h"
 #include "RUdpEnum.h"
-#include "RUdpPeer.h"
 
 class RUdpEvent
 {

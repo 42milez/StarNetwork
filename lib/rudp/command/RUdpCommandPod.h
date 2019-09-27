@@ -4,9 +4,9 @@
 #include <list>
 #include <memory>
 
+#include "lib/rudp/peer/RUdpPeerNet.h"
 #include "lib/rudp/RUdpChamber.h"
 #include "lib/rudp/RUdpChannel.h"
-#include "lib/rudp/RUdpPeerNet.h"
 #include "RUdpCommand.h"
 
 class RUdpCommandPod
