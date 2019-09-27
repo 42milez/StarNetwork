@@ -1,10 +1,10 @@
 #include "RUdpSegment.h"
 #include "RUdpSegmentFlag.h"
 
-RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags) :
-    flags_(flags),
-    free_callback_(),
-    user_data_()
+RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags)
+    : flags_(flags),
+      free_callback_(),
+      user_data_()
 {
     if (flags & static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE))
     {
