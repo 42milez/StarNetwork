@@ -63,9 +63,9 @@ RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::sha
     {
         ChangeState(peer, RUdpPeerState::CONNECTED);
 
-        event->type = RUdpEventType::CONNECT;
-        event->peer = peer;
-        event->data = peer->event_data();
+        event->type(RUdpEventType::CONNECT);
+        event->peer(peer);
+        event->data(peer->event_data());
     }
     else
     {
@@ -88,9 +88,9 @@ RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::
     }
     else if (event)
     {
-        event->type = RUdpEventType::DISCONNECT;
-        event->peer = peer;
-        event->data = 0;
+        event->type(RUdpEventType::DISCONNECT);
+        event->peer(peer);
+        event->data(0);
 
         peer->Reset();
     }

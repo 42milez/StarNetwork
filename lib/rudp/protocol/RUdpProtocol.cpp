@@ -220,9 +220,9 @@ RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniqu
     }
         // ピアが接続済みである場合
     else if (event != nullptr) {
-        event->type = RUdpEventType::DISCONNECT;
-        event->peer = peer;
-        event->data = 0;
+        event->type(RUdpEventType::DISCONNECT);
+        event->peer(peer);
+        event->data(0);
 
         ResetPeer(peer);
     }
@@ -246,18 +246,18 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
             dispatch_hub_->ChangeState(peer, RUdpPeerState::CONNECTED);
 
-            event->type = RUdpEventType::CONNECT;
-            event->peer = peer;
-            event->data = peer->event_data();
+            event->type(RUdpEventType::CONNECT);
+            event->peer(peer);
+            event->data(peer->event_data());
 
             return EventStatus::AN_EVENT_OCCURRED;
         }
         else if (peer->StateIs(RUdpPeerState::ZOMBIE)) {
             dispatch_hub_->recalculate_bandwidth_limits(true);
 
-            event->type = RUdpEventType::DISCONNECT;
-            event->peer = peer;
-            event->data = peer->event_data();
+            event->type(RUdpEventType::DISCONNECT);
+            event->peer(peer);
+            event->data(peer->event_data());
 
             // ゾンビ状態になったピアはリセットする
             ResetPeer(peer);
@@ -269,13 +269,15 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 continue;
 
             // 接続済みのピアからはコマンドを受信する
-            event->segment = peer->Receive(event->channel_id);
+            auto [segment, channel_id] = peer->Receive();
 
-            if (event->segment == nullptr)
+            if (segment == nullptr)
                 continue;
 
-            event->type = RUdpEventType::RECEIVE;
-            event->peer = peer;
+            event->segment(segment);
+            event->channel_id(channel_id);
+            event->type(RUdpEventType::RECEIVE);
+            event->peer(peer);
 
             // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
             if (peer->DispatchedCommandExists()) {

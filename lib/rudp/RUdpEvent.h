@@ -1,37 +1,52 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
+#include "RUdpEnum.h"
 #include "RUdpPeer.h"
 
-enum class EventStatus: int
-{
-    AN_EVENT_OCCURRED = 1,
-    NO_EVENT_OCCURRED = 0,
-    ERROR = -1
-};
-
-enum class RUdpEventType: int
-{
-    NONE,
-    CONNECT,
-    DISCONNECT,
-    RECEIVE
-};
-
-using RUdpEvent = struct RUdpEvent
+class RUdpEvent
 {
 public:
     RUdpEvent();
+    void Reset();
+
+    inline bool
+    TypeIs(RUdpEventType val) { return type_ == val; }
+
+    inline bool
+    TypeIsNot(RUdpEventType val) { return type_ != val; }
 
 public:
-    RUdpEventType type;
+    inline uint8_t
+    channel_id() { return channel_id_; }
 
-    std::shared_ptr<RUdpPeer> peer;
-    std::shared_ptr<RUdpSegment> segment;
+    inline void
+    channel_id(uint8_t val) { channel_id_ = val; }
 
-    uint32_t data;
+    inline void
+    data(uint32_t val) { data_ = val; }
 
-    uint8_t channel_id;
+    inline std::shared_ptr<RUdpPeer>
+    peer() { return peer_; }
+
+    inline void
+    peer(std::shared_ptr<RUdpPeer> &val) { peer_ = val; }
+
+    inline void
+    segment(std::shared_ptr<RUdpSegment> &val) { segment_ = val; }
+
+    inline void
+    type(RUdpEventType val) { type_ = val; }
+
+private:
+    std::shared_ptr<RUdpPeer> peer_;
+    std::shared_ptr<RUdpSegment> segment_;
+
+    RUdpEventType type_;
+
+    uint32_t data_;
+
+    uint8_t channel_id_;
 };
 
 #endif // P2P_TECHDEMO_RUDPEVENT_H

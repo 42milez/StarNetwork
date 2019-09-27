@@ -185,16 +185,16 @@ Network::Poll()
         if (ret == EventStatus::NO_EVENT_OCCURRED || ret == EventStatus::ERROR)
             break;
 
-        if (event->type == RUdpEventType::CONNECT) {
+        if (event->TypeIs(RUdpEventType::CONNECT)) {
             // ...
         }
-        else if (event->type == RUdpEventType::DISCONNECT) {
+        else if (event->TypeIs(RUdpEventType::DISCONNECT)) {
             // ...
         }
-        else if (event->type == RUdpEventType::RECEIVE) {
+        else if (event->TypeIs(RUdpEventType::RECEIVE)) {
             // ...
         }
-        else if (event->type == RUdpEventType::NONE) {
+        else if (event->TypeIs(RUdpEventType::NONE)) {
             // ...
         }
     }

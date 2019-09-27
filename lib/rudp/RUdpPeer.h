@@ -4,6 +4,7 @@
 #include <list>
 #include <memory>
 #include <queue>
+#include <tuple>
 
 #include "core/errors.h"
 #include "lib/rudp/command/RUdpCommand.h"
@@ -39,7 +40,7 @@ public:
                               uint32_t offset,
                               uint16_t length);
 
-    std::shared_ptr<RUdpSegment> Receive(uint8_t &channel_id);
+    std::tuple<std::shared_ptr<RUdpSegment>, uint8_t> Receive();
     Error Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool checksum);
 
 public:

@@ -1,6 +1,23 @@
 #ifndef P2P_TECHDEMO_RUDPENUM_H
 #define P2P_TECHDEMO_RUDPENUM_H
 
+#include <cstdint>
+
+enum class EventStatus: int
+{
+    AN_EVENT_OCCURRED = 1,
+    NO_EVENT_OCCURRED = 0,
+    ERROR = -1
+};
+
+enum class RUdpEventType: uint8_t
+{
+    NONE,
+    CONNECT,
+    DISCONNECT,
+    RECEIVE
+};
+
 enum class RUdpProtocolCommand : uint8_t
 {
     NONE                     = 0,

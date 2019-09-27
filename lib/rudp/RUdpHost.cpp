@@ -73,9 +73,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     EventStatus ret;
 
     if (event != nullptr) {
-        event->type = RUdpEventType::NONE;
-        event->peer = nullptr;
-        event->segment = nullptr;
+        event->Reset();
 
         // - キューから取り出されたパケットは event に格納される
         // - ピアが取りうるステートは以下の 10 通りだが、この関数で処理されるのは 3,5,6,10 の４つ

@@ -87,7 +87,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectNow() )
     // ==================================================
 
-    client->DisconnectNow(client_event->peer, 0);
+    client->DisconnectNow(client_event->peer(), 0);
 
     usleep(sleep_duration);
 
@@ -164,7 +164,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectLater() )
     // ==================================================
 
-    client->DisconnectLater(client_event->peer, 0);
+    client->DisconnectLater(client_event->peer(), 0);
     client->Service(client_event, 0);
 
     usleep(sleep_duration);

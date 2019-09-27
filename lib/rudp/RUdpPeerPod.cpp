@@ -67,13 +67,13 @@ RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 #define IS_EVENT_TYPE_NONE() \
-    if (event->type != RUdpEventType::NONE) \
+    if (event->TypeIsNot(RUdpEventType::NONE)) \
         return EventStatus::AN_EVENT_OCCURRED; \
     else \
         continue;
 
 #define IS_EVENT_AVAILABLE() \
-    if (event != nullptr && event->type != RUdpEventType::NONE) \
+    if (event != nullptr && event->TypeIsNot(RUdpEventType::NONE)) \
         return EventStatus::AN_EVENT_OCCURRED;                  \
     else                                                        \
         return EventStatus::NO_EVENT_OCCURRED;

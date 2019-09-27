@@ -265,21 +265,18 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
         command_pod_->setup_outgoing_command(outgoing_command, nullptr);
 }
 
-std::shared_ptr<RUdpSegment>
-RUdpPeer::Receive(uint8_t &channel_id)
+std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>
+RUdpPeer::Receive()
 {
     if (dispatched_commands_.empty())
-        return nullptr;
+        return {nullptr, 0};
 
     auto incoming_command = dispatched_commands_.front();
-
-    channel_id = incoming_command.header_channel_id();
-
     auto segment = incoming_command.segment();
 
     total_waiting_data_ -= segment->DataLength();
 
-    return segment;
+    return {segment, incoming_command.header_channel_id()};
 }
 
 Error
