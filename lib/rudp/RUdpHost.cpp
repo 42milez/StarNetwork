@@ -48,10 +48,12 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     return err;
 }
 
-#define CHECK_RETURN_VALUE(val)                \
+#define RETURN_ON_EVENT_OCCURRED(val)       \
     if (val == EventStatus::AN_EVENT_OCCURRED) \
-        return EventStatus::AN_EVENT_OCCURRED; \
-    else if (val == EventStatus::ERROR)        \
+        return EventStatus::AN_EVENT_OCCURRED;
+
+#define RETURN_ON_ERROR(val)       \
+    if (val == EventStatus::ERROR) \
         return EventStatus::ERROR;
 
 /** Waits for events on the host specified and shuttles packets between
@@ -89,7 +91,8 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         // 10. ZOMBIE
         ret = peer_pod_->DispatchIncomingCommands(event);
 
-        CHECK_RETURN_VALUE(ret)
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
     }
 
     peer_pod_->update_service_time();
@@ -103,19 +106,23 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 
         ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
 
-        CHECK_RETURN_VALUE(ret)
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
 
         ret = peer_pod_->ReceiveIncomingCommands(event);
 
-        CHECK_RETURN_VALUE(ret)
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
 
         ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
 
-        CHECK_RETURN_VALUE(ret)
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
 
         ret = peer_pod_->DispatchIncomingCommands(event);
 
-        CHECK_RETURN_VALUE(ret)
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
 
         if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
             return EventStatus::NO_EVENT_OCCURRED;
