@@ -18,6 +18,20 @@ enum class RUdpEventType: uint8_t
     RECEIVE
 };
 
+enum class RUdpPeerState: uint8_t
+{
+    DISCONNECTED = 0,
+    CONNECTING,
+    ACKNOWLEDGING_CONNECT,
+    CONNECTION_PENDING,
+    CONNECTION_SUCCEEDED,
+    CONNECTED,
+    DISCONNECT_LATER,
+    DISCONNECTING,
+    ACKNOWLEDGING_DISCONNECT,
+    ZOMBIE
+};
+
 enum class RUdpProtocolCommand : uint8_t
 {
     NONE                     = 0,

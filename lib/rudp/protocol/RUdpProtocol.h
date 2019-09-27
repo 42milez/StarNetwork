@@ -5,9 +5,9 @@
 
 #include "lib/rudp/RUdpChamber.h"
 #include "lib/rudp/RUdpDispatchHub.h"
+#include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpPeer.h"
-#include "lib/rudp/RUdpPeerState.h"
 
 class RUdpProtocol
 {

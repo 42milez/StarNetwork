@@ -4,8 +4,8 @@
 #include <cstdint>
 
 #include "RUdpConst.h"
+#include "RUdpEnum.h"
 #include "RUdpMacro.h"
-#include "RUdpPeerState.h"
 
 class RUdpPeerNet
 {
