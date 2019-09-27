@@ -5,17 +5,17 @@
 
 RUdpConnection::RUdpConnection(const RUdpAddress &address)
 {
-    _socket = std::make_unique<Socket>();
+    socket_ = std::make_unique<Socket>();
 
-    if (_socket == nullptr) {
+    if (socket_ == nullptr) {
         // throw exception
         // ...
     }
 
-    _socket->open(Socket::Type::UDP, IP::Type::ANY);
+    socket_->open(Socket::Type::UDP, IP::Type::ANY);
 
-    _socket->set_blocking_enabled(false);
-    _socket->set_broadcasting_enabled(true);
+    socket_->set_blocking_enabled(false);
+    socket_->set_broadcasting_enabled(true);
 
     IpAddress ip{};
 
@@ -28,7 +28,7 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
         ip.set_ipv6(address.host());
     }
 
-    auto ret = _socket->bind(ip, address.port());
+    auto ret = socket_->bind(ip, address.port());
 
     if (ret != Error::OK) {
         // throw exception
@@ -37,11 +37,11 @@ RUdpConnection::RUdpConnection(const RUdpAddress &address)
 }
 
 ssize_t
-RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buffer, size_t buffer_count)
+RUdpConnection::Receive(RUdpAddress &received_address, std::vector<uint8_t> &buffer, size_t buffer_count)
 {
     ERR_FAIL_COND_V(buffer_count != 1, -1)
 
-    Error err = _socket->poll(Socket::PollType::POLL_TYPE_IN, 0);
+    Error err = socket_->poll(Socket::PollType::POLL_TYPE_IN, 0);
 
     if (err == Error::ERR_BUSY)
         return 0;
@@ -53,7 +53,7 @@ RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buf
     IpAddress ip;
 
     uint16_t port = 0;
-    err = _socket->recvfrom(buffer, read_count, ip, port);
+    err = socket_->recvfrom(buffer, read_count, ip, port);
     received_address.port(port);
 
     if (err == Error::ERR_BUSY)
@@ -68,7 +68,7 @@ RUdpConnection::receive(RUdpAddress &received_address, std::vector<uint8_t> &buf
 }
 
 ssize_t
-RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber)
+RUdpConnection::Send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber)
 {
     IpAddress dest;
 
@@ -80,7 +80,7 @@ RUdpConnection::send(const RUdpAddress &address, const std::unique_ptr<RUdpChamb
 
     ssize_t sent = 0;
 
-    auto err = _socket->sendto(&(out.at(0)), size, sent, dest, address.port());
+    auto err = socket_->sendto(&(out.at(0)), size, sent, dest, address.port());
 
     if (err != Error::OK) {
         if (err == Error::ERR_BUSY)

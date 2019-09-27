@@ -83,7 +83,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 {
     for (auto i = 0; i < 256; ++i)
     {
-        auto received_length = conn_->receive(received_address_, segment_data_1_, 1);
+        auto received_length = conn_->Receive(received_address_, segment_data_1_, 1);
 
         if (received_length < 0)
             return EventStatus::ERROR;
@@ -439,7 +439,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             peer->net()->last_send_time(service_time);
 
-            auto sent_length = conn_->send(peer->address(), protocol_->chamber());
+            auto sent_length = conn_->Send(peer->address(), protocol_->chamber());
 
             peer->command()->remove_sent_unreliable_commands();
 
