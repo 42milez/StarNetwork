@@ -10,7 +10,9 @@ class RUdpChannel
 {
 public:
     RUdpChannel();
-    void Reset();
+
+    void
+    Reset();
 
     inline void
     DecrementReliableWindow(size_t idx) { --reliable_windows_.at(idx); }

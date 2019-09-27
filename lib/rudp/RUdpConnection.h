@@ -9,9 +9,14 @@
 class RUdpConnection
 {
 public:
-    explicit RUdpConnection(const RUdpAddress &address);
-    ssize_t Receive(RUdpAddress &received_address, VecUInt8 &buffer, size_t buffer_count);
-    ssize_t Send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber);
+    explicit
+    RUdpConnection(const RUdpAddress &address);
+
+    ssize_t
+    Receive(RUdpAddress &received_address, VecUInt8 &buffer, size_t buffer_count);
+
+    ssize_t
+    Send(const RUdpAddress &address, const std::unique_ptr<RUdpChamber> &chamber);
 
 private:
     std::unique_ptr<Socket> socket_;

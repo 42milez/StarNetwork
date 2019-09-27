@@ -12,8 +12,12 @@ private:
 
 public:
     RUdpAddress();
-    void Reset();
-    void SetIP(const uint8_t *ip, size_t size);
+
+    void
+    Reset();
+
+    void
+    SetIP(const uint8_t *ip, size_t size);
 
 public:
     [[nodiscard]]

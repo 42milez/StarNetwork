@@ -15,11 +15,19 @@ private:
 
 public:
     RUdpChamber();
-    const CmdBufIt EmptyCommandBuffer();
-    const DataBufIt EmptyDataBuffer();
-    bool SendingContinues(RUdpChamber::CmdBufIt cmd_it, RUdpChamber::DataBufIt buf_it, uint32_t mtu,
-                          const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
-    int Write(VecUInt8 &out);
+
+    const CmdBufIt
+    EmptyCommandBuffer();
+
+    const DataBufIt
+    EmptyDataBuffer();
+
+    bool
+    SendingContinues(RUdpChamber::CmdBufIt cmd_it, RUdpChamber::DataBufIt buf_it, uint32_t mtu,
+                     const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
+
+    int
+    Write(VecUInt8 &out);
 
     inline void
     DropSentTime() { buffers_.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }

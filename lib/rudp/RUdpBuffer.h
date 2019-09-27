@@ -12,9 +12,15 @@ class RUdpBuffer
 {
 public:
     RUdpBuffer();
-    void Add(const RUdpProtocolTypeSP &data);
-    void Add(const VecUInt8SharedPtr &data, size_t offset, size_t size = 0);
-    VecUInt8It CopyTo(VecUInt8It it);
+
+    void
+    Add(const RUdpProtocolTypeSP &data);
+
+    void
+    Add(const VecUInt8SharedPtr &data, size_t offset, size_t size = 0);
+
+    VecUInt8It
+    CopyTo(VecUInt8It it);
 
     inline size_t
     Size() { return size_; };

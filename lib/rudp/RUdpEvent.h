@@ -8,7 +8,9 @@ class RUdpEvent
 {
 public:
     RUdpEvent();
-    void Reset();
+
+    void
+    Reset();
 
     inline bool
     TypeIs(RUdpEventType val) { return type_ == val; }
