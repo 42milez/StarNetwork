@@ -1,7 +1,7 @@
 #include "lib/rudp/command/RUdpCommandSize.h"
+#include "RUdpEnum.h"
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
-#include "RUdpSegmentFlag.h"
 
 RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn, uint32_t host_incoming_bandwidth,
                          uint32_t host_outgoing_bandwidth)

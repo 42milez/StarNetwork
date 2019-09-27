@@ -1,4 +1,4 @@
-#include "lib/rudp/RUdpSegmentFlag.h"
+#include "lib/rudp/RUdpEnum.h"
 #include "RUdpCommandPod.h"
 #include "RUdpCommandSize.h"
 

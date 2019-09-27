@@ -1,8 +1,8 @@
 #include "core/hash.h"
 
+#include "RUdpEnum.h"
 #include "RUdpMacro.h"
 #include "RUdpPeer.h"
-#include "RUdpSegmentFlag.h"
 
 RUdpPeer::RUdpPeer() :
     command_pod_(std::make_unique<RUdpCommandPod>()),

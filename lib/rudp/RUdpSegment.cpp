@@ -1,5 +1,5 @@
+#include "RUdpEnum.h"
 #include "RUdpSegment.h"
-#include "RUdpSegmentFlag.h"
 
 RUdpSegment::RUdpSegment(const VecUInt8SP &data, uint32_t flags)
     : flags_(flags),
