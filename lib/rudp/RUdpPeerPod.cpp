@@ -3,17 +3,15 @@
 #include "RUdpPeerPod.h"
 #include "RUdpSegmentFlag.h"
 
-RUdpPeerPod::RUdpPeerPod(size_t peer_count,
-                         std::shared_ptr<RUdpConnection> &conn,
-                         uint32_t host_incoming_bandwidth,
+RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn, uint32_t host_incoming_bandwidth,
                          uint32_t host_outgoing_bandwidth)
-    : checksum_(nullptr),
+    : checksum_(),
       compressor_(std::make_shared<RUdpCompress>()),
       conn_(conn),
       duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
       host_incoming_bandwidth_(host_incoming_bandwidth),
       host_outgoing_bandwidth_(host_outgoing_bandwidth),
-      intercept_(nullptr),
+      intercept_(),
       peer_count_(peer_count),
       protocol_(std::make_unique<RUdpProtocol>()),
       received_address_(),
@@ -27,10 +25,9 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count,
       total_sent_data_(),
       total_sent_segments_()
 {
-    memset(&(segment_data_1_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
-    memset(&(segment_data_2_.at(0)), 0, sizeof(uint8_t) * PROTOCOL_MAXIMUM_MTU);
-
     peers_.resize(peer_count);
+    segment_data_1_.resize(PROTOCOL_MAXIMUM_MTU);
+    segment_data_2_.resize(PROTOCOL_MAXIMUM_MTU);
 
     uint16_t idx = 0;
     for (auto &peer : peers_)
@@ -51,19 +48,6 @@ RUdpPeerPod::AvailablePeer()
     }
 
     return nullptr;
-}
-
-void
-RUdpPeerPod::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth,
-                               uint32_t outgoing_bandwidth)
-{
-    protocol_->BandwidthThrottle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_);
-}
-
-EventStatus
-RUdpPeerPod::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
-{
-    return protocol_->DispatchIncomingCommands(event);
 }
 
 #define IS_EVENT_TYPE_NONE() \
