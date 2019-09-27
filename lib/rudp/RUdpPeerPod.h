@@ -32,17 +32,17 @@ public:
     Error
     DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
 
-    EventStatus
-    ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+    void
+    Flush();
 
     EventStatus
-    SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
 
     void
     RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
 
-    void
-    Flush();
+    EventStatus
+    SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
 
     inline void
     BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
