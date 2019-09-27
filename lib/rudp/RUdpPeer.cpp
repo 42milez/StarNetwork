@@ -237,7 +237,7 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
     if (ack == nullptr)
         return;
 
-    outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
+    command_pod_->outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
 
     ack->sent_time(sent_time);
     ack->command(*cmd);

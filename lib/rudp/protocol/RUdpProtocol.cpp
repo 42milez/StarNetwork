@@ -46,7 +46,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
 
-                data_total += peer->outgoing_data_total();
+                data_total += peer->command_pod()->outgoing_data_total();
             }
         }
 
@@ -65,27 +65,27 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 uint32_t peer_bandwidth;
 
                 if ((IS_PEER_NOT_CONNECTED(peer)) ||
-                    peer->incoming_bandwidth() == 0 ||
-                    peer->outgoing_bandwidth_throttle_epoch() == time_current) {
+                    peer->net()->incoming_bandwidth() == 0 ||
+                    peer->net()->outgoing_bandwidth_throttle_epoch() == time_current) {
                     continue;
                 }
 
-                peer_bandwidth = peer->incoming_bandwidth() * (time_elapsed / 1000);
-                if ((throttle * peer->outgoing_data_total()) / PEER_SEGMENT_THROTTLE_SCALE <= peer_bandwidth)
+                peer_bandwidth = peer->net()->incoming_bandwidth() * (time_elapsed / 1000);
+                if ((throttle * peer->command_pod()->outgoing_data_total()) / PEER_SEGMENT_THROTTLE_SCALE <= peer_bandwidth)
                     continue;
 
-                peer->segment_throttle_limit(
-                    (peer_bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / peer->outgoing_data_total());
+                peer->net()->segment_throttle_limit(
+                    (peer_bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / peer->command_pod()->outgoing_data_total());
 
-                if (peer->segment_throttle_limit() == 0)
-                    peer->segment_throttle_limit(1);
+                if (peer->net()->segment_throttle_limit() == 0)
+                    peer->net()->segment_throttle_limit(1);
 
-                if (peer->segment_throttle() > peer->segment_throttle_limit())
-                    peer->segment_throttle(peer->segment_throttle_limit());
+                if (peer->net()->segment_throttle() > peer->net()->segment_throttle_limit())
+                    peer->net()->segment_throttle(peer->net()->segment_throttle_limit());
 
-                peer->outgoing_bandwidth_throttle_epoch(time_current);
-                peer->incoming_data_total(0);
-                peer->outgoing_data_total(0);
+                peer->net()->outgoing_bandwidth_throttle_epoch(time_current);
+                peer->command_pod()->incoming_data_total(0);
+                peer->command_pod()->outgoing_data_total(0);
 
                 needs_adjustment = true;
 
@@ -114,8 +114,8 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 if (peer->net()->segment_throttle() > peer->net()->segment_throttle_limit())
                     peer->net()->segment_throttle(peer->net()->segment_throttle_limit());
 
-                peer->command()->incoming_data_total(0);
-                peer->command()->outgoing_data_total(0);
+                peer->command_pod()->incoming_data_total(0);
+                peer->command_pod()->outgoing_data_total(0);
             }
         }
 
@@ -311,11 +311,11 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
          return Error::OK;
 
      peer->last_receive_time(service_time);
-     peer->earliest_timeout(0);
+     peer->command_pod()->earliest_timeout(0);
 
      auto round_trip_time = UDP_TIME_DIFFERENCE(service_time, received_sent_time);
 
-     peer->segment_throttle(round_trip_time);
+     peer->net()->segment_throttle(round_trip_time);
      peer->UpdateRoundTripTimeVariance(service_time, round_trip_time);
 
      auto received_reliable_sequence_number = ntohs(cmd->acknowledge.received_reliable_sequence_number);
@@ -338,9 +338,9 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      }
      else if (state == RUdpPeerState::DISCONNECT_LATER)
      {
-         if (!peer->command()->outgoing_reliable_command_exists() &&
-             !peer->command()->outgoing_unreliable_command_exists() &&
-             !peer->command()->sent_reliable_command_exists())
+         if (!peer->command_pod()->outgoing_reliable_command_exists() &&
+             !peer->command_pod()->outgoing_unreliable_command_exists() &&
+             !peer->command_pod()->sent_reliable_command_exists())
          {
             disconnect(peer);
          }
@@ -401,8 +401,8 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     else if (mtu > PROTOCOL_MAXIMUM_MTU)
         mtu = PROTOCOL_MAXIMUM_MTU;
 
-    if (mtu < peer->mtu())
-        peer->mtu(mtu);
+    if (mtu < peer->net()->mtu())
+        peer->net()->mtu(mtu);
 
     auto window_size = ntohl(cmd->verify_connect.window_size);
 
@@ -415,8 +415,8 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     if (window_size < peer->net()->window_size())
         peer->net()->window_size(window_size);
 
-    peer->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
-    peer->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
+    peer->net()->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
+    peer->net()->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
 
     dispatch_hub_->NotifyConnect(event, peer);
 

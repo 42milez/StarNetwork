@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstring>
 
-using RUdpAddress = struct RUdpAddress
+class RUdpAddress
 {
 private:
     static constexpr size_t HOST_LENGTH = 16;

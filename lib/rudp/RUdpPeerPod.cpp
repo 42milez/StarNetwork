@@ -148,8 +148,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
         if (peer)
         {
-            peer->address(received_address_);
-            peer->incoming_data_total(received_data_length_);
+            peer->Address(received_address_);
+            peer->command_pod()->incoming_data_total(received_data_length_);
         }
 
         auto current_data = received_data_->begin() + header_size;
@@ -204,7 +204,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
                         break;
                     }
-                    else if (p->StateIs(RUdpPeerState::CONNECTING) && p->address() == received_address_)
+                    else if (p->StateIs(RUdpPeerState::CONNECTING) && p->Address() == received_address_)
                     {
                         if (p->connect_id() == cmd->connect.connect_id)
                         {
@@ -352,9 +352,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             // --------------------------------------------------
 
             if (check_for_timeouts &&
-                peer->command()->sent_reliable_command_exists() &&
-                UDP_TIME_GREATER_EQUAL(service_time, peer->command()->next_timeout()) &&
-                peer->command()->check_timeouts(peer->net(), service_time) == 1)
+                peer->command_pod()->sent_reliable_command_exists() &&
+                UDP_TIME_GREATER_EQUAL(service_time, peer->command_pod()->next_timeout()) &&
+                peer->command_pod()->check_timeouts(peer->net(), service_time) == 1)
             {
                 IS_EVENT_TYPE_NONE()
             }
@@ -362,9 +362,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((!peer->command()->outgoing_reliable_command_exists() ||
+            if ((!peer->command_pod()->outgoing_reliable_command_exists() ||
                 protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
-                !peer->command()->sent_reliable_command_exists() &&
+                !peer->command_pod()->sent_reliable_command_exists() &&
                 peer->ExceedsPingInterval(service_time) &&
                 peer->ExceedsMTU(protocol_->chamber()->segment_size()))
             {
@@ -377,7 +377,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------
 
-            if (peer->command()->outgoing_unreliable_command_exists())
+            if (peer->command_pod()->outgoing_unreliable_command_exists())
                 protocol_->SendUnreliableOutgoingCommands(peer, service_time);
 
             if (protocol_->chamber()->command_count() == 0)
@@ -439,9 +439,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             peer->net()->last_send_time(service_time);
 
-            auto sent_length = conn_->Send(peer->address(), protocol_->chamber());
+            auto sent_length = conn_->Send(peer->Address(), protocol_->chamber());
 
-            peer->command()->remove_sent_unreliable_commands();
+            peer->command_pod()->remove_sent_unreliable_commands();
 
             if (sent_length < 0)
                 return EventStatus::ERROR;
@@ -536,9 +536,9 @@ Error
 RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
     if ((peer->StateIs(RUdpPeerState::CONNECTED) || peer->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
-        (peer->command()->outgoing_reliable_command_exists() ||
-         peer->command()->outgoing_unreliable_command_exists() ||
-         peer->command()->sent_reliable_command_exists()))
+        (peer->command_pod()->outgoing_reliable_command_exists() ||
+         peer->command_pod()->outgoing_unreliable_command_exists() ||
+         peer->command_pod()->sent_reliable_command_exists()))
     {
         peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
         peer->event_data(data);

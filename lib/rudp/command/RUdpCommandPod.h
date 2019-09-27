@@ -120,6 +120,9 @@ public:
 
     inline void round_trip_time_variance(uint32_t val)
     { _round_trip_time_variance = val; }
+
+    inline void
+    earliest_timeout(uint32_t val) { _earliest_timeout = val; }
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H
