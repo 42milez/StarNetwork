@@ -3,298 +3,94 @@
 #include "RUdpPeerNet.h"
 
 RUdpPeerNet::RUdpPeerNet()
-    : _state(RUdpPeerState::DISCONNECTED),
-      _segment_throttle(PEER_DEFAULT_SEGMENT_THROTTLE),
-      _segment_throttle_limit(PEER_SEGMENT_THROTTLE_SCALE),
-      _segment_throttle_counter(),
-      _segment_throttle_epoch(),
-      _segment_throttle_acceleration(PEER_SEGMENT_THROTTLE_ACCELERATION),
-      _segment_throttle_deceleration(PEER_SEGMENT_THROTTLE_DECELERATION),
-      _segment_throttle_interval(PEER_SEGMENT_THROTTLE_INTERVAL),
-      _segment_loss_epoch(),
-      _segments_lost(),
-      _segment_loss(),
-      _segment_loss_variance(),
-      _last_send_time(),
-      _mtu(HOST_DEFAULT_MTU),
-      _window_size(PROTOCOL_MAXIMUM_WINDOW_SIZE),
-      _incoming_bandwidth(),
-      _outgoing_bandwidth(),
-      _incoming_bandwidth_throttle_epoch(),
-      _outgoing_bandwidth_throttle_epoch(),
-      _segments_sent()
+    : state_(RUdpPeerState::DISCONNECTED),
+      incoming_bandwidth_(),
+      incoming_bandwidth_throttle_epoch_(),
+      last_send_time_(),
+      mtu_(HOST_DEFAULT_MTU),
+      outgoing_bandwidth_(),
+      outgoing_bandwidth_throttle_epoch_(),
+      segment_throttle_(PEER_DEFAULT_SEGMENT_THROTTLE),
+      segment_throttle_acceleration_(PEER_SEGMENT_THROTTLE_ACCELERATION),
+      segment_throttle_counter_(),
+      segment_throttle_deceleration_(PEER_SEGMENT_THROTTLE_DECELERATION),
+      segment_throttle_epoch_(),
+      segment_throttle_interval_(PEER_SEGMENT_THROTTLE_INTERVAL),
+      segment_throttle_limit_(PEER_SEGMENT_THROTTLE_SCALE),
+      segment_loss_(),
+      segment_loss_epoch_(),
+      segment_loss_variance_(),
+      segments_lost_(),
+      segments_sent_(),
+      window_size_(PROTOCOL_MAXIMUM_WINDOW_SIZE)
 {}
 
 void
-RUdpPeerNet::setup()
+RUdpPeerNet::CalculateSegmentLoss(uint32_t service_time)
 {
-    _state = RUdpPeerState::CONNECTING;
+    uint32_t segment_loss = segments_lost_ * PEER_SEGMENT_LOSS_SCALE / segments_sent_;
 
-    if (_outgoing_bandwidth == 0)
-        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-    else
-        _window_size = (_outgoing_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
+    segment_loss_variance_ -= segment_loss_variance_ / 4;
 
-    if (_window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
-        _window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
-
-    if (_window_size > PROTOCOL_MAXIMUM_WINDOW_SIZE)
-        _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-}
-
-void
-RUdpPeerNet::state(const RUdpPeerState &state)
-{
-    _state = state;
-}
-
-uint32_t
-RUdpPeerNet::mtu()
-{
-    return _mtu;
-}
-
-void
-RUdpPeerNet::mtu(uint32_t val)
-{
-    _mtu = val;
-}
-
-bool
-RUdpPeerNet::StateIs(RUdpPeerState state)
-{
-    return _state == state;
-}
-
-bool
-RUdpPeerNet::StateIsGreaterThanOrEqual(RUdpPeerState state)
-{
-    return _state >= state;
-}
-
-bool
-RUdpPeerNet::StateIsLessThanOrEqual(RUdpPeerState state)
-{
-    return _state < state;
-}
-
-uint32_t
-RUdpPeerNet::incoming_bandwidth()
-{
-    return _incoming_bandwidth;
-}
-
-void
-RUdpPeerNet::incoming_bandwidth(uint32_t val)
-{
-    _incoming_bandwidth = val;
-}
-
-uint32_t
-RUdpPeerNet::outgoing_bandwidth()
-{
-    return _outgoing_bandwidth;
-}
-
-void
-RUdpPeerNet::outgoing_bandwidth(uint32_t val)
-{
-    _outgoing_bandwidth = val;
-}
-
-uint32_t
-RUdpPeerNet::incoming_bandwidth_throttle_epoch()
-{
-    return _incoming_bandwidth_throttle_epoch;
-}
-
-void
-RUdpPeerNet::incoming_bandwidth_throttle_epoch(uint32_t val)
-{
-    _incoming_bandwidth_throttle_epoch = val;
-}
-
-uint32_t
-RUdpPeerNet::outgoing_bandwidth_throttle_epoch()
-{
-    return _outgoing_bandwidth_throttle_epoch;
-}
-
-void
-RUdpPeerNet::outgoing_bandwidth_throttle_epoch(uint32_t val)
-{
-    _outgoing_bandwidth_throttle_epoch = val;
-}
-
-uint32_t
-RUdpPeerNet::segment_throttle_limit()
-{
-    return _segment_throttle_limit;
-}
-
-void
-RUdpPeerNet::segment_throttle_limit(uint32_t val)
-{
-    _segment_throttle_limit = val;
-}
-
-uint32_t
-RUdpPeerNet::segment_throttle()
-{
-    return _segment_throttle;
-}
-
-void
-RUdpPeerNet::segment_throttle(uint32_t val)
-{
-    _segment_throttle = val;
-}
-
-uint32_t
-RUdpPeerNet::segment_loss_epoch()
-{
-    return _segment_loss_epoch;
-}
-
-void
-RUdpPeerNet::segment_loss_epoch(uint32_t val)
-{
-    _segment_loss_epoch = val;
-}
-
-bool
-RUdpPeerNet::exceeds_segment_loss_interval(uint32_t service_time)
-{
-    return UDP_TIME_DIFFERENCE(service_time, _segment_loss_epoch) >= PEER_SEGMENT_LOSS_INTERVAL;
-}
-
-uint32_t
-RUdpPeerNet::segments_sent()
-{
-    return _segments_sent;
-}
-
-void
-RUdpPeerNet::calculate_segment_loss(uint32_t service_time)
-{
-    uint32_t segment_loss = _segments_lost * PEER_SEGMENT_LOSS_SCALE / _segments_sent;
-
-    _segment_loss_variance -= _segment_loss_variance / 4;
-
-    if (segment_loss >= _segment_loss) {
-        _segment_loss += (segment_loss - _segment_loss) / 8;
-        _segment_loss_variance += (segment_loss - _segment_loss) / 4;
+    if (segment_loss >= segment_loss_) {
+        segment_loss_ += (segment_loss - segment_loss_) / 8;
+        segment_loss_variance_ += (segment_loss - segment_loss_) / 4;
     }
     else {
-        _segment_loss -= (_segment_loss - segment_loss) / 8;
-        _segment_loss_variance += (_segment_loss - segment_loss) / 4;
+        segment_loss_ -= (segment_loss_ - segment_loss) / 8;
+        segment_loss_variance_ += (segment_loss_ - segment_loss) / 4;
     }
 
-    _segment_loss_epoch = service_time;
-    _segments_sent = 0;
-    _segments_lost = 0;
-}
-
-void
-RUdpPeerNet::last_send_time(uint32_t service_time)
-{
-    _last_send_time = service_time;
+    segment_loss_epoch_ = service_time;
+    segments_sent_ = 0;
+    segments_lost_ = 0;
 }
 
 void
 RUdpPeerNet::Reset()
 {
-    _state = RUdpPeerState::DISCONNECTED;
-    _last_send_time = 0;
-    _segment_throttle = PEER_DEFAULT_SEGMENT_THROTTLE;
-    _segment_throttle_limit = PEER_SEGMENT_THROTTLE_SCALE;
-    _segment_throttle_counter = 0;
-    _segment_throttle_epoch = 0;
-    _segment_throttle_acceleration = PEER_SEGMENT_THROTTLE_ACCELERATION;
-    _segment_throttle_deceleration = PEER_SEGMENT_THROTTLE_DECELERATION;
-    _segment_throttle_interval = PEER_SEGMENT_THROTTLE_INTERVAL;
-    _incoming_bandwidth = 0;
-    _outgoing_bandwidth = 0;
-    _incoming_bandwidth_throttle_epoch = 0;
-    _outgoing_bandwidth_throttle_epoch = 0;
-    _segment_loss_epoch = 0;
-    _segments_sent = 0;
-    _segments_lost = 0;
-    _segment_loss = 0;
-    _segment_loss_variance = 0;
-    _mtu = HOST_DEFAULT_MTU;
-    _window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
-}
-
-uint32_t
-RUdpPeerNet::window_size()
-{
-    return _window_size;
+    state_ = RUdpPeerState::DISCONNECTED;
+    incoming_bandwidth_ = 0;
+    incoming_bandwidth_throttle_epoch_ = 0;
+    last_send_time_ = 0;
+    mtu_ = HOST_DEFAULT_MTU;
+    outgoing_bandwidth_ = 0;
+    outgoing_bandwidth_throttle_epoch_ = 0;
+    segment_throttle_ = PEER_DEFAULT_SEGMENT_THROTTLE;
+    segment_throttle_acceleration_ = PEER_SEGMENT_THROTTLE_ACCELERATION;
+    segment_throttle_counter_ = 0;
+    segment_throttle_deceleration_ = PEER_SEGMENT_THROTTLE_DECELERATION;
+    segment_throttle_epoch_ = 0;
+    segment_throttle_interval_ = PEER_SEGMENT_THROTTLE_INTERVAL;
+    segment_throttle_limit_ = PEER_SEGMENT_THROTTLE_SCALE;
+    segment_loss_ = 0;
+    segment_loss_epoch_ = 0;
+    segment_loss_variance_ = 0;
+    segments_lost_ = 0;
+    segments_sent_ = 0;
+    window_size_ = PROTOCOL_MAXIMUM_WINDOW_SIZE;
 }
 
 void
-RUdpPeerNet::window_size(uint32_t val)
+RUdpPeerNet::Setup()
 {
-    _window_size = val;
-}
+    state_ = RUdpPeerState::CONNECTING;
 
-uint32_t
-RUdpPeerNet::segment_throttle_interval()
-{
-    return _segment_throttle_interval;
-}
+    if (outgoing_bandwidth_ == 0)
+        window_size_ = PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    else
+        window_size_ = (outgoing_bandwidth_ / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
 
-void
-RUdpPeerNet::segment_throttle_interval(uint32_t val)
-{
-    _segment_throttle_interval = val;
-}
+    if (window_size_ < PROTOCOL_MINIMUM_WINDOW_SIZE)
+        window_size_ = PROTOCOL_MINIMUM_WINDOW_SIZE;
 
-uint32_t
-RUdpPeerNet::segment_throttle_acceleration()
-{
-    return _segment_throttle_acceleration;
+    if (window_size_ > PROTOCOL_MAXIMUM_WINDOW_SIZE)
+        window_size_ = PROTOCOL_MAXIMUM_WINDOW_SIZE;
 }
 
 void
-RUdpPeerNet::segment_throttle_acceleration(uint32_t val)
+RUdpPeerNet::UpdateSegmentThrottleCounter()
 {
-    _segment_throttle_acceleration = val;
-}
-
-uint32_t
-RUdpPeerNet::segment_throttle_deceleration()
-{
-    return _segment_throttle_deceleration;
-}
-
-void
-RUdpPeerNet::segment_throttle_deceleration(uint32_t val)
-{
-    _segment_throttle_deceleration = val;
-}
-
-void
-RUdpPeerNet::increase_segments_lost(uint32_t val)
-{
-    _segments_lost += val;
-}
-
-void
-RUdpPeerNet::increase_segments_sent(uint32_t val)
-{
-    _segments_sent += val;
-}
-
-void
-RUdpPeerNet::update_segment_throttle_counter()
-{
-    _segment_throttle_counter += PEER_SEGMENT_THROTTLE_COUNTER;
-    _segment_throttle_counter %= PEER_SEGMENT_THROTTLE_SCALE;
-}
-
-bool
-RUdpPeerNet::exceeds_segment_throttle_counter()
-{
-    return _segment_throttle_counter > _segment_throttle;
+    segment_throttle_counter_ += PEER_SEGMENT_THROTTLE_COUNTER;
+    segment_throttle_counter_ %= PEER_SEGMENT_THROTTLE_SCALE;
 }

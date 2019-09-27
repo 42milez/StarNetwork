@@ -387,9 +387,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             {
                 peer->net()->segment_loss_epoch(service_time);
             }
-            else if (peer->net()->exceeds_segment_loss_interval(service_time) && peer->net()->segments_sent() > 0)
+            else if (peer->net()->ExceedsSegmentLossInterval(service_time) && peer->net()->segments_sent() > 0)
             {
-                peer->net()->calculate_segment_loss(service_time);
+                peer->net()->CalculateSegmentLoss(service_time);
             }
 
             // ⚠️ buffers_[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる

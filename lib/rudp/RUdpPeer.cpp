@@ -36,7 +36,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 
     connect_id_ = hash32();
 
-    net_->setup();
+    net_->Setup();
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 

@@ -245,7 +245,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         _outgoing_reliable_commands.erase(outgoing_command);
 
         // MEMO: push_sent_reliable_command() でインクリメント
-        //++_segments_sent;
+        //++segments_sent_;
 
         //++command;
         //++buffer;
@@ -280,9 +280,9 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         ++current_command;
 
         if ((*outgoing_command)->HasPayload() && (*outgoing_command)->fragment_offset() == 0) {
-            net->update_segment_throttle_counter();
+            net->UpdateSegmentThrottleCounter();
 
-            if (net->exceeds_segment_throttle_counter()) {
+            if (net->ExceedsSegmentThrottleCounter()) {
                 uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number();
                 uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number();
 
@@ -446,7 +446,7 @@ RUdpCommandPod::sent_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &comm
 {
     _sent_reliable_commands.push_back(command);
 
-    net->increase_segments_sent(1);
+    net->IncreaseSegmentsSent(1);
 }
 
 void
@@ -508,7 +508,7 @@ RUdpCommandPod::check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t
             _reliable_data_in_transit -= (*outgoing_command)->fragment_length();
         }
 
-        net->increase_segments_lost(1);
+        net->IncreaseSegmentsLost(1);
 
         (*outgoing_command)->round_trip_timeout((*outgoing_command)->round_trip_timeout() * 2);
 
