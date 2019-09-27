@@ -10,9 +10,11 @@ RUdpDispatchHub::RUdpDispatchHub() :
 void
 RUdpDispatchHub::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
-    if (!peer->net()->StateIs(RUdpPeerState::CONNECTED) && !peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    auto &net = peer->net();
+
+    if (!net->StateIs(RUdpPeerState::CONNECTED) && !net->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
-        if (peer->net()->incoming_bandwidth() != 0)
+        if (net->incoming_bandwidth() != 0)
             ++bandwidth_limited_peers_;
 
         ++connected_peers_;
@@ -22,9 +24,11 @@ RUdpDispatchHub::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
 void
 RUdpDispatchHub::PurgePeer(const std::shared_ptr<RUdpPeer> &peer)
 {
-    if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    auto &net = peer->net();
+
+    if (net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
-        if (peer->net()->incoming_bandwidth() != 0)
+        if (net->incoming_bandwidth() != 0)
             --bandwidth_limited_peers_;
 
         --connected_peers_;
@@ -78,10 +82,12 @@ RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::sha
 void
 RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
 {
-    if (peer->net()->StateIs(RUdpPeerState::CONNECTION_PENDING))
+    auto &net = peer->net();
+
+    if (net->StateIs(RUdpPeerState::CONNECTION_PENDING))
         recalculate_bandwidth_limits_ = true;
 
-    if (!peer->net()->StateIs(RUdpPeerState::CONNECTING) &&
+    if (!net->StateIs(RUdpPeerState::CONNECTING) &&
         peer->StateAsNumber() < static_cast<uint8_t>(RUdpPeerState::CONNECTION_SUCCEEDED))
     {
         peer->Reset();

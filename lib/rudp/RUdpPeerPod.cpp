@@ -198,13 +198,15 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
                 for (auto &p : peers_)
                 {
-                    if (p->net()->StateIs(RUdpPeerState::DISCONNECTED))
+                    auto &net = p->net();
+
+                    if (net->StateIs(RUdpPeerState::DISCONNECTED))
                     {
                         peer = p;
 
                         break;
                     }
-                    else if (p->net()->StateIs(RUdpPeerState::CONNECTING) && p->Address() == received_address_)
+                    else if (net->StateIs(RUdpPeerState::CONNECTING) && p->Address() == received_address_)
                     {
                         if (p->connect_id() == cmd->connect.connect_id)
                         {
@@ -293,16 +295,17 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 if (!(flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME)))
                     break;
 
+                auto &net = peer->net();
                 auto sent_time = ntohs(header->sent_time);
 
-                if (peer->net()->StateIs(RUdpPeerState::DISCONNECTING) ||
-                    peer->net()->StateIs(RUdpPeerState::ACKNOWLEDGING_CONNECT) ||
-                    peer->net()->StateIs(RUdpPeerState::DISCONNECTED) ||
-                    peer->net()->StateIs(RUdpPeerState::ZOMBIE))
+                if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
+                    net->StateIs(RUdpPeerState::ACKNOWLEDGING_CONNECT) ||
+                    net->StateIs(RUdpPeerState::DISCONNECTED) ||
+                    net->StateIs(RUdpPeerState::ZOMBIE))
                 {
                     // DO NOTHING
                 }
-                else if (peer->net()->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
+                else if (net->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
                 {
                     if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
                         peer->QueueAcknowledgement(cmd, sent_time);
@@ -334,7 +337,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
         for (auto &peer : peers_)
         {
-            if (peer->net()->StateIs(RUdpPeerState::DISCONNECTED) || peer->net()->StateIs(RUdpPeerState::ZOMBIE))
+            auto &net = peer->net();
+
+            if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
                 continue;
 
             protocol_->chamber()->header_flags(0);
@@ -383,13 +388,13 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             if (protocol_->chamber()->command_count() == 0)
                 continue;
 
-            if (peer->net()->segment_loss_epoch() == 0)
+            if (net->segment_loss_epoch() == 0)
             {
-                peer->net()->segment_loss_epoch(service_time);
+                net->segment_loss_epoch(service_time);
             }
-            else if (peer->net()->ExceedsSegmentLossInterval(service_time) && peer->net()->segments_sent() > 0)
+            else if (net->ExceedsSegmentLossInterval(service_time) && net->segments_sent() > 0)
             {
-                peer->net()->CalculateSegmentLoss(service_time);
+                net->CalculateSegmentLoss(service_time);
             }
 
             // ⚠️ buffers_[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる
@@ -437,7 +442,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                 // ...
             }
 
-            peer->net()->last_send_time(service_time);
+            net->last_send_time(service_time);
 
             auto sent_length = conn_->Send(peer->Address(), protocol_->chamber());
 
@@ -469,10 +474,12 @@ RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer>
 Error
 RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
-    if (peer->net()->StateIs(RUdpPeerState::DISCONNECTING) ||
-        peer->net()->StateIs(RUdpPeerState::DISCONNECTED) ||
-        peer->net()->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) ||
-        peer->net()->StateIs(RUdpPeerState::ZOMBIE))
+    auto &net = peer->net();
+
+    if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
+        net->StateIs(RUdpPeerState::DISCONNECTED) ||
+        net->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) ||
+        net->StateIs(RUdpPeerState::ZOMBIE))
     {
         return Error::ERROR;
     }
@@ -484,17 +491,17 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     cmd->header.channel_id = 0xFF;
     cmd->disconnect.data = htonl(data);
 
-    if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    if (net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER))
         cmd->header.command |= static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     else
         cmd->header.command |= static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED);
 
     peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
 
-    if (peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER))
+    if (net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER))
     {
         PeerOnDisconnect(peer);
-        peer->net()->state(RUdpPeerState::DISCONNECTING);
+        net->state(RUdpPeerState::DISCONNECTING);
     }
     else
     {
@@ -508,12 +515,14 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 Error
 RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
-    if (peer->net()->StateIs(RUdpPeerState::DISCONNECTED))
+    auto &net = peer->net();
+
+    if (net->StateIs(RUdpPeerState::DISCONNECTED))
         return Error::ERROR;
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
-    if (!peer->net()->StateIs(RUdpPeerState::ZOMBIE) && !peer->net()->StateIs(RUdpPeerState::DISCONNECTING))
+    if (!net->StateIs(RUdpPeerState::ZOMBIE) && !net->StateIs(RUdpPeerState::DISCONNECTING))
     {
         peer->ResetPeerQueues();
 
@@ -535,12 +544,14 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 Error
 RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
-    if ((peer->net()->StateIs(RUdpPeerState::CONNECTED) || peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
+    auto &net = peer->net();
+
+    if ((net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
         (peer->command_pod()->outgoing_reliable_command_exists() ||
          peer->command_pod()->outgoing_unreliable_command_exists() ||
          peer->command_pod()->sent_reliable_command_exists()))
     {
-        peer->net()->state(RUdpPeerState::DISCONNECT_LATER);
+        net->state(RUdpPeerState::DISCONNECT_LATER);
         peer->event_data(data);
     }
     else
