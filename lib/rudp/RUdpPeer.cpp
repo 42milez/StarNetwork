@@ -361,18 +361,6 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
     return Error::OK;
 }
 
-bool
-RUdpPeer::AcknowledgementExists()
-{
-    return !acknowledgements_.empty();
-}
-
-void
-RUdpPeer::ClearAcknowledgement()
-{
-    acknowledgements_.clear();
-}
-
 std::shared_ptr<RUdpAcknowledgement>
 RUdpPeer::PopAcknowledgement()
 {
@@ -383,35 +371,11 @@ RUdpPeer::PopAcknowledgement()
     return acknowledgement;
 }
 
-bool
-RUdpPeer::ChannelExists()
-{
-    return !channels_.empty();
-}
-
-void
-RUdpPeer::ClearChannel()
-{
-    channels_.clear();
-}
-
 void
 RUdpPeer::ClearDispatchedCommandQueue()
 {
     std::queue<RUdpIncomingCommand> empty;
     std::swap(dispatched_commands_, empty);
-}
-
-bool
-RUdpPeer::DispatchedCommandExists()
-{
-    return !dispatched_commands_.empty();
-}
-
-bool
-RUdpPeer::Disconnected()
-{
-    return net_->StateIs(RUdpPeerState::DISCONNECTED);
 }
 
 bool
@@ -446,12 +410,6 @@ RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chambe
     auto disconnected = command_pod_->LoadUnreliableCommandsIntoChamber(chamber, net_);
 
     return disconnected;
-}
-
-void
-RUdpPeer::Reset()
-{
-    this->Reset(incoming_peer_id_);
 }
 
 void
@@ -510,36 +468,6 @@ RUdpPeer::ResetPeerQueues()
 
     if (!channels_.empty())
         channels_.clear();
-}
-
-bool
-RUdpPeer::StateIs(RUdpPeerState state)
-{
-    return net_->StateIs(state);
-}
-
-bool
-RUdpPeer::StateIsGreaterThanOrEqual(RUdpPeerState state)
-{
-    return net_->StateIsGreaterThanOrEqual(state);
-}
-
-bool
-RUdpPeer::StateIsLessThanOrEqual(RUdpPeerState state)
-{
-    return net_->StateIsLessThanOrEqual(state);
-}
-
-bool
-RUdpPeer::ExceedsMTU(size_t segment_size)
-{
-    return net_->mtu() - segment_size >= sizeof(RUdpProtocolPing);
-}
-
-bool
-RUdpPeer::ExceedsPingInterval(uint32_t service_time)
-{
-    return UDP_TIME_DIFFERENCE(service_time, last_receive_time_) >= ping_interval_;
 }
 
 void

@@ -22,44 +22,17 @@ class RUdpPeer
 public:
     RUdpPeer();
 
-    bool
-    AcknowledgementExists();
-
-    bool
-    ChannelExists();
-
-    void
-    ClearAcknowledgement();
-
-    void
-    ClearChannel();
-
-    void
-    ClearDispatchedCommandQueue();
-
-    bool
-    Disconnected();
-
-    bool
-    DispatchedCommandExists();
+    void ClearDispatchedCommandQueue();
+    void Ping();
 
     bool
     EventOccur(const RUdpAddress &address, uint8_t session_id);
-
-    bool
-    ExceedsMTU(size_t segment_size);
-
-    bool
-    ExceedsPingInterval(uint32_t service_time);
 
     bool
     LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
 
     bool
     LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
-
-    void
-    Ping();
 
     std::shared_ptr<RUdpAcknowledgement>
     PopAcknowledgement();
@@ -76,9 +49,6 @@ public:
 
     RUdpProtocolCommand
     RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id);
-
-    void
-    Reset();
 
     void
     Reset(uint16_t peer_idx);
@@ -98,23 +68,41 @@ public:
                        uint32_t host_incoming_bandwidth, uint32_t host_outgoing_bandwidth,
                        uint32_t channel_count);
 
-    bool
-    StateIs(RUdpPeerState state);
-
-    bool
-    StateIsGreaterThanOrEqual(RUdpPeerState state);
-
-    bool
-    StateIsLessThanOrEqual(RUdpPeerState state);
-
     void
     UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time);
+
+    inline bool
+    AcknowledgementExists() { return !acknowledgements_.empty(); }
 
     inline const RUdpAddress &
     Address() { return address_; };
 
     inline void
     Address(const RUdpAddress val) { address_ = val; }
+
+    inline bool
+    ChannelExists() { return !channels_.empty(); }
+
+    inline void
+    ClearAcknowledgement() { acknowledgements_.clear(); }
+
+    inline void
+    ClearChannel() { channels_.clear(); }
+
+    inline bool
+    Disconnected() { return net_->StateIs(RUdpPeerState::DISCONNECTED); }
+
+    inline bool
+    DispatchedCommandExists() { return !dispatched_commands_.empty(); }
+
+    inline bool
+    ExceedsMTU(size_t segment_size) { return net_->mtu() - segment_size >= sizeof(RUdpProtocolPing); }
+
+    inline bool
+    ExceedsPingInterval(uint32_t service_time) { return UDP_TIME_DIFFERENCE(service_time, last_receive_time_) >= ping_interval_; }
+
+    inline void
+    Reset() { this->Reset(incoming_peer_id_); }
 
     inline uint8_t
     StateAsNumber() { return static_cast<uint8_t>(net_->state()); }
