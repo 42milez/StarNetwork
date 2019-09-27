@@ -522,7 +522,7 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
 
-    if (!net->StateIs(RUdpPeerState::ZOMBIE) && !net->StateIs(RUdpPeerState::DISCONNECTING))
+    if (net->StateIsNot(RUdpPeerState::ZOMBIE) && net->StateIsNot(RUdpPeerState::DISCONNECTING))
     {
         peer->ResetPeerQueues();
 

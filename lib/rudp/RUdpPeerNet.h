@@ -33,6 +33,9 @@ public:
     StateIs(RUdpPeerState state) { return state_ == state; }
 
     inline bool
+    StateIsNot(RUdpPeerState state) { return state_ != state; }
+
+    inline bool
     StateIsGreaterThanOrEqual(RUdpPeerState state) { return state_ >= state; }
 
     inline bool
