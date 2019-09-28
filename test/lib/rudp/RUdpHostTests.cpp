@@ -39,7 +39,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     server_address.host(server_ip.GetIPv6());
     server_address.port(8888);
 
-    auto sleep_duration = 100 * 1000; // millisecond
+    const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
     // ==================================================
     //  Step 1 : Connect to the server
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     client->Service(client_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
 
@@ -65,7 +65,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     Service(server_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
     //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGE
@@ -74,7 +74,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
@@ -89,15 +89,15 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     client->DisconnectNow(client_event->peer(), 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     client->Service(client_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
 
@@ -116,7 +116,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     server_address.host(server_ip.GetIPv6());
     server_address.port(8888);
 
-    auto sleep_duration = 100 * 1000; // millisecond
+    const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
     // ==================================================
     //  Step 1 : Connect to the server
@@ -132,7 +132,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     client->Service(client_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
 
@@ -142,7 +142,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     Service(server_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
     //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGE
@@ -151,7 +151,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
@@ -167,11 +167,11 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     client->DisconnectLater(client_event->peer(), 0);
     client->Service(client_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
 
-    usleep(sleep_duration);
+    usleep(SLEEP_DURATION);
 
     client->Service(client_event, 0);
 
