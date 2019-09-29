@@ -1,5 +1,5 @@
-set(sources RUdpHostTests.cpp)
+file(GLOB sources *.cpp)
 
-add_executable(rudp_host_test ${sources})
+add_executable(rudp_test ${sources})
 
-target_link_libraries(rudp_host_test PRIVATE core rudp module Catch2::Catch2)
+target_link_libraries(rudp_test PRIVATE core rudp module Catch2::Catch2)
