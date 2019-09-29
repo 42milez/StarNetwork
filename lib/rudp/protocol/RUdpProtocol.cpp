@@ -86,8 +86,8 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                     net->segment_throttle(net->segment_throttle_limit());
 
                 net->outgoing_bandwidth_throttle_epoch(time_current);
-                cmd_pod->incoming_data_total(0);
-                cmd_pod->outgoing_data_total(0);
+                cmd_pod->IncrementIncomingDataTotal(0);
+                cmd_pod->IncrementOutgoingDataTotal(0);
 
                 needs_adjustment = true;
 
@@ -119,8 +119,8 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 if (net->segment_throttle() > net->segment_throttle_limit())
                     net->segment_throttle(net->segment_throttle_limit());
 
-                cmd_pod->incoming_data_total(0);
-                cmd_pod->outgoing_data_total(0);
+                cmd_pod->IncrementIncomingDataTotal(0);
+                cmd_pod->IncrementOutgoingDataTotal(0);
             }
         }
 
@@ -329,8 +329,8 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      }
      else if (state == RUdpPeerState::DISCONNECT_LATER)
      {
-         if (!cmd_pod->outgoing_reliable_command_exists() &&
-             !cmd_pod->outgoing_unreliable_command_exists() &&
+         if (!cmd_pod->OutgoingReliableCommandExists() &&
+             !cmd_pod->OutgoingUnreliableCommandExists() &&
              !cmd_pod->sent_reliable_command_exists())
          {
             disconnect(peer);

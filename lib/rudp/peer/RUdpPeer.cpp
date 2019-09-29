@@ -235,7 +235,7 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
     if (ack == nullptr)
         return;
 
-    command_pod_->outgoing_data_total(sizeof(RUdpProtocolAcknowledge));
+    command_pod_->IncrementOutgoingDataTotal(sizeof(RUdpProtocolAcknowledge));
 
     ack->sent_time(sent_time);
     ack->command(*cmd);
@@ -258,9 +258,9 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     auto channel_id = protocol_type->header.channel_id;
 
     if (channel_id < channels_.size())
-        command_pod_->setup_outgoing_command(outgoing_command, channels_.at(channel_id));
+        command_pod_->SetupOutgoingCommand(outgoing_command, channels_.at(channel_id));
     else
-        command_pod_->setup_outgoing_command(outgoing_command, nullptr);
+        command_pod_->SetupOutgoingCommand(outgoing_command, nullptr);
 }
 
 std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>
@@ -352,7 +352,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
 
         for (auto &f : fragments)
         {
-            command_pod_->setup_outgoing_command(f, channels_.at(f->header_channel_id()));
+            command_pod_->SetupOutgoingCommand(f, channels_.at(f->header_channel_id()));
         }
     }
 
@@ -455,8 +455,8 @@ RUdpPeer::ResetPeerQueues()
 
     command_pod_->clear_sent_reliable_command();
     command_pod_->clear_sent_unreliable_command();
-    command_pod_->clear_outgoing_reliable_command();
-    command_pod_->clear_outgoing_unreliable_command();
+    command_pod_->ClearOutgoingReliableCommand();
+    command_pod_->ClearOutgoingUnreliableCommand();
 
     if (!dispatched_commands_.empty())
     {

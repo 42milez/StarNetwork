@@ -11,94 +11,30 @@
 
 class RUdpCommandPod
 {
-private:
-    std::list<std::shared_ptr<RUdpOutgoingCommand>> _outgoing_reliable_commands;
 
-    std::list<std::shared_ptr<RUdpOutgoingCommand>> _outgoing_unreliable_commands;
-
-    uint32_t _incoming_data_total;
-
-    uint32_t _outgoing_data_total;
-
-    uint16_t _outgoing_reliable_sequence_number;
-
-    uint16_t _incoming_unsequenced_group;
-
-    uint16_t _outgoing_unsequenced_group;
-
-    uint32_t _round_trip_time;
-
-    uint32_t _round_trip_time_variance;
-
-    uint32_t _timeout_limit;
-
-    uint32_t _next_timeout;
-
-    uint32_t _reliable_data_in_transit;
-
-    std::list<std::shared_ptr<RUdpOutgoingCommand>> _sent_reliable_commands;
-
-    std::list<std::shared_ptr<RUdpOutgoingCommand>> _sent_unreliable_commands;
-
-    uint32_t _earliest_timeout;
-
-    uint32_t _timeout_minimum;
-
-    uint32_t _timeout_maximum;
 
 public:
     RUdpCommandPod();
 
-    void setup_outgoing_command(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
-                                const std::shared_ptr<RUdpChannel> &channel);
+    bool
+    LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net,
+                                    const std::vector<std::shared_ptr<RUdpChannel>> &channels,
+                                    uint32_t service_time);
 
-    void push_outgoing_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command);
+    bool
+    LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
 
-    bool LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
-                                         std::unique_ptr<RUdpPeerNet> &net,
-                                         const std::vector<std::shared_ptr<RUdpChannel>> &channels,
-                                         uint32_t service_time);
-
-    bool LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
-                                           std::unique_ptr<RUdpPeerNet> &net);
-
-    uint32_t outgoing_data_total();
-
-    void outgoing_data_total(uint32_t val);
-
-    uint32_t incoming_data_total();
-
-    void incoming_data_total(uint32_t val);
-
-    uint32_t next_timeout();
-
-    void next_timeout(uint32_t val);
-
-    bool outgoing_reliable_command_exists();
-
-    bool outgoing_unreliable_command_exists();
-
-    void clear_outgoing_reliable_command();
-
-    void clear_outgoing_unreliable_command();
+    void
+    SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
+                         const std::shared_ptr<RUdpChannel> &channel);
 
     void Reset();
 
     void increse_reliable_data_in_transit(uint32_t val);
 
-    uint32_t reliable_data_in_transit();
-
-    void reliable_data_in_transit(uint32_t val);
-
-    void sent_reliable_command(std::shared_ptr<RUdpOutgoingCommand> &command, std::unique_ptr<RUdpPeerNet> &net);
-
-    void sent_unreliable_command(std::shared_ptr<RUdpOutgoingCommand> &command);
-
     bool sent_reliable_command_exists();
 
     void clear_sent_reliable_command();
-
-    bool sent_unreliable_command_exists();
 
     void clear_sent_unreliable_command();
 
@@ -109,20 +45,71 @@ public:
 
     void remove_sent_unreliable_commands();
 
-    inline uint32_t round_trip_time()
-    { return _round_trip_time; }
-
-    inline void round_trip_time(uint32_t val)
-    { _round_trip_time = val; }
-
-    inline uint32_t round_trip_time_variance()
-    { return _round_trip_time_variance; }
-
-    inline void round_trip_time_variance(uint32_t val)
-    { _round_trip_time_variance = val; }
+    inline void
+    ClearOutgoingReliableCommand() { outgoing_reliable_commands_.clear(); };
 
     inline void
-    earliest_timeout(uint32_t val) { _earliest_timeout = val; }
+    ClearOutgoingUnreliableCommand() { outgoing_unreliable_commands_.clear(); };
+
+    inline void
+    IncrementIncomingDataTotal(uint32_t val) { incoming_data_total_ += val; }
+
+    inline void
+    IncrementOutgoingDataTotal(uint32_t val) { outgoing_data_total_ += val; }
+
+    inline uint32_t
+    NextTimeout() { return next_timeout_; };
+
+    inline bool
+    OutgoingReliableCommandExists() { return !outgoing_reliable_commands_.empty(); };
+
+    inline bool
+    OutgoingUnreliableCommandExists() { return !outgoing_unreliable_commands_.empty(); };
+
+public:
+    inline void
+    earliest_timeout(uint32_t val) { earliest_timeout_ = val; }
+
+    inline uint32_t
+    incoming_data_total() { return incoming_data_total_; };
+
+    inline uint32_t
+    outgoing_data_total() { return outgoing_data_total_; };
+
+    inline uint32_t
+    round_trip_time() { return round_trip_time_; }
+
+    inline void
+    round_trip_time(uint32_t val) { round_trip_time_ = val; }
+
+    inline uint32_t
+    round_trip_time_variance() { return round_trip_time_variance_; }
+
+    inline void
+    round_trip_time_variance(uint32_t val) { round_trip_time_variance_ = val; }
+
+private:
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> outgoing_reliable_commands_;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> outgoing_unreliable_commands_;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> sent_reliable_commands_;
+    std::list<std::shared_ptr<RUdpOutgoingCommand>> sent_unreliable_commands_;
+
+    uint32_t incoming_data_total_;
+    uint32_t outgoing_data_total_;
+
+    uint16_t incoming_unsequenced_group_;
+    uint16_t outgoing_unsequenced_group_;
+
+    uint16_t outgoing_reliable_sequence_number_;
+
+    uint32_t earliest_timeout_;
+    uint32_t next_timeout_;
+    uint32_t reliable_data_in_transit_;
+    uint32_t round_trip_time_;
+    uint32_t round_trip_time_variance_;
+    uint32_t timeout_limit_;
+    uint32_t timeout_maximum_;
+    uint32_t timeout_minimum_;
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H
