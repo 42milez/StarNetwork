@@ -453,8 +453,8 @@ RUdpPeer::ResetPeerQueues()
     if (!acknowledgements_.empty())
         acknowledgements_.clear();
 
-    command_pod_->clear_sent_reliable_command();
-    command_pod_->clear_sent_unreliable_command();
+    command_pod_->ClearSentReliableCommand();
+    command_pod_->ClearSentUnreliableCommand();
     command_pod_->ClearOutgoingReliableCommand();
     command_pod_->ClearOutgoingUnreliableCommand();
 

@@ -16,6 +16,9 @@ class RUdpCommandPod
 public:
     RUdpCommandPod();
 
+    int
+    CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
+
     bool
     LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net,
                                     const std::vector<std::shared_ptr<RUdpChannel>> &channels,
@@ -24,26 +27,19 @@ public:
     bool
     LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
 
+    RUdpProtocolCommand
+    RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
+                              std::shared_ptr<RUdpChannel> &channel);
+
+    void
+    RemoveSentUnreliableCommands();
+
+    void
+    Reset();
+
     void
     SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
                          const std::shared_ptr<RUdpChannel> &channel);
-
-    void Reset();
-
-    void increse_reliable_data_in_transit(uint32_t val);
-
-    bool sent_reliable_command_exists();
-
-    void clear_sent_reliable_command();
-
-    void clear_sent_unreliable_command();
-
-    int check_timeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
-
-    RUdpProtocolCommand RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
-                                                  std::shared_ptr<RUdpChannel> &channel);
-
-    void remove_sent_unreliable_commands();
 
     inline void
     ClearOutgoingReliableCommand() { outgoing_reliable_commands_.clear(); };
@@ -52,10 +48,19 @@ public:
     ClearOutgoingUnreliableCommand() { outgoing_unreliable_commands_.clear(); };
 
     inline void
+    ClearSentReliableCommand() { sent_reliable_commands_.clear(); };
+
+    inline void
+    ClearSentUnreliableCommand() { sent_unreliable_commands_.clear(); };
+
+    inline void
     IncrementIncomingDataTotal(uint32_t val) { incoming_data_total_ += val; }
 
     inline void
     IncrementOutgoingDataTotal(uint32_t val) { outgoing_data_total_ += val; }
+
+    inline void
+    IncrementReliableDataInTransit(uint32_t val) { reliable_data_in_transit_ += val; };
 
     inline uint32_t
     NextTimeout() { return next_timeout_; };
@@ -66,12 +71,12 @@ public:
     inline bool
     OutgoingUnreliableCommandExists() { return !outgoing_unreliable_commands_.empty(); };
 
+    inline bool
+    SentReliableCommandExists() { return !sent_reliable_commands_.empty(); };
+
 public:
     inline void
     earliest_timeout(uint32_t val) { earliest_timeout_ = val; }
-
-    inline uint32_t
-    incoming_data_total() { return incoming_data_total_; };
 
     inline uint32_t
     outgoing_data_total() { return outgoing_data_total_; };

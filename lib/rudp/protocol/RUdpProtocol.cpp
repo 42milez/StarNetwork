@@ -331,7 +331,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      {
          if (!cmd_pod->OutgoingReliableCommandExists() &&
              !cmd_pod->OutgoingUnreliableCommandExists() &&
-             !cmd_pod->sent_reliable_command_exists())
+             !cmd_pod->SentReliableCommandExists())
          {
             disconnect(peer);
          }
