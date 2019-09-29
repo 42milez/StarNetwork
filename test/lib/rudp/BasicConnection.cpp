@@ -28,7 +28,7 @@ private:
     std::shared_ptr<RUdpHost> host_;
 };
 
-TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (1)", "[IPv4][RUdpHost]")
+TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (1)", "[IPv4]")
 {
     RUdpAddress client_address;
     client_address.port(8889);
@@ -105,7 +105,7 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     REQUIRE(client->PeerState(0) == RUdpPeerState::DISCONNECTED);
 }
 
-TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (2)", "[IPv4][RUdpHost]")
+TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (2)", "[IPv4]")
 {
     RUdpAddress client_address;
     client_address.port(8889);
