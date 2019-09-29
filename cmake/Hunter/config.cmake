@@ -1,5 +1,3 @@
 hunter_config(Boost VERSION 1.70.0-p0)
-hunter_config(Catch2 VERSION 2.6.0)
-hunter_config(OpenSSL VERSION 1.1.1a)
-hunter_config(spdlog VERSION 1.2.1-p0)
-hunter_config(zlib VERSION 1.2.11-p0)
+hunter_config(Catch2 VERSION 2.9.1)
+hunter_config(spdlog VERSION 1.3.1-p0)

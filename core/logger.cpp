@@ -3,26 +3,33 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
-#include "initialization_exception.h"
 #include "logger.h"
 
-Logger::Logger(const std::string &logger_name, const std::string &filename)
+namespace core
 {
-    if (!std::filesystem::exists(filename))
-        throw InitializationException{"File does not exist: " + filename};
+bool
+Logger::Init(const std::string &logger_name, const std::string &path)
+{
+    std::filesystem::file_status status = std::filesystem::status(path);
+
+    if (status.type() != std::filesystem::file_type::regular)
+        return false;
 
     try
     {
-        _logger = spdlog::basic_logger_mt(logger_name, filename);
+        logger_ = spdlog::basic_logger_mt(logger_name, path);
     }
     catch (const spdlog::spdlog_ex &ex)
     {
-        throw InitializationException{"Logger initialization failed: " + std::string{ex.what()}};
+        return false;
     }
 
 #ifdef DEBUG
-    _logger->set_level(spdlog::level::debug);
+    logger_->set_level(spdlog::level::debug);
 #else
-    _logger->set_level(spdlog::level::info);
+    logger_->set_level(spdlog::level::info);
 #endif
+
+    return true;
 }
+} // namespace core

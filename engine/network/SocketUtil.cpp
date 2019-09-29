@@ -6,8 +6,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "engine/base/Logger.h"
-#include "engine/base/Singleton.h"
+#include "core/logger.h"
+#include "core/singleton.h"
 
 #include "SocketUtil.h"
 #include "TCPSocket.h"
@@ -18,7 +18,7 @@ namespace engine
   {
     namespace
     {
-      using Logger = engine::base::Singleton<engine::base::Logger>;
+      using Logger = core::Singleton<core::Logger>;
 
       bool is_socket_ready(int socket, struct kevent events[], int nfds) {
         for (auto i = 0; i < nfds; i++) {
@@ -57,7 +57,7 @@ namespace engine
     int SocketUtil::create_event_interface() {
       auto mux = kqueue();
       if (mux < FAIL_CREATE_EVENT_PIPELINE) {
-        Logger::Instance().critical("Failed to create event pipeline [{0}]", SocketUtil::last_error());
+        Logger::Instance().Critical("Failed to create event pipeline [{0}]", SocketUtil::last_error());
         return FAIL_CREATE_EVENT_PIPELINE;
       }
       return mux;

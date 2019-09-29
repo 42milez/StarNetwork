@@ -1,37 +1,38 @@
 #ifndef P2P_TECHDEMO_CORE_LOGGER_H
 #define P2P_TECHDEMO_CORE_LOGGER_H
 
+#include <spdlog/spdlog.h>
+
+namespace core
+{
 class Logger
 {
-private:
-    std::shared_ptr <spdlog::logger> _logger;
-
 public:
-    template<class... Args>
-    void info(Args... args)
-    {
-        _logger->info(args...);
-    };
+    bool
+    Init(const std::string &logger_name);
+
+    bool
+    Init(const std::string &logger_name, const std::string &path);
 
     template<class... Args>
-    void warn(Args... args)
-    {
-        _logger->warn(args...);
-    };
+    void
+    Info(Args... args) { logger_->info(args...); };
 
     template<class... Args>
-    void error(Args... args)
-    {
-        _logger->error(args...);
-    };
+    void
+    Warn(Args... args) { logger_->warn(args...); };
 
     template<class... Args>
-    void critical(Args... args)
-    {
-        _logger->critical(args...);
-    };
+    void
+    Error(Args... args) { logger_->error(args...); };
 
-    Logger(const std::string &logger_name, const std::string &filename);
+    template<class... Args>
+    void
+    Critical(Args... args) { logger_->critical(args...); };
+
+private:
+    std::shared_ptr<spdlog::logger> logger_;
 };
+} // namespace core
 
 #endif // P2P_TECHDEMO_CORE_LOGGER_H

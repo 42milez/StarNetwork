@@ -2,8 +2,8 @@
 
 #include <sys/socket.h>
 
-#include "engine/base/Logger.h"
-#include "engine/base/Singleton.h"
+#include "core/logger.h"
+#include "core/singleton.h"
 
 #include "SocketUtil.h"
 
@@ -13,7 +13,7 @@ namespace engine
   {
     namespace
     {
-      using Logger = engine::base::Singleton<engine::base::Logger>;
+      using Logger = core::Singleton<core::Logger>;
       using SocketUtil = engine::network::SocketUtil;
     }
 

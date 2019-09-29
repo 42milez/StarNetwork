@@ -5,9 +5,8 @@ add_executable(auth_server main.cpp ${sources} ${headers})
 
 set(libs
   p2p_techdemo-buildinfo
-  Boost::program_options
   spdlog::spdlog
-  base
+  core
   network)
 
 target_link_libraries(auth_server PRIVATE ${libs})

@@ -1,4 +1,4 @@
-#include "engine/base/Singleton.h"
+#include "core/singleton.h"
 
 #include "ExitHandler.h"
 
@@ -8,7 +8,7 @@ namespace engine
   {
     namespace
     {
-      using s_exit_handler = engine::base::Singleton<engine::base::ExitHandler>;
+      using s_exit_handler = core::Singleton<engine::base::ExitHandler>;
     }
 
     ExitHandler::ExitHandler() : should_exit_(false)

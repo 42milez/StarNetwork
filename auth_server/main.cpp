@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
     auto &logger = engine::base::Singleton<engine::base::Logger>::Instance();
 
-    if (!logger.init(LOGGER_NAME, PATH_LOG)) {
+    if (!logger.Init(LOGGER_NAME, PATH_LOG)) {
       std::cout << "Initialization failed." << std::endl;
       return EXIT_FAILURE;
     }

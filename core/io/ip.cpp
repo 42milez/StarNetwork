@@ -159,7 +159,7 @@ struct IpResolver
                 continue;
             }
 
-            q.response = Singleton<IP>::Instance().resolve_hostname(q.hostname, q.type);
+            q.response = core::Singleton<IP>::Instance().resolve_hostname(q.hostname, q.type);
 
             if (!q.response.is_valid())
             {

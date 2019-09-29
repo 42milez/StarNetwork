@@ -1,10 +1,12 @@
 #include "singleton.h"
 
+namespace core
+{
 namespace
 {
-    const size_t MAX_FINALIZERS_SIZE = 256;
-    size_t num_finalizers = 0;
-    SingletonFinalizer::FinalizerFunc finalizers[MAX_FINALIZERS_SIZE];
+const size_t MAX_FINALIZERS_SIZE = 256;
+size_t num_finalizers = 0;
+SingletonFinalizer::FinalizerFunc finalizers[MAX_FINALIZERS_SIZE];
 }
 
 void
@@ -22,4 +24,5 @@ SingletonFinalizer::finalize()
         (*finalizers[i])();
     }
     num_finalizers = 0;
-}
+} // namespace
+} // namespace core

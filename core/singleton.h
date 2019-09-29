@@ -3,6 +3,8 @@
 
 #include <mutex>
 
+namespace core
+{
 class SingletonFinalizer
 {
 public:
@@ -47,5 +49,6 @@ std::once_flag Singleton<T>::init_flag;
 
 template<typename T>
 T *Singleton<T>::instance_ = nullptr;
+} // namespace core
 
 #endif // P2P_TECHDEMO_CORE_SINGLETON_H

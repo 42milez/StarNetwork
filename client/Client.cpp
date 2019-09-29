@@ -1,7 +1,7 @@
 #include <ctime>
 #include <iostream>
 #include <string>
-#include <engine/base/Singleton.h>
+#include <core/singleton.h>
 
 #include "engine/base/ExitHandler.h"
 #include "engine/network/NetworkShared.h"
@@ -14,8 +14,8 @@
 
 namespace client
 {
-  using s_exit_handler = engine::base::Singleton<engine::base::ExitHandler>;
-  using s_network = engine::base::Singleton<client::Network>;
+  using s_exit_handler = core::Singleton<engine::base::ExitHandler>;
+  using s_network = core::Singleton<client::Network>;
 
   using SocketAddress = engine::network::SocketAddress;
   using SocketAddressFactory = engine::network::SocketAddressFactory;
