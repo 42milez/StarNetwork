@@ -203,7 +203,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
 void
 RUdpPeer::Ping()
 {
-    if (!net_->StateIs(RUdpPeerState::CONNECTED))
+    if (net_->StateIsNot(RUdpPeerState::CONNECTED))
         return;
 
     std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
@@ -211,8 +211,6 @@ RUdpPeer::Ping()
     cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::PING) |
                           static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     cmd->header.channel_id = 0xFF;
-
-    //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
     QueueOutgoingCommand(cmd, nullptr, 0, 0);
 }
@@ -282,7 +280,7 @@ RUdpPeer::Receive()
 Error
 RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool checksum)
 {
-    if (!net_->StateIs(RUdpPeerState::CONNECTED) ||
+    if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
         static_cast<uint32_t>(ch) >= channels_.size() ||
         data_.size() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
     {
