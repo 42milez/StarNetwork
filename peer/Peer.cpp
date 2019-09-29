@@ -1,6 +1,3 @@
-#include <ctime>
-#include <iostream>
-#include <string>
 #include <core/singleton.h>
 
 #include "engine/base/ExitHandler.h"
@@ -24,7 +21,7 @@ namespace peer
 
   using SOCKET_STATUS = engine::network::SOCKET_STATUS;
 
-  bool Peer::init()
+  bool Peer::Init()
   {
     auto &eh = s_exit_handler::Instance();
 
@@ -37,7 +34,7 @@ namespace peer
     return true;
   }
 
-  void Peer::run()
+  void Peer::Run()
   {
     auto &eh = s_exit_handler::Instance();
 
@@ -46,7 +43,8 @@ namespace peer
     }
   }
 
-  int Peer::request_token(const uint8_t *buf, uint32_t size)
+  /*
+  int Peer::RequestToken(const uint8_t *buf, uint32_t size)
   {
     auto mux = engine::network::SocketUtil::create_event_interface();
 
@@ -110,9 +108,11 @@ namespace peer
 
     return 0;
   }
+  */
 
-  bool Peer::token_exists() {
+  /*
+  bool Peer::TokenExists() {
     return !token_.empty();
   }
-
+  */
 } // namespace peer
