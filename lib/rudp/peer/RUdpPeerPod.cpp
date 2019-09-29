@@ -472,9 +472,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((!cmd_pod->OutgoingReliableCommandExists() ||
-                protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
-                !cmd_pod->SentReliableCommandExists() &&
+            if ((cmd_pod->OutgoingReliableCommandNotExists() ||
+                    protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
+                cmd_pod->SentReliableCommandNotExists() &&
                 peer->ExceedsPingInterval(service_time) &&
                 peer->ExceedsMTU(protocol_->chamber()->segment_size()))
             {

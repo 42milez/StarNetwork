@@ -69,10 +69,19 @@ public:
     OutgoingReliableCommandExists() { return !outgoing_reliable_commands_.empty(); };
 
     inline bool
+    OutgoingReliableCommandNotExists() { return outgoing_reliable_commands_.empty(); };
+
+    inline bool
     OutgoingUnreliableCommandExists() { return !outgoing_unreliable_commands_.empty(); };
 
     inline bool
+    OutgoingUnreliableCommandNotExists() { return outgoing_unreliable_commands_.empty(); };
+
+    inline bool
     SentReliableCommandExists() { return !sent_reliable_commands_.empty(); };
+
+    inline bool
+    SentReliableCommandNotExists() { return sent_reliable_commands_.empty(); };
 
 public:
     inline void
