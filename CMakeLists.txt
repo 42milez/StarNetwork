@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.14.2)
 
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/cmake/cable/.git)
+    message(FATAL_ERROR "Git submodules not initialized, execute:\n  git submodule update --init")
+endif()
+
 include(cmake/cable/bootstrap.cmake)
 include(CableBuildInfo)
 include(CableBuildType)
 include(CableToolchains)
+cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 cable_configure_toolchain(DEFAULT cxx17)
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
-cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 
 include(HunterGate)
 set(HUNTER_CONFIGURATION_TYPES Release CACHE STRING "Hunter configuration types")
