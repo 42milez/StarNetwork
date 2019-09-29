@@ -8,8 +8,8 @@
 #include "engine/base/Logger.h"
 #include "engine/base/Singleton.h"
 
-#include "auth_server/AuthServer.h"
-#include "auth_server/Network.h"
+#include "AuthServer.h"
+#include "Network.h"
 
 namespace po = boost::program_options;
 

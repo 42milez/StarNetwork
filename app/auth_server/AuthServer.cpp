@@ -1,7 +1,7 @@
 #include <engine/base/Singleton.h>
 #include <engine/base/ExitHandler.h>
 
-#include "auth_server/Network.h"
+#include "Network.h"
 
 #include "AuthServer.h"
 
