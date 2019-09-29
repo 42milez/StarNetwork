@@ -6,7 +6,7 @@
 
 #include "module/Network.h"
 
-TEST_CASE("Create client", "[IPv4][Network]")
+TEST_CASE("Create peer", "[IPv4][Network]")
 {
     std::unique_ptr<Network> client = std::make_unique<Network>();
     auto ret_client = client->CreateClient("::FFFF:127.0.0.1", 8888, 8889, 100, 100);
