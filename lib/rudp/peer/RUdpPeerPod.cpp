@@ -107,11 +107,12 @@ Error
 RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 {
     auto &net = peer->net();
+    auto &cmd_pod = peer->command_pod();
 
     if ((net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
-        (peer->command_pod()->outgoing_reliable_command_exists() ||
-            peer->command_pod()->outgoing_unreliable_command_exists() ||
-            peer->command_pod()->sent_reliable_command_exists()))
+        (cmd_pod->outgoing_reliable_command_exists() ||
+         cmd_pod->outgoing_unreliable_command_exists() ||
+         cmd_pod->sent_reliable_command_exists()))
     {
         net->state(RUdpPeerState::DISCONNECT_LATER);
         peer->event_data(data);
@@ -458,10 +459,12 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  タイムアウト処理
             // --------------------------------------------------
 
+            auto &cmd_pod = peer->command_pod();
+
             if (check_for_timeouts &&
-                peer->command_pod()->sent_reliable_command_exists() &&
-                UDP_TIME_GREATER_EQUAL(service_time, peer->command_pod()->next_timeout()) &&
-                peer->command_pod()->check_timeouts(peer->net(), service_time) == 1)
+                cmd_pod->sent_reliable_command_exists() &&
+                UDP_TIME_GREATER_EQUAL(service_time, cmd_pod->next_timeout()) &&
+                cmd_pod->check_timeouts(peer->net(), service_time) == 1)
             {
                 IS_EVENT_TYPE_NONE()
             }
@@ -469,9 +472,9 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            if ((!peer->command_pod()->outgoing_reliable_command_exists() ||
+            if ((!cmd_pod->outgoing_reliable_command_exists() ||
                 protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
-                !peer->command_pod()->sent_reliable_command_exists() &&
+                !cmd_pod->sent_reliable_command_exists() &&
                 peer->ExceedsPingInterval(service_time) &&
                 peer->ExceedsMTU(protocol_->chamber()->segment_size()))
             {
@@ -484,7 +487,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------
 
-            if (peer->command_pod()->outgoing_unreliable_command_exists())
+            if (cmd_pod->outgoing_unreliable_command_exists())
                 protocol_->SendUnreliableOutgoingCommands(peer, service_time);
 
             if (protocol_->chamber()->command_count() == 0)
@@ -548,7 +551,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             auto sent_length = conn_->Send(peer->Address(), protocol_->chamber());
 
-            peer->command_pod()->remove_sent_unreliable_commands();
+            cmd_pod->remove_sent_unreliable_commands();
 
             if (sent_length < 0)
                 return EventStatus::ERROR;
