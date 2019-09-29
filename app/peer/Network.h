@@ -6,23 +6,17 @@
 
 #include <spdlog/spdlog.h>
 
-#include "engine/network/SocketAddress.h"
-#include "engine/network/TCPSocket.h"
-
 namespace peer
 {
-  using engine::network::TCPSocketPtr;
-
   class Network {
   public:
-    bool init();
+    bool Init();
+    //std::vector<TCPSocketPtr> wait();
 
-    std::vector<TCPSocketPtr> wait();
-
-  private:
-    engine::network::TCPSocketPtr tcp_socket_;
-
-    int kernel_event_queue_fd_;
+//  private:
+//    engine::network::TCPSocketPtr tcp_socket_;
+//
+//    int kernel_event_queue_fd_;
   };
 
 } // namespace peer

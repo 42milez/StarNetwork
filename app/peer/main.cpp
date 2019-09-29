@@ -1,15 +1,7 @@
-#include <csignal>
 #include <iostream>
-#include <thread>
 #include <vector>
 
 #include "p2p_techdemo/buildinfo.h"
-
-#include "core/logger.h"
-#include "core/singleton.h"
-
-#include "Peer.h"
-#include "Network.h"
 
 namespace
 {

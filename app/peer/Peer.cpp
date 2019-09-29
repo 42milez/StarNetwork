@@ -1,25 +1,13 @@
 #include <core/singleton.h>
 
-#include "engine/base/ExitHandler.h"
-#include "engine/network/NetworkShared.h"
-#include "engine/network/SocketAddress.h"
-#include "engine/network/SocketAddressFactory.h"
-#include "engine/network/SocketUtil.h"
-
-#include "Peer.h"
+#include "core/ExitHandler.h"
 #include "Network.h"
+#include "Peer.h"
 
 namespace peer
 {
-  using s_exit_handler = core::Singleton<engine::base::ExitHandler>;
+  using s_exit_handler = core::Singleton<core::ExitHandler>;
   using s_network = core::Singleton<peer::Network>;
-
-  using SocketAddress = engine::network::SocketAddress;
-  using SocketAddressFactory = engine::network::SocketAddressFactory;
-  using SocketAddressPtr = engine::network::SocketAddressPtr;
-  using SocketUtil = engine::network::SocketUtil;
-
-  using SOCKET_STATUS = engine::network::SOCKET_STATUS;
 
   bool Peer::Init()
   {
@@ -29,7 +17,7 @@ namespace peer
 
     auto &network = s_network::Instance();
 
-    if (!network.init()) return false;
+    if (!network.Init()) return false;
 
     return true;
   }
