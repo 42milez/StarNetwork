@@ -52,7 +52,6 @@ add_subdirectory(core)
 add_subdirectory(lib/rudp)
 add_subdirectory(module)
 add_subdirectory(client)
-add_subdirectory(auth_server)
 
 #  Directories (Tests)
 # --------------------------------------------------
