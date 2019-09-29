@@ -103,7 +103,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 #ifdef P2P_TECHDEMO_IPV6
         ip = Singleton<IP>::Instance().resolve_hostname(server_address);
 #else
-        ip = Singleton<IP>::Instance().resolve_hostname(server_address, IP::Type::V4);
+        ip = core::Singleton<IP>::Instance().resolve_hostname(server_address, IP::Type::V4);
 #endif
         ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
     }
