@@ -7,7 +7,7 @@
 
 #include "Network.h"
 
-namespace client
+namespace peer
 {
   using SocketAddress = engine::network::SocketAddress;
   using SocketAddressFactory = engine::network::SocketAddressFactory;
@@ -27,4 +27,4 @@ namespace client
     return std::move(out_sockets);
   }
 
-} // namespace client
+} // namespace peer

@@ -8,7 +8,7 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 
-#include "Client.h"
+#include "Peer.h"
 #include "Network.h"
 
 namespace
@@ -21,8 +21,8 @@ namespace
     std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
   }
 
-  const std::string LOGGER_NAME = "CLIENT";
-  const std::string PATH_LOG = "/var/log/p2p_techdemo/client.log";
+  const std::string LOGGER_NAME = "PEER";
+  const std::string PATH_LOG = "/var/log/p2p_techdemo/peer.log";
 } // namespace
 
 int
@@ -30,7 +30,7 @@ main(int argc, char **argv)
 {
     //  po::options_description opt_desc("OPTIONS", 160);
     //  opt_desc.add_options()
-    //    ("run,r", "Execute the game client")
+    //    ("run,r", "Execute the game peer")
     //    ("help,h", "Show this help message and exit\n");
 
     //  po::options_description allowed_options("Allowed options");
@@ -84,16 +84,16 @@ main(int argc, char **argv)
     //      return EXIT_FAILURE;
     //    }
 
-    //    auto &client = core::Singleton<client::Client>::Instance();
-    //    client.init();
+    //    auto &peer = core::Singleton<peer::Peer>::Instance();
+    //    peer.init();
 
-    //    if (!client.token_exists())
+    //    if (!peer.token_exists())
     //    {
     //      // ユーザー認証
     //      // ...
     //    }
 
-    //    client.run();
+    //    peer.run();
     //  }
 
 } // namespace

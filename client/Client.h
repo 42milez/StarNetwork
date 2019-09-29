@@ -1,12 +1,12 @@
-#ifndef P2P_TECHDEMO_CLIENT_H
-#define P2P_TECHDEMO_CLIENT_H
+#ifndef P2P_TECHDEMO_PEER_H
+#define P2P_TECHDEMO_PEER_H
 
 #include <memory>
 #include <string>
 
-namespace client {
+namespace peer {
 
-  class Client {
+  class Peer {
   public:
     bool init();
 
@@ -20,6 +20,6 @@ namespace client {
     std::string token_;
   };
 
-} // namespace client
+} // namespace peer
 
-#endif // P2P_TECHDEMO_CLIENT_H
+#endif // P2P_TECHDEMO_PEER_H

@@ -9,7 +9,7 @@
 #include "engine/network/SocketAddress.h"
 #include "engine/network/TCPSocket.h"
 
-namespace client
+namespace peer
 {
   using engine::network::TCPSocketPtr;
 
@@ -25,6 +25,6 @@ namespace client
     int kernel_event_queue_fd_;
   };
 
-} // namespace client
+} // namespace peer
 
 #endif // P2P_TECHDEMO_NETWORK_H

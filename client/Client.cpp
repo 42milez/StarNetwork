@@ -9,13 +9,13 @@
 #include "engine/network/SocketAddressFactory.h"
 #include "engine/network/SocketUtil.h"
 
-#include "Client.h"
+#include "Peer.h"
 #include "Network.h"
 
-namespace client
+namespace peer
 {
   using s_exit_handler = core::Singleton<engine::base::ExitHandler>;
-  using s_network = core::Singleton<client::Network>;
+  using s_network = core::Singleton<peer::Network>;
 
   using SocketAddress = engine::network::SocketAddress;
   using SocketAddressFactory = engine::network::SocketAddressFactory;
@@ -24,7 +24,7 @@ namespace client
 
   using SOCKET_STATUS = engine::network::SOCKET_STATUS;
 
-  bool Client::init()
+  bool Peer::init()
   {
     auto &eh = s_exit_handler::Instance();
 
@@ -37,7 +37,7 @@ namespace client
     return true;
   }
 
-  void Client::run()
+  void Peer::run()
   {
     auto &eh = s_exit_handler::Instance();
 
@@ -46,7 +46,7 @@ namespace client
     }
   }
 
-  int Client::request_token(const uint8_t *buf, uint32_t size)
+  int Peer::request_token(const uint8_t *buf, uint32_t size)
   {
     auto mux = engine::network::SocketUtil::create_event_interface();
 
@@ -59,8 +59,8 @@ namespace client
     // イベント登録
     SocketUtil::register_event(mux, tcp_socket);
 
-    SocketAddress client_address{};
-    tcp_socket->bind(client_address);
+    SocketAddress peer_address{};
+    tcp_socket->bind(peer_address);
 
     auto server_address = SocketAddressFactory::create_ipv4_from_string("127.0.0.1:12345");
 //    SocketAddress server_address(static_cast<uint32_t>(std::stoi("127.0.0.1")), 12345);
@@ -111,8 +111,8 @@ namespace client
     return 0;
   }
 
-  bool Client::token_exists() {
+  bool Peer::token_exists() {
     return !token_.empty();
   }
 
-} // namespace client
+} // namespace peer

@@ -1,7 +1,7 @@
 file(GLOB sources *.cpp)
 file(GLOB headers *.h)
 
-add_executable(client main.cpp ${sources} ${headers})
+add_executable(peer main.cpp ${sources} ${headers})
 
 set(libs
   p2p_techdemo-buildinfo
@@ -9,4 +9,4 @@ set(libs
   core
   network)
 
-target_link_libraries(client PRIVATE ${libs})
+target_link_libraries(peer PRIVATE ${libs})
