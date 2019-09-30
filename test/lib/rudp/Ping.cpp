@@ -81,12 +81,15 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "ping (1)", "[IPv4]")
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
 
     // ==================================================
-    //  Step 2 : Ping to the peer
+    //  Step 2 : Send ping command to the peer
     // ==================================================
 
-    sleep(1);
-
-    Service(server_event, 0);
-
-    // ...
+//    sleep(1);
+//
+//    Service(server_event, 0); // enqueue ping command
+//    Service(server_event, 0); // send ping command
+//
+//    usleep(SLEEP_DURATION);
+//
+//    client->Service(client_event, 0);
 }

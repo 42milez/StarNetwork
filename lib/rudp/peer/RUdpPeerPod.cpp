@@ -331,6 +331,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
             {
+                auto debug_dummy = 0;
                 // TODO:
 //                if (protocol_->HandlePing(peer, cmd))
 //                    IS_EVENT_AVAILABLE()

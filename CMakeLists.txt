@@ -51,8 +51,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(core)
 add_subdirectory(lib/rudp)
 add_subdirectory(module)
-add_subdirectory(app/observer)
 add_subdirectory(app/peer)
+add_subdirectory(app/session)
 
 #  Directories (Tests)
 # --------------------------------------------------

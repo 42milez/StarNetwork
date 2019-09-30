@@ -1,7 +1,7 @@
 file(GLOB sources *.cpp)
 file(GLOB headers *.h)
 
-add_executable(watch_tower main.cpp ${sources} ${headers})
+add_executable(session main.cpp ${sources} ${headers})
 
 set(libs
     p2p_techdemo-buildinfo
@@ -9,4 +9,4 @@ set(libs
     core
     network)
 
-target_link_libraries(watch_tower PRIVATE ${libs})
+target_link_libraries(session PRIVATE ${libs})
