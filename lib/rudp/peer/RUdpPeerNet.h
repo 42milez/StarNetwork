@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "core/logger.h"
+#include "core/singleton.h"
 #include "lib/rudp/RUdpConst.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpMacro.h"
@@ -55,7 +57,10 @@ public:
     state() { return state_; }
 
     inline void
-    state(const RUdpPeerState &val) { state_ = val; }
+    state(const RUdpPeerState &val) {
+        core::Singleton<core::Logger>::Instance().Debug("Peer state has changed: {} -> {}", static_cast<uint8_t>(state_), static_cast<uint8_t>(val));
+        state_ = val;
+    }
 
     inline uint32_t
     incoming_bandwidth() { return incoming_bandwidth_; }

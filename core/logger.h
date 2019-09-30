@@ -16,22 +16,28 @@ public:
 
     template<class... Args>
     void
-    Info(Args... args) { logger_->info(args...); };
+    Debug(Args... args);
 
     template<class... Args>
     void
-    Warn(Args... args) { logger_->warn(args...); };
+    Info(Args... args);
 
     template<class... Args>
     void
-    Error(Args... args) { logger_->error(args...); };
+    Warn(Args... args);
 
     template<class... Args>
     void
-    Critical(Args... args) { logger_->critical(args...); };
+    Error(Args... args);
+
+    template<class... Args>
+    void
+    Critical(Args... args);
 
 private:
-    std::shared_ptr<spdlog::logger> logger_;
+    std::shared_ptr<spdlog::logger> stdout_;
+    std::shared_ptr<spdlog::logger> stderr_;
+    std::shared_ptr<spdlog::logger> file_;
 };
 } // namespace core
 

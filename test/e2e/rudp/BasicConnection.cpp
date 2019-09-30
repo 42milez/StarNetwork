@@ -5,6 +5,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "core/logger.h"
+#include "core/singleton.h"
 #include "lib/rudp/RUdpHost.h"
 
 class ServerIPv4Fixture
@@ -16,6 +18,8 @@ public:
         address.port(8888);
 
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
+
+        core::Singleton<core::Logger>::Instance().Init("BasicConnection");
     }
 
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
