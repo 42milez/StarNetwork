@@ -292,7 +292,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
         return Error::OK;
 
-     auto received_sent_time = ntohs(cmd->acknowledge.received_sent_time);
+     uint32_t received_sent_time = ntohs(cmd->acknowledge.received_sent_time);
      received_sent_time |= service_time & 0xFFFF0000;
 
      if ((received_sent_time & 0x8000) > (service_time & 0x8000))

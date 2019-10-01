@@ -76,14 +76,13 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     client->Service(client_event, 0);
 
-    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
-
     usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
     auto ret = Service(server_event, 0);
 
+    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 
