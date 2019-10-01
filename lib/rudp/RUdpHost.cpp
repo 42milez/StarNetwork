@@ -95,7 +95,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         RETURN_ON_ERROR(ret)
     }
 
-    peer_pod_->update_service_time();
+    peer_pod_->UpdateServiceTime();
 
     timeout += peer_pod_->service_time();
 
@@ -128,7 +128,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
             return EventStatus::NO_EVENT_OCCURRED;
 
         do {
-            peer_pod_->update_service_time();
+            peer_pod_->UpdateServiceTime();
 
             if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
                 return EventStatus::NO_EVENT_OCCURRED;
@@ -141,7 +141,7 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         }
         while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
-        peer_pod_->update_service_time();
+        peer_pod_->UpdateServiceTime();
     }
     while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 

@@ -157,7 +157,7 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 void
 RUdpPeerPod::Flush()
 {
-    update_service_time();
+    UpdateServiceTime();
 
     SendOutgoingCommands(nullptr, service_time_, false);
 }

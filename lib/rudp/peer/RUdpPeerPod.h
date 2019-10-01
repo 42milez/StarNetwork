@@ -57,12 +57,15 @@ public:
     inline void
     PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer) { protocol_->PeerOnDisconnect(peer); }
 
+    inline void
+    UpdateServiceTime() {
+        service_time_ = RUdpTime::Get();
+        core::Singleton<core::Logger>::Instance().Debug("service time updated: {0}", service_time_);
+    }
+
 public:
     inline uint32_t
     service_time() { return service_time_; }
-
-    inline void
-    update_service_time() { service_time_ = RUdpTime::Get(); }
 
 private:
     std::shared_ptr<RUdpCompress> compressor_;
