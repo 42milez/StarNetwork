@@ -14,6 +14,8 @@ public:
         address.port(8888);
 
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
+
+        core::Singleton<core::Logger>::Instance().Init("BasicConnection");
     }
 
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
@@ -26,7 +28,7 @@ private:
     std::shared_ptr<RUdpHost> host_;
 };
 
-TEST_CASE_METHOD(ServerIPv4Fixture, "ping (1)", "[IPv4]")
+TEST_CASE_METHOD(ServerIPv4Fixture, "Ping (1)", "[IPv4]")
 {
     RUdpAddress client_address;
     client_address.port(8889);
