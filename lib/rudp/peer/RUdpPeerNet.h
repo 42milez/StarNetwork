@@ -58,7 +58,7 @@ public:
 
     inline void
     state(const RUdpPeerState &val) {
-        core::Singleton<core::Logger>::Instance().Debug("Peer state has changed: {} -> {}", static_cast<uint8_t>(state_), static_cast<uint8_t>(val));
+        core::Singleton<core::Logger>::Instance().Debug("Peer state has changed: {0} -> {1}", static_cast<uint8_t>(state_), static_cast<uint8_t>(val));
         state_ = val;
     }
 

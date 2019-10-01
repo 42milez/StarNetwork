@@ -15,3 +15,5 @@ add_library(rudp STATIC
         ${sources_dispatch} ${headers_dispatch}
         ${sources_peer} ${headers_peer}
         ${sources_protocol} ${headers_protocol})
+
+target_link_libraries(rudp core)

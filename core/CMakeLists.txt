@@ -3,4 +3,4 @@ file(GLOB headers *.h io/*.h)
 
 add_library(core STATIC ${sources} ${headers})
 
-target_link_libraries(core PRIVATE spdlog::spdlog)
+target_link_libraries(core spdlog::spdlog)

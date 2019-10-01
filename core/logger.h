@@ -16,23 +16,23 @@ public:
 
     template<class... Args>
     void
-    Debug(Args... args);
+    Debug(Args... args) { file_ ? file_->debug(args...) : stdout_->debug(args...); };
 
     template<class... Args>
     void
-    Info(Args... args);
+    Info(Args... args) { file_ ? file_->info(args...) : stdout_->info(args...); };
 
     template<class... Args>
     void
-    Warn(Args... args);
+    Warn(Args... args) { file_ ? file_->warn(args...) : stderr_->warn(args...); };
 
     template<class... Args>
     void
-    Error(Args... args);
+    Error(Args... args) { file_ ? file_->error(args...) : stderr_->error(args...); };
 
     template<class... Args>
     void
-    Critical(Args... args);
+    Critical(Args... args) { file_ ? file_->critical(args...) : stderr_->critical(args...); };
 
 private:
     std::shared_ptr<spdlog::logger> stdout_;

@@ -49,24 +49,4 @@ Logger::Init(const std::string &logger_name, const std::string &path)
 
     return true;
 }
-
-template<class... Args>
-void
-Logger::Debug(Args... args) { file_ ? file_->debug(args...) : stdout_->debug(args...); };
-
-template<class... Args>
-void
-Logger::Info(Args... args) { file_ ? file_->info(args...) : stdout_->info(args...); };
-
-template<class... Args>
-void
-Logger::Warn(Args... args) { file_ ? file_->warn(args...) : stderr_->warn(args...); };
-
-template<class... Args>
-void
-Logger::Error(Args... args) { file_ ? file_->error(args...) : stderr_->error(args...); };
-
-template<class... Args>
-void
-Logger::Critical(Args... args) { file_ ? file_->critical(args...) : stderr_->critical(args...); };
 } // namespace core
