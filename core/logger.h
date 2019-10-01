@@ -16,27 +16,25 @@ public:
 
     template<class... Args>
     inline void
-    Debug(Args... args) { file_ ? file_->debug(args...) : stdout_->debug(args...); };
+    Debug(Args... args) { file_ ? file_->debug(args...) : spdlog::get("stdout")->debug(args...); };
 
     template<class... Args>
     inline void
-    Info(Args... args) { file_ ? file_->info(args...) : stdout_->info(args...); };
+    Info(Args... args) { file_ ? file_->info(args...) : spdlog::get("stdout")->info(args...); };
 
     template<class... Args>
     inline void
-    Warn(Args... args) { file_ ? file_->warn(args...) : stderr_->warn(args...); };
+    Warn(Args... args) { file_ ? file_->warn(args...) : spdlog::get("stderr")->warn(args...); };
 
     template<class... Args>
     inline void
-    Error(Args... args) { file_ ? file_->error(args...) : stderr_->error(args...); };
+    Error(Args... args) { file_ ? file_->error(args...) : spdlog::get("stderr")->error(args...); };
 
     template<class... Args>
     inline void
-    Critical(Args... args) { file_ ? file_->critical(args...) : stderr_->critical(args...); };
+    Critical(Args... args) { file_ ? file_->critical(args...) : spdlog::get("stderr")->critical(args...); };
 
 private:
-    std::shared_ptr<spdlog::logger> stdout_;
-    std::shared_ptr<spdlog::logger> stderr_;
     std::shared_ptr<spdlog::logger> file_;
 };
 } // namespace core

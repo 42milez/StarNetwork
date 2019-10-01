@@ -14,13 +14,21 @@ Logger::Init(const std::string &logger_name)
 {
     try
     {
-        stdout_ = spdlog::stdout_color_mt(logger_name + "1");
-        stderr_ = spdlog::stderr_color_mt(logger_name + "2");
+        spdlog::stdout_color_mt("stdout");
+        spdlog::stderr_color_mt("stderr");
     }
     catch (const spdlog::spdlog_ex &ex)
     {
         return false;
     }
+
+#ifdef DEBUG
+    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z] [%^---%L---%$] [thread %t] %v");
+#else
+    spdlog::set_level(spdlog::level::info);
+    spdlog::set_pattern("[%H:%M:%S %z][%^---%L---%$] [thread %t] %v");
+#endif
 
     return true;
 }

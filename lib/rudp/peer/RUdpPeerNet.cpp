@@ -1,6 +1,38 @@
 #include "lib/rudp/RUdpConst.h"
-#include "lib/rudp/RUdpMacro.h"
 #include "RUdpPeerNet.h"
+
+std::string
+PeerStateAsString(RUdpPeerState state)
+{
+    if (state == RUdpPeerState::CONNECTING)
+        return "connecting";
+
+    if (state == RUdpPeerState::ACKNOWLEDGING_CONNECT)
+        return "acknowledging_connect";
+
+    if (state == RUdpPeerState::CONNECTION_PENDING)
+        return "connection_pending";
+
+    if (state == RUdpPeerState::CONNECTION_SUCCEEDED)
+        return "connection_succeeded";
+
+    if (state == RUdpPeerState::CONNECTED)
+        return "connected";
+
+    if (state == RUdpPeerState::DISCONNECT_LATER)
+        return "disconnect_later";
+
+    if (state == RUdpPeerState::DISCONNECTING)
+        return "disconnecting";
+
+    if (state == RUdpPeerState::ACKNOWLEDGING_DISCONNECT)
+        return "acknowledging_disconnect";
+
+    if (state == RUdpPeerState::ZOMBIE)
+        return "zombie";
+
+    return "disconnected";
+}
 
 RUdpPeerNet::RUdpPeerNet()
     : state_(RUdpPeerState::DISCONNECTED),
