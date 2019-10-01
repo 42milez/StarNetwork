@@ -80,11 +80,10 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
-    auto ret = Service(server_event, 0);
+    Service(server_event, 0);
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
-    REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 
     // ==================================================
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectNow() )
@@ -152,16 +151,14 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // --------------------------------------------------
     client->Service(client_event, 0);
 
-    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
-
     usleep(SLEEP_DURATION);
 
     //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // --------------------------------------------------
-    auto ret = Service(server_event, 0);
+    Service(server_event, 0);
 
+    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
-    REQUIRE(ret == EventStatus::NO_EVENT_OCCURRED);
 
     // ==================================================
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectLater() )
@@ -178,6 +175,6 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     client->Service(client_event, 0);
 
-    REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
     REQUIRE(client->PeerState(0) == RUdpPeerState::DISCONNECTED);
+    REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
 }
