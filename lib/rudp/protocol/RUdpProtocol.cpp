@@ -354,6 +354,17 @@ RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolH
 }
 
 Error
+RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
+{
+    auto &net = peer->net();
+
+    if (net->StateIs(RUdpPeerState::CONNECTED) && net->StateIs(RUdpPeerState::DISCONNECT_LATER))
+        return Error::ERROR;
+
+    return Error::OK;
+}
+
+Error
 RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                                   const RUdpProtocolType *cmd)
 {

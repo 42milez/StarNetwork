@@ -331,10 +331,10 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
             {
-                auto debug_dummy = 0;
-                // TODO:
-//                if (protocol_->HandlePing(peer, cmd))
-//                    IS_EVENT_AVAILABLE()
+                if (protocol_->HandlePing(peer) == Error::ERROR)
+                {
+                    IS_EVENT_AVAILABLE()
+                }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
             {
@@ -473,23 +473,23 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             //  送信バッファに Reliable Command を転送する
             // --------------------------------------------------
 
-            auto debug_a = cmd_pod->OutgoingReliableCommandNotExists();
-            auto debug_b = protocol_->SendReliableOutgoingCommands(peer, service_time);
-            auto debug_c = cmd_pod->SentReliableCommandNotExists();
-            auto debug_d = peer->ExceedsPingInterval(service_time);
-            auto debug_e = peer->HasEnoughSpace(protocol_->chamber()->segment_size());
+//            auto debug_a = cmd_pod->OutgoingReliableCommandNotExists();
+            auto debug_b = protocol_->SendReliableOutgoingCommands(peer, service_time); // 消しちゃだめ！😵
+//            auto debug_c = cmd_pod->SentReliableCommandNotExists();
+//            auto debug_d = peer->ExceedsPingInterval(service_time);
+//            auto debug_e = peer->HasEnoughSpace(protocol_->chamber()->segment_size());
 
-            if ((cmd_pod->OutgoingReliableCommandNotExists() ||
-                    protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
-                cmd_pod->SentReliableCommandNotExists() &&
-                peer->ExceedsPingInterval(service_time) &&
-                peer->HasEnoughSpace(protocol_->chamber()->segment_size()))
-            {
-                peer->Ping();
-
-                // ping コマンドをバッファに転送
-                protocol_->SendReliableOutgoingCommands(peer, service_time);
-            }
+//            if ((cmd_pod->OutgoingReliableCommandNotExists() ||
+//                    protocol_->SendReliableOutgoingCommands(peer, service_time)) &&
+//                cmd_pod->SentReliableCommandNotExists() &&
+//                peer->ExceedsPingInterval(service_time) &&
+//                peer->HasEnoughSpace(protocol_->chamber()->segment_size()))
+//            {
+//                peer->Ping();
+//
+//                // ping コマンドをバッファに転送
+//                protocol_->SendReliableOutgoingCommands(peer, service_time);
+//            }
 
             //  送信バッファに Unreliable Command を転送する
             // --------------------------------------------------

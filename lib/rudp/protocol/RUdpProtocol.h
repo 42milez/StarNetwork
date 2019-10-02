@@ -32,6 +32,9 @@ public:
                        uint32_t host_incoming_bandwidth,
                        uint32_t host_outgoing_bandwidth);
 
+    static Error
+    HandlePing(const std::shared_ptr<RUdpPeer> &peer);
+
     Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                               const RUdpProtocolType *cmd);
 
