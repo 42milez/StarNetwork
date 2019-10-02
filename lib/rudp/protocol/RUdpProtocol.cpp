@@ -163,13 +163,13 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 }
             }
 
-            std::shared_ptr<RUdpProtocolType> cmd;
-
             for (auto &peer : peers) {
                 auto &net = peer->net();
 
                 if (IS_PEER_NOT_CONNECTED(peer))
                     continue;
+
+                auto cmd = std::make_shared<RUdpProtocolType>();
 
                 cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT) |
                                       static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
