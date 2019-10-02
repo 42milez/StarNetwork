@@ -51,35 +51,29 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
 
-    //  Queue command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
+    // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Connect(server_address, SysCh::MAX, 0);
 
-    //  Send command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
+    // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
     std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
 
-    //  Receive command: PROTOCOL_COMMAND_CONNECT
-    //  Queue command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    //  Send command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_CONNECT
+    // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
+    // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(server_event, 0);
 
     usleep(SLEEP_DURATION);
 
-    //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
+    // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
 
     usleep(SLEEP_DURATION);
 
-    //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     Service(server_event, 0);
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
@@ -90,15 +84,12 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // ==================================================
 
     client->DisconnectNow(client_event->peer(), 0);
-
     usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
-
     usleep(SLEEP_DURATION);
 
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
@@ -120,41 +111,31 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
+    auto client_event = std::make_unique<RUdpEvent>();
+    auto server_event = std::make_unique<RUdpEvent>();
+
     // ==================================================
     //  Step 1 : Connect to the server
     // ==================================================
 
-    std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
-
-    //  Queue command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
+    // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
+    // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Connect(server_address, SysCh::MAX, 0);
-
-    //  Send command: PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
-    std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
-
-    //  Receive command: PROTOCOL_COMMAND_CONNECT
-    //  Queue command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    //  Send command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_CONNECT
+    // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
+    // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(server_event, 0);
-
     usleep(SLEEP_DURATION);
 
-    //  Receive command: PROTOCOL_COMMAND_VERIFY_CONNECT
-    //  Send command: PROTOCOL_COMMAND_ACKNOWLEDGE
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
+    // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
-    //  Receive command: PROTOCOL_COMMAND_ACKNOWLEDGEMENT
-    // --------------------------------------------------
+    // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     Service(server_event, 0);
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
@@ -166,11 +147,9 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     client->DisconnectLater(client_event->peer(), 0);
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
     Service(server_event, 0);
-
     usleep(SLEEP_DURATION);
 
     client->Service(client_event, 0);
