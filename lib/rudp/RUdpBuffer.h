@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <variant>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
@@ -19,6 +20,9 @@ public:
     void
     Add(const VecUInt8SharedPtr &data, size_t offset, size_t size = 0);
 
+    std::string
+    ProtocolCommandAsString();
+
     VecUInt8It
     CopyTo(VecUInt8It it);
 
@@ -27,13 +31,6 @@ public:
 
     inline void
     Size(size_t val) { size_ = val; }
-
-private:
-    enum class BufferVariant : uint8_t
-    {
-        RUdpProtocolTypeSP,
-        VecUInt8SharedPtr
-    };
 
 private:
     using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8SharedPtr>;
