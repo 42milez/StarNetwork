@@ -1,5 +1,6 @@
 #include "core/logger.h"
 #include "core/singleton.h"
+#include "lib/rudp/command/RUdpCommandSize.h"
 #include "RUdpBuffer.h"
 #include "RUdpConst.h"
 #include "RUdpEnum.h"
@@ -23,7 +24,7 @@ void
 RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
 {
     data_ = data;
-    size_ = sizeof(RUdpProtocolType);
+    size_ = command_sizes.at(data->header.command & PROTOCOL_COMMAND_MASK);
 }
 
 void
