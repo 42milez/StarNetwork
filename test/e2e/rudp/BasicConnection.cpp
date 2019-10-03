@@ -18,10 +18,10 @@ namespace
     }
 }
 
-class ServerIPv4Fixture
+class Peer2IPv4Fixture
 {
 public:
-    ServerIPv4Fixture()
+    Peer2IPv4Fixture()
     {
         RUdpAddress address;
         address.port(8888);
@@ -41,191 +41,191 @@ private:
     std::shared_ptr<RUdpHost> host_;
 };
 
-TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (1)", "[IPv4]")
+TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the peer2 (1)", "[IPv4]")
 {
-    RUdpAddress client_address;
-    client_address.port(8889);
-    auto client = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
+    RUdpAddress peer1_address;
+    peer1_address.port(8889);
+    auto peer1 = std::make_unique<RUdpHost>(peer1_address, SysCh::MAX, 32, 100, 100);
 
-    IpAddress server_ip{"::FFFF:127.0.0.1"};
-    RUdpAddress server_address;
-    server_address.host(server_ip.GetIPv6());
-    server_address.port(8888);
+    IpAddress peer2_ip{"::FFFF:127.0.0.1"};
+    RUdpAddress peer2_address;
+    peer2_address.host(peer2_ip.GetIPv6());
+    peer2_address.port(8888);
 
     const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
-    auto client_event = std::make_unique<RUdpEvent>();
-    auto server_event = std::make_unique<RUdpEvent>();
+    auto peer1_event = std::make_unique<RUdpEvent>();
+    auto peer2_event = std::make_unique<RUdpEvent>();
 
     // ==================================================
-    //  Step 1 : Connect to the server
+    //  Step 1 : Connect to the peer2
     // ==================================================
 
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    client->Connect(server_address, SysCh::MAX, 0);
+    peer1->Connect(peer2_address, SysCh::MAX, 0);
 
     // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    client->Service(client_event, 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
-    client->Service(client_event, 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // [Queue] PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     // [Send]  PROTOCOL_COMMAND_BANDWIDTH_LIMIT
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
-    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
 
     // ==================================================
-    //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectNow() )
+    //  Step 2 : Disconnect from the peer2 ( use RUdpHost::DisconnectNow() )
     // ==================================================
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Queue] PROTOCOL_COMMAND_PING
     // [Queue] PROTOCOL_COMMAND_DISCONNECT
     // [Send]  PROTOCOL_COMMAND_PING
     // [Send]  PROTOCOL_COMMAND_DISCONNECT
-    client->DisconnectNow(client_event->peer(), 0);
+    peer1->DisconnectNow(peer1_event->peer(), 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_PING
     // [Receive] PROTOCOL_COMMAND_DISCONNECT
     // [Queue]   PROTOCOL_COMMAND_BANDWIDTH
     // [Send]    PROTOCOL_COMMAND_BANDWIDTH
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Receive] PROTOCOL_COMMAND_BANDWIDTH
-    client->Service(client_event, 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
     REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
-    REQUIRE(client->PeerState(0) == RUdpPeerState::DISCONNECTED);
+    REQUIRE(peer1->PeerState(0) == RUdpPeerState::DISCONNECTED);
 }
 
-TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from the server (2)", "[IPv4]")
+TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the peer2 (2)", "[IPv4]")
 {
-    RUdpAddress client_address;
-    client_address.port(8889);
-    auto client = std::make_unique<RUdpHost>(client_address, SysCh::MAX, 32, 100, 100);
+    RUdpAddress peer1_address;
+    peer1_address.port(8889);
+    auto peer1 = std::make_unique<RUdpHost>(peer1_address, SysCh::MAX, 32, 100, 100);
 
-    IpAddress server_ip{"::FFFF:127.0.0.1"};
-    RUdpAddress server_address;
-    server_address.host(server_ip.GetIPv6());
-    server_address.port(8888);
+    IpAddress peer2_ip{"::FFFF:127.0.0.1"};
+    RUdpAddress peer2_address;
+    peer2_address.host(peer2_ip.GetIPv6());
+    peer2_address.port(8888);
 
     const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
-    auto client_event = std::make_unique<RUdpEvent>();
-    auto server_event = std::make_unique<RUdpEvent>();
+    auto peer1_event = std::make_unique<RUdpEvent>();
+    auto peer2_event = std::make_unique<RUdpEvent>();
 
     // ==================================================
-    //  Step 1 : Connect to the server
+    //  Step 1 : Connect to the peer2
     // ==================================================
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // [Send]  PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    client->Connect(server_address, SysCh::MAX, 0);
-    client->Service(client_event, 0);
+    peer1->Connect(peer2_address, SysCh::MAX, 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
-    client->Service(client_event, 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[SERVER]");
+    LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
-    Service(server_event, 0);
+    Service(peer2_event, 0);
 
-    REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
 
     // ==================================================
-    //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectLater() )
+    //  Step 2 : Disconnect from the peer2 ( use RUdpHost::DisconnectLater() )
     // ==================================================
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 1]");
 
-    client->DisconnectLater(client_event->peer(), 0);
-    client->Service(client_event, 0);
-
-    usleep(SLEEP_DURATION);
-
-    LOG("");
-    LOG("[SERVER]");
-
-    Service(server_event, 0);
+    peer1->DisconnectLater(peer1_event->peer(), 0);
+    peer1->Service(peer1_event, 0);
 
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[CLIENT]");
+    LOG("[PEER 2]");
 
-    client->Service(client_event, 0);
+    Service(peer2_event, 0);
 
-    REQUIRE(client->PeerState(0) == RUdpPeerState::DISCONNECTED);
+    usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[PEER 1]");
+
+    peer1->Service(peer1_event, 0);
+
+    REQUIRE(peer1->PeerState(0) == RUdpPeerState::DISCONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
 }
