@@ -249,7 +249,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             if (cmd_number >= static_cast<uint8_t>(RUdpProtocolCommand::COUNT))
                 break;
 
-            auto cmd_size = command_sizes.at(cmd_number);
+            auto cmd_size = COMMAND_SIZES.at(cmd_number);
             if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
                 break;
 

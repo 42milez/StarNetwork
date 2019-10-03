@@ -24,7 +24,7 @@ void
 RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
 {
     data_ = data;
-    size_ = command_sizes.at(data->header.command & PROTOCOL_COMMAND_MASK);
+    size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
 }
 
 void

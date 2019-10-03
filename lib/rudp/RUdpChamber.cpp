@@ -58,7 +58,7 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))
         return true;
 
-    auto command_size = command_sizes[outgoing_command->CommandNumber()];
+    auto command_size = COMMAND_SIZES[outgoing_command->CommandNumber()];
 
     // has not enough space for command（コマンド分のスペースがなければ続くデータも送信できないので先にチェック）
     if (mtu - segment_size_ < command_size)

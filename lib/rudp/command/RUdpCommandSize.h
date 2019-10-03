@@ -5,7 +5,7 @@
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
 
-constexpr std::array<size_t, 13> command_sizes{
+constexpr std::array<size_t, 13> COMMAND_SIZES{
     0,
     sizeof(RUdpProtocolAcknowledge),
     sizeof(RUdpProtocolConnect),

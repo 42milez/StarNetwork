@@ -191,10 +191,10 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         (*buffer)->Add((*outgoing_command)->command());
         //buffer->Add(command);
-        //buffer->data_length = command_sizes[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
+        //buffer->data_length = COMMAND_SIZES[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         chamber->IncrementSegmentSize(
-            command_sizes[(*outgoing_command)->CommandNumber()]
+            COMMAND_SIZES[(*outgoing_command)->CommandNumber()]
         );
 
         auto flags = chamber->header_flags();
@@ -246,7 +246,7 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         auto buffer = chamber->EmptyDataBuffer();
 
         auto outgoing_command = current_command;
-        auto command_size = command_sizes[(*outgoing_command)->CommandNumber()];
+        auto command_size = COMMAND_SIZES[(*outgoing_command)->CommandNumber()];
 
         if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command))) {
             chamber->continue_sending(true);
@@ -447,7 +447,7 @@ RUdpCommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgo
                                      const std::shared_ptr<RUdpChannel> &channel)
 {
     outgoing_data_total_ +=
-        command_sizes.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
+        COMMAND_SIZES.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
 
     if (channel == nullptr)
     {
