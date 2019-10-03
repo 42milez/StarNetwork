@@ -60,7 +60,7 @@ public:
     inline void
     UpdateServiceTime() {
         service_time_ = RUdpTime::Get();
-        core::Singleton<core::Logger>::Instance().Debug("service time updated: {0}", service_time_);
+        core::Singleton<core::Logger>::Instance().Debug("Updated service time: {0}", service_time_);
     }
 
 public:

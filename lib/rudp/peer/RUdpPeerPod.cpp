@@ -246,12 +246,18 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
 
             auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
+
             if (cmd_number >= static_cast<uint8_t>(RUdpProtocolCommand::COUNT))
                 break;
 
             auto cmd_size = COMMAND_SIZES.at(cmd_number);
             if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
                 break;
+
+#ifdef DEBUG
+            core::Singleton<core::Logger>::Instance().Debug("Received a command: {0}",
+                                                            COMMANDS_AS_STRING.at(cmd_number));
+#endif
 
             current_data += cmd_size;
 

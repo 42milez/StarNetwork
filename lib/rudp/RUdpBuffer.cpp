@@ -43,55 +43,19 @@ std::string
 RUdpBuffer::ProtocolCommandAsString()
 {
     if (data_.index() != static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
-        return "not command";
+        return "NOT A COMMAND";
 
     auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(data_);
 
     if (protocol == nullptr)
-        return "invalid command";
+        return "INVALID COMMAND";
 
     auto cmd_number = protocol->header.command & PROTOCOL_COMMAND_MASK;
 
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::NONE))
-        return "none";
+    if (COMMANDS_AS_STRING.size() <= cmd_number)
+        return "UNKNOWN COMMAND";
 
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE))
-        return "acknowledge";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
-        return "connect";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT))
-        return "verify_connect";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
-        return "disconnect";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
-        return "ping";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
-        return "send_reliable";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE))
-        return "send_unreliable";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT))
-        return "send_fragment";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
-        return "send_unsequenced";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT))
-        return "bandwidth_limit";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::THROTTLE_CONFIGURE))
-        return "throttle_configure";
-
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT))
-        return "send_unreliable_fragment";
-
-    return "unknown command";
+    return COMMANDS_AS_STRING.at(cmd_number);
 }
 
 VecUInt8It
@@ -106,7 +70,7 @@ RUdpBuffer::CopyTo(VecUInt8It it)
             memcpy(&(*it), &(*protocol), size_);
 
 #ifdef DEBUG
-            core::Singleton<core::Logger>::Instance().Debug("a command was copied to the buffer: {0}",
+            core::Singleton<core::Logger>::Instance().Debug("Copied a command to the buffer: {0}",
                                                             ProtocolCommandAsString());
 #endif
         }

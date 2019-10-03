@@ -1,7 +1,43 @@
 #ifndef P2P_TECHDEMO_RUDPCONST_H
 #define P2P_TECHDEMO_RUDPCONST_H
 
+#include <array>
 #include <cstdint>
+
+#include "lib/rudp/protocol/RUdpProtocolType.h"
+
+constexpr std::array<size_t, 13> COMMAND_SIZES{
+    0,
+    sizeof(RUdpProtocolAcknowledge),
+    sizeof(RUdpProtocolConnect),
+    sizeof(RUdpProtocolVerifyConnect),
+    sizeof(RUdpProtocolDisconnect),
+    sizeof(RUdpProtocolPing),
+    sizeof(RUdpProtocolSendReliable),
+    sizeof(RUdpProtocolSendUnreliable),
+    sizeof(RUdpProtocolSendFragment),
+    sizeof(RUdpProtocolSendUnsequenced),
+    sizeof(RUdpProtocolBandwidthLimit),
+    sizeof(RUdpProtocolThrottleConfigure),
+    sizeof(RUdpProtocolSendFragment)
+};
+
+constexpr std::array<const char *, 14> COMMANDS_AS_STRING{
+    "NONE",
+    "ACKNOWLEDGE",
+    "CONNECT",
+    "VERIFY_CONNECT",
+    "DISCONNECT",
+    "PING",
+    "SEND_RELIABLE",
+    "SEND_UNRELIABLE",
+    "SEND_FRAGMENT",
+    "SEND_UNSEQUENCED",
+    "BANDWIDTH_LIMIT",
+    "THROTTLE_CONFIGURE",
+    "SEND_UNRELIABLE_FRAGMENT",
+    "COUNT"
+};
 
 //  Host
 // --------------------------------------------------
