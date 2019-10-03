@@ -64,13 +64,11 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(server_event, 0);
-
     usleep(SLEEP_DURATION);
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
-
     usleep(SLEEP_DURATION);
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
