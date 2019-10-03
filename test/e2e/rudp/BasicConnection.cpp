@@ -226,6 +226,20 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
 
     peer1->Service(peer1_event, 0);
 
+    usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[PEER 2]");
+
+    Service(peer2_event, 0);
+
+    usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[PEER 1]");
+
+    peer1->Service(peer1_event, 0);
+
     REQUIRE(peer1->PeerState(0) == RUdpPeerState::DISCONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
 }
