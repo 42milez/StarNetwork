@@ -9,6 +9,15 @@
 #include "core/singleton.h"
 #include "lib/rudp/RUdpHost.h"
 
+namespace
+{
+    void
+    LOG(const std::string &message)
+    {
+        core::Singleton<core::Logger>::Instance().Debug(message);
+    }
+}
+
 class ServerIPv4Fixture
 {
 public:
@@ -45,33 +54,48 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
 
     const auto SLEEP_DURATION = 100 * 1000; // millisecond
 
+    auto client_event = std::make_unique<RUdpEvent>();
+    auto server_event = std::make_unique<RUdpEvent>();
+
     // ==================================================
     //  Step 1 : Connect to the server
     // ==================================================
 
-    std::unique_ptr<RUdpEvent> client_event = std::make_unique<RUdpEvent>();
+    LOG("[CLIENT]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Connect(server_address, SysCh::MAX, 0);
 
     // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
 
-    std::unique_ptr<RUdpEvent> server_event = std::make_unique<RUdpEvent>();
+    LOG("");
+    LOG("[SERVER]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(server_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[CLIENT]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
 
+    LOG("");
+    LOG("[SERVER]");
+
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
+    // [Queue] PROTOCOL_COMMAND_BANDWIDTH_LIMIT
+    // [Send]  PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     Service(server_event, 0);
 
     REQUIRE(client->PeerState(0) == RUdpPeerState::CONNECTED);
@@ -81,14 +105,38 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectNow() )
     // ==================================================
 
+    LOG("");
+    LOG("[CLIENT]");
+
+    // [Queue] PROTOCOL_COMMAND_PING
+    // [Queue] PROTOCOL_COMMAND_DISCONNECT
+    // [Send]  PROTOCOL_COMMAND_PING
+    // [Send]  PROTOCOL_COMMAND_DISCONNECT
     client->DisconnectNow(client_event->peer(), 0);
+
     usleep(SLEEP_DURATION);
 
+    LOG("");
+    LOG("[SERVER]");
+
+    // [Receive] PROTOCOL_COMMAND_PING
+    // [Receive] PROTOCOL_COMMAND_DISCONNECT
+    // [Queue]   PROTOCOL_COMMAND_BANDWIDTH
+    // [Send]    PROTOCOL_COMMAND_BANDWIDTH
     Service(server_event, 0);
+
     usleep(SLEEP_DURATION);
 
+    LOG("");
+    LOG("[CLIENT]");
+
+    // [Receive] PROTOCOL_COMMAND_BANDWIDTH
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[SERVER]");
 
     Service(server_event, 0);
 
@@ -116,22 +164,37 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     //  Step 1 : Connect to the server
     // ==================================================
 
+    LOG("");
+    LOG("[CLIENT]");
+
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // [Send]  PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     client->Connect(server_address, SysCh::MAX, 0);
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[SERVER]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(server_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[CLIENT]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[SERVER]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     Service(server_event, 0);
@@ -143,12 +206,23 @@ TEST_CASE_METHOD(ServerIPv4Fixture, "Connect to the server and disconnect from t
     //  Step 2 : Disconnect from the server ( use RUdpHost::DisconnectLater() )
     // ==================================================
 
+    LOG("");
+    LOG("[CLIENT]");
+
     client->DisconnectLater(client_event->peer(), 0);
     client->Service(client_event, 0);
+
     usleep(SLEEP_DURATION);
 
+    LOG("");
+    LOG("[SERVER]");
+
     Service(server_event, 0);
+
     usleep(SLEEP_DURATION);
+
+    LOG("");
+    LOG("[CLIENT]");
 
     client->Service(client_event, 0);
 
