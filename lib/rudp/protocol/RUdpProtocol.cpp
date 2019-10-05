@@ -365,6 +365,12 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 Error
+RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data)
+{
+    return Error::OK;
+}
+
+Error
 RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                                   const RUdpProtocolType *cmd)
 {

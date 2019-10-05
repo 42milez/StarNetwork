@@ -244,7 +244,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 break;
 
             auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
-
             auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
 
             if (cmd_number >= static_cast<uint8_t>(RUdpProtocolCommand::COUNT))
@@ -273,16 +272,12 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 };
 
                 if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == Error::ERROR)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
             {
                 if (peer)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
 
                 auto duplicate_peers = 0;
 
@@ -293,7 +288,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                     if (net->StateIs(RUdpPeerState::DISCONNECTED))
                     {
                         peer = p;
-
                         break;
                     }
                     else if (net->StateIs(RUdpPeerState::CONNECTING) && p->Address() == received_address_)
@@ -301,7 +295,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                         if (p->connect_id() == cmd->connect.connect_id)
                         {
                             peer = nullptr;
-
                             break;
                         }
 
@@ -310,9 +303,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
                 }
 
                 if (peer == nullptr || duplicate_peers >= duplicate_peers_)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
 
                 protocol_->HandleConnect(peer,
                                          header,
@@ -324,29 +315,22 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT))
             {
                 if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             {
                 if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
             {
                 if (protocol_->HandlePing(peer) == Error::ERROR)
-                {
-                    IS_EVENT_AVAILABLE()
-                }
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
             {
-                // TODO:
-//                if (protocol_->HandleSendReliable(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                if (protocol_->HandleSendReliable(peer, cmd, current_data) == Error::ERROR)
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE))
             {

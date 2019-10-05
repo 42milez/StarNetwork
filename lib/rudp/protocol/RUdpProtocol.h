@@ -35,6 +35,9 @@ public:
     static Error
     HandlePing(const std::shared_ptr<RUdpPeer> &peer);
 
+    Error
+    HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data);
+
     Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                               const RUdpProtocolType *cmd);
 
