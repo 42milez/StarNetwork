@@ -250,6 +250,12 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
     acknowledgements_.push_back(ack);
 }
 
+std::shared_ptr<RUdpIncomingCommand>
+RUdpPeer::QueueIncomingCommand()
+{
+    return nullptr;
+}
+
 // TODO: Is segment necessary as an argument?
 void
 RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,

@@ -50,17 +50,37 @@ RUdpPeerPod::AvailablePeer()
     return nullptr;
 }
 
-#define IS_EVENT_TYPE_NONE() \
+#define IS_EVENT_TYPE_NONE()                   \
     if (event->TypeIsNot(RUdpEventType::NONE)) \
         return EventStatus::AN_EVENT_OCCURRED; \
-    else \
+    else                                       \
         continue;
 
-#define IS_EVENT_AVAILABLE() \
+#define IS_EVENT_AVAILABLE()                                       \
     if (event != nullptr && event->TypeIsNot(RUdpEventType::NONE)) \
-        return EventStatus::AN_EVENT_OCCURRED;                  \
-    else                                                        \
+        return EventStatus::AN_EVENT_OCCURRED;                     \
+    else                                                           \
         return EventStatus::NO_EVENT_OCCURRED;
+
+#define EXCEEDS_CHANNEL_COUNT()                                                                          \
+    auto &net = peer->net();                                                                             \
+                                                                                                         \
+    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||                                             \
+        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER))) \
+    {                                                                                                    \
+        IS_EVENT_AVAILABLE()                                                                             \
+    }
+
+#define EXCEEDS_RECEIVED_LENGTH()                              \
+    auto data_length = ntohs(cmd->send_reliable.data_length);  \
+    auto pos = current_data + data_length;                     \
+                                                               \
+    if ((data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||   \
+        pos < received_data_->begin() ||                       \
+        pos > received_data_->begin() + received_data_length_) \
+    {                                                          \
+        IS_EVENT_AVAILABLE()                                   \
+    }
 
 Error
 RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
@@ -329,6 +349,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
             {
+                EXCEEDS_CHANNEL_COUNT()
+                EXCEEDS_RECEIVED_LENGTH()
+
                 if (protocol_->HandleSendReliable(peer, cmd, current_data) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }

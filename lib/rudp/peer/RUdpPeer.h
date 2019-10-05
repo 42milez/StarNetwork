@@ -40,6 +40,9 @@ public:
     void
     QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time);
 
+    std::shared_ptr<RUdpIncomingCommand>
+    QueueIncomingCommand();
+
     void
     QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
                          uint32_t offset, uint16_t length);
@@ -94,6 +97,9 @@ public:
 
     inline bool
     DispatchedCommandExists() { return !dispatched_commands_.empty(); }
+
+    inline bool
+    ExceedsChannelCount(uint8_t val) { return val >= channels_.size(); }
 
     inline bool
     ExceedsPingInterval(uint32_t service_time) { return UDP_TIME_DIFFERENCE(service_time, last_receive_time_) >= ping_interval_; }
