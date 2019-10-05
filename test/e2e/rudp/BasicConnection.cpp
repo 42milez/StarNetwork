@@ -13,9 +13,7 @@ namespace
 {
     void
     LOG(const std::string &message)
-    {
-        core::Singleton<core::Logger>::Instance().Debug(message);
-    }
+    { core::Singleton<core::Logger>::Instance().Debug(message); }
 }
 
 class Peer2IPv4Fixture
@@ -25,9 +23,7 @@ public:
     {
         RUdpAddress address;
         address.port(8888);
-
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
-
         core::Singleton<core::Logger>::Instance().Init("BasicConnection");
     }
 
@@ -68,7 +64,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
 
     // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -78,7 +73,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(peer2_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -87,7 +81,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -113,7 +106,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Send]  PROTOCOL_COMMAND_PING
     // [Send]  PROTOCOL_COMMAND_DISCONNECT
     peer1->DisconnectNow(peer1_event->peer(), 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -124,7 +116,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Queue]   PROTOCOL_COMMAND_BANDWIDTH
     // [Send]    PROTOCOL_COMMAND_BANDWIDTH
     Service(peer2_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -132,7 +123,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
 
     // [Receive] PROTOCOL_COMMAND_BANDWIDTH
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -171,7 +161,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Send]  PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Connect(peer2_address, SysCh::MAX, 0);
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -181,7 +170,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(peer2_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -190,7 +178,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
@@ -211,28 +198,24 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
 
     peer1->DisconnectLater(peer1_event->peer(), 0);
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
     LOG("[PEER 2]");
 
     Service(peer2_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
     LOG("[PEER 1]");
 
     peer1->Service(peer1_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
     LOG("[PEER 2]");
 
     Service(peer2_event, 0);
-
     usleep(SLEEP_DURATION);
 
     LOG("");
