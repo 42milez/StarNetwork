@@ -24,25 +24,26 @@ public:
     AvailablePeer();
 
     Error
-    Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
 
     Error
-    DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
 
     Error
-    DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data);
+    DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
 
     void
-    Flush();
+    Flush(ChecksumCallback checksum);
 
     EventStatus
-    ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+    ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, ChecksumCallback checksum);
 
     void
-    RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
+    RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum);
 
     EventStatus
-    SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts);
+    SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts,
+                         ChecksumCallback checksum);
 
     inline void
     BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth)
@@ -64,6 +65,9 @@ public:
     }
 
 public:
+    inline const std::vector<std::shared_ptr<RUdpPeer>> &
+    peers() { return peers_; }
+
     inline uint32_t
     service_time() { return service_time_; }
 
@@ -76,7 +80,6 @@ private:
     VecUInt8 segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
     VecUInt8 segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
 
-    ChecksumCallback checksum_;
     InterceptCallback intercept_;
     RUdpAddress received_address_;
 

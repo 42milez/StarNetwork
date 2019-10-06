@@ -14,6 +14,9 @@ public:
     RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
              uint32_t out_bandwidth);
 
+    void
+    Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment);
+
     Error
     Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data);
 
@@ -24,10 +27,12 @@ public:
     Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
     inline Error
-    DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data) { return peer_pod_->DisconnectNow(peer, data); }
+    DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+    { return peer_pod_->DisconnectNow(peer, data, checksum_); }
 
     inline Error
-    DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data) { return peer_pod_->DisconnectLater(peer, data); }
+    DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+    { return peer_pod_->DisconnectLater(peer, data, checksum_); }
 
     inline RUdpPeerState
     PeerState(size_t idx) { return peer_pod_->Peer(idx)->net()->state(); }
@@ -40,6 +45,7 @@ private:
     std::shared_ptr<RUdpConnection> conn_;
     std::unique_ptr<RUdpPeerPod> peer_pod_;
 
+    ChecksumCallback checksum_;
     SysCh channel_count_;
 
     size_t maximum_segment_size_;

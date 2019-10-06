@@ -8,6 +8,7 @@
 RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count,
                    uint32_t in_bandwidth, uint32_t out_bandwidth)
     : channel_count_(channel_count),
+      checksum_(),
       conn_(std::make_shared<RUdpConnection>(address)),
       incoming_bandwidth_(in_bandwidth),
       maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
@@ -21,6 +22,22 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
     }
 
     peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_, incoming_bandwidth_, outgoing_bandwidth_);
+}
+
+void
+RUdpHost::Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+{
+    auto &peers = peer_pod_->peers();
+
+    for (auto &peer : peers)
+    {
+        auto &net = peer->net();
+
+        if (net->StateIsNot(RUdpPeerState::CONNECTED))
+            continue;
+
+        peer->Send(ch, segment, checksum_);
+    }
 }
 
 /** Initiates a connection to a foreign host.
@@ -104,17 +121,17 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     do {
         peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
 
-        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
 
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
 
-        ret = peer_pod_->ReceiveIncomingCommands(event);
+        ret = peer_pod_->ReceiveIncomingCommands(event, checksum_);
 
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
 
-        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true);
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
 
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
@@ -151,5 +168,5 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
 void
 RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
 {
-    peer_pod_->RequestPeerRemoval(peer_idx, peer);
+    peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
 }

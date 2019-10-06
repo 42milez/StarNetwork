@@ -299,7 +299,7 @@ RUdpPeer::Receive()
 }
 
 Error
-RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool checksum)
+RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCallback checksum)
 {
     if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
         static_cast<uint32_t>(ch) >= channels_.size() ||

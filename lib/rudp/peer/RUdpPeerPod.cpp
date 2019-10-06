@@ -5,8 +5,7 @@
 
 RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn, uint32_t host_incoming_bandwidth,
                          uint32_t host_outgoing_bandwidth)
-    : checksum_(),
-      compressor_(std::make_shared<RUdpCompress>()),
+    : compressor_(std::make_shared<RUdpCompress>()),
       conn_(conn),
       duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
       host_incoming_bandwidth_(host_incoming_bandwidth),
@@ -83,7 +82,7 @@ RUdpPeerPod::AvailablePeer()
     }
 
 Error
-RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
 {
     auto &net = peer->net();
 
@@ -116,7 +115,7 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
     }
     else
     {
-        Flush();
+        Flush(checksum);
         peer->Reset();
     }
 
@@ -124,7 +123,7 @@ RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 }
 
 Error
-RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
 {
     auto &net = peer->net();
     auto &cmd_pod = peer->command_pod();
@@ -139,14 +138,14 @@ RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t dat
     }
     else
     {
-        Disconnect(peer, data);
+        Disconnect(peer, data, checksum);
     }
 
     return Error::OK;
 }
 
 Error
-RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
 {
     auto &net = peer->net();
 
@@ -166,7 +165,7 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 
         peer->QueueOutgoingCommand(cmd, nullptr, 0);
 
-        Flush();
+        Flush(checksum);
     }
 
     peer->Reset();
@@ -175,15 +174,15 @@ RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
 }
 
 void
-RUdpPeerPod::Flush()
+RUdpPeerPod::Flush(ChecksumCallback checksum)
 {
     UpdateServiceTime();
 
-    SendOutgoingCommands(nullptr, service_time_, false);
+    SendOutgoingCommands(nullptr, service_time_, false, checksum);
 }
 
 EventStatus
-RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
+RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, ChecksumCallback checksum)
 {
     for (auto i = 0; i < 256; ++i)
     {
@@ -219,7 +218,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
         peer_id &= ~(static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK) | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK));
 
-        if (checksum_)
+        if (checksum)
             header_size += sizeof(uint32_t);
 
         std::shared_ptr<RUdpPeer> peer;
@@ -245,7 +244,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             // ...
         }
 
-        if (checksum_)
+        if (checksum)
         {
             // ...
         }
@@ -287,8 +286,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
             if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE))
             {
-                auto disconnect = [this](std::shared_ptr<RUdpPeer> &peer){
-                    Disconnect(peer, peer->event_data());
+                auto disconnect = [this, checksum](std::shared_ptr<RUdpPeer> &peer){
+                    Disconnect(peer, peer->event_data(), checksum);
                 };
 
                 if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == Error::ERROR)
@@ -428,20 +427,21 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 void
-RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
+RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum)
 {
     std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
 
     segment->AddSysMsg(SysMsg::REMOVE_PEER);
     segment->AddPeerIdx(peer_idx);
 
-    peer->Send(SysCh::CONFIG, segment, checksum_ != nullptr);
+    peer->Send(SysCh::CONFIG, segment, checksum);
 }
 
 EventStatus
 RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                                   uint32_t service_time,
-                                  bool check_for_timeouts)
+                                  bool check_for_timeouts,
+                                  ChecksumCallback checksum)
 {
     auto header_data = std::make_shared<VecUInt8>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
     auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
@@ -551,7 +551,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             header->peer_id = htons(peer->outgoing_peer_id() | protocol_->chamber()->header_flags());
 
-            if (checksum_ != nullptr)
+            if (checksum != nullptr)
             {
                 // ...
             }

@@ -13,6 +13,7 @@
 #include "lib/rudp/RUdpAddress.h"
 #include "lib/rudp/RUdpChamber.h"
 #include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/RUdpChecksum.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "RUdpPeerNet.h"
 #include "lib/rudp/RUdpSegment.h"
@@ -63,7 +64,7 @@ public:
     ResetPeerQueues();
 
     Error
-    Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool checksum);
+    Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCallback checksum);
 
     Error
     Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
