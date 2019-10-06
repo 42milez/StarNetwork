@@ -367,7 +367,11 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
         {
             command_pod_->SetupOutgoingCommand(f, channels_.at(f->header_channel_id()));
         }
+
+        return Error::OK;
     }
+
+    
 
     return Error::OK;
 }
