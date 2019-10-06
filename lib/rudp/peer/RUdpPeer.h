@@ -22,8 +22,8 @@ class RUdpPeer
 public:
     RUdpPeer();
 
-    void ClearDispatchedCommandQueue();
-    void Ping();
+    void
+    ClearDispatchedCommandQueue();
 
     bool
     EventOccur(const RUdpAddress &address, uint8_t session_id);
@@ -33,6 +33,9 @@ public:
 
     bool
     LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
+
+    void
+    Ping();
 
     std::shared_ptr<RUdpAcknowledgement>
     PopAcknowledgement();
