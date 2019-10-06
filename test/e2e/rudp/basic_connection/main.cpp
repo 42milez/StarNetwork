@@ -11,9 +11,9 @@
 
 namespace
 {
-    void
-    LOG(const std::string &message)
-    { core::Singleton<core::Logger>::Instance().Debug(message); }
+void
+LOG(const std::string &message)
+{ core::Singleton<core::Logger>::Instance().Debug(message); }
 }
 
 class Peer2IPv4Fixture

@@ -60,6 +60,7 @@ add_subdirectory(app/session)
 
 #  Directories (Tests)
 # --------------------------------------------------
-add_subdirectory(test/e2e/rudp)
+add_subdirectory(test/e2e/rudp/basic_connection)
+add_subdirectory(test/e2e/rudp/broadcast)
 add_subdirectory(test/unit/core/io)
 add_subdirectory(test/unit/module)
