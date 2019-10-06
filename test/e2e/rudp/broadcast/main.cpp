@@ -113,6 +113,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("[PEER 1]");
 
     peer1->Broadcast(SysCh::CONFIG, segment);
+    peer1->Service(peer1_event, 0);
 
     // ==================================================
     //  Step 3 : Broadcast (from peer2 )
