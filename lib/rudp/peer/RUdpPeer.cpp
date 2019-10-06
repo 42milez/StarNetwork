@@ -63,7 +63,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 
     //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
-    QueueOutgoingCommand(cmd, nullptr, 0, 0);
+    QueueOutgoingCommand(cmd, nullptr, 0);
 
     return Error::OK;
 }
@@ -197,7 +197,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     verify_cmd->verify_connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
     verify_cmd->verify_connect.connect_id = connect_id_;
 
-    QueueOutgoingCommand(verify_cmd, nullptr, 0, 0);
+    QueueOutgoingCommand(verify_cmd, nullptr, 0);
 }
 
 void
@@ -212,7 +212,7 @@ RUdpPeer::Ping()
                           static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
     cmd->header.channel_id = 0xFF;
 
-    QueueOutgoingCommand(cmd, nullptr, 0, 0);
+    QueueOutgoingCommand(cmd, nullptr, 0);
 
 #ifdef DEBUG
     auto host = address_.host();
@@ -259,14 +259,22 @@ RUdpPeer::QueueIncomingCommand()
 // TODO: Is segment necessary as an argument?
 void
 RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
-                               const std::shared_ptr<RUdpSegment> &segment, uint32_t offset, uint16_t length)
+                               const std::shared_ptr<RUdpSegment> &segment, uint32_t offset)
 {
     std::shared_ptr<RUdpOutgoingCommand> outgoing_command = std::make_shared<RUdpOutgoingCommand>();
 
     outgoing_command->command(protocol_type);
-    outgoing_command->segment(segment);
-    outgoing_command->fragment_length(length);
     outgoing_command->fragment_offset(offset);
+
+    if (segment)
+    {
+        outgoing_command->segment(segment);
+        outgoing_command->fragment_length(segment->DataLength());
+    }
+    else
+    {
+        outgoing_command->fragment_length(0);
+    }
 
     auto channel_id = protocol_type->header.channel_id;
 
@@ -371,7 +379,30 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
         return Error::OK;
     }
 
-    
+    auto cmd = std::make_shared<RUdpProtocolType>();
+
+    if ((segment->flags() & (static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE) |
+                             static_cast<uint16_t>(RUdpSegmentFlag::UNSEQUENCED))
+        ) == static_cast<uint16_t>(RUdpSegmentFlag::UNSEQUENCED))
+    {
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED) |
+                              static_cast<uint8_t>(RUdpProtocolFlag ::COMMAND_UNSEQUENCED);
+        cmd->send_unsequenced.data_length = htons(segment->DataLength());
+    }
+    else if (segment->flags() & static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE) ||
+             channel->outgoing_unreliable_sequence_number() >= 0xFFFF)
+    {
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE) |
+                              static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE);
+        cmd->send_reliable.data_length = htons(segment->DataLength());
+    }
+    else
+    {
+        cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE);
+        cmd->send_unreliable.data_length = htons(segment->DataLength());
+    }
+
+    //if (QueueOutgoingCommand(cmd, segment, 0, segment->DataLength()))
 
     return Error::OK;
 }

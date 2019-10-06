@@ -48,7 +48,7 @@ public:
 
     void
     QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
-                         uint32_t offset, uint16_t length);
+                         uint32_t offset);
 
     std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>
     Receive();

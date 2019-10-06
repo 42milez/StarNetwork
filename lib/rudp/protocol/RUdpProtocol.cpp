@@ -181,7 +181,7 @@ RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwid
                 else
                     cmd->bandwidth_limit.incoming_bandwidth = htonl(bandwidth_limit);
 
-                peer->QueueOutgoingCommand(cmd, nullptr, 0, 0);
+                peer->QueueOutgoingCommand(cmd, nullptr, 0);
             }
         }
     }
