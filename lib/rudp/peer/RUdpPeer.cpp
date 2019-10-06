@@ -402,7 +402,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, bool check
         cmd->send_unreliable.data_length = htons(segment->DataLength());
     }
 
-    //if (QueueOutgoingCommand(cmd, segment, 0, segment->DataLength()))
+    QueueOutgoingCommand(cmd, segment, 0);
 
     return Error::OK;
 }
