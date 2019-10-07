@@ -93,8 +93,8 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("[PEER 2]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
-    // [Queue] PROTOCOL_COMMAND_BANDWIDTH_LIMIT
-    // [Send]  PROTOCOL_COMMAND_BANDWIDTH_LIMIT
+    // [Queue]   PROTOCOL_COMMAND_BANDWIDTH_LIMIT
+    // [Send]    PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     Service(peer2_event, 0);
 
     REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
