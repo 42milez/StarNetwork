@@ -69,7 +69,7 @@ RUdpBuffer::CopyTo(VecUInt8It it)
         {
             memcpy(&(*it), &(*protocol), size_);
 
-            core::Singleton<core::Logger>::Instance().Debug("Copied a command to the buffer: {0}",
+            core::Singleton<core::Logger>::Instance().Debug("Copied command to the buffer: {0}",
                                                             ProtocolCommandAsString());
         }
 
