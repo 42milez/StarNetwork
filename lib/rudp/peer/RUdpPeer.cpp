@@ -213,11 +213,6 @@ RUdpPeer::Ping()
     cmd->header.channel_id = 0xFF;
 
     QueueOutgoingCommand(cmd, nullptr, 0);
-
-    auto host = address_.host();
-    auto port = address_.port();
-    core::Singleton<core::Logger>::Instance().Debug("Queued ping command: {0}.{1}.{2}.{3}:{4}",
-                                                    host.at(12), host.at(13), host.at(14), host.at(15), port);
 }
 
 void
@@ -246,11 +241,15 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
     ack->command(*cmd);
 
     acknowledgements_.push_back(ack);
+
+    core::Singleton<core::Logger>::Instance().Debug("Queued command: ACKNOWLEDGE");
 }
 
 std::shared_ptr<RUdpIncomingCommand>
 RUdpPeer::QueueIncomingCommand()
 {
+    //core::Singleton<core::Logger>::Instance().Debug("Queued command: **********");
+
     return nullptr;
 }
 
@@ -275,11 +274,25 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     }
 
     auto channel_id = protocol_type->header.channel_id;
+    auto channel = nullptr;
+    auto cmd_number = outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK;
 
     if (channel_id < channels_.size())
-        command_pod_->SetupOutgoingCommand(outgoing_command, channels_.at(channel_id));
+        channels_.at(channel_id);
+
+    command_pod_->SetupOutgoingCommand(outgoing_command, channel);
+
+    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
+    {
+        auto host = address_.host();
+        auto port = address_.port();
+        core::Singleton<core::Logger>::Instance().Debug("[command was queued] PING {0}.{1}.{2}.{3}:{4}",
+                                                        host.at(12), host.at(13), host.at(14), host.at(15), port);
+    }
     else
-        command_pod_->SetupOutgoingCommand(outgoing_command, nullptr);
+    {
+        core::Singleton<core::Logger>::Instance().Debug("[command was queued] {0}", COMMANDS_AS_STRING.at(cmd_number));
+    }
 }
 
 std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>

@@ -68,17 +68,20 @@ RUdpBuffer::CopyTo(VecUInt8It it)
         if (protocol)
         {
             memcpy(&(*it), &(*protocol), size_);
-            core::Singleton<core::Logger>::Instance().Debug("Copied command to the buffer: {0}",
+            core::Singleton<core::Logger>::Instance().Debug("[command was copied to the buffer] {0}",
                                                             ProtocolCommandAsString());
         }
 
         return it + size_;
     }
 
-    auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SharedPtr)>(data_);
+    auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8SharedPtr)>(data_);
 
     if (size_ > 0)
-        memcpy(&(*it), &(data->at(0)), size_);
+    {
+        memcpy(&(*it), &(payload->at(0)), size_);
+        core::Singleton<core::Logger>::Instance().Debug("[payload was copied to the buffer]");
+    }
 
     return it + size_;
 }

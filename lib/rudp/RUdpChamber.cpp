@@ -1,5 +1,7 @@
 #include <algorithm>
 
+#include "core/logger.h"
+#include "core/singleton.h"
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "RUdpChamber.h"
 
@@ -80,6 +82,8 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
 int
 RUdpChamber::Write(VecUInt8 &out)
 {
+    core::Singleton<core::Logger>::Instance().Debug("[buffer count] {0}", buffer_count_);
+
     auto size = 0;
 
     for (auto &buf : buffers_)
