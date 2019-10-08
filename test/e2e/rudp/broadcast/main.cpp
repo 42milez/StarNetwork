@@ -63,7 +63,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     //  Step 1 : peer1 sends CONNECT command to peer2
     // ==================================================
 
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (1)]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Connect(peer2_address, SysCh::MAX, 0);
@@ -73,7 +73,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (2)]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
@@ -82,7 +82,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (3)]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
@@ -90,7 +90,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (4)]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // [Queue]   PROTOCOL_COMMAND_BANDWIDTH_LIMIT
@@ -110,9 +110,19 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     auto segment = std::make_shared<RUdpSegment>(data, flags);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (5)]");
 
     peer1->Broadcast(SysCh::CONFIG, segment);
+    peer1->Service(peer1_event, 0);
+
+    LOG("");
+    LOG("[PEER 2 (6)]");
+
+    Service(peer2_event, 0);
+
+    LOG("");
+    LOG("[PEER 1 (7)]");
+
     peer1->Service(peer1_event, 0);
 
     REQUIRE(true);

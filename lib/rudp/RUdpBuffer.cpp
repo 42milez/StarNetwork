@@ -79,7 +79,9 @@ RUdpBuffer::CopyTo(VecUInt8It it)
     }
 
     auto data = std::get<static_cast<int>(BufferVariant::VecUInt8SharedPtr)>(data_);
-    memcpy(&(*it), &(data->at(0)), size_);
+
+    if (size_ > 0)
+        memcpy(&(*it), &(data->at(0)), size_);
 
     return it + size_;
 }
