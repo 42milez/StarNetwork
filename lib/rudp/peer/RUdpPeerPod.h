@@ -60,8 +60,13 @@ public:
 
     inline void
     UpdateServiceTime() {
+        prev_service_time_ = service_time_;
         service_time_ = RUdpTime::Get();
-        core::Singleton<core::Logger>::Instance().Debug("Updated service time: {0}", service_time_);
+#ifdef DEBUG
+        core::Singleton<core::Logger>::Instance().Debug("Updated service time: {0} ({1})",
+                                                        service_time_,
+                                                        service_time_ - prev_service_time_);
+#endif
     }
 
 public:
@@ -89,6 +94,7 @@ private:
 
     uint32_t host_incoming_bandwidth_;
     uint32_t host_outgoing_bandwidth_;
+    uint32_t prev_service_time_;
     uint32_t service_time_;
     uint32_t total_received_data_;
     uint32_t total_received_segments_;

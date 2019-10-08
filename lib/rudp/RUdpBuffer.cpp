@@ -53,7 +53,7 @@ RUdpBuffer::ProtocolCommandAsString()
     auto cmd_number = protocol->header.command & PROTOCOL_COMMAND_MASK;
 
     if (COMMANDS_AS_STRING.size() <= cmd_number)
-        return "UNKNOWN COMMAND";
+        return "INVALID COMMAND";
 
     return COMMANDS_AS_STRING.at(cmd_number);
 }

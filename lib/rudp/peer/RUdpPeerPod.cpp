@@ -12,6 +12,7 @@ RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &con
       host_outgoing_bandwidth_(host_outgoing_bandwidth),
       intercept_(),
       peer_count_(peer_count),
+      prev_service_time_(),
       protocol_(std::make_unique<RUdpProtocol>()),
       received_address_(),
       received_data_(),
