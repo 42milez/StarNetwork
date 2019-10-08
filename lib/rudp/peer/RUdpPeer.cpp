@@ -242,7 +242,7 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
 
     acknowledgements_.push_back(ack);
 
-    core::Singleton<core::Logger>::Instance().Debug("Queued command: ACKNOWLEDGE");
+    core::Singleton<core::Logger>::Instance().Debug("command was queued: ACKNOWLEDGE");
 }
 
 std::shared_ptr<RUdpIncomingCommand>
@@ -286,12 +286,12 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     {
         auto host = address_.host();
         auto port = address_.port();
-        core::Singleton<core::Logger>::Instance().Debug("[command was queued] PING {0}.{1}.{2}.{3}:{4}",
+        core::Singleton<core::Logger>::Instance().Debug("command was queued: PING {0}.{1}.{2}.{3}:{4}",
                                                         host.at(12), host.at(13), host.at(14), host.at(15), port);
     }
     else
     {
-        core::Singleton<core::Logger>::Instance().Debug("[command was queued] {0}", COMMANDS_AS_STRING.at(cmd_number));
+        core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}", COMMANDS_AS_STRING.at(cmd_number));
     }
 }
 

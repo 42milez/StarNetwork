@@ -82,7 +82,7 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
 int
 RUdpChamber::Write(VecUInt8 &out)
 {
-    core::Singleton<core::Logger>::Instance().Debug("[buffer count] {0}", buffer_count_);
+    core::Singleton<core::Logger>::Instance().Debug("buffer count {0}", buffer_count_);
 
     auto size = 0;
 

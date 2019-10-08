@@ -68,7 +68,7 @@ RUdpBuffer::CopyTo(VecUInt8It it)
         if (protocol)
         {
             memcpy(&(*it), &(*protocol), size_);
-            core::Singleton<core::Logger>::Instance().Debug("[command was copied to the buffer] {0}",
+            core::Singleton<core::Logger>::Instance().Debug("command was copied to the buffer {0}",
                                                             ProtocolCommandAsString());
         }
 
@@ -80,7 +80,7 @@ RUdpBuffer::CopyTo(VecUInt8It it)
     if (size_ > 0)
     {
         memcpy(&(*it), &(payload->at(0)), size_);
-        core::Singleton<core::Logger>::Instance().Debug("[payload was copied to the buffer]");
+        core::Singleton<core::Logger>::Instance().Debug("payload was copied to the buffer");
     }
 
     return it + size_;
