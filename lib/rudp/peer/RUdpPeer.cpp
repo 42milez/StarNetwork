@@ -214,12 +214,10 @@ RUdpPeer::Ping()
 
     QueueOutgoingCommand(cmd, nullptr, 0);
 
-#ifdef DEBUG
     auto host = address_.host();
     auto port = address_.port();
     core::Singleton<core::Logger>::Instance().Debug("Queued a ping command: {0}.{1}.{2}.{3}:{4}",
                                                     host.at(12), host.at(13), host.at(14), host.at(15), port);
-#endif
 }
 
 void

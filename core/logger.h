@@ -8,6 +8,8 @@ namespace core
 class Logger
 {
 public:
+    Logger();
+
     bool
     Init(const std::string &logger_name);
 
@@ -16,7 +18,7 @@ public:
 
     template<class... Args>
     inline void
-    Debug(Args... args) { file_ ? file_->debug(args...) : spdlog::get("stdout")->debug(args...); };
+    Debug(Args... args) { if (debug_) file_ ? file_->debug(args...) : spdlog::get("stdout")->debug(args...); };
 
     template<class... Args>
     inline void
@@ -36,6 +38,8 @@ public:
 
 private:
     std::shared_ptr<spdlog::logger> file_;
+
+    bool debug_;
 };
 } // namespace core
 

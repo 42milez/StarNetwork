@@ -9,6 +9,8 @@
 
 namespace core
 {
+Logger::Logger() : debug_() {}
+
 bool
 Logger::Init(const std::string &logger_name)
 {
@@ -25,6 +27,7 @@ Logger::Init(const std::string &logger_name)
 #ifdef DEBUG
     spdlog::set_level(spdlog::level::debug);
     spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
+    debug_ = true;
 #else
     spdlog::set_level(spdlog::level::info);
     spdlog::set_pattern("[%H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");

@@ -62,11 +62,9 @@ public:
     UpdateServiceTime() {
         prev_service_time_ = service_time_;
         service_time_ = RUdpTime::Get();
-#ifdef DEBUG
         core::Singleton<core::Logger>::Instance().Debug("Updated service time: {0} ({1})",
                                                         service_time_,
                                                         service_time_ - prev_service_time_);
-#endif
     }
 
 public:

@@ -273,10 +273,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
                 break;
 
-#ifdef DEBUG
             core::Singleton<core::Logger>::Instance().Debug("Received a command: {0}",
                                                             COMMANDS_AS_STRING.at(cmd_number));
-#endif
 
             current_data += cmd_size;
 
