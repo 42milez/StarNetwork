@@ -11,7 +11,7 @@ RUdpProtocol::RUdpProtocol() :
 {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
-    !peer->net()->StateIs(RUdpPeerState::CONNECTED) && peer->net()->StateIs(RUdpPeerState::DISCONNECT_LATER)
+    peer->net()->StateIsNot(RUdpPeerState::CONNECTED) && peer->net()->StateIsNot(RUdpPeerState::DISCONNECT_LATER)
 
 void
 RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
