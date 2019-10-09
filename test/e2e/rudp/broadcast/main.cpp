@@ -11,9 +11,15 @@
 
 namespace
 {
+constexpr auto SLEEP_DURATION = 100 * 1000; // microsecond
+
 void
 LOG(const std::string &message)
 { core::Singleton<core::Logger>::Instance().Debug(message); }
+
+void
+DELAY()
+{ usleep(SLEEP_DURATION); }
 }
 
 class Peer2IPv4Fixture
@@ -54,8 +60,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     peer2_address.host(peer2_ip.GetIPv6());
     peer2_address.port(8888);
 
-    const auto SLEEP_DURATION = 100 * 1000; // millisecond
-
     auto peer1_event = std::make_unique<RUdpEvent>();
     auto peer2_event = std::make_unique<RUdpEvent>();
 
@@ -67,14 +71,14 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Connect(peer2_address, SysCh::MAX, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 1 (2)]");
 
     // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 2 (3)]");
@@ -83,7 +87,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(peer2_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 1 (4)]");
@@ -91,7 +95,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 2 (5)]");
@@ -100,7 +104,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     // [Queue]   PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     // [Send]    PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     Service(peer2_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
@@ -118,25 +122,25 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("[PEER 1 : BROADCAST (6)]");
 
     peer1->Broadcast(SysCh::CONFIG, segment);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 1 (7)]");
 
     peer1->Service(peer1_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 2 (8)]");
 
     Service(peer2_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     LOG("");
     LOG("[PEER 1 (9)]");
 
     peer1->Service(peer1_event, 0);
-    usleep(SLEEP_DURATION);
+    DELAY();
 
     REQUIRE(true);
 
