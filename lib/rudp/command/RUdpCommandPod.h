@@ -16,9 +16,6 @@ class RUdpCommandPod
 public:
     RUdpCommandPod();
 
-    int
-    CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
-
     bool
     LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net,
                                     const std::vector<std::shared_ptr<RUdpChannel>> &channels,
@@ -40,6 +37,9 @@ public:
     void
     SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
                          const std::shared_ptr<RUdpChannel> &channel);
+
+    bool
+    Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
 
     inline void
     ClearOutgoingReliableCommand() { outgoing_reliable_commands_.clear(); };

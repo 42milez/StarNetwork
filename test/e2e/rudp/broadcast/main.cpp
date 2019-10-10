@@ -113,15 +113,16 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     //  Step 2 : Broadcast (from peer1)
     // ==================================================
 
-    auto data = std::make_shared<std::vector<uint8_t>>();
+    std::string msg{"hello"};
+    auto data = std::make_shared<std::vector<uint8_t>>(msg.begin(), msg.end());
     auto flags = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-                 static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);;
+                 static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
     auto segment = std::make_shared<RUdpSegment>(data, flags);
 
     LOG("");
     LOG("[PEER 1 : BROADCAST (6)]");
 
-    peer1->Broadcast(SysCh::CONFIG, segment);
+    peer1->Broadcast(SysCh::RELIABLE, segment);
     DELAY();
 
     LOG("");
@@ -138,6 +139,18 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
 
     LOG("");
     LOG("[PEER 1 (9)]");
+
+    peer1->Service(peer1_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 2 (10)]");
+
+    Service(peer2_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 1 (11)]");
 
     peer1->Service(peer1_event, 0);
     DELAY();

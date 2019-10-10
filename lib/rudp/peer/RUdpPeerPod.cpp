@@ -474,10 +474,15 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
 
             auto &cmd_pod = peer->command_pod();
 
+            auto debug_a = check_for_timeouts;
+            auto debug_b = cmd_pod->SentReliableCommandExists();
+            auto debug_c = UDP_TIME_GREATER_EQUAL(service_time, cmd_pod->NextTimeout());
+            auto debug_d = cmd_pod->Timeout(peer->net(), service_time);
+
             if (check_for_timeouts &&
                 cmd_pod->SentReliableCommandExists() &&
                 UDP_TIME_GREATER_EQUAL(service_time, cmd_pod->NextTimeout()) &&
-                cmd_pod->CheckTimeouts(peer->net(), service_time) == 1)
+                cmd_pod->Timeout(peer->net(), service_time))
             {
                 IS_EVENT_TYPE_NONE()
             }

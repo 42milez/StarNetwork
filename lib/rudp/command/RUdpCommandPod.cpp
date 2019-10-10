@@ -57,8 +57,8 @@ RUdpCommandPod::RUdpCommandPod()
       sent_unreliable_commands_()
 {}
 
-int
-RUdpCommandPod::CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
+bool
+RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
 {
     auto current_command = sent_reliable_commands_.begin();
 
@@ -78,8 +78,12 @@ RUdpCommandPod::CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t 
         if (earliest_timeout_ != 0 &&
             (UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_ ||
                 ((*outgoing_command)->round_trip_timeout() >= (*outgoing_command)->round_trip_timeout_limit() &&
-                    UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_))) {
-            return 1;
+                    UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_)))
+        {
+            // TODO: NotifyDisconnect()を呼ばないといけない・・・
+            // ...
+
+            return true;
         }
 
         if ((*outgoing_command)->HasPayload()) {
@@ -90,6 +94,7 @@ RUdpCommandPod::CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t 
 
         (*outgoing_command)->round_trip_timeout((*outgoing_command)->round_trip_timeout() * 2);
 
+        // TODO: 先頭にpushしなきゃいけない
         outgoing_reliable_commands_.push_back(*outgoing_command);
 
         // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
@@ -98,7 +103,7 @@ RUdpCommandPod::CheckTimeouts(const std::unique_ptr<RUdpPeerNet> &net, uint32_t 
         }
     }
 
-    return 0;
+    return false;
 }
 
 /* enet_protocol_send_reliable_outgoing_commands()
