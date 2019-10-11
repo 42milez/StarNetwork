@@ -11,7 +11,7 @@
 
 namespace
 {
-constexpr auto SLEEP_DURATION = 100 * 1000; // microsecond
+constexpr auto SLEEP_DURATION = 10 * 1000; // microsecond
 
 void
 LOG(const std::string &message)
