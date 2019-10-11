@@ -63,10 +63,11 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     auto peer1_event = std::make_unique<RUdpEvent>();
     auto peer2_event = std::make_unique<RUdpEvent>();
 
-    // ==================================================
-    //  Step 1 : peer1 sends CONNECT command to peer2
-    // ==================================================
+    LOG("==================================================");
+    LOG(" Step 1 : peer1 sends CONNECT command to peer2");
+    LOG("==================================================");
 
+    LOG("");
     LOG("[PEER 1 : CONNECT (1)]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
@@ -109,9 +110,10 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
 
-    // ==================================================
-    //  Step 2 : Broadcast (from peer1)
-    // ==================================================
+    LOG("");
+    LOG("==================================================");
+    LOG(" Step 2 : Broadcast (from peer1)");
+    LOG("==================================================");
 
     std::string msg{"hello"};
     auto data = std::make_shared<std::vector<uint8_t>>(msg.begin(), msg.end());
@@ -120,37 +122,37 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     auto segment = std::make_shared<RUdpSegment>(data, flags);
 
     LOG("");
-    LOG("[PEER 1 : BROADCAST (6)]");
+    LOG("[PEER 1 : BROADCAST (1)]");
 
     peer1->Broadcast(SysCh::RELIABLE, segment);
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (7)]");
+    LOG("[PEER 1 (2)]");
 
     peer1->Service(peer1_event, 0);
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (8)]");
+    LOG("[PEER 2 (3)]");
 
     Service(peer2_event, 0);
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (9)]");
+    LOG("[PEER 1 (4)]");
 
     peer1->Service(peer1_event, 0);
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (10)]");
+    LOG("[PEER 2 (5)]");
 
     Service(peer2_event, 0);
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (11)]");
+    LOG("[PEER 1 (6)]");
 
     peer1->Service(peer1_event, 0);
     DELAY();
