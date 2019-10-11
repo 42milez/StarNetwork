@@ -478,6 +478,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             auto debug_b = cmd_pod->SentReliableCommandExists();
             auto debug_c = UDP_TIME_GREATER_EQUAL(service_time, cmd_pod->NextTimeout());
             auto debug_d = cmd_pod->Timeout(peer->net(), service_time);
+            auto debug_e = cmd_pod->NextTimeout();
 
             if (check_for_timeouts &&
                 cmd_pod->SentReliableCommandExists() &&
