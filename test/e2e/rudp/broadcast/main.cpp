@@ -70,40 +70,42 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("");
     LOG("[PEER 1 : CONNECT (1)]");
 
-    // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Connect(peer2_address, SysCh::MAX, 0);
     DELAY();
 
     LOG("");
     LOG("[PEER 1 (2)]");
 
-    // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
     DELAY();
 
     LOG("");
     LOG("[PEER 2 (3)]");
 
-    // [Receive] PROTOCOL_COMMAND_CONNECT
-    // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
-    // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(peer2_event, 0);
     DELAY();
 
     LOG("");
     LOG("[PEER 1 (4)]");
 
-    // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
-    // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
     peer1->Service(peer1_event, 0);
     DELAY();
 
     LOG("");
     LOG("[PEER 2 (5)]");
 
-    // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
-    // [Queue]   PROTOCOL_COMMAND_BANDWIDTH_LIMIT
-    // [Send]    PROTOCOL_COMMAND_BANDWIDTH_LIMIT
+    Service(peer2_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 1 (6)]");
+
+    peer1->Service(peer1_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 2 (7)]");
+
     Service(peer2_event, 0);
     DELAY();
 

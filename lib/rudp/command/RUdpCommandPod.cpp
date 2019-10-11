@@ -91,15 +91,12 @@ RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t servic
         }
 
         net->IncreaseSegmentsLost(1);
-
         (*outgoing_command)->round_trip_timeout((*outgoing_command)->round_trip_timeout() * 2);
 
         outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *outgoing_command);
 
-        // TODO: ENetの条件式とは違うため、要検証（おそらく意味は同じであるはず）
-        if (!sent_reliable_commands_.empty() && sent_reliable_commands_.size() == 1) {
+        if (current_command == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
             next_timeout_ = (*current_command)->sent_time() + (*current_command)->round_trip_timeout();
-        }
     }
 
     return false;
