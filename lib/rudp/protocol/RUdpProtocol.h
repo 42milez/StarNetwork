@@ -25,6 +25,9 @@ public:
                             const RUdpProtocolType *cmd, uint32_t service_time,
                             std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect);
 
+    Error
+    HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data);
+
     void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
                        const RUdpProtocolHeader * header,
                        const RUdpProtocolType * cmd,

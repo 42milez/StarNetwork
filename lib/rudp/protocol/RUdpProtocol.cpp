@@ -340,6 +340,12 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      return Error::OK;
 }
 
+Error
+RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data)
+{
+    return Error::OK;
+}
+
 void
 RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header,
                             const RUdpProtocolType * cmd, const RUdpAddress &received_address,

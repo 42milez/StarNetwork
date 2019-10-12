@@ -373,9 +373,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT))
             {
-                // TODO:
-//                if (protocol_->HandleBandwidthLimit(peer, cmd))
-//                    IS_EVENT_AVAILABLE()
+                if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR)
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::THROTTLE_CONFIGURE))
             {
