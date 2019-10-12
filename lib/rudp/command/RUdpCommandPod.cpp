@@ -111,6 +111,9 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
                                                 const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                                 uint32_t service_time)
 {
+    core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
+                                                    outgoing_reliable_commands_.size());
+
     auto window_exceeded = 0;
     auto window_wrap = false;
     auto can_ping = true;
@@ -215,6 +218,12 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         sent_reliable_commands_.push_back(*outgoing_command);
 
         outgoing_reliable_commands_.erase(outgoing_command);
+
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed: {0}",
+                                                        COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()));
+
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
+                                                        outgoing_reliable_commands_.size());
     }
 
     return can_ping;
@@ -476,7 +485,15 @@ RUdpCommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgo
     }
 
     if (outgoing_command->IsAcknowledge())
+    {
         outgoing_reliable_commands_.push_back(outgoing_command);
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was added : {0}",
+                                                        COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()));
+    }
     else
+    {
         outgoing_unreliable_commands_.push_back(outgoing_command);
+        core::Singleton<core::Logger>::Instance().Debug("outgoing unreliable command was added: {0}",
+                                                        COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()));
+    }
 }
