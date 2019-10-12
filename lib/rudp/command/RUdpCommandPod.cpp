@@ -191,8 +191,6 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         (*outgoing_command)->sent_time(service_time);
 
         (*buffer)->Add((*outgoing_command)->command());
-        //buffer->Add(command);
-        //buffer->data_length = COMMAND_SIZES[(*outgoing_command)->command->header.command & PROTOCOL_COMMAND_MASK];
 
         chamber->IncrementSegmentSize(
             COMMAND_SIZES[(*outgoing_command)->CommandNumber()]
@@ -204,14 +202,10 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
         //       これは受信側でパケットを正しく識別するための基本
 
-        //*command = *(*outgoing_command)->command;
-
-        if ((*outgoing_command)->HasPayload()) {
-            //++buffer;
+        if ((*outgoing_command)->HasPayload())
+        {
             buffer = chamber->EmptyDataBuffer();
-
             (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
-            //buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 
@@ -221,16 +215,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         sent_reliable_commands_.push_back(*outgoing_command);
 
         outgoing_reliable_commands_.erase(outgoing_command);
-
-        // MEMO: push_sent_reliable_command() でインクリメント
-        //++segments_sent_;
-
-        //++command;
-        //++buffer;
     }
-
-    //chamber->update_command_count(command);
-    //chamber->update_buffer_count(buffer);
 
     return can_ping;
 }
@@ -285,30 +270,21 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         *command = (*outgoing_command)->command();
 
         (*buffer)->Add(*command);
-        //buffer->data_length = command_size;
 
         chamber->IncrementSegmentSize(command_size);
 
         outgoing_unreliable_commands_.erase(outgoing_command);
 
-        if ((*outgoing_command)->HasPayload()) {
-            //++buffer;
+        if ((*outgoing_command)->HasPayload())
+        {
             buffer = chamber->EmptyDataBuffer();
-
             (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
-            //buffer->data_length = (*outgoing_command)->fragment_length;
 
             chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 
             sent_unreliable_commands_.push_back(*outgoing_command);
         }
-
-        //++command;
-        //++buffer;
     }
-
-    //chamber->update_command_count(command);
-    //chamber->update_buffer_count(buffer);
 
     // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
     if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&

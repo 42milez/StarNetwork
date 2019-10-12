@@ -205,7 +205,7 @@ RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::uniqu
         && net->StateIsLessThanOrEqual(RUdpPeerState::CONNECTION_SUCCEEDED)) {
         ResetPeer(peer);
     }
-        // ピアが接続済みである場合
+    // ピアが接続済みである場合
     else if (event != nullptr) {
         event->type(RUdpEventType::DISCONNECT);
         event->peer(peer);
@@ -399,10 +399,6 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     }
 
     peer->RemoveSentReliableCommand(1, 0xFF);
-
-    //if (channel_count < peer->channel_count())
-    //    peer->channel_count(channel_count);
-
     peer->outgoing_peer_id(ntohs(cmd->verify_connect.outgoing_peer_id));
     peer->incoming_session_id(cmd->verify_connect.incoming_session_id);
     peer->outgoing_session_id(cmd->verify_connect.outgoing_session_id);
@@ -509,9 +505,6 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
             break;
         }
 
-        //buffer->Add(command);
-        //buffer->data_length = sizeof(RUdpProtocolAcknowledge);
-
         chamber_->IncrementSegmentSize(sizeof(RUdpProtocolAcknowledge));
 
         auto reliable_sequence_number = htons(ack->command().header.reliable_sequence_number);
@@ -526,13 +519,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
 
         if ((ack->command().header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
-
-        //++command;
-        //++buffer;
     }
-
-    //chamber_->update_command_count(command);
-    //chamber_->update_buffer_count(buffer);
 }
 
 bool

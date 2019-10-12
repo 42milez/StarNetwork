@@ -28,7 +28,6 @@ Error
 RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth, uint32_t data)
 {
-    //channels_ = std::move(std::vector<std::shared_ptr<RUdpChannel>>(static_cast<int>(channel_count)));
     for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
         channels_.emplace_back(std::make_shared<RUdpChannel>());
 
@@ -60,8 +59,6 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
     cmd->connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
     cmd->connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
     cmd->connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
-
-    //std::shared_ptr<RUdpSegment> seg = std::make_shared<RUdpSegment>();
 
     QueueOutgoingCommand(cmd, nullptr, 0);
 
