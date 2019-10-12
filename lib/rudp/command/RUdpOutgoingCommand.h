@@ -11,6 +11,9 @@ public:
     inline void
     IncrementSendAttempts() { ++send_attempts_; }
 
+    inline uint32_t
+    NextTimeout() { return sent_time_ + round_trip_timeout_; }
+
 public:
     inline uint16_t
     fragment_length() { return fragment_length_; }

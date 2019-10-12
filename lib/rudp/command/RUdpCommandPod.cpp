@@ -399,7 +399,7 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     outgoing_command = sent_reliable_commands_.front();
 
     // TODO: next_timeout_ の更新はメソッド化できる
-    next_timeout_ = outgoing_command->sent_time() + outgoing_command->round_trip_timeout();
+    next_timeout_ = outgoing_command->NextTimeout();
 
     if (no_sent_reliable_command_matched)
         outgoing_reliable_commands_.erase(it);
