@@ -61,7 +61,7 @@ RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState st
 void
 RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
 {
-    recalculate_bandwidth_limits_ = true;
+    recalculate_bandwidth_limits(true);
 
     if (event)
     {
@@ -85,7 +85,7 @@ RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::
     auto &net = peer->net();
 
     if (net->StateIs(RUdpPeerState::CONNECTION_PENDING))
-        recalculate_bandwidth_limits_ = true;
+        recalculate_bandwidth_limits(true);
 
     if (net->StateIsNot(RUdpPeerState::CONNECTING) &&
         peer->StateAsNumber() < static_cast<uint8_t>(RUdpPeerState::CONNECTION_SUCCEEDED))

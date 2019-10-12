@@ -40,7 +40,10 @@ public:
     recalculate_bandwidth_limits() { return recalculate_bandwidth_limits_; }
 
     inline void
-    recalculate_bandwidth_limits(bool val) { recalculate_bandwidth_limits_ = val; }
+    recalculate_bandwidth_limits(bool val) {
+        core::Singleton<core::Logger>::Instance().Debug("recalculate bandwidth limit: {0}", val);
+        recalculate_bandwidth_limits_ = val;
+    }
 
 private:
     std::unique_ptr<RUdpDispatchQueue> queue_;
