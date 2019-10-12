@@ -85,16 +85,14 @@ RUdpChamber::Write(VecUInt8 &out)
     core::Singleton<core::Logger>::Instance().Debug("buffer count: {0}", buffer_count_);
 
     auto size = 0;
-
-    for (auto &buf : buffers_)
-        size += buf->Size();
+    for (size_t i = 0; i < buffer_count_; ++i)
+        size += buffers_.at(i)->Size();
 
     out.resize(size);
 
     auto it = out.begin();
-
-    for (auto &buf : buffers_)
-        it = buf->CopyTo(it);
+    for (size_t i = 0; i < buffer_count_; ++i)
+        it = buffers_.at(i)->CopyTo(it);
 
     return size;
 }
