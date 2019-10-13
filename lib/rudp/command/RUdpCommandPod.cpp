@@ -95,6 +95,9 @@ RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t servic
 
         outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *outgoing_command);
 
+        core::Singleton<core::Logger>::Instance().Debug("command is going to send next time (timeout): {0}",
+                                                        COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()));
+
         if (current_command == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
             next_timeout_ = (*current_command)->sent_time() + (*current_command)->round_trip_timeout();
     }
