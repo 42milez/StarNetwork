@@ -75,13 +75,16 @@ RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t servic
             earliest_timeout_ = (*outgoing_command)->sent_time();
 
         // タイムアウトしたらピアを切断する
-        if (earliest_timeout_ != 0 &&
-            (UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_ ||
-                ((*outgoing_command)->round_trip_timeout() >= (*outgoing_command)->round_trip_timeout_limit() &&
-                    UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_)))
+        // ToDo: make use of variables clear
+        auto a = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_;
+        auto b = (*outgoing_command)->round_trip_timeout() >= (*outgoing_command)->round_trip_timeout_limit();
+        auto c = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_;
+        if (earliest_timeout_ != 0 && (a || (b && c)))
         {
             // TODO: NotifyDisconnect()を呼ばないといけない・・・
             // ...
+
+            core::Singleton<core::Logger>::Instance().Debug("peer is disconnected");
 
             return true;
         }
