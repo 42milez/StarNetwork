@@ -310,6 +310,10 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      peer->UpdateRoundTripTimeVariance(service_time, round_trip_time);
 
      auto received_reliable_sequence_number = ntohs(cmd->acknowledge.received_reliable_sequence_number);
+
+     core::Singleton<core::Logger>::Instance().Debug("acknowledge was received ({0})",
+                                                     received_reliable_sequence_number);
+
      auto command_number = peer->RemoveSentReliableCommand(received_reliable_sequence_number, cmd->header.channel_id);
 
      auto state = net->state();

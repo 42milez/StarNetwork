@@ -239,7 +239,8 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
 
     acknowledgements_.push_back(ack);
 
-    core::Singleton<core::Logger>::Instance().Debug("command was queued: ACKNOWLEDGE");
+    core::Singleton<core::Logger>::Instance().Debug("command was queued: ACKNOWLEDGE ({0})",
+                                                    cmd->header.reliable_sequence_number);
 }
 
 std::shared_ptr<RUdpIncomingCommand>

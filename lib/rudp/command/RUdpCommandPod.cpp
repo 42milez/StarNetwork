@@ -225,7 +225,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         outgoing_reliable_commands_.erase(outgoing_command);
 
-        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed: {0}",
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed (on send): {0}",
                                                         COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()));
 
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
@@ -393,9 +393,19 @@ RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uin
     next_timeout_ = outgoing_command->NextTimeout();
 
     if (no_sent_reliable_command_matched)
+    {
         outgoing_reliable_commands_.erase(it);
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed (on receive): {0} ({1})",
+                                                        COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
+                                                        reliable_sequence_number);
+    }
     else
+    {
         sent_reliable_commands_.erase(it);
+        core::Singleton<core::Logger>::Instance().Debug("sent reliable command was removed (on receive): {0} ({1})",
+                                                        COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
+                                                        reliable_sequence_number);
+    }
 
     return static_cast<RUdpProtocolCommand>(command_number);
 }
