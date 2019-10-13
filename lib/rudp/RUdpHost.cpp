@@ -131,15 +131,35 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
 
-//        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
-//
-//        RETURN_ON_EVENT_OCCURRED(ret)
-//        RETURN_ON_ERROR(ret)
+        ret = peer_pod_->DispatchIncomingCommands(event);
+
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
+
+        /* ReceiveIncomingCommands() を先に呼ばないとACKが処理されず、永久に送受信される
+         *
+        peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
+
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
+
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
+
+        ret = peer_pod_->ReceiveIncomingCommands(event, checksum_);
+
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
+
+        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
+
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
 
         ret = peer_pod_->DispatchIncomingCommands(event);
 
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
+        */
 
         if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
             return EventStatus::NO_EVENT_OCCURRED;
