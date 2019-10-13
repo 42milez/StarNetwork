@@ -327,6 +327,9 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
     uint8_t command_number;
     uint16_t start_sequence_number;
 
+    core::Singleton<core::Logger>::Instance().Debug("data length: {0}", data_length);
+    core::Singleton<core::Logger>::Instance().Debug("fragment length: {0}", fragment_length);
+
     if (data_length > fragment_length)
     {
         auto fragment_count = (data_length + fragment_length - 1) / fragment_length;
