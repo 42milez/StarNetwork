@@ -227,11 +227,11 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
 
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed (on send): {0} ({1})",
                                                         COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()),
-                                                        (*outgoing_command)->command()->header.reliable_sequence_number);
+                                                        ntohs((*outgoing_command)->command()->header.reliable_sequence_number));
 
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0} ({1})",
                                                         outgoing_reliable_commands_.size(),
-                                                        (*outgoing_command)->command()->header.reliable_sequence_number);
+                                                        ntohs((*outgoing_command)->command()->header.reliable_sequence_number));
     }
 
     return can_ping;
