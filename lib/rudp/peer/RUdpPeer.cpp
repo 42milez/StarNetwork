@@ -272,11 +272,11 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     }
 
     auto channel_id = protocol_type->header.channel_id;
-    auto channel = nullptr;
     auto cmd_number = outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK;
+    std::shared_ptr<RUdpChannel> channel = nullptr;
 
     if (channel_id < channels_.size())
-        channels_.at(channel_id);
+        channel = channels_.at(channel_id);
 
     command_pod_->SetupOutgoingCommand(outgoing_command, channel);
 
@@ -284,7 +284,8 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     {
         auto host = address_.host();
         auto port = address_.port();
-        core::Singleton<core::Logger>::Instance().Debug("command was queued: PING {0}.{1}.{2}.{3}:{4}",
+        core::Singleton<core::Logger>::Instance().Debug("command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
+                                                        ntohs(outgoing_command->command()->header.reliable_sequence_number),
                                                         host.at(12), host.at(13), host.at(14), host.at(15), port);
     }
     else
@@ -345,12 +346,14 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
             start_sequence_number = htons(channel->outgoing_unreliable_sequence_number() + 1);
+            core::Singleton<core::Logger>::Instance().Debug("**********");
         }
         else
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
                              static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
             start_sequence_number = htons(channel->outgoing_reliable_sequence_number() + 1);
+            core::Singleton<core::Logger>::Instance().Debug("**********");
         }
 
         std::list<std::shared_ptr<RUdpOutgoingCommand>> fragments;

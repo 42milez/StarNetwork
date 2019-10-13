@@ -68,8 +68,9 @@ RUdpBuffer::CopyTo(VecUInt8It it)
         if (protocol)
         {
             memcpy(&(*it), &(*protocol), size_);
-            core::Singleton<core::Logger>::Instance().Debug("command was copied to the buffer: {0}",
-                                                            ProtocolCommandAsString());
+            core::Singleton<core::Logger>::Instance().Debug("command was copied to the buffer: {0} ({1})",
+                                                            ProtocolCommandAsString(),
+                                                            ntohs(protocol->header.reliable_sequence_number));
         }
 
         return it + size_;

@@ -119,6 +119,11 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     uint8_t wait_condition;
 
     do {
+        ret = peer_pod_->ReceiveIncomingCommands(event, checksum_);
+
+        RETURN_ON_EVENT_OCCURRED(ret)
+        RETURN_ON_ERROR(ret)
+
         peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
 
         ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
@@ -126,15 +131,10 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
         RETURN_ON_EVENT_OCCURRED(ret)
         RETURN_ON_ERROR(ret)
 
-        ret = peer_pod_->ReceiveIncomingCommands(event, checksum_);
-
-        RETURN_ON_EVENT_OCCURRED(ret)
-        RETURN_ON_ERROR(ret)
-
-        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
-
-        RETURN_ON_EVENT_OCCURRED(ret)
-        RETURN_ON_ERROR(ret)
+//        ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
+//
+//        RETURN_ON_EVENT_OCCURRED(ret)
+//        RETURN_ON_ERROR(ret)
 
         ret = peer_pod_->DispatchIncomingCommands(event);
 

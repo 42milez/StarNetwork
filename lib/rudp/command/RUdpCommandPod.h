@@ -60,6 +60,14 @@ public:
     IncrementOutgoingDataTotal(uint32_t val) { outgoing_data_total_ += val; }
 
     inline void
+    IncrementOutgoingReliableSequenceNumber() {
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable sequence number was incremented (CommandPod): {0} -> {1}",
+                                                        outgoing_reliable_sequence_number_,
+                                                        outgoing_reliable_sequence_number_ + 1);
+        ++outgoing_reliable_sequence_number_;
+    }
+
+    inline void
     IncrementReliableDataInTransit(uint32_t val) { reliable_data_in_transit_ += val; };
 
     inline uint32_t

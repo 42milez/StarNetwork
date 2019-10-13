@@ -4,6 +4,8 @@
 #include <array>
 #include <list>
 
+#include "core/logger.h"
+#include "core/singleton.h"
 #include "lib/rudp/command/RUdpIncomingCommand.h"
 
 class RUdpChannel
@@ -18,7 +20,12 @@ public:
     DecrementReliableWindow(size_t idx) { --reliable_windows_.at(idx); }
 
     inline void
-    IncrementOutgoingReliableSequenceNumber() { ++outgoing_reliable_sequence_number_; }
+    IncrementOutgoingReliableSequenceNumber() {
+        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable sequence number was incremented (RUdpChannel): {0} -> {1}",
+                                                        outgoing_reliable_sequence_number_,
+                                                        outgoing_reliable_sequence_number_ + 1);
+        ++outgoing_reliable_sequence_number_;
+    }
 
     inline void
     IncrementOutgoingUnreliableSequenceNumber() { ++outgoing_unreliable_sequence_number_; }

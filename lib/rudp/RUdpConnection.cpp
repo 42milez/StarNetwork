@@ -1,4 +1,6 @@
-#include <core/error_macros.h>
+#include "core/error_macros.h"
+#include "core/logger.h"
+#include "core/singleton.h"
 
 #include "RUdpChamber.h"
 #include "RUdpConnection.h"
@@ -63,6 +65,8 @@ RUdpConnection::Receive(RUdpAddress &received_address, VecUInt8 &buffer, size_t 
         return -1;
 
     received_address.SetIP(ip.GetIPv6(), 16);
+
+    core::Singleton<core::Logger>::Instance().Debug("received length: {0}", read_count);
 
     return read_count;
 }

@@ -257,8 +257,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
         }
 
         auto current_data = received_data_->begin() + header_size;
+        auto end = received_data_->begin() + received_data_length_;
 
-        while (current_data != received_data_->end())
+        while (current_data < end)
         {
             if (current_data + sizeof(RUdpProtocolCommandHeader) > received_data_->end())
                 break;
@@ -273,10 +274,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
                 break;
 
-            core::Singleton<core::Logger>::Instance().Debug("command was received: {0} ({1})",
-                                                            COMMANDS_AS_STRING.at(cmd_number),
-                                                            ntohs(cmd->header.reliable_sequence_number));
-
             current_data += cmd_size;
 
             if (peer == nullptr && cmd_number != static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
@@ -286,6 +283,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 
             if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: ACKNOWLEDGE ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 auto disconnect = [this, checksum](std::shared_ptr<RUdpPeer> &peer){
                     Disconnect(peer, peer->event_data(), checksum);
                 };
@@ -295,6 +295,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: CONNECT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 if (peer)
                 { IS_EVENT_AVAILABLE() }
 
@@ -333,21 +336,33 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: VERIFY_CONNECT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: DISCONNECT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: PING ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 if (protocol_->HandlePing(peer) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_RELIABLE ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 EXCEEDS_CHANNEL_COUNT()
                 EXCEEDS_RECEIVED_LENGTH()
 
@@ -356,35 +371,53 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 // TODO:
 //                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNSEQUENCED ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 // TODO:
 //                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 // TODO:
 //                if (protocol_->HandleSendFragment(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: BANDWIDTH_LIMIT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::THROTTLE_CONFIGURE))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: THROTTLE_CONFIGURE ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 // TODO:
 //                if (protocol_->HandleThrottleConfigure(peer, cmd))
 //                    IS_EVENT_AVAILABLE()
             }
             else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT))
             {
+                core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
+                                                                cmd->header.reliable_sequence_number);
+
                 // TODO:
 //                if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
