@@ -525,6 +525,7 @@ RUdpProtocol::SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer)
         (*command)->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
         (*command)->acknowledge.received_sent_time = htons(ack->sent_time());
 
+        // ToDo: なぜAcknowledgeだけ直接バッファーに転送される？（他のコマンドはoutgoing_reliable_commandsを経由する）
         (*buffer)->Add(*command);
 
         if ((ack->command().header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
