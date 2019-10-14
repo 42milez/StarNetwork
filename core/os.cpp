@@ -4,23 +4,37 @@
 
 #include "os.h"
 
-uint64_t
-OS::get_ticks_usec() const
+OS::OS()
 {
 #ifdef __APPLE__
-    uint64_t longtime = mach_absolute_time() * _clock_scale;
+    mach_timebase_info_data_t info;
+    kern_return_t ret = mach_timebase_info(&info);
+    //ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
+    //ERR_FAIL_COND(ret != 0);
+    clock_scale_ = ((double)info.numer / (double)info.denom) / 1000.0;
+    clock_start_ = mach_absolute_time() * clock_scale_;
+#else
+    // ...
+#endif
+}
+
+uint64_t
+OS::GetTicksUsec() const
+{
+#ifdef __APPLE__
+    uint64_t longtime = mach_absolute_time() * clock_scale_;
 #else
     struct timespec tv_now = {0, 0};
     clock_gettime(CLOCK_MONOTONIC_RAW, &tv_now);
     uint64_t longtime = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 #endif
-    longtime -= _clock_start;
+    longtime -= clock_start_;
 
     return longtime;
 }
 
 uint32_t
-OS::get_ticks_msec() const
+OS::GetTicksMsec() const
 {
-    return get_ticks_usec() / 1000;
+    return GetTicksUsec() / 1000;
 }

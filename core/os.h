@@ -5,12 +5,14 @@
 
 class OS
 {
-private:
-    uint64_t _clock_start = 0;
-    double _clock_scale = 1;
 public:
-    uint64_t get_ticks_usec() const;
-    uint32_t get_ticks_msec() const;
+    OS();
+    uint64_t GetTicksUsec() const;
+    uint32_t GetTicksMsec() const;
+
+private:
+    uint64_t clock_start_;
+    double clock_scale_;
 };
 
 #endif // P2P_TECHDEMO_CORE_OS_H
