@@ -62,8 +62,8 @@ constexpr int PEER_SEGMENT_THROTTLE_DECELERATION = 2;
 constexpr int PEER_SEGMENT_THROTTLE_INTERVAL     = 5000;
 constexpr int PEER_SEGMENT_THROTTLE_SCALE        = 32;
 constexpr int PEER_TIMEOUT_LIMIT                 = 32;
-constexpr int PEER_TIMEOUT_MAXIMUM               = 30000;
-constexpr int PEER_TIMEOUT_MINIMUM               = 5000;
+constexpr int PEER_TIMEOUT_MAXIMUM               = 30000; // 30 sec
+constexpr int PEER_TIMEOUT_MINIMUM               = 5000;  // 5 sec
 constexpr int PEER_UNSEQUENCED_WINDOW_SIZE       = 1024;
 constexpr int PEER_WINDOW_SIZE_SCALE             = 64 * 1024;
 
