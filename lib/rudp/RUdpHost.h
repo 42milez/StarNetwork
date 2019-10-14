@@ -11,8 +11,9 @@
 class RUdpHost
 {
 public:
-    RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
-             uint32_t out_bandwidth);
+    RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_count,
+             uint32_t in_bandwidth,   // bytes per second
+             uint32_t out_bandwidth); // bytes per second
 
     void
     Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment);
