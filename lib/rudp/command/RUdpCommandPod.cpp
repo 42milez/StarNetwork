@@ -75,11 +75,10 @@ RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t servic
 
         // disconnect peer
         auto exceeds_timeout_maximum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_;
-        auto exceeds_round_trip_timeout_limit =
-            (*out_cmd)->round_trip_timeout() >= (*out_cmd)->round_trip_timeout_limit();
+        auto exceeds_rtt_timeout_limit = (*out_cmd)->round_trip_timeout() >= (*out_cmd)->round_trip_timeout_limit();
         auto exceeds_timeout_minimum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_;
         if (earliest_timeout_ != 0 &&
-            (exceeds_timeout_maximum || (exceeds_round_trip_timeout_limit && exceeds_timeout_minimum)))
+            (exceeds_timeout_maximum || (exceeds_rtt_timeout_limit && exceeds_timeout_minimum)))
         {
             // TODO: call NotifyDisconnect()
             // ...
