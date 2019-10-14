@@ -109,30 +109,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     Service(peer2_event, 0);
     DELAY();
 
-    LOG("");
-    LOG("[PEER 1 (8)]");
-
-    peer1->Service(peer1_event, 0);
-    DELAY();
-
-    LOG("");
-    LOG("[PEER 2 (9)]");
-
-    Service(peer2_event, 0);
-    DELAY();
-
-    LOG("");
-    LOG("[PEER 1 (11)]");
-
-    peer1->Service(peer1_event, 0);
-    DELAY();
-
-    LOG("");
-    LOG("[PEER 2 (12)]");
-
-    Service(peer2_event, 0);
-    DELAY();
-
     REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
 
@@ -175,12 +151,6 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("[PEER 2 (5)]");
 
     Service(peer2_event, 0);
-    DELAY();
-
-    LOG("");
-    LOG("[PEER 1 (6)]");
-
-    peer1->Service(peer1_event, 0);
     DELAY();
 
     REQUIRE(true);
