@@ -127,7 +127,8 @@ private:
     uint32_t earliest_timeout_;
     uint32_t next_timeout_;
     uint32_t reliable_data_in_transit_;
-    uint32_t round_trip_time_;
+    uint32_t round_trip_time_;          // mean round trip time (RTT), in milliseconds, between sending a reliable
+                                        // packet and receiving its acknowledgement
     uint32_t round_trip_time_variance_;
     uint32_t timeout_limit_;
     uint32_t timeout_maximum_;
