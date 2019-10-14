@@ -117,7 +117,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG(" Step 2 : Broadcast (from peer1)");
     LOG("==================================================");
 
-    std::string msg{"hello"};
+    std::string msg{"Hello RUDP!"};
     auto data = std::make_shared<std::vector<uint8_t>>(msg.begin(), msg.end());
     auto flags = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
                  static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
