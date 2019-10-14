@@ -11,7 +11,7 @@ OS::OS()
     kern_return_t ret = mach_timebase_info(&info);
     //ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
     //ERR_FAIL_COND(ret != 0);
-    clock_scale_ = ((double)info.numer / (double)info.denom) / 1000.0;
+    clock_scale_ = (static_cast<double>(info.numer) / static_cast<double>(info.denom)) / 1000.0;
     clock_start_ = mach_absolute_time() * clock_scale_;
 #else
     // ...
