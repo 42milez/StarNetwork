@@ -60,49 +60,50 @@ RUdpCommandPod::RUdpCommandPod()
 bool
 RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time)
 {
-    auto current_command = sent_reliable_commands_.begin();
+    auto cur_cmd = sent_reliable_commands_.begin();
 
-    while (current_command != sent_reliable_commands_.end()) {
-        auto outgoing_command = current_command;
+    while (cur_cmd != sent_reliable_commands_.end()) {
+        auto out_cmd = cur_cmd;
 
-        ++current_command;
+        ++cur_cmd;
 
         // 処理をスキップ
-        if (UDP_TIME_DIFFERENCE(service_time, (*outgoing_command)->sent_time()) < (*outgoing_command)->round_trip_timeout())
+        if (UDP_TIME_DIFFERENCE(service_time, (*out_cmd)->sent_time()) < (*out_cmd)->round_trip_timeout())
             continue;
 
-        if (earliest_timeout_ == 0 || UDP_TIME_LESS((*outgoing_command)->sent_time(), earliest_timeout_))
-            earliest_timeout_ = (*outgoing_command)->sent_time();
+        if (earliest_timeout_ == 0 || UDP_TIME_LESS((*out_cmd)->sent_time(), earliest_timeout_))
+            earliest_timeout_ = (*out_cmd)->sent_time();
 
         // タイムアウトしたらピアを切断する
-        // ToDo: make use of variables clear
-        auto a = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_;
-        auto b = (*outgoing_command)->round_trip_timeout() >= (*outgoing_command)->round_trip_timeout_limit();
-        auto c = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_;
-        if (earliest_timeout_ != 0 && (a || (b && c)))
+        auto exceeds_timeout_maximum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_;
+        auto exceeds_round_trip_timeout_limit =
+            (*out_cmd)->round_trip_timeout() >= (*out_cmd)->round_trip_timeout_limit();
+        auto exceeds_timeout_minimum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_;
+        if (earliest_timeout_ != 0 &&
+            (exceeds_timeout_maximum || (exceeds_round_trip_timeout_limit && exceeds_timeout_minimum)))
         {
-            // TODO: NotifyDisconnect()を呼ばないといけない・・・
+            // TODO: call NotifyDisconnect()
             // ...
 
-            core::Singleton<core::Logger>::Instance().Debug("peer is disconnected");
+            core::Singleton<core::Logger>::Instance().Debug("peer is going to be disconnected (timeout)");
 
             return true;
         }
 
-        if ((*outgoing_command)->HasPayload()) {
-            reliable_data_in_transit_ -= (*outgoing_command)->fragment_length();
+        if ((*out_cmd)->HasPayload()) {
+            reliable_data_in_transit_ -= (*out_cmd)->fragment_length();
         }
 
         net->IncreaseSegmentsLost(1);
-        (*outgoing_command)->round_trip_timeout((*outgoing_command)->round_trip_timeout() * 2);
+        (*out_cmd)->round_trip_timeout((*out_cmd)->round_trip_timeout() * 2);
 
-        outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *outgoing_command);
+        outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *out_cmd);
 
         core::Singleton<core::Logger>::Instance().Debug("command is going to send next time (timeout): {0}",
-                                                        COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()));
+                                                        COMMANDS_AS_STRING.at((*out_cmd)->CommandNumber()));
 
-        if (current_command == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
-            next_timeout_ = (*current_command)->sent_time() + (*current_command)->round_trip_timeout();
+        if (cur_cmd == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
+            next_timeout_ = (*cur_cmd)->sent_time() + (*cur_cmd)->round_trip_timeout();
     }
 
     return false;
