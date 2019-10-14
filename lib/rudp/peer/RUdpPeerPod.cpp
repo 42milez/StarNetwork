@@ -362,6 +362,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_RELIABLE ({0})",
                                                                 cmd->header.reliable_sequence_number);
+                core::Singleton<core::Logger>::Instance().Debug("received data: {0}", std::string{current_data, end});
 
                 EXCEEDS_CHANNEL_COUNT()
                 EXCEEDS_RECEIVED_LENGTH()
