@@ -67,14 +67,13 @@ RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t servic
 
         ++cur_cmd;
 
-        // 処理をスキップ
         if (UDP_TIME_DIFFERENCE(service_time, (*out_cmd)->sent_time()) < (*out_cmd)->round_trip_timeout())
             continue;
 
         if (earliest_timeout_ == 0 || UDP_TIME_LESS((*out_cmd)->sent_time(), earliest_timeout_))
             earliest_timeout_ = (*out_cmd)->sent_time();
 
-        // タイムアウトしたらピアを切断する
+        // disconnect peer
         auto exceeds_timeout_maximum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_maximum_;
         auto exceeds_round_trip_timeout_limit =
             (*out_cmd)->round_trip_timeout() >= (*out_cmd)->round_trip_timeout_limit();
