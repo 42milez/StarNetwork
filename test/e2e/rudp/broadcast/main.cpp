@@ -117,16 +117,16 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG(" Step 2 : Broadcast (from peer1)");
     LOG("==================================================");
 
-    std::string msg{"Hello RUDP!"};
-    auto data = std::make_shared<std::vector<uint8_t>>(msg.begin(), msg.end());
-    auto flags = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-                 static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
-    auto segment = std::make_shared<RUdpSegment>(data, flags);
+    std::string msg1{"send broadcast from peer1"};
+    auto data1 = std::make_shared<std::vector<uint8_t>>(msg1.begin(), msg1.end());
+    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
+                  static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+    auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
 
     LOG("");
     LOG("[PEER 1 : BROADCAST (1)]");
 
-    peer1->Broadcast(SysCh::RELIABLE, segment);
+    peer1->Broadcast(SysCh::RELIABLE, segment1);
     DELAY();
 
     LOG("");
@@ -159,5 +159,41 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     //  Step 3 : Broadcast (from peer2 )
     // ==================================================
 
-    // ...
+    std::string msg2{"send broadcast from peer2"};
+    auto data2 = std::make_shared<std::vector<uint8_t>>(msg2.begin(), msg2.end());
+    auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
+        static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+    auto segment2 = std::make_shared<RUdpSegment>(data2, flags2);
+
+    LOG("");
+    LOG("[PEER 2 : BROADCAST (1)]");
+
+    Broadcast(SysCh::RELIABLE, segment2);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 2 (2)]");
+
+    Service(peer2_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 1 (3)]");
+
+    peer1->Service(peer1_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 2 (4)]");
+
+    Service(peer2_event, 0);
+    DELAY();
+
+    LOG("");
+    LOG("[PEER 1 (5)]");
+
+    peer1->Service(peer1_event, 0);
+    DELAY();
+
+    REQUIRE(true);
 }
