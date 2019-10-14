@@ -261,7 +261,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 
         while (current_data < end)
         {
-            if (current_data + sizeof(RUdpProtocolCommandHeader) > received_data_->end())
+            if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
                 break;
 
             auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
@@ -271,7 +271,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 break;
 
             auto cmd_size = COMMAND_SIZES.at(cmd_number);
-            if (cmd_size == 0 || current_data + cmd_size > received_data_->end())
+            if (cmd_size == 0 || current_data + cmd_size > end)
                 break;
 
             current_data += cmd_size;
