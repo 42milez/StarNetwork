@@ -243,12 +243,91 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
                                                     cmd->header.reliable_sequence_number);
 }
 
-std::shared_ptr<RUdpIncomingCommand>
-RUdpPeer::QueueIncomingCommand()
+namespace
+{
+Error
+DiscardCommand(uint32_t fragment_count)
+{
+    if (fragment_count > 0)
+        return Error::ERROR;
+
+    return Error::OK;
+}
+}
+
+Error
+RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uint16_t data_length, uint16_t flags,
+                               uint32_t fragment_count, size_t maximum_waiting_data)
 {
     //core::Singleton<core::Logger>::Instance().Debug("Queued command: **********");
 
-    return nullptr;
+    auto channel = channels_.at(cmd->header.channel_id);
+    uint16_t reliable_sequence_number{};
+
+    if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
+        return DiscardCommand(fragment_count);
+
+    if ((cmd->header.command & PROTOCOL_COMMAND_MASK) != static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
+    {
+        reliable_sequence_number = cmd->header.reliable_sequence_number;
+        auto reliable_window = reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+        auto current_window = channel->incoming_reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
+
+        if (reliable_sequence_number < channel->incoming_reliable_sequence_number())
+            reliable_window += PEER_RELIABLE_WINDOWS;
+
+        if (reliable_window < current_window || reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
+            return DiscardCommand(fragment_count);
+    }
+
+    std::shared_ptr<RUdpIncomingCommand> cur_cmd{};
+    auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command);
+
+    if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
+    {
+        if (reliable_sequence_number == channel->incoming_reliable_sequence_number())
+            return DiscardCommand(fragment_count);
+
+        if (!channel->AAA())
+            return DiscardCommand(fragment_count);
+    }
+    else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE || cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
+    {
+        auto unreliable_sequence_number = ntohs(cmd->send_unreliable.unreliable_sequence_number);
+
+        if (reliable_sequence_number == channel->incoming_reliable_sequence_number() &&
+            unreliable_sequence_number <= channel->incoming_unreliable_sequence_number())
+        {
+            return DiscardCommand(fragment_count);
+        }
+
+        if (!channel->BBB())
+            return DiscardCommand(fragment_count);
+    }
+    else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
+    {
+        cur_cmd = channel->LatestIncomingUnreliableCommand();
+    }
+    else
+    {
+        return DiscardCommand(fragment_count);
+    }
+
+    if (total_waiting_data_ >= maximum_waiting_data)
+        return DiscardCommand(fragment_count);
+
+    // ToDo: dataはshared_ptrで渡す必要がある
+    auto segment = std::make_shared<RUdpSegment>(data, flags);
+    if (segment == nullptr)
+        return Error::CANT_CREATE;
+
+    auto in_cmd = std::make_shared<RUdpIncomingCommand>();
+    if (in_cmd == nullptr)
+        return Error::CANT_CREATE;
+
+    // ...
+
+    return Error::OK;
 }
 
 // TODO: Is segment necessary as an argument?
@@ -272,7 +351,7 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     }
 
     auto channel_id = protocol_type->header.channel_id;
-    auto cmd_number = outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK;
+    auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK);
     std::shared_ptr<RUdpChannel> channel = nullptr;
 
     if (channel_id < channels_.size())
@@ -280,7 +359,7 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
 
     command_pod_->SetupOutgoingCommand(outgoing_command, channel);
 
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
+    if (cmd_type == RUdpProtocolCommand::PING)
     {
         auto host = address_.host();
         auto port = address_.port();
@@ -290,7 +369,8 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     }
     else
     {
-        core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}", COMMANDS_AS_STRING.at(cmd_number));
+        core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}",
+                                                        COMMANDS_AS_STRING.at(static_cast<uint8_t>(cmd_type)));
     }
 }
 

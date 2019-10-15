@@ -50,7 +50,6 @@ private:
     SysCh channel_count_;
 
     size_t maximum_segment_size_;
-    size_t maximum_waiting_data_;
 
     uint32_t incoming_bandwidth_;
     uint32_t outgoing_bandwidth_;

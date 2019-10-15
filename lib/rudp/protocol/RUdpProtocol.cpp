@@ -7,7 +7,8 @@
 RUdpProtocol::RUdpProtocol() :
     bandwidth_throttle_epoch_(),
     chamber_(std::make_unique<RUdpChamber>()),
-    dispatch_hub_(std::make_unique<RUdpDispatchHub>())
+    dispatch_hub_(std::make_unique<RUdpDispatchHub>()),
+    maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA)
 {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
@@ -347,6 +348,9 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
 Error
 RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data)
 {
+    // ToDo
+    // ...
+
     return Error::OK;
 }
 
@@ -375,12 +379,10 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 Error
-RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data)
+RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data,
+                                 uint16_t data_length, uint16_t flags, uint32_t fragment_count)
 {
-    if (peer->QueueIncomingCommand() == nullptr)
-        return Error::ERROR;
-
-    return Error::OK;
+    return peer->QueueIncomingCommand(cmd, data, data_length, flags, fragment_count, maximum_waiting_data_);
 }
 
 Error

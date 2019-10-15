@@ -12,7 +12,6 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
       conn_(std::make_shared<RUdpConnection>(address)),
       incoming_bandwidth_(in_bandwidth),
       maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
-      maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
       mtu_(HOST_DEFAULT_MTU),
       outgoing_bandwidth_(out_bandwidth)
 {

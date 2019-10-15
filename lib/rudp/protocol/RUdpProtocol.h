@@ -39,7 +39,8 @@ public:
     HandlePing(const std::shared_ptr<RUdpPeer> &peer);
 
     Error
-    HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data);
+    HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data,
+                       uint16_t data_length, uint16_t flags, uint32_t fragment_count);
 
     Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                               const RUdpProtocolType *cmd);
@@ -69,6 +70,8 @@ public:
 private:
     std::unique_ptr<RUdpChamber> chamber_;
     std::unique_ptr<RUdpDispatchHub> dispatch_hub_;
+
+    size_t maximum_waiting_data_;
 
     uint32_t bandwidth_throttle_epoch_;
 };

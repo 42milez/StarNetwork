@@ -59,8 +59,8 @@ public:
     used_reliable_windows() { return used_reliable_windows_; }
 
 private:
-    std::list<RUdpIncomingCommand> incoming_reliable_commands_;
-    std::list<RUdpIncomingCommand> incoming_unreliable_commands_;
+    std::list<std::shared_ptr<RUdpIncomingCommand>> incoming_reliable_commands_;
+    std::list<std::shared_ptr<RUdpIncomingCommand>> incoming_unreliable_commands_;
     std::array<uint16_t, PEER_RELIABLE_WINDOWS> reliable_windows_;
 
     uint16_t incoming_reliable_sequence_number_;
