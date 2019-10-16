@@ -4,6 +4,7 @@
 enum class Error : int {
     ERR_ALREADY_IN_USE,
     ERR_BUSY,
+    CANT_ALLOCATE,
     CANT_CREATE,
     ERR_INVALID_PARAMETER,
     ERR_UNAVAILABLE,

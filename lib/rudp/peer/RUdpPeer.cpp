@@ -255,7 +255,7 @@ DiscardCommand(uint32_t fragment_count)
 }
 }
 
-Error
+std::variant<std::shared_ptr<RUdpChannel>, Error>
 RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uint16_t data_length, uint16_t flags,
                                uint32_t fragment_count, size_t maximum_waiting_data)
 {
@@ -280,7 +280,6 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
             return DiscardCommand(fragment_count);
     }
 
-    std::shared_ptr<RUdpIncomingCommand> cur_cmd{};
     auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command);
 
     if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
@@ -288,6 +287,7 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
         if (reliable_sequence_number == channel->incoming_reliable_sequence_number())
             return DiscardCommand(fragment_count);
 
+        // ToDo: AAA() でインサートポジションを設定する
         if (!channel->AAA())
             return DiscardCommand(fragment_count);
     }
@@ -301,12 +301,14 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
             return DiscardCommand(fragment_count);
         }
 
+        // ToDo: BBB() でインサートポジションを設定する
         if (!channel->BBB())
             return DiscardCommand(fragment_count);
     }
     else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
     {
-        cur_cmd = channel->LatestIncomingUnreliableCommand();
+        // ToDo: インサートポジションを変えない（chennelのコンストラクタで最後尾に初期化する）
+        // cur_cmd = channel->LatestIncomingUnreliableCommand();
     }
     else
     {
@@ -319,15 +321,42 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
     // ToDo: dataはshared_ptrで渡す必要がある
     auto segment = std::make_shared<RUdpSegment>(data, flags);
     if (segment == nullptr)
-        return Error::CANT_CREATE;
+        return Error::CANT_ALLOCATE;
 
     auto in_cmd = std::make_shared<RUdpIncomingCommand>();
     if (in_cmd == nullptr)
-        return Error::CANT_CREATE;
+        return Error::CANT_ALLOCATE;
 
-    // ...
+    in_cmd->reliable_sequence_number(cmd->header.reliable_sequence_number);
+    in_cmd->unreliable_sequence_number(unreliable_sequence_number & 0xFFFF);
+    in_cmd->command(cmd);
+    in_cmd->fragment_count(fragment_count);
+    in_cmd->fragments_remaining(fragment_count);
+    in_cmd->segment(segment);
 
-    return Error::OK;
+    if (fragment_count > 0)
+    {
+        auto is_memory_allocated = false;
+        if (fragment_count <= PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
+            // ToDo: メモリ確保できない場合は std::bad_alloc 例外が送出されるので、うまくハンドリングする
+            is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
+
+        if (!is_memory_allocated)
+            return Error::CANT_ALLOCATE;
+    }
+
+    if (segment)
+        total_waiting_data_ += segment->DataLength();
+
+    // ToDo: AAA() もしくは BBB() で設定されたインサートポジションに追加する。
+    //       追加後にはインサートポジションを最後尾にリセットすること。
+    if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
+        channel->InsertReliableCommand(in_cmd);
+    else
+        channel->InsertUnreliableCommand(in_cmd);
+
+    // ToDo: 戻り値をキューイングすること
+    return channel;
 }
 
 // TODO: Is segment necessary as an argument?
