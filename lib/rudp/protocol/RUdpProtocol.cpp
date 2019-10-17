@@ -382,7 +382,32 @@ Error
 RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data,
                                  uint16_t data_length, uint16_t flags, uint32_t fragment_count)
 {
-    return peer->QueueIncomingCommand(cmd, data, data_length, flags, fragment_count, maximum_waiting_data_);
+    Error ret;
+
+    ret = peer->QueueIncomingCommand(cmd, data, data_length, flags, fragment_count, maximum_waiting_data_);
+
+    if (ret != Error::OK)
+        return ret;
+
+    auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command);
+
+    if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
+    {
+        // ToDo: オリジナルコードは channel を渡しているが、peer から引っ張れるので、ここでは渡さない
+        ret = DispatchIncomingReliableCommands(peer);
+
+        if (ret != Error::OK)
+            return ret;
+    }
+    else
+    {
+        ret = DispatchIncomingUnreliableCommands(peer);
+
+        if (ret != Error::OK)
+            return ret;
+    }
+
+    return Error::OK;
 }
 
 Error
