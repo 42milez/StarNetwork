@@ -66,7 +66,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 }
 
 void
-RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
+RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
                              const RUdpAddress &received_address,
                              uint32_t host_incoming_bandwidth,
                              uint32_t host_outgoing_bandwidth,
@@ -213,7 +213,7 @@ RUdpPeer::Ping()
 }
 
 void
-RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
+RUdpPeer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
 {
     if (cmd->header.channel_id < channels_.size())
     {
@@ -255,14 +255,15 @@ DiscardCommand(uint32_t fragment_count)
 }
 }
 
-std::variant<std::shared_ptr<RUdpChannel>, Error>
-RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uint16_t data_length, uint16_t flags,
-                               uint32_t fragment_count, size_t maximum_waiting_data)
+Error
+RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t data_length,
+                               uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
 {
     //core::Singleton<core::Logger>::Instance().Debug("Queued command: **********");
 
     auto channel = channels_.at(cmd->header.channel_id);
     uint16_t reliable_sequence_number{};
+    uint16_t unreliable_sequence_number{};
 
     if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
         return DiscardCommand(fragment_count);
@@ -293,7 +294,7 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
     }
     else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE || cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
     {
-        auto unreliable_sequence_number = ntohs(cmd->send_unreliable.unreliable_sequence_number);
+        unreliable_sequence_number = ntohs(cmd->send_unreliable.unreliable_sequence_number);
 
         if (reliable_sequence_number == channel->incoming_reliable_sequence_number() &&
             unreliable_sequence_number <= channel->incoming_unreliable_sequence_number())
@@ -336,13 +337,14 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
 
     if (fragment_count > 0)
     {
-        auto is_memory_allocated = false;
+        Error is_memory_allocated{};
+
         if (fragment_count <= PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
             // ToDo: メモリ確保できない場合は std::bad_alloc 例外が送出されるので、うまくハンドリングする
             is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
 
-        if (!is_memory_allocated)
-            return Error::CANT_ALLOCATE;
+        if (is_memory_allocated == Error::CANT_ALLOCATE)
+            return Error::ERROR;
     }
 
     if (segment)
@@ -355,8 +357,7 @@ RUdpPeer::QueueIncomingCommand(const RUdpProtocolType *cmd, VecUInt8It data, uin
     else
         channel->InsertUnreliableCommand(in_cmd);
 
-    // ToDo: 戻り値をキューイングすること
-    return channel;
+    return Error::ERROR;
 }
 
 // TODO: Is segment necessary as an argument?

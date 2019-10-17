@@ -8,6 +8,22 @@ class RUdpIncomingCommand : public RUdpCommand
 public:
     RUdpIncomingCommand();
 
+    Error
+    ResizeFragmentBuffer(size_t val);
+
+public:
+    void
+    fragment_count(uint32_t val) { fragment_count_ = val; }
+
+    void
+    fragments_remaining(uint32_t val) { fragments_remaining_ = val; }
+
+    void
+    reliable_sequence_number(uint16_t val) { reliable_sequence_number_ = val; }
+
+    void
+    unreliable_sequence_number(uint16_t val) { unreliable_sequence_number_ = val; }
+
 private:
     std::vector<uint32_t> fragments_;
 

@@ -264,7 +264,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
                 break;
 
-            auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
+            auto cmd = std::make_shared<RUdpProtocolType>(current_data);
             auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
             if (cmd_type >= RUdpProtocolCommand::COUNT)

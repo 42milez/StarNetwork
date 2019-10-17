@@ -284,7 +284,7 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 
 Error
 RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
-                                const RUdpProtocolType *cmd, uint32_t service_time,
+                                const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
                                 std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect)
 {
      auto &net = peer->net();
@@ -346,7 +346,8 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
 }
 
 Error
-RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It &data)
+RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+                                   VecUInt8It &data)
 {
     // ToDo
     // ...
@@ -379,8 +380,8 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 Error
-RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd, VecUInt8It data,
-                                 uint16_t data_length, uint16_t flags, uint32_t fragment_count)
+RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+                                 VecUInt8It data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
 {
     Error ret;
 
@@ -412,7 +413,7 @@ RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const RU
 
 Error
 RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
-                                  const RUdpProtocolType *cmd)
+                                  const std::shared_ptr<RUdpProtocolType> &cmd)
 {
     auto &net = peer->net();
 
@@ -470,7 +471,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
 }
 
 Error
-RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolType *cmd)
+RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd)
 {
     auto &net = peer->net();
 
