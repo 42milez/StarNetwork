@@ -368,8 +368,8 @@ RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const 
 }
 
 void
-RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader * header,
-                            const RUdpProtocolType * cmd, const RUdpAddress &received_address,
+RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolHeader *header,
+                            const std::shared_ptr<RUdpProtocolType> &cmd, const RUdpAddress &received_address,
                             uint32_t host_outgoing_bandwidth, uint32_t host_incoming_bandwidth)
 {
     auto channel_count = ntohl(cmd->connect.channel_count);

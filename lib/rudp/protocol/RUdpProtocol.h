@@ -36,8 +36,8 @@ public:
                          VecUInt8It &data);
 
     void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
-                       const RUdpProtocolHeader * header,
-                       const RUdpProtocolType * cmd,
+                       const RUdpProtocolHeader *header,
+                       const std::shared_ptr<RUdpProtocolType> &cmd,
                        const RUdpAddress &received_address,
                        uint32_t host_incoming_bandwidth,
                        uint32_t host_outgoing_bandwidth);
