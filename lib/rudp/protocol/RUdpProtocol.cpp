@@ -283,6 +283,18 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 Error
+RUdpProtocol::DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer)
+{
+    return Error::OK;
+}
+
+Error
+RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer)
+{
+    return Error::OK;
+}
+
+Error
 RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                                 const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
                                 std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect)
