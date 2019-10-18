@@ -47,6 +47,9 @@ public:
     incoming_reliable_sequence_number() { return incoming_reliable_sequence_number_; }
 
     inline uint16_t
+    incoming_unreliable_sequence_number() { return incoming_unreliable_sequence_number_; }
+
+    inline uint16_t
     outgoing_reliable_sequence_number() { return outgoing_reliable_sequence_number_; }
 
     inline uint16_t
