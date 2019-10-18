@@ -30,7 +30,7 @@ Logger::Init(const std::string &logger_name)
     debug_ = true;
 #else
     spdlog::set_level(spdlog::level::info);
-    spdlog::set_pattern("[%H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
+    spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
 #endif
 
     return true;
