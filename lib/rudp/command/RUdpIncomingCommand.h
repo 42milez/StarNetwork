@@ -18,8 +18,14 @@ public:
     void
     fragments_remaining(uint32_t val) { fragments_remaining_ = val; }
 
+    uint16_t
+    reliable_sequence_number() { return reliable_sequence_number_; }
+
     void
     reliable_sequence_number(uint16_t val) { reliable_sequence_number_ = val; }
+
+    uint16_t
+    unreliable_sequence_number() { return unreliable_sequence_number_; }
 
     void
     unreliable_sequence_number(uint16_t val) { unreliable_sequence_number_ = val; }

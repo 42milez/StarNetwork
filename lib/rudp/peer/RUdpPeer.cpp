@@ -259,105 +259,21 @@ Error
 RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t data_length,
                                uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
 {
-    //core::Singleton<core::Logger>::Instance().Debug("Queued command: **********");
-
-    auto channel = channels_.at(cmd->header.channel_id);
-    uint16_t reliable_sequence_number{};
-    uint16_t unreliable_sequence_number{};
-
     if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
         return DiscardCommand(fragment_count);
-
-    if ((cmd->header.command & PROTOCOL_COMMAND_MASK) != static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
-    {
-        reliable_sequence_number = cmd->header.reliable_sequence_number;
-        auto reliable_window = reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
-        auto current_window = channel->incoming_reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
-
-        if (reliable_sequence_number < channel->incoming_reliable_sequence_number())
-            reliable_window += PEER_RELIABLE_WINDOWS;
-
-        if (reliable_window < current_window || reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
-            return DiscardCommand(fragment_count);
-    }
-
-    auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command);
-
-    if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
-    {
-        if (reliable_sequence_number == channel->incoming_reliable_sequence_number())
-            return DiscardCommand(fragment_count);
-
-        // ToDo: AAA() でインサートポジションを設定する
-        if (!channel->AAA())
-            return DiscardCommand(fragment_count);
-    }
-    else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE || cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
-    {
-        unreliable_sequence_number = ntohs(cmd->send_unreliable.unreliable_sequence_number);
-
-        if (reliable_sequence_number == channel->incoming_reliable_sequence_number() &&
-            unreliable_sequence_number <= channel->incoming_unreliable_sequence_number())
-        {
-            return DiscardCommand(fragment_count);
-        }
-
-        // ToDo: BBB() でインサートポジションを設定する
-        if (!channel->BBB())
-            return DiscardCommand(fragment_count);
-    }
-    else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
-    {
-        // ToDo: インサートポジションを変えない（chennelのコンストラクタで最後尾に初期化する）
-        // cur_cmd = channel->LatestIncomingUnreliableCommand();
-    }
-    else
-    {
-        return DiscardCommand(fragment_count);
-    }
 
     if (total_waiting_data_ >= maximum_waiting_data)
         return DiscardCommand(fragment_count);
 
-    // ToDo: dataはshared_ptrで渡す必要がある
-    auto segment = std::make_shared<RUdpSegment>(data, flags);
-    if (segment == nullptr)
-        return Error::CANT_ALLOCATE;
+    auto channel = channels_.at(cmd->header.channel_id);
+    auto ret = channel->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
-    auto in_cmd = std::make_shared<RUdpIncomingCommand>();
-    if (in_cmd == nullptr)
-        return Error::CANT_ALLOCATE;
-
-    in_cmd->reliable_sequence_number(cmd->header.reliable_sequence_number);
-    in_cmd->unreliable_sequence_number(unreliable_sequence_number & 0xFFFF);
-    in_cmd->command(cmd);
-    in_cmd->fragment_count(fragment_count);
-    in_cmd->fragments_remaining(fragment_count);
-    in_cmd->segment(segment);
-
-    if (fragment_count > 0)
-    {
-        Error is_memory_allocated{};
-
-        if (fragment_count <= PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
-            // ToDo: メモリ確保できない場合は std::bad_alloc 例外が送出されるので、うまくハンドリングする
-            is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
-
-        if (is_memory_allocated == Error::CANT_ALLOCATE)
-            return Error::ERROR;
-    }
-
-    if (segment)
-        total_waiting_data_ += segment->DataLength();
-
-    // ToDo: AAA() もしくは BBB() で設定されたインサートポジションに追加する。
-    //       追加後にはインサートポジションを最後尾にリセットすること。
-    if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
-        channel->InsertReliableCommand(in_cmd);
+    if (ret == Error::OK)
+        total_waiting_data_ += data_length;
     else
-        channel->InsertUnreliableCommand(in_cmd);
+        return ret;
 
-    return Error::ERROR;
+    return Error::OK;
 }
 
 // TODO: Is segment necessary as an argument?

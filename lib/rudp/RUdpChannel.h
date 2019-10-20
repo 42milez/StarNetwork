@@ -4,6 +4,7 @@
 #include <array>
 #include <list>
 
+#include "core/errors.h"
 #include "core/logger.h"
 #include "core/singleton.h"
 #include "lib/rudp/command/RUdpIncomingCommand.h"
@@ -38,6 +39,10 @@ public:
 
     inline void
     MarkReliableWindowAsUsed(uint16_t position) { used_reliable_windows_ |= 1u << position; }
+
+    Error
+    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t flags,
+                         uint32_t fragment_count);
 
     inline uint16_t
     ReliableWindow(size_t idx) { return reliable_windows_.at(idx); }
