@@ -88,6 +88,9 @@ public:
     inline void
     Address(const RUdpAddress val) { address_ = val; }
 
+    std::shared_ptr<RUdpChannel>
+    Channel(uint8_t val) { return channels_.at(val); }
+
     inline bool
     ChannelExists() { return !channels_.empty(); }
 

@@ -47,6 +47,9 @@ public:
     inline uint16_t
     ReliableWindow(size_t idx) { return reliable_windows_.at(idx); }
 
+    std::vector<std::shared_ptr<RUdpIncomingCommand>>
+    UpdateReliableSequenceNumber();
+
 public:
     inline uint16_t
     incoming_reliable_sequence_number() { return incoming_reliable_sequence_number_; }

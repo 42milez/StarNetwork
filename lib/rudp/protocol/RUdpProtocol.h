@@ -22,10 +22,12 @@ public:
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
 
     Error
-    DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer);
+    DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+                                     const std::shared_ptr<RUdpProtocolType> &cmd);
 
     Error
-    DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer);
+    DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+                                       const std::shared_ptr<RUdpProtocolType> &cmd);
 
     Error HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
                             const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,

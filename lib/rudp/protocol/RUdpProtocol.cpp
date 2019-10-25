@@ -283,13 +283,21 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 Error
-RUdpProtocol::DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer)
+RUdpProtocol::DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+                                               const std::shared_ptr<RUdpProtocolType> &cmd)
 {
+    auto ch = peer->Channel(cmd->header.channel_id);
+
+    ch->UpdateReliableSequenceNumber();
+
+    // ...
+
     return Error::OK;
 }
 
 Error
-RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer)
+RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+                                                 const std::shared_ptr<RUdpProtocolType> &cmd)
 {
     return Error::OK;
 }
@@ -407,14 +415,14 @@ RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const st
     if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
     {
         // ToDo: オリジナルコードは channel を渡しているが、peer から引っ張れるので、ここでは渡さない
-        ret = DispatchIncomingReliableCommands(peer);
+        ret = DispatchIncomingReliableCommands(peer, cmd);
 
         if (ret != Error::OK)
             return ret;
     }
     else
     {
-        ret = DispatchIncomingUnreliableCommands(peer);
+        ret = DispatchIncomingUnreliableCommands(peer, cmd);
 
         if (ret != Error::OK)
             return ret;
