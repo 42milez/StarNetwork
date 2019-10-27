@@ -22,7 +22,7 @@ public:
     EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
 
     Error
-    DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+    DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
                                      const std::shared_ptr<RUdpProtocolType> &cmd);
 
     Error

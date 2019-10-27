@@ -11,6 +11,35 @@ RUdpChannel::RUdpChannel()
       used_reliable_windows_()
 {}
 
+std::vector<std::shared_ptr<RUdpIncomingCommand>>
+RUdpChannel::NewIncomingReliableCommands()
+{
+    std::vector<std::shared_ptr<RUdpIncomingCommand>> commands;
+    auto is_new_command_detected = false;
+
+    for (auto &cmd : incoming_reliable_commands_)
+    {
+        auto reliable_sequence_number = cmd->reliable_sequence_number();
+
+        if (cmd->fragments_remaining() > 0 || reliable_sequence_number != incoming_reliable_sequence_number_ + 1)
+            break;
+        else
+            is_new_command_detected = true;
+
+        incoming_reliable_sequence_number_ = reliable_sequence_number;
+
+        if (cmd->fragment_count() > 0)
+            incoming_reliable_sequence_number_ += cmd->fragment_count() - 1;
+
+        commands.push_back(cmd);
+    }
+
+    if (is_new_command_detected)
+        incoming_unreliable_sequence_number_ = 0;
+
+    return commands;
+}
+
 void RUdpChannel::Reset()
 {
     incoming_reliable_commands_.clear();

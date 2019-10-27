@@ -103,6 +103,10 @@ public:
     inline bool
     Disconnected() { return net_->StateIs(RUdpPeerState::DISCONNECTED); }
 
+    void
+    DispatchIncomingCommands(const std::vector<std::shared_ptr<RUdpIncomingCommand>> &commands)
+    { for (auto &cmd : commands) dispatched_commands_.push(cmd); }
+
     inline bool
     DispatchedCommandExists() { return !dispatched_commands_.empty(); }
 
@@ -166,7 +170,7 @@ private:
     std::vector<std::shared_ptr<RUdpChannel>> channels_;
     std::unique_ptr<RUdpCommandPod> command_pod_;
     VecUInt8 data_;
-    std::queue<RUdpIncomingCommand> dispatched_commands_;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
     std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 

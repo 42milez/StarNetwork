@@ -12,8 +12,14 @@ public:
     ResizeFragmentBuffer(size_t val);
 
 public:
+    uint32_t
+    fragment_count() { return fragment_count_; }
+
     void
     fragment_count(uint32_t val) { fragment_count_ = val; }
+
+    uint32_t
+    fragments_remaining() { return fragments_remaining_; }
 
     void
     fragments_remaining(uint32_t val) { fragments_remaining_ = val; }

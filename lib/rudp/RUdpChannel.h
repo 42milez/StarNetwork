@@ -14,6 +14,9 @@ class RUdpChannel
 public:
     RUdpChannel();
 
+    std::vector<std::shared_ptr<RUdpIncomingCommand>>
+    NewIncomingReliableCommands();
+
     void
     Reset();
 
@@ -27,6 +30,9 @@ public:
                                                         outgoing_reliable_sequence_number_ + 1);
         ++outgoing_reliable_sequence_number_;
     }
+
+    inline bool
+    IncomingUnreliableCommandExists() { return !incoming_unreliable_commands_.empty(); }
 
     inline void
     IncrementOutgoingUnreliableSequenceNumber() { ++outgoing_unreliable_sequence_number_; }
@@ -46,9 +52,6 @@ public:
 
     inline uint16_t
     ReliableWindow(size_t idx) { return reliable_windows_.at(idx); }
-
-    std::vector<std::shared_ptr<RUdpIncomingCommand>>
-    UpdateReliableSequenceNumber();
 
 public:
     inline uint16_t

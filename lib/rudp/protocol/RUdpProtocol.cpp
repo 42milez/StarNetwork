@@ -283,14 +283,23 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
 }
 
 Error
-RUdpProtocol::DispatchIncomingReliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
                                                const std::shared_ptr<RUdpProtocolType> &cmd)
 {
     auto ch = peer->Channel(cmd->header.channel_id);
 
-    ch->UpdateReliableSequenceNumber();
+    auto reliable_commands = ch->NewIncomingReliableCommands();
 
-    // ...
+    peer->DispatchIncomingCommands(reliable_commands);
+
+    if (!peer->needs_dispatch())
+    {
+        dispatch_hub_->Enqueue(peer);
+        peer->needs_dispatch(true);
+    }
+
+    if (ch->IncomingUnreliableCommandExists())
+        DispatchIncomingUnreliableCommands(peer, cmd);
 
     return Error::OK;
 }
@@ -299,6 +308,9 @@ Error
 RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer,
                                                  const std::shared_ptr<RUdpProtocolType> &cmd)
 {
+    // TODO: 実装
+    // ...
+
     return Error::OK;
 }
 
