@@ -412,7 +412,7 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 Error
-RUdpProtocol::HandleSendReliable(const std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+RUdpProtocol::HandleSendReliable(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
                                  VecUInt8It data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
 {
     Error ret;
