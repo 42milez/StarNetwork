@@ -117,5 +117,41 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Send Reliable Command", "[IPv4]")
     LOG(" Step 2 : peer1 sends reliable command to peer2");
     LOG("==================================================");
 
-    // ...
+//    std::string msg1{"send reliable command from peer1"};
+//    auto data1 = std::make_shared<std::vector<uint8_t>>(msg1.begin(), msg1.end());
+//    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
+//                  static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+//    auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
+//
+//    LOG("");
+//    LOG("[PEER 1 : SEND RELIABLE COMMAND (1)]");
+//
+//    peer1->Send(SysCh::RELIABLE, segment1);
+//    DELAY();
+//
+//    LOG("");
+//    LOG("[PEER 1 (2)]");
+//
+//    peer1->Service(peer1_event, 0);
+//    DELAY();
+//
+//    LOG("");
+//    LOG("[PEER 2 (3)]");
+//
+//    Service(peer2_event, 0);
+//    DELAY();
+//
+//    LOG("");
+//    LOG("[PEER 1 (4)]");
+//
+//    peer1->Service(peer1_event, 0);
+//    DELAY();
+//
+//    LOG("");
+//    LOG("[PEER 2 (5)]");
+//
+//    Service(peer2_event, 0);
+//    DELAY();
+
+    REQUIRE(true);
 }
