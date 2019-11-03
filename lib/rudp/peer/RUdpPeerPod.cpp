@@ -543,6 +543,8 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
             if (protocol_->chamber()->command_count() == 0)
                 continue;
 
+            auto drop_sent_time = false;
+
             if (net->segment_loss_epoch() == 0)
             {
                 net->segment_loss_epoch(service_time);
@@ -560,7 +562,8 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
             else
             {
                 //protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
-                protocol_->chamber()->DropSentTime();
+                //protocol_->chamber()->DropSentTime();
+                drop_sent_time = true;
             }
 
             auto should_compress = false;
@@ -595,7 +598,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
             // buffers_[1]: コマンド
             // buffers_[2]: コマンド
             // buffers_[n]: コマンド
-            protocol_->chamber()->SetHeader(header_data);
+            protocol_->chamber()->SetHeader(header_data, drop_sent_time);
 
             net->last_send_time(service_time);
 

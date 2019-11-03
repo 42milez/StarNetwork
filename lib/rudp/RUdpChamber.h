@@ -36,7 +36,10 @@ public:
     IncrementSegmentSize(size_t val) { segment_size_ += val; }
 
     inline void
-    SetHeader(const VecUInt8 &header) { buffers_.at(0)->CopyHeaderFrom(header, 0, 4); }
+    SetHeader(const VecUInt8 &header, bool drop_sent_time) {
+        auto header_size = drop_sent_time ? 2 : 4;
+        buffers_.at(0)->CopyHeaderFrom(header, 0, header_size);
+    }
 
     //bool command_buffer_have_enough_space(RUdpProtocolType *command);
     //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
