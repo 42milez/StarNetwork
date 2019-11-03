@@ -57,7 +57,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     //  Step 1 : Connect to the peer2
     // ==================================================
 
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (1)]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     peer1->Connect(peer2_address, SysCh::MAX, 0);
@@ -67,7 +67,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (2)]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (3)]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (4)]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     // [Queue] PROTOCOL_COMMAND_BANDWIDTH_LIMIT
@@ -99,7 +99,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // ==================================================
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (5)]");
 
     // [Queue] PROTOCOL_COMMAND_PING
     // [Queue] PROTOCOL_COMMAND_DISCONNECT
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (6)]");
 
     // [Receive] PROTOCOL_COMMAND_PING
     // [Receive] PROTOCOL_COMMAND_DISCONNECT
@@ -119,14 +119,14 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (7)]");
 
     // [Receive] PROTOCOL_COMMAND_BANDWIDTH
     peer1->Service(peer1_event, 0);
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (8)]");
 
     Service(peer2_event, 0);
 
@@ -155,7 +155,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // ==================================================
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (9)]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // [Send]  PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
@@ -164,7 +164,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (10)]");
 
     // [Receive] PROTOCOL_COMMAND_CONNECT
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
@@ -173,7 +173,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (11)]");
 
     // [Receive] PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_ACKNOWLEDGE
@@ -181,7 +181,7 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (12)]");
 
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     Service(peer2_event, 0);
@@ -194,32 +194,32 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Connect to the peer2 and disconnect from the
     // ==================================================
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (13)]");
 
     peer1->DisconnectLater(peer1_event->peer(), 0);
     peer1->Service(peer1_event, 0);
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (14)]");
 
     Service(peer2_event, 0);
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (15)]");
 
     peer1->Service(peer1_event, 0);
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 2]");
+    LOG("[PEER 2 (16)]");
 
     Service(peer2_event, 0);
     usleep(SLEEP_DURATION);
 
     LOG("");
-    LOG("[PEER 1]");
+    LOG("[PEER 1 (17)]");
 
     peer1->Service(peer1_event, 0);
 
