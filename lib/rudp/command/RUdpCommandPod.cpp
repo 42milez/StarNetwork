@@ -213,7 +213,7 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         if ((*outgoing_command)->HasPayload())
         {
             buffer = chamber->EmptyDataBuffer();
-            (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
+            (*outgoing_command)->MoveDataTo((*buffer));
 
             chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 
@@ -295,7 +295,8 @@ RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &
         if ((*outgoing_command)->HasPayload())
         {
             buffer = chamber->EmptyDataBuffer();
-            (*buffer)->Add((*outgoing_command)->segment()->Data(), (*outgoing_command)->fragment_offset());
+
+            (*outgoing_command)->MoveDataTo((*buffer));
 
             chamber->IncrementSegmentSize((*outgoing_command)->fragment_length());
 

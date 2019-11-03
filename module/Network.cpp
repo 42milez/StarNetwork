@@ -243,7 +243,7 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
 //    while (total) {
 //        for (auto i = 0; i < in_buffer_size; i++) {
 //            auto to_copy = std::min(total, in_buffers.at(i).DataLength());
-//            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).data_, to_copy);
+//            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).buffer_, to_copy);
 //            offset += to_copy;
 //            total -= to_copy;
 //        }

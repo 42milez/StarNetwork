@@ -47,7 +47,7 @@ public:
     MarkReliableWindowAsUsed(uint16_t position) { used_reliable_windows_ |= 1u << position; }
 
     Error
-    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t flags,
+    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                          uint32_t fragment_count);
 
     inline uint16_t

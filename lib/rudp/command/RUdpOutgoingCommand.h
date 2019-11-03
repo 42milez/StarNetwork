@@ -16,18 +16,6 @@ public:
 
 public:
     inline uint16_t
-    fragment_length() { return fragment_length_; }
-
-    inline void
-    fragment_length(uint16_t val) { fragment_length_ = val; }
-
-    inline uint32_t
-    fragment_offset() { return fragment_offset_; }
-
-    inline void
-    fragment_offset(uint32_t val) { fragment_offset_ = val; }
-
-    inline uint16_t
     unreliable_sequence_number() { return unreliable_sequence_number_; }
 
     inline void
@@ -64,9 +52,6 @@ public:
     sent_time(uint32_t val) { sent_time_ = val; }
 
 private:
-    uint32_t fragment_offset_;
-    uint16_t fragment_length_;
-
     uint32_t round_trip_timeout_;
     uint32_t round_trip_timeout_limit_;
 

@@ -1,5 +1,6 @@
-#include "core/hash.h"
+#include <utility>
 
+#include "core/hash.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpMacro.h"
@@ -256,7 +257,7 @@ DiscardCommand(uint32_t fragment_count)
 }
 
 Error
-RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t data_length,
+RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
                                uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
 {
     if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
@@ -327,11 +328,11 @@ RUdpPeer::Receive()
         return {nullptr, 0};
 
     auto incoming_command = dispatched_commands_.front();
-    auto segment = incoming_command.segment();
+    auto segment = incoming_command->segment();
 
     total_waiting_data_ -= segment->DataLength();
 
-    return {segment, incoming_command.header_channel_id()};
+    return {segment, incoming_command->header_channel_id()};
 }
 
 Error
@@ -461,7 +462,7 @@ RUdpPeer::PopAcknowledgement()
 void
 RUdpPeer::ClearDispatchedCommandQueue()
 {
-    std::queue<RUdpIncomingCommand> empty;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
     std::swap(dispatched_commands_, empty);
 }
 
@@ -507,7 +508,7 @@ RUdpPeer::Reset(uint16_t peer_idx)
     command_pod_->Reset();
     net_->Reset();
 
-    std::queue<RUdpIncomingCommand> empty;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
     dispatched_commands_.swap(empty);
 
     address_.Reset();
@@ -549,7 +550,7 @@ RUdpPeer::ResetPeerQueues()
 
     if (!dispatched_commands_.empty())
     {
-        std::queue<RUdpIncomingCommand> empty;
+        std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
         std::swap(dispatched_commands_, empty);
     }
 

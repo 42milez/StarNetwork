@@ -12,7 +12,7 @@
 class RUdpSegment
 {
 public:
-    RUdpSegment(const VecUInt8SharedPtr &data, uint32_t flags);
+    RUdpSegment(VecUInt8 &data, uint32_t flags);
 
     void
     AddPeerIdx(uint32_t peer_idx);
@@ -26,18 +26,18 @@ public:
     inline uint32_t
     AddFlag(uint32_t flag) { return flags_ |= flag; }
 
-    inline VecUInt8SharedPtr
+    inline VecUInt8
     Data() { return data_; }
 
     inline size_t
-    DataLength() { return data_->size() * sizeof(uint8_t); }
+    DataLength() { return data_.size() * sizeof(uint8_t); }
 
 public:
     inline uint32_t
     flags() { return flags_; }
 
 private:
-    VecUInt8SharedPtr data_;
+    VecUInt8 data_;
     VecUInt8 user_data_;
 
     std::function<void(RUdpSegment *)> free_callback_;

@@ -118,9 +118,8 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     LOG("==================================================");
 
     std::string msg1{"send broadcast from peer1"};
-    auto data1 = std::make_shared<std::vector<uint8_t>>(msg1.begin(), msg1.end());
-    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-                  static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+    auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
+    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
     auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
 
     LOG("");
@@ -160,9 +159,8 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
     // ==================================================
 
     std::string msg2{"send broadcast from peer2"};
-    auto data2 = std::make_shared<std::vector<uint8_t>>(msg2.begin(), msg2.end());
-    auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-        static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+    auto data2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
+    auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
     auto segment2 = std::make_shared<RUdpSegment>(data2, flags2);
 
     LOG("");

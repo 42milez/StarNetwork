@@ -54,7 +54,7 @@ RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
     if (*cmd_it == nullptr)
         return true;
 
-    // unsent data_ exists
+    // unsent buffer_ exists
     //if (buffer + 1 >= &buffers_.at(sizeof(buffers_) / sizeof(RUdpBuffer)))
     // If the next is the end of the iterator, no more data cannot be pushed into buffer.
     if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))

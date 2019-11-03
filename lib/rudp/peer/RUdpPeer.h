@@ -45,7 +45,7 @@ public:
     QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time);
 
     Error
-    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t data_length,
+    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
                          uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data);
 
     void

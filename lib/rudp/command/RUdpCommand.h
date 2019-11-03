@@ -4,13 +4,17 @@
 #include <vector>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "lib/rudp/RUdpBuffer.h"
 #include "lib/rudp/RUdpConst.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "lib/rudp/RUdpSegment.h"
+#include "lib/rudp/RUdpType.h"
 
 class RUdpCommand
 {
 public:
+    RUdpCommand();
+
     inline uint8_t
     CommandNumber() { return command_->header.command & PROTOCOL_COMMAND_MASK; }
 
@@ -22,6 +26,9 @@ public:
 
     inline bool
     IsUnsequenced() { return command_->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED); }
+
+    void
+    MoveDataTo(const std::shared_ptr<RUdpBuffer> &buffer);
 
 public:
     inline uint8_t
@@ -35,6 +42,18 @@ public:
 
     inline void
     command(const RUdpProtocolTypeSP &command) { command_ = command; }
+
+    inline uint16_t
+    fragment_length() { return fragment_length_; }
+
+    inline void
+    fragment_length(uint16_t val) { fragment_length_ = val; }
+
+    inline uint32_t
+    fragment_offset() { return fragment_offset_; }
+
+    inline void
+    fragment_offset(uint32_t val) { fragment_offset_ = val; }
 
     inline void
     header_command_number(uint8_t val) { command_->header.command = val; }
@@ -75,6 +94,9 @@ public:
 protected:
     RUdpProtocolTypeSP command_;
     RUdpSegmentSP segment_;
+
+    uint32_t fragment_offset_;
+    uint16_t fragment_length_;
 };
 
 #endif // P2P_TECHDEMO_RUDPCOMMAND_H

@@ -65,7 +65,7 @@ namespace
 }
 
 Error
-RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8It data, uint16_t flags,
+RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                                   uint32_t fragment_count)
 {
     uint16_t reliable_sequence_number{};

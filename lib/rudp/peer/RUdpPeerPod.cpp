@@ -264,7 +264,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
                 break;
 
-            auto cmd = std::make_shared<RUdpProtocolType>(current_data);
+            auto cmd = std::make_shared<RUdpProtocolType>(*reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
             auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
             if (cmd_type >= RUdpProtocolCommand::COUNT)
@@ -278,6 +278,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 
             if (peer == nullptr && cmd_type != RUdpProtocolCommand::CONNECT)
                 break;
+
+            auto cmd_body = std::vector<uint8_t>{current_data, end};
 
             cmd->header.reliable_sequence_number = ntohs(cmd->header.reliable_sequence_number);
 
@@ -367,9 +369,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 EXCEEDS_CHANNEL_COUNT()
                 EXCEEDS_RECEIVED_LENGTH()
 
-                if (protocol_->HandleSendReliable(peer, cmd, current_data + sizeof(RUdpProtocolSendReliable),
-                                                  data_length, static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE),
-                                                  0) == Error::ERROR)
+                if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
+                                                  static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE), 0) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE)
@@ -464,7 +465,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 void
 RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum)
 {
-    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
+    std::vector<uint8_t> empty_data;
+    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(empty_data,
+            static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
 
     segment->AddSysMsg(SysMsg::REMOVE_PEER);
     segment->AddPeerIdx(peer_idx);
@@ -473,13 +476,11 @@ RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer>
 }
 
 EventStatus
-RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
-                                  uint32_t service_time,
-                                  bool check_for_timeouts,
-                                  ChecksumCallback checksum)
+RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time,
+                                  bool check_for_timeouts, ChecksumCallback checksum)
 {
-    auto header_data = std::make_shared<VecUInt8>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
-    auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
+    auto header_data = VecUInt8(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
+    auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data.at(0)));
 
     protocol_->continue_sending(true);
 
