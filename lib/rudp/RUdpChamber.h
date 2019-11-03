@@ -30,9 +30,6 @@ public:
     Write(VecUInt8 &out);
 
     inline void
-    DropSentTime() { buffers_.at(0)->Size((size_t) &((RUdpProtocolHeader *) nullptr)->sent_time); }
-
-    inline void
     IncrementSegmentSize(size_t val) { segment_size_ += val; }
 
     inline void

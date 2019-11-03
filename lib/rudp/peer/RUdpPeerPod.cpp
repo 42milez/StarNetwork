@@ -561,8 +561,6 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint3
             }
             else
             {
-                //protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
-                //protocol_->chamber()->DropSentTime();
                 drop_sent_time = true;
             }
 
