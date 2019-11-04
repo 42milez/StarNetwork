@@ -168,8 +168,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     {
         return DiscardCommand(fragment_count);
     }
-
-    // ToDo: dataはshared_ptrで渡す必要がある
+    
     auto segment = std::make_shared<RUdpSegment>(data, flags);
     if (segment == nullptr)
         return Error::CANT_ALLOCATE;
