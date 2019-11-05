@@ -257,7 +257,7 @@ RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
             if (!peer->DispatchedCommandExists())
                 continue;
 
-            // 接続済みのピアからはコマンドを受信する
+            // 接続済みのピアからセグメントを取得
             auto [segment, channel_id] = peer->Receive();
 
             if (segment == nullptr)
