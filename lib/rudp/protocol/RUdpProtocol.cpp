@@ -290,7 +290,7 @@ RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
 
     auto reliable_commands = ch->NewIncomingReliableCommands();
 
-    peer->DispatchIncomingCommands(reliable_commands);
+    peer->PushIncomingCommandsToDispatchQueue(reliable_commands);
 
     if (!peer->needs_dispatch())
     {

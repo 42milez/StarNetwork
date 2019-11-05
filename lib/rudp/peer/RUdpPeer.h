@@ -104,7 +104,7 @@ public:
     Disconnected() { return net_->StateIs(RUdpPeerState::DISCONNECTED); }
 
     void
-    DispatchIncomingCommands(const std::vector<std::shared_ptr<RUdpIncomingCommand>> &commands)
+    PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<RUdpIncomingCommand>> &commands)
     { for (auto &cmd : commands) dispatched_commands_.push(cmd); }
 
     inline bool
