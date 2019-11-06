@@ -266,8 +266,8 @@ RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, Vec
     if (total_waiting_data_ >= maximum_waiting_data)
         return DiscardCommand(fragment_count);
 
-    auto channel = channels_.at(cmd->header.channel_id);
-    auto ret = channel->QueueIncomingCommand(cmd, data, flags, fragment_count);
+    auto ch = channels_.at(cmd->header.channel_id);
+    auto ret = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
     if (ret == Error::OK)
         total_waiting_data_ += data_length;
