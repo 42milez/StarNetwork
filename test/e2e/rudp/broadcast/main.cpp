@@ -154,9 +154,10 @@ TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
 
     REQUIRE(true);
 
-    // ==================================================
-    //  Step 3 : Broadcast (from peer2 )
-    // ==================================================
+    LOG("");
+    LOG("==================================================");
+    LOG(" Step 3 : Broadcast (from peer2)");
+    LOG("==================================================");
 
     std::string msg2{"send broadcast from peer2"};
     auto data2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
