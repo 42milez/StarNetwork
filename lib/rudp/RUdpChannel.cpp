@@ -120,6 +120,10 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
                 }
             }
         }
+        else
+        {
+            insert_pos = incoming_reliable_commands_.end();
+        }
     }
     else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE || cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
     {
@@ -160,6 +164,10 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
                     return DiscardCommand(fragment_count);
                 }
             }
+        }
+        else
+        {
+            insert_pos = incoming_unreliable_commands_.end();
         }
     }
     else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
@@ -213,5 +221,5 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             incoming_unreliable_commands_.insert(std::next(insert_pos), in_cmd);
     }
 
-    return Error::ERROR;
+    return Error::OK;
 }
