@@ -84,7 +84,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             return DiscardCommand(fragment_count);
     }
 
-    auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command);
+    auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
     std::list<std::shared_ptr<RUdpIncomingCommand>>::iterator insert_pos;
 
     if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
