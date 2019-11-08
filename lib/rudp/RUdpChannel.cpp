@@ -92,31 +92,32 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
         if (reliable_sequence_number == incoming_reliable_sequence_number_)
             return DiscardCommand(fragment_count);
 
-        insert_pos = std::prev(incoming_reliable_commands_.end(), 1);
-
-        auto end_of_list = false;
-        for (; !end_of_list; --insert_pos)
+        if (!incoming_reliable_commands_.empty())
         {
-            if (insert_pos == incoming_reliable_commands_.end())
-                end_of_list = true;
+            auto end_of_list = false;
+            for (insert_pos = std::prev(incoming_reliable_commands_.end(), 1); !end_of_list; --insert_pos)
+            {
+                if (insert_pos == incoming_reliable_commands_.end())
+                    end_of_list = true;
 
-            // ToDo: 62行目でチェックしているので「>=」ではなくて「>」ではないか
-            if (reliable_sequence_number >= incoming_reliable_sequence_number_)
-            {
-                if ((*insert_pos)->reliable_sequence_number() < incoming_reliable_sequence_number_)
-                    continue;
-            }
-            else if ((*insert_pos)->reliable_sequence_number() >= incoming_reliable_sequence_number_)
-            {
-                break;
-            }
-
-            if ((*insert_pos)->reliable_sequence_number() <= reliable_sequence_number)
-            {
-                if ((*insert_pos)->reliable_sequence_number() < reliable_sequence_number)
+                // ToDo: 62行目でチェックしているので「>=」ではなくて「>」ではないか
+                if (reliable_sequence_number >= incoming_reliable_sequence_number_)
+                {
+                    if ((*insert_pos)->reliable_sequence_number() < incoming_reliable_sequence_number_)
+                        continue;
+                }
+                else if ((*insert_pos)->reliable_sequence_number() >= incoming_reliable_sequence_number_)
+                {
                     break;
+                }
 
-                return DiscardCommand(fragment_count);
+                if ((*insert_pos)->reliable_sequence_number() <= reliable_sequence_number)
+                {
+                    if ((*insert_pos)->reliable_sequence_number() < reliable_sequence_number)
+                        break;
+
+                    return DiscardCommand(fragment_count);
+                }
             }
         }
     }
@@ -130,33 +131,34 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             return DiscardCommand(fragment_count);
         }
 
-        insert_pos = std::prev(incoming_unreliable_commands_.end(), 1);
-
-        auto end_of_list = false;
-        for (; !end_of_list; --insert_pos)
+        if (!incoming_unreliable_commands_.empty())
         {
-            if (reliable_sequence_number >= incoming_reliable_sequence_number_)
+            auto end_of_list = false;
+            for (insert_pos = std::prev(incoming_unreliable_commands_.end(), 1); !end_of_list; --insert_pos)
             {
-                if ((*insert_pos)->reliable_sequence_number() < incoming_reliable_sequence_number_)
-                    continue;
-            }
-            else if ((*insert_pos)->reliable_sequence_number() >= incoming_reliable_sequence_number_)
-            {
-                break;
-            }
+                if (reliable_sequence_number >= incoming_reliable_sequence_number_)
+                {
+                    if ((*insert_pos)->reliable_sequence_number() < incoming_reliable_sequence_number_)
+                        continue;
+                }
+                else if ((*insert_pos)->reliable_sequence_number() >= incoming_reliable_sequence_number_)
+                {
+                    break;
+                }
 
-            if ((*insert_pos)->reliable_sequence_number() < reliable_sequence_number)
-                break;
-
-            if ((*insert_pos)->reliable_sequence_number() > reliable_sequence_number)
-                continue;
-
-            if ((*insert_pos)->unreliable_sequence_number() <= unreliable_sequence_number)
-            {
-                if ((*insert_pos)->unreliable_sequence_number() < unreliable_sequence_number)
+                if ((*insert_pos)->reliable_sequence_number() < reliable_sequence_number)
                     break;
 
-                return DiscardCommand(fragment_count);
+                if ((*insert_pos)->reliable_sequence_number() > reliable_sequence_number)
+                    continue;
+
+                if ((*insert_pos)->unreliable_sequence_number() <= unreliable_sequence_number)
+                {
+                    if ((*insert_pos)->unreliable_sequence_number() < unreliable_sequence_number)
+                        break;
+
+                    return DiscardCommand(fragment_count);
+                }
             }
         }
     }
