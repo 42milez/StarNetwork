@@ -332,6 +332,8 @@ RUdpPeer::Receive()
 
     total_waiting_data_ -= segment->DataLength();
 
+    dispatched_commands_.pop();
+
     return {segment, incoming_command->header_channel_id()};
 }
 
