@@ -74,7 +74,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     auto guest2_event = std::make_unique<RUdpEvent>();
 
     LOG("==================================================");
-    LOG(" Step 1 : guest1 sends CONNECT command to host");
+    LOG(" Step 1 : Guest 1 sends CONNECT command to Host");
     LOG("==================================================");
 
     LOG("");
@@ -123,7 +123,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     REQUIRE(guest1->PeerState(0) == RUdpPeerState::CONNECTED);
 
     LOG("==================================================");
-    LOG(" Step 2 : guest2 sends CONNECT command to host");
+    LOG(" Step 2 : Guest 2 sends CONNECT command to Host");
     LOG("==================================================");
 
     LOG("");
@@ -173,38 +173,38 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     LOG("");
     LOG("==================================================");
-    LOG(" Step 3 : Broadcast from guest1");
+    LOG(" Step 3 : Broadcast from Host");
     LOG("==================================================");
 
-    std::string msg1{"send broadcast from guest1"};
+    std::string msg1{"send broadcast from host"};
     auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
     auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
     auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
 
     LOG("");
-    LOG("[GUEST 1 : BROADCAST (1)]");
+    LOG("[HOST : BROADCAST (1)]");
 
-    guest1->Broadcast(SysCh::RELIABLE, segment1);
+    Broadcast(SysCh::RELIABLE, segment1);
 
     DELAY();
 
     LOG("");
-    LOG("[GUEST 1 (2)]");
+    LOG("[HOST (2)]");
 
-    event_status = guest1->Service(guest1_event, 0);
+    event_status = Service(guest1_event, 0);
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
     DELAY();
 
     LOG("");
-    LOG("[HOST (3)]");
+    LOG("[Guest 1 (3)]");
 
-    event_status = Service(host_event, 0);
+    event_status = guest1->Service(guest1_event, 0);
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
-    REQUIRE(host_event->TypeIs(RUdpEventType::RECEIVE));
-    REQUIRE(host_event->DataAsString() == "send broadcast from guest1");
+    REQUIRE(guest1_event->TypeIs(RUdpEventType::RECEIVE));
+    REQUIRE(guest1_event->DataAsString() == "send broadcast from host");
 
     DELAY();
 
@@ -215,23 +215,23 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(guest2_event->TypeIs(RUdpEventType::RECEIVE));
-    REQUIRE(guest2_event->DataAsString() == "send broadcast from guest1");
+    REQUIRE(guest2_event->DataAsString() == "send broadcast from host");
 
     DELAY();
 
     LOG("");
-    LOG("[GUEST 1 (5)]");
+    LOG("[HOST (5)]");
 
-    event_status = guest1->Service(guest1_event, 0);
+    event_status = Service(guest1_event, 0);
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
     DELAY();
 
     LOG("");
-    LOG("[HOST (6)]");
+    LOG("[Guest 1 (6)]");
 
-    event_status = Service(host_event, 0);
+    event_status = guest1->Service(host_event, 0);
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
@@ -245,58 +245,4 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
     DELAY();
-
-    LOG("");
-    LOG("==================================================");
-    LOG(" Step 3 : Broadcast from guest2");
-    LOG("==================================================");
-
-//    std::string msg2{"send broadcast from peer2"};
-//    auto data2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
-//    auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
-//    auto segment2 = std::make_shared<RUdpSegment>(data2, flags2);
-//
-//    LOG("");
-//    LOG("[GUEST 2 : BROADCAST (1)]");
-//
-//    Broadcast(SysCh::RELIABLE, segment2);
-//    DELAY();
-//
-//    LOG("");
-//    LOG("[GUEST 2 (2)]");
-//
-//    event_status = Service(peer2_event, 0);
-//
-//    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
-//
-//    DELAY();
-//
-//    LOG("");
-//    LOG("[GUEST 1 (3)]");
-//
-//    event_status = peer1->Service(peer1_event, 0);
-//
-//    REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
-//    REQUIRE(peer1_event->TypeIs(RUdpEventType::RECEIVE));
-//    REQUIRE(peer1_event->DataAsString() == "send broadcast from peer2");
-//
-//    DELAY();
-//
-//    LOG("");
-//    LOG("[GUEST 2 (4)]");
-//
-//    event_status = Service(peer2_event, 0);
-//
-//    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
-//
-//    DELAY();
-//
-//    LOG("");
-//    LOG("[GUEST 1 (5)]");
-//
-//    event_status = peer1->Service(peer1_event, 0);
-//
-//    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
-//
-//    DELAY();
 }
