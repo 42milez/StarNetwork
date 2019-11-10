@@ -176,7 +176,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     LOG(" Step 3 : Broadcast from Host");
     LOG("==================================================");
 
-    std::string msg1{"send broadcast from host"};
+    std::string msg1{"broadcast command from host"};
     auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
     auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
     auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
@@ -204,7 +204,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(guest1_event->TypeIs(RUdpEventType::RECEIVE));
-    REQUIRE(guest1_event->DataAsString() == "send broadcast from host");
+    REQUIRE(guest1_event->DataAsString() == "broadcast command from host");
 
     DELAY();
 
@@ -215,7 +215,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(guest2_event->TypeIs(RUdpEventType::RECEIVE));
-    REQUIRE(guest2_event->DataAsString() == "send broadcast from host");
+    REQUIRE(guest2_event->DataAsString() == "broadcast command from host");
 
     DELAY();
 
