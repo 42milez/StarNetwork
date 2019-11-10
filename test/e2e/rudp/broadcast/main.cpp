@@ -198,7 +198,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     DELAY();
 
     LOG("");
-    LOG("[Guest 1 (3)]");
+    LOG("[GUEST 1 (3)]");
 
     event_status = guest1->Service(guest1_event, 0);
 
@@ -229,7 +229,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     DELAY();
 
     LOG("");
-    LOG("[Guest 1 (6)]");
+    LOG("[GUEST 1 (6)]");
 
     event_status = guest1->Service(host_event, 0);
 
