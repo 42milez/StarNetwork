@@ -11,15 +11,15 @@
 
 namespace
 {
-constexpr auto SLEEP_DURATION = 10 * 1000; // microsecond
+    constexpr auto SLEEP_DURATION = 10 * 1000; // microsecond
 
-void
-LOG(const std::string &message)
-{ core::Singleton<core::Logger>::Instance().Debug(message); }
+    void
+    LOG(const std::string &message)
+    { core::Singleton<core::Logger>::Instance().Debug(message); }
 
-void
-DELAY()
-{ usleep(SLEEP_DURATION); }
+    void
+    DELAY()
+    { usleep(SLEEP_DURATION); }
 }
 
 class HostFixture
@@ -81,47 +81,55 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     LOG("[GUEST 1 : CONNECT (1)]");
 
     guest1->Connect(host_address, SysCh::MAX, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (2)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (3)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (4)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (5)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (6)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (7)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(guest1->PeerState(0) == RUdpPeerState::CONNECTED);
 
+    LOG("");
     LOG("==================================================");
     LOG(" Step 2 : Guest 2 sends CONNECT command to Host");
     LOG("==================================================");
@@ -130,42 +138,49 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     LOG("[GUEST 2 : CONNECT (1)]");
 
     guest2->Connect(host_address, SysCh::MAX, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (2)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (3)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (4)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (5)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (6)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (7)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     REQUIRE(PeerState(1) == RUdpPeerState::CONNECTED);

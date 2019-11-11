@@ -54,7 +54,7 @@ private:
 // 2. Guest2をHostに接続
 // 3. Guest1からHostにデータ送信（Host側で正常に受信できたことを検証）
 // 4. Guest2からHostにデータ送信（Host側で正常に受信できたことを検証）
-TEST_CASE_METHOD(HostFixture, "Broadcast", "[send_reliable_command]")
+TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]")
 {
     // host
     IpAddress host_ip{"::FFFF:127.0.0.1"};
@@ -86,42 +86,49 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[send_reliable_command]")
     LOG("[GUEST 1 : CONNECT (1)]");
 
     guest1->Connect(host_address, SysCh::MAX, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (2)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (3)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (4)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (5)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 1 (6)]");
 
     guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (7)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
@@ -135,42 +142,49 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[send_reliable_command]")
     LOG("[GUEST 2 : CONNECT (1)]");
 
     guest2->Connect(host_address, SysCh::MAX, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (2)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (3)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (4)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (5)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[GUEST 2 (6)]");
 
     guest2->Service(guest2_event, 0);
+
     DELAY();
 
     LOG("");
     LOG("[HOST (7)]");
 
     Service(host_event, 0);
+
     DELAY();
 
     REQUIRE(PeerState(1) == RUdpPeerState::CONNECTED);
