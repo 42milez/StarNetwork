@@ -30,7 +30,7 @@ public:
         RUdpAddress address;
         address.port(8888);
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
-        core::Singleton<core::Logger>::Instance().Init("Broadcast");
+        core::Singleton<core::Logger>::Instance().Init("Send Reliable Command Test");
     }
 
     void

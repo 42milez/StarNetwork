@@ -24,7 +24,7 @@ public:
         RUdpAddress address;
         address.port(8888);
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
-        core::Singleton<core::Logger>::Instance().Init("BasicConnection");
+        core::Singleton<core::Logger>::Instance().Init("Basic Connection Test");
     }
 
     EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
