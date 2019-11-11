@@ -169,7 +169,6 @@ private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
     std::vector<std::shared_ptr<RUdpChannel>> channels_;
     std::unique_ptr<RUdpCommandPod> command_pod_;
-    VecUInt8 data_;
     std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
     std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;

@@ -342,7 +342,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
 {
     if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
         static_cast<uint32_t>(ch) >= channels_.size() ||
-        data_.size() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
+        segment->DataLength() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
     {
         return Error::ERROR;
     }
@@ -352,7 +352,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
     if (!checksum)
         fragment_length -= sizeof(uint32_t);
 
-    auto data_length = data_.size() * sizeof(uint8_t);
+    auto data_length = segment->DataLength();
     auto channel = channels_.at(static_cast<uint32_t>(ch));
     uint8_t command_number;
     uint16_t start_sequence_number;
@@ -514,7 +514,6 @@ RUdpPeer::Reset(uint16_t peer_idx)
     dispatched_commands_.swap(empty);
 
     address_.Reset();
-    data_.clear();
 
     connect_id_ = 0;
     event_data_ = 0;
