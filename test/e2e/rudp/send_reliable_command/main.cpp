@@ -54,23 +54,30 @@ private:
 // 2. Guest2をHostに接続
 // 3. Guest1からHostにデータ送信（Host側で正常に受信できたことを検証）
 // 4. Guest2からHostにデータ送信（Host側で正常に受信できたことを検証）
-TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]")
+TEST_CASE("guest sends reliable command to host", "[reliable command]")
 {
-    // host
+    core::Singleton<core::Logger>::Instance().Init("Send Reliable Command Test");
+
+    // host address
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     RUdpAddress host_address;
     host_address.host(host_ip.GetIPv6());
-    host_address.port(8888);
+    host_address.port(10000);
+
+    // host
+    RUdpAddress address;
+    address.port(10000);
+    auto host = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
 
     // guest1
     RUdpAddress guest1_address;
-    guest1_address.port(8889);
-    auto guest1 = std::make_unique<RUdpHost>(guest1_address, SysCh::MAX, 32, 100, 100);
+    guest1_address.port(10001);
+    auto guest1 = std::make_unique<RUdpHost>(guest1_address, SysCh::MAX, 1, 100, 100);
 
     // guest2
     RUdpAddress guest2_address;
-    guest2_address.port(8890);
-    auto guest2 = std::make_unique<RUdpHost>(guest2_address, SysCh::MAX, 32, 100, 100);
+    guest2_address.port(10002);
+    auto guest2 = std::make_unique<RUdpHost>(guest2_address, SysCh::MAX, 1, 100, 100);
 
     EventStatus event_status;
 
@@ -99,7 +106,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (3)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
@@ -113,7 +120,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (5)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
@@ -127,13 +134,14 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (7)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
-    REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(host->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(guest1->PeerState(0) == RUdpPeerState::CONNECTED);
 
+    LOG("");
     LOG("==================================================");
     LOG(" Step 2 : Guest 2 sends CONNECT command to Host");
     LOG("==================================================");
@@ -155,7 +163,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (3)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
@@ -169,7 +177,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (5)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
@@ -183,16 +191,16 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (7)]");
 
-    Service(host_event, 0);
+    host->Service(host_event, 0);
 
     DELAY();
 
-    REQUIRE(PeerState(1) == RUdpPeerState::CONNECTED);
+    REQUIRE(host->PeerState(1) == RUdpPeerState::CONNECTED);
     REQUIRE(guest2->PeerState(0) == RUdpPeerState::CONNECTED);
 
     LOG("");
     LOG("==================================================");
-    LOG(" Step 3 : Guest 1 sends a command to Host");
+    LOG(" Step 3 : Guest 1 sends a reliable command to Host");
     LOG("==================================================");
 
     std::string msg1{"command from guest1"};
@@ -223,7 +231,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (3)]");
 
-    event_status = Service(host_event, 0);
+    event_status = host->Service(host_event, 0);
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(host_event->TypeIs(RUdpEventType::RECEIVE));
@@ -243,7 +251,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (5)]");
 
-    event_status = Service(host_event, 0);
+    event_status = host->Service(host_event, 0);
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
@@ -280,7 +288,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (3)]");
 
-    event_status = Service(host_event, 0);
+    event_status = host->Service(host_event, 0);
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(host_event->TypeIs(RUdpEventType::RECEIVE));
@@ -300,7 +308,7 @@ TEST_CASE_METHOD(HostFixture, "Send Reliable Command", "[send_reliable_command]"
     LOG("");
     LOG("[HOST (5)]");
 
-    event_status = Service(host_event, 0);
+    event_status = host->Service(host_event, 0);
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
