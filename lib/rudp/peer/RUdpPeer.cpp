@@ -349,7 +349,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
 
     auto fragment_length = net_->mtu() - sizeof(RUdpProtocolHeader) - sizeof(RUdpProtocolSendFragment);
 
-    if (!checksum)
+    if (checksum != nullptr)
         fragment_length -= sizeof(uint32_t);
 
     auto data_length = segment->DataLength();
@@ -367,6 +367,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
         if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
             return Error::ERROR;
 
+        // process a segment as unreliable fragment when the frag has RELIABLE and UNRELIABLE_FRAGMENT
         if ((segment->flags() & (
                 static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
                 static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT)
@@ -400,17 +401,21 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
                 // ...
             }
 
+            auto cmd = std::make_shared<RUdpProtocolType>();
+
+            cmd->header.command = command_number;
+            cmd->header.channel_id = static_cast<uint32_t>(ch);
+            cmd->send_fragment.start_sequence_number = start_sequence_number;
+            cmd->send_fragment.data_length = htons(fragment_length);
+            cmd->send_fragment.fragment_count = htonl(fragment_count);
+            cmd->send_fragment.fragment_number = htonl(fragment_number);
+            cmd->send_fragment.total_length = htonl(segment->DataLength());
+            cmd->send_fragment.fragment_offset = ntohl(fragment_offset);
+
+            fragment->command(cmd);
             fragment->fragment_offset(fragment_offset);
             fragment->fragment_length(fragment_length);
             fragment->segment(segment);
-            fragment->header_command_number(command_number);
-            fragment->header_channel_id(static_cast<uint32_t>(ch));
-            fragment->send_fragment_start_sequence_number(start_sequence_number);
-            fragment->send_fragment_data_length(htons(fragment_length));
-            fragment->send_fragment_fragment_count(htonl(fragment_count));
-            fragment->send_fragment_fragment_number(htonl(fragment_number));
-            fragment->send_fragment_start_total_length(htonl(segment->DataLength()));
-            fragment->send_fragment_fragment_offset(ntohl(fragment_offset));
 
             fragments.push_back(fragment);
         }
