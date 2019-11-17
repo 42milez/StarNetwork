@@ -415,6 +415,16 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 }
 
 Error
+RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+                                 VecUInt8 &data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
+{
+    if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
+        return Error::ERROR;
+
+    // ...
+}
+
+Error
 RUdpProtocol::HandleSendReliable(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
                                  VecUInt8 &data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
 {

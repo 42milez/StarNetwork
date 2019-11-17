@@ -125,6 +125,10 @@ public:
     inline uint8_t
     StateAsNumber() { return static_cast<uint8_t>(net_->state()); }
 
+    inline bool
+    StateIs(RUdpPeerState val)
+    { return net_->StateIs(val); }
+
 public:
     inline const std::unique_ptr<RUdpCommandPod> &
     command_pod() { return command_pod_; };
