@@ -396,9 +396,12 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
                                                                 cmd->header.reliable_sequence_number);
 
-                // TODO:
-//                if (protocol_->HandleSendFragment(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                EXCEEDS_CHANNEL_COUNT()
+                EXCEEDS_RECEIVED_LENGTH()
+
+                if (protocol_->HandleSendFragment(peer, cmd, cmd_body, data_length,
+                                                  static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE)) == Error::ERROR)
+                { IS_EVENT_AVAILABLE() }
             }
             else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT)
             {

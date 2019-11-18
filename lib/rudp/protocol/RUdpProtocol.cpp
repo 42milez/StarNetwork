@@ -416,10 +416,36 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 
 Error
 RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
-                                 VecUInt8 &data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
+                                 VecUInt8 &data, uint16_t data_length, uint16_t flags)
 {
     if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
         return Error::ERROR;
+
+    auto ch = peer->Channel(cmd->header.channel_id);
+    auto start_sequence_number = ntohs(cmd->send_fragment.start_sequence_number);
+    auto start_window = start_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
+    auto current_window = ch->incoming_reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
+
+    if (start_sequence_number < ch->incoming_reliable_sequence_number())
+        start_window += PEER_RELIABLE_WINDOWS;
+
+    if (start_window < current_window || start_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
+        return Error::OK;
+
+    auto fragment_length = ntohs(cmd->send_fragment.data_length);
+    auto fragment_number = ntohl(cmd->send_fragment.fragment_number);
+    auto fragment_count = ntohl(cmd->send_fragment.fragment_count);
+    auto fragment_offset = ntohl(cmd->send_fragment.fragment_offset);
+    auto total_length = ntohl(cmd->send_fragment.total_length);
+
+    if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT ||
+        fragment_number >= fragment_count ||
+        total_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE ||
+        fragment_offset >= total_length ||
+        fragment_length > total_length - fragment_offset)
+    {
+        return Error::ERROR;
+    }
 
     // ...
 }
