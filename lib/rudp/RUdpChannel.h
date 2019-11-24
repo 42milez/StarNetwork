@@ -3,6 +3,7 @@
 
 #include <array>
 #include <list>
+#include <tuple>
 
 #include "core/errors.h"
 #include "core/logger.h"
@@ -45,6 +46,9 @@ public:
 
     inline void
     MarkReliableWindowAsUsed(uint16_t position) { used_reliable_windows_ |= 1u << position; }
+
+    std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
+    ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count);
 
     Error
     QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,

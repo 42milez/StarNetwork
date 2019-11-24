@@ -64,6 +64,48 @@ namespace
     }
 }
 
+std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
+RUdpChannel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
+{
+    auto cmd = incoming_reliable_commands_.end();
+
+    for (; cmd != incoming_reliable_commands_.begin(); --cmd)
+    {
+        //
+        if (start_sequence_number >= incoming_reliable_sequence_number_)
+        {
+            if ((*cmd)->reliable_sequence_number() < incoming_reliable_sequence_number_)
+            {
+                continue;
+            }
+            else if ((*cmd)->reliable_sequence_number() >= incoming_reliable_sequence_number_)
+            {
+                return std::make_tuple(nullptr, Error::OK);
+            }
+        }
+
+        //
+        if ((*cmd)->reliable_sequence_number() <= start_sequence_number)
+        {
+            if ((*cmd)->reliable_sequence_number() < start_sequence_number)
+            {
+                return std::make_tuple(nullptr, Error::OK);
+            }
+
+            if (((*cmd)->command()->header.command & PROTOCOL_COMMAND_MASK) != static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) ||
+                total_length != (*cmd)->segment()->DataLength() ||
+                fragment_count != (*cmd)->fragment_count())
+            {
+                return std::make_tuple(nullptr, Error::ERROR);
+            }
+
+            break;
+        }
+    }
+
+    return std::make_tuple((*cmd), Error::OK);
+}
+
 Error
 RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                                   uint32_t fragment_count)

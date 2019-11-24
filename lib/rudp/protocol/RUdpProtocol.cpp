@@ -447,7 +447,19 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
         return Error::ERROR;
     }
 
-    // ...
+    auto [firstCmd, err] = ch->ExtractFirstCommand(start_sequence_number, total_length, fragment_count);
+
+    if (!firstCmd)
+    {
+        cmd->header.reliable_sequence_number = start_sequence_number;
+
+        if (ch->QueueIncomingCommand(cmd, data, flags, fragment_count) != Error::OK)
+        {
+            return Error::ERROR;
+        }
+    }
+
+    if (firstCmd->)
 }
 
 Error
