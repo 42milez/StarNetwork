@@ -3,17 +3,30 @@
 #include "RUdpEnum.h"
 #include "RUdpSegment.h"
 
-RUdpSegment::RUdpSegment(VecUInt8 &data, uint32_t flags)
+namespace
+{
+    const uint32_t ALLOCATE_BUFFER_WITH_PAYLOAD_SIZE = 0;
+}
+
+RUdpSegment::RUdpSegment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size = ALLOCATE_BUFFER_WITH_PAYLOAD_SIZE)
     : flags_(flags),
       free_callback_(),
       user_data_()
 {
-    if (!data.empty())
-    {
-        try
-        {
-            data_.resize(data.size());
+    if (!data.empty()) {
+        try {
+            auto allocation_size = 0;
+
+            if (buffer_size == ALLOCATE_BUFFER_WITH_PAYLOAD_SIZE) {
+                allocation_size = buffer_size;
+            } else {
+                allocation_size = data.size();
+            }
+
+            data_.resize(allocation_size);
             data_ = std::move(data);
+
+            buffer_pos_ = data_.begin() + allocation_size;
         }
         catch (std::bad_alloc &e)
         {

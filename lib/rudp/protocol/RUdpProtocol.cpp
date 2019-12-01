@@ -416,7 +416,7 @@ RUdpProtocol::HandlePing(const std::shared_ptr<RUdpPeer> &peer)
 
 Error
 RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
-                                 VecUInt8 &data, uint16_t data_length, uint16_t flags)
+                                 VecUInt8 &data, uint16_t flags)
 {
     if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
         return Error::ERROR;
@@ -459,7 +459,26 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
         }
     }
 
-    if (firstCmd->)
+    // copy a fragment into the buffer of the first command
+    if (!firstCmd->IsFragmentAlreadyReceived(fragment_number))
+    {
+        firstCmd->MarkFragmentReceived(fragment_number);
+
+        auto data_length = ntohs(cmd->send_reliable.data_length);
+
+        if (fragment_offset + fragment_length > data_length)
+        {
+            fragment_length = data_length - fragment_offset;
+        }
+
+        firstCmd->CopyFragmentedPayload(data);
+
+        if (firstCmd->IsAllFragmentsReceived()) {
+            DispatchIncomingReliableCommands(peer, cmd);
+        }
+    }
+
+    return Error::OK;
 }
 
 Error

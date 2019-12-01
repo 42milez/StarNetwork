@@ -399,7 +399,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 EXCEEDS_CHANNEL_COUNT()
                 EXCEEDS_RECEIVED_LENGTH()
 
-                if (protocol_->HandleSendFragment(peer, cmd, cmd_body, data_length,
+                if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
                                                   static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE)) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }

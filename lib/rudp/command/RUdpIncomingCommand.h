@@ -11,6 +11,35 @@ public:
     Error
     ResizeFragmentBuffer(size_t val);
 
+    inline bool
+    IsFragmentAlreadyReceived(uint32_t fragment_number)
+    {
+        auto idx = fragment_number / 32;
+        auto flags = fragments_.at(idx);
+        auto flag = 1u << fragment_number % 32;
+
+        return (flags & flag) != 0;
+    }
+
+    inline bool
+    IsAllFragmentsReceived()
+    { return fragments_remaining_ == 0; }
+
+    inline void
+    MarkFragmentReceived(uint32_t fragment_number)
+    {
+        auto idx = fragment_number / 32;
+        auto flags = fragments_.at(idx);
+        auto flag = 1u << fragment_number % 32;
+
+        --fragments_remaining_;
+        fragments_.at(idx) = (flags | flag);
+    }
+
+    inline void
+    CopyFragmentedPayload(std::vector<uint8_t> &payload)
+    { segment_->AppendData(payload); }
+
 public:
     uint32_t
     fragment_count() { return fragment_count_; }

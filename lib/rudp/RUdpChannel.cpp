@@ -220,12 +220,20 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     {
         return DiscardCommand(fragment_count);
     }
-    
-    auto segment = std::make_shared<RUdpSegment>(data, flags);
+
+    std::shared_ptr<RUdpSegment> segment = nullptr;
+
+    if (fragment_count > 0) {
+        segment = std::make_shared<RUdpSegment>(data, flags, cmd->send_fragment.total_length);
+    } else {
+        segment = std::make_shared<RUdpSegment>(data, flags);
+    }
+
     if (segment == nullptr)
         return Error::CANT_ALLOCATE;
 
     auto in_cmd = std::make_shared<RUdpIncomingCommand>();
+
     if (in_cmd == nullptr)
         return Error::CANT_ALLOCATE;
 
