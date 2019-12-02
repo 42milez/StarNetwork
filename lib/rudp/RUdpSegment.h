@@ -12,6 +12,8 @@
 class RUdpSegment
 {
 public:
+    RUdpSegment(VecUInt8 &data, uint32_t flags);
+
     RUdpSegment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size);
 
     void
