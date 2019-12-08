@@ -67,6 +67,10 @@ namespace
 std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
 RUdpChannel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
 {
+    if (incoming_unreliable_commands_.empty()) {
+        return {nullptr, Error::DOES_NOT_EXIST};
+    }
+
     auto cmd = incoming_reliable_commands_.end();
 
     for (; cmd != incoming_reliable_commands_.begin(); --cmd)
@@ -106,7 +110,7 @@ RUdpChannel::ExtractFirstCommand(uint16_t start_sequence_number, int total_lengt
     return std::make_tuple((*cmd), Error::OK);
 }
 
-Error
+std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
 RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                                   uint32_t fragment_count)
 {
@@ -123,7 +127,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             reliable_window += PEER_RELIABLE_WINDOWS;
 
         if (reliable_window < current_window || reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
-            return DiscardCommand(fragment_count);
+            return {nullptr, DiscardCommand(fragment_count)};
     }
 
     auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
@@ -132,7 +136,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
     {
         if (reliable_sequence_number == incoming_reliable_sequence_number_)
-            return DiscardCommand(fragment_count);
+            return {nullptr, DiscardCommand(fragment_count)};
 
         if (!incoming_reliable_commands_.empty())
         {
@@ -158,7 +162,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
                     if ((*insert_pos)->reliable_sequence_number() < reliable_sequence_number)
                         break;
 
-                    return DiscardCommand(fragment_count);
+                    return {nullptr, DiscardCommand(fragment_count)};
                 }
             }
         }
@@ -174,7 +178,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
         if (reliable_sequence_number == incoming_reliable_sequence_number_ &&
             unreliable_sequence_number <= incoming_unreliable_sequence_number_)
         {
-            return DiscardCommand(fragment_count);
+            return {nullptr, DiscardCommand(fragment_count)};
         }
 
         if (!incoming_unreliable_commands_.empty())
@@ -203,7 +207,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
                     if ((*insert_pos)->unreliable_sequence_number() < unreliable_sequence_number)
                         break;
 
-                    return DiscardCommand(fragment_count);
+                    return {nullptr, DiscardCommand(fragment_count)};
                 }
             }
         }
@@ -218,7 +222,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     }
     else
     {
-        return DiscardCommand(fragment_count);
+        return {nullptr, DiscardCommand(fragment_count)};
     }
 
     std::shared_ptr<RUdpSegment> segment = nullptr;
@@ -230,12 +234,12 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     }
 
     if (segment == nullptr)
-        return Error::CANT_ALLOCATE;
+        return std::tuple(nullptr, Error::CANT_ALLOCATE);
 
     auto in_cmd = std::make_shared<RUdpIncomingCommand>();
 
     if (in_cmd == nullptr)
-        return Error::CANT_ALLOCATE;
+        return std::tuple(nullptr, Error::CANT_ALLOCATE);
 
     in_cmd->reliable_sequence_number(cmd->header.reliable_sequence_number);
     in_cmd->unreliable_sequence_number(unreliable_sequence_number & 0xFFFF);
@@ -253,7 +257,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
 
         if (is_memory_allocated == Error::CANT_ALLOCATE)
-            return Error::ERROR;
+            return {nullptr, Error::ERROR};
     }
 
     if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
@@ -271,5 +275,5 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
             incoming_unreliable_commands_.insert(std::next(insert_pos), in_cmd);
     }
 
-    return Error::OK;
+    return {in_cmd, Error::OK};
 }

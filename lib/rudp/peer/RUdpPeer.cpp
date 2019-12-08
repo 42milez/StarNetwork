@@ -267,12 +267,12 @@ RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, Vec
         return DiscardCommand(fragment_count);
 
     auto ch = channels_.at(cmd->header.channel_id);
-    auto ret = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
+    auto [_, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
-    if (ret == Error::OK)
+    if (error == Error::OK)
         total_waiting_data_ += data_length;
     else
-        return ret;
+        return error;
 
     return Error::OK;
 }

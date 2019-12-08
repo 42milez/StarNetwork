@@ -50,7 +50,7 @@ public:
     std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
     ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count);
 
-    Error
+    std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
     QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                          uint32_t fragment_count);
 

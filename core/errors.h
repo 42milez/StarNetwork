@@ -6,6 +6,7 @@ enum class Error : int {
     ERR_BUSY,
     CANT_ALLOCATE,
     CANT_CREATE,
+    DOES_NOT_EXIST,
     ERR_INVALID_PARAMETER,
     ERR_UNAVAILABLE,
     ERR_UNCONFIGURED,
