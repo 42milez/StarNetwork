@@ -134,4 +134,12 @@ using RUdpProtocolType = union RUdpProtocolType
 
 using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 
+namespace rudp::type {
+RUdpProtocolHeader *
+ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolHeader *header);
+
+RUdpProtocolType *
+ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolType *cmd);
+}
+
 #endif // P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
