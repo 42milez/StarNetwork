@@ -6,7 +6,12 @@ namespace rudp::type {
 RUdpProtocolHeader *
 ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolHeader *header) {
   header->peer_id = ntohs(header->peer_id);
-  header->sent_time = ntohs(header->sent_time);
+
+  uint16_t flags = header->peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
+
+  if (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME)) {
+    header->sent_time = ntohs(header->sent_time);
+  }
 
   return header;
 }

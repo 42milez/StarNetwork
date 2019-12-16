@@ -209,8 +209,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
         if (received_data_length_ < (size_t) &((RUdpProtocolHeader *) nullptr)->sent_time)
             continue;
 
-        auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
-        auto peer_id = ntohs(header->peer_id);
+        auto header = rudp::type::ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0))));
+        auto peer_id = header->peer_id;
         auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
         auto flags = peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
         auto header_size =
@@ -439,7 +439,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                     break;
 
                 auto &net = peer->net();
-                auto sent_time = ntohs(header->sent_time);
+                auto sent_time = header->sent_time;
 
                 if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
                     net->StateIs(RUdpPeerState::ACKNOWLEDGING_CONNECT) ||
