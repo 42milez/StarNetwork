@@ -72,7 +72,7 @@ RUdpPeerPod::AvailablePeer()
     }
 
 #define EXCEEDS_RECEIVED_LENGTH()                              \
-    auto data_length = ntohs(cmd->send_reliable.data_length);  \
+    auto data_length = cmd->send_reliable.data_length;  \
     auto pos = current_data + data_length;                     \
                                                                \
     if ((data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||   \
@@ -264,7 +264,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
                 break;
 
-            auto cmd = std::make_shared<RUdpProtocolType>(*reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
+            auto cmd_raw = rudp::type::ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
+            auto cmd = std::make_shared<RUdpProtocolType>(*cmd_raw);
             auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
             if (cmd_type >= RUdpProtocolCommand::COUNT)
@@ -280,8 +281,6 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 break;
 
             auto cmd_body = std::vector<uint8_t>{current_data, end};
-
-            cmd->header.reliable_sequence_number = ntohs(cmd->header.reliable_sequence_number);
 
             if (cmd_type == RUdpProtocolCommand::ACKNOWLEDGE)
             {

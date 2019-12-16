@@ -45,7 +45,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
     cmd->header.channel_id = 0xFF;
 
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    cmd->connect.connect_id = connect_id_;
+    cmd->connect.connect_id = htonl(connect_id_);
     cmd->connect.data = htonl(data);
     cmd->connect.mtu = htonl(net_->mtu());
     cmd->connect.window_size = htonl(net_->window_size());
@@ -76,13 +76,13 @@ RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
     net_->state(RUdpPeerState::ACKNOWLEDGING_CONNECT);
     connect_id_ = cmd->connect.connect_id;
     address_ = received_address;
-    outgoing_peer_id_ = ntohs(cmd->connect.outgoing_peer_id);
-    net_->incoming_bandwidth(ntohl(cmd->connect.incoming_bandwidth));
-    net_->outgoing_bandwidth(ntohl(cmd->connect.outgoing_bandwidth));
-    net_->segment_throttle_interval(ntohl(cmd->connect.segment_throttle_interval));
-    net_->segment_throttle_acceleration(ntohl(cmd->connect.segment_throttle_acceleration));
-    net_->segment_throttle_deceleration(ntohl(cmd->connect.segment_throttle_deceleration));
-    event_data_ = ntohl(cmd->connect.data);
+    outgoing_peer_id_ = cmd->connect.outgoing_peer_id;
+    net_->incoming_bandwidth(cmd->connect.incoming_bandwidth);
+    net_->outgoing_bandwidth(cmd->connect.outgoing_bandwidth);
+    net_->segment_throttle_interval(cmd->connect.segment_throttle_interval);
+    net_->segment_throttle_acceleration(cmd->connect.segment_throttle_acceleration);
+    net_->segment_throttle_deceleration(cmd->connect.segment_throttle_deceleration);
+    event_data_ = cmd->connect.data;
 
     auto incoming_session_id = cmd->connect.incoming_session_id == 0xFF ? outgoing_session_id_ :
                                cmd->connect.incoming_session_id;
@@ -111,7 +111,7 @@ RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
     for (auto &ch : channels_)
         ch->Reset();
 
-    auto mtu = ntohl(cmd->connect.mtu);
+    auto mtu = cmd->connect.mtu;
 
     if (mtu < PROTOCOL_MINIMUM_MTU)
     {
@@ -165,8 +165,8 @@ RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
         window_size = (host_incoming_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
 
-    if (window_size > ntohl(cmd->connect.window_size))
-        window_size = ntohl(cmd->connect.window_size);
+    if (window_size > cmd->connect.window_size)
+        window_size = cmd->connect.window_size;
 
     if (window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
     {
@@ -193,7 +193,7 @@ RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
     verify_cmd->verify_connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
     verify_cmd->verify_connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
     verify_cmd->verify_connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
-    verify_cmd->verify_connect.connect_id = connect_id_;
+    verify_cmd->verify_connect.connect_id = htonl(connect_id_);
 
     QueueOutgoingCommand(verify_cmd, nullptr, 0);
 }
@@ -311,7 +311,7 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
         auto host = address_.host();
         auto port = address_.port();
         core::Singleton<core::Logger>::Instance().Debug("command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
-                                                        ntohs(outgoing_command->command()->header.reliable_sequence_number),
+                                                        outgoing_command->command()->header.reliable_sequence_number,
                                                         host.at(12), host.at(13), host.at(14), host.at(15), port);
     }
     else
@@ -406,11 +406,11 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
             cmd->header.command = command_number;
             cmd->header.channel_id = static_cast<uint32_t>(ch);
             cmd->send_fragment.start_sequence_number = start_sequence_number;
-            cmd->send_fragment.data_length = htons(fragment_length);
-            cmd->send_fragment.fragment_count = htonl(fragment_count);
-            cmd->send_fragment.fragment_number = htonl(fragment_number);
-            cmd->send_fragment.total_length = htonl(segment->DataLength());
-            cmd->send_fragment.fragment_offset = ntohl(fragment_offset);
+            cmd->send_fragment.data_length = fragment_length;
+            cmd->send_fragment.fragment_count = fragment_count;
+            cmd->send_fragment.fragment_number = fragment_number;
+            cmd->send_fragment.total_length = segment->DataLength();
+            cmd->send_fragment.fragment_offset = fragment_offset;
 
             fragment->command(cmd);
             fragment->fragment_offset(fragment_offset);

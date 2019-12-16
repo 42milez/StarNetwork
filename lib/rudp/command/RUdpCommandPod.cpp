@@ -227,11 +227,11 @@ RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &ch
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed (on send): {0} (ch: {1}, sn: {2})",
                                                         COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()),
                                                         (*outgoing_command)->command()->header.channel_id,
-                                                        ntohs((*outgoing_command)->command()->header.reliable_sequence_number));
+                                                        (*outgoing_command)->command()->header.reliable_sequence_number);
 
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0} ({1})",
                                                         outgoing_reliable_commands_.size(),
-                                                        ntohs((*outgoing_command)->command()->header.reliable_sequence_number));
+                                                        (*outgoing_command)->command()->header.reliable_sequence_number);
     }
 
     return can_ping;
@@ -508,7 +508,7 @@ RUdpCommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgo
         outgoing_reliable_commands_.push_back(outgoing_command);
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was added: {0} ({1})",
                                                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
-                                                        ntohs(outgoing_command->command()->header.reliable_sequence_number));
+                                                        outgoing_command->command()->header.reliable_sequence_number);
     }
     else
     {

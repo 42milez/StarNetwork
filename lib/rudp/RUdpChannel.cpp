@@ -173,7 +173,7 @@ RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, 
     }
     else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE || cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
     {
-        unreliable_sequence_number = ntohs(cmd->send_unreliable.unreliable_sequence_number);
+        unreliable_sequence_number = cmd->send_unreliable.unreliable_sequence_number;
 
         if (reliable_sequence_number == incoming_reliable_sequence_number_ &&
             unreliable_sequence_number <= incoming_unreliable_sequence_number_)

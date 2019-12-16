@@ -328,7 +328,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
         return Error::OK;
 
-     uint32_t received_sent_time = ntohs(cmd->acknowledge.received_sent_time);
+     uint32_t received_sent_time = cmd->acknowledge.received_sent_time;
      received_sent_time |= service_time & 0xFFFF0000;
 
      if ((received_sent_time & 0x8000) > (service_time & 0x8000))
@@ -345,7 +345,7 @@ RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::sh
      net->segment_throttle(round_trip_time);
      peer->UpdateRoundTripTimeVariance(service_time, round_trip_time);
 
-     auto received_reliable_sequence_number = ntohs(cmd->acknowledge.received_reliable_sequence_number);
+     auto received_reliable_sequence_number = cmd->acknowledge.received_reliable_sequence_number;
 
      core::Singleton<core::Logger>::Instance().Debug("acknowledge was received ({0})",
                                                      received_reliable_sequence_number);
@@ -395,7 +395,7 @@ RUdpProtocol::HandleConnect(std::shared_ptr<RUdpPeer> &peer, const RUdpProtocolH
                             const std::shared_ptr<RUdpProtocolType> &cmd, const RUdpAddress &received_address,
                             uint32_t host_outgoing_bandwidth, uint32_t host_incoming_bandwidth)
 {
-    auto channel_count = ntohl(cmd->connect.channel_count);
+    auto channel_count = cmd->connect.channel_count;
 
     if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT || channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT)
         return;
@@ -422,7 +422,7 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
         return Error::ERROR;
 
     auto ch = peer->Channel(cmd->header.channel_id);
-    auto start_sequence_number = ntohs(cmd->send_fragment.start_sequence_number);
+    auto start_sequence_number = cmd->send_fragment.start_sequence_number;
     auto start_window = start_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
     auto current_window = ch->incoming_reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;
 
@@ -432,11 +432,11 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
     if (start_window < current_window || start_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
         return Error::OK;
 
-    auto fragment_length = ntohs(cmd->send_fragment.data_length);
-    auto fragment_number = ntohl(cmd->send_fragment.fragment_number);
-    auto fragment_count = ntohl(cmd->send_fragment.fragment_count);
-    auto fragment_offset = ntohl(cmd->send_fragment.fragment_offset);
-    auto total_length = ntohl(cmd->send_fragment.total_length);
+    auto fragment_length = cmd->send_fragment.data_length;
+    auto fragment_number = cmd->send_fragment.fragment_number;
+    auto fragment_count = cmd->send_fragment.fragment_count;
+    auto fragment_offset = cmd->send_fragment.fragment_offset;
+    auto total_length = cmd->send_fragment.total_length;
 
     if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT ||
         fragment_number >= fragment_count ||
@@ -467,7 +467,7 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
     {
         firstCmd->MarkFragmentReceived(fragment_number);
 
-        auto data_length = ntohs(cmd->send_reliable.data_length);
+        auto data_length = cmd->send_reliable.data_length;
 
         if (fragment_offset + fragment_length > data_length)
         {
@@ -523,16 +523,18 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     if (net->StateIsNot(RUdpPeerState::CONNECTING))
         return Error::OK;
 
-    auto channel_count = ntohl(cmd->verify_connect.channel_count);
+    auto channel_count = cmd->verify_connect.channel_count;
 
     if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT ||
         channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT ||
-        ntohl(cmd->verify_connect.segment_throttle_interval) != net->segment_throttle_interval() ||
-        ntohl(cmd->verify_connect.segment_throttle_acceleration) != net->segment_throttle_acceleration() ||
-        ntohl(cmd->verify_connect.segment_throttle_deceleration) != net->segment_throttle_deceleration() ||
+        cmd->verify_connect.segment_throttle_interval != net->segment_throttle_interval() ||
+        cmd->verify_connect.segment_throttle_acceleration != net->segment_throttle_acceleration() ||
+        cmd->verify_connect.segment_throttle_deceleration != net->segment_throttle_deceleration() ||
         cmd->verify_connect.connect_id != peer->connect_id())
     {
         peer->event_data(0);
+
+        auto debug = ntohl(peer->connect_id());
 
         dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
@@ -540,11 +542,11 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     }
 
     peer->RemoveSentReliableCommand(1, 0xFF);
-    peer->outgoing_peer_id(ntohs(cmd->verify_connect.outgoing_peer_id));
+    peer->outgoing_peer_id(cmd->verify_connect.outgoing_peer_id);
     peer->incoming_session_id(cmd->verify_connect.incoming_session_id);
     peer->outgoing_session_id(cmd->verify_connect.outgoing_session_id);
 
-    auto mtu = ntohl(cmd->verify_connect.mtu);
+    auto mtu = cmd->verify_connect.mtu;
 
     if (mtu < PROTOCOL_MINIMUM_MTU)
         mtu = PROTOCOL_MINIMUM_MTU;
@@ -554,7 +556,7 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     if (mtu < net->mtu())
         net->mtu(mtu);
 
-    auto window_size = ntohl(cmd->verify_connect.window_size);
+    auto window_size = cmd->verify_connect.window_size;
 
     if (window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
         window_size = PROTOCOL_MINIMUM_WINDOW_SIZE;
@@ -565,8 +567,8 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     if (window_size < net->window_size())
         net->window_size(window_size);
 
-    net->incoming_bandwidth(ntohl(cmd->verify_connect.incoming_bandwidth));
-    net->outgoing_bandwidth(ntohl(cmd->verify_connect.outgoing_bandwidth));
+    net->incoming_bandwidth(cmd->verify_connect.incoming_bandwidth);
+    net->outgoing_bandwidth(cmd->verify_connect.outgoing_bandwidth);
 
     dispatch_hub_->NotifyConnect(event, peer);
 
@@ -610,7 +612,7 @@ RUdpProtocol::HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::share
     }
 
     if (net->StateIsNot(RUdpPeerState::DISCONNECTED))
-        peer->event_data(ntohl(cmd->disconnect.data));
+        peer->event_data(cmd->disconnect.data);
 
     return Error::OK;
 }
