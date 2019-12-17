@@ -534,8 +534,6 @@ RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::
     {
         peer->event_data(0);
 
-        auto debug = ntohl(peer->connect_id());
-
         dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
         return Error::ERROR;

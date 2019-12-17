@@ -405,12 +405,12 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
 
             cmd->header.command = command_number;
             cmd->header.channel_id = static_cast<uint32_t>(ch);
-            cmd->send_fragment.start_sequence_number = start_sequence_number;
-            cmd->send_fragment.data_length = fragment_length;
-            cmd->send_fragment.fragment_count = fragment_count;
-            cmd->send_fragment.fragment_number = fragment_number;
-            cmd->send_fragment.total_length = segment->DataLength();
-            cmd->send_fragment.fragment_offset = fragment_offset;
+            cmd->send_fragment.start_sequence_number = htons(start_sequence_number);
+            cmd->send_fragment.data_length = htons(fragment_length);
+            cmd->send_fragment.fragment_count = htonl(fragment_count);
+            cmd->send_fragment.fragment_number = htonl(fragment_number);
+            cmd->send_fragment.total_length = htonl(segment->DataLength());
+            cmd->send_fragment.fragment_offset = htonl(fragment_offset);
 
             fragment->command(cmd);
             fragment->fragment_offset(fragment_offset);
