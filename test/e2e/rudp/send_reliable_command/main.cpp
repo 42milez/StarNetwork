@@ -451,6 +451,14 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
     REQUIRE(err == Error::OK);
 
     DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
 
     LOG("");
     LOG("[GUEST 1 (2)]");
@@ -459,6 +467,14 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
 
     REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
+    DELAY();
     DELAY();
 
     LOG("");
