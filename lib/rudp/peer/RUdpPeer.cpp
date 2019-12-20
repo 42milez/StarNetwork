@@ -375,14 +375,14 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
             channel->outgoing_unreliable_sequence_number() < 0xFFFF)
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
-            start_sequence_number = htons(channel->outgoing_unreliable_sequence_number() + 1);
+            start_sequence_number = channel->outgoing_unreliable_sequence_number() + 1;
             core::Singleton<core::Logger>::Instance().Debug("**********");
         }
         else
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
                              static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
-            start_sequence_number = htons(channel->outgoing_reliable_sequence_number() + 1);
+            start_sequence_number = channel->outgoing_reliable_sequence_number() + 1;
             core::Singleton<core::Logger>::Instance().Debug("**********");
         }
 
