@@ -38,6 +38,15 @@ public:
     inline VecUInt8
     Data() { return data_; }
 
+    inline VecUInt8
+    Data(size_t offset, size_t size) {
+      VecUInt8 ret(size);
+      auto begin = data_.begin() + offset;
+      auto end = begin + size;
+      std::copy(begin, end, ret.begin());
+      return ret;
+    }
+
     inline size_t
     DataLength() { return data_.size() * sizeof(uint8_t); }
 

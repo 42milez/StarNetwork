@@ -10,5 +10,5 @@ RUdpCommand::RUdpCommand()
 void
 RUdpCommand::MoveDataTo(const std::shared_ptr<RUdpBuffer> &buffer)
 {
-    buffer->CopySegmentFrom(segment_, fragment_offset_);
+    buffer->CopySegmentFrom(segment_, fragment_offset_, fragment_length_);
 }

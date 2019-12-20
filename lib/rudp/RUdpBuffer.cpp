@@ -42,7 +42,7 @@ RUdpBuffer::CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size)
 void
 RUdpBuffer::CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size)
 {
-    buffer_ = segment->Data();
+    buffer_ = segment->Data(offset, size);
     offset_ = offset;
 
     if (size != 0)
