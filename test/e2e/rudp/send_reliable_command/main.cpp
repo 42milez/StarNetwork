@@ -480,7 +480,23 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
     LOG("");
     LOG("[HOST (3)]");
 
+    host->Service(host_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[HOST (4)]");
+
+    host->Service(host_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[HOST (5)]");
+
     event_status = host->Service(host_event, 0);
+
+    DELAY();
 
     REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
     REQUIRE(host_event->TypeIs(RUdpEventType::RECEIVE));
