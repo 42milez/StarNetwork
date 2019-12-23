@@ -31,7 +31,7 @@ public:
     inline void
     AppendData(std::vector<uint8_t> &fragment)
     {
-        std::copy(fragment.begin(), fragment.end(), buffer_pos_);
+        std::copy(fragment.begin(), fragment.end(), data_.begin() + buffer_pos_);
         buffer_pos_ += fragment.size();
     }
 
@@ -58,7 +58,7 @@ private:
     VecUInt8 data_;
     VecUInt8 user_data_;
 
-    VecUInt8It buffer_pos_;
+    size_t buffer_pos_;
 
     std::function<void(RUdpSegment *)> free_callback_;
 

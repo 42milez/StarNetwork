@@ -67,11 +67,11 @@ namespace
 std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
 RUdpChannel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
 {
-    if (incoming_unreliable_commands_.empty()) {
+    if (incoming_reliable_commands_.empty()) {
         return {nullptr, Error::DOES_NOT_EXIST};
     }
 
-    auto cmd = incoming_reliable_commands_.end();
+    auto cmd = --(incoming_reliable_commands_.end());
 
     for (; cmd != incoming_reliable_commands_.begin(); --cmd)
     {

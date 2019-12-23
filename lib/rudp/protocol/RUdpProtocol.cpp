@@ -454,20 +454,19 @@ RUdpProtocol::HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::sha
         cmd->header.reliable_sequence_number = start_sequence_number;
         auto [in_cmd, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
+        in_cmd->MarkFragmentReceived(fragment_number);
+
         if (error != Error::OK)
         {
             return Error::ERROR;
         }
-
-        firstCmd = in_cmd;
     }
-
     // copy a fragment into the buffer of the first command
-    if (!firstCmd->IsFragmentAlreadyReceived(fragment_number))
+    else if (!firstCmd->IsFragmentAlreadyReceived(fragment_number))
     {
         firstCmd->MarkFragmentReceived(fragment_number);
 
-        auto data_length = cmd->send_reliable.data_length;
+        auto data_length = firstCmd->segment()->DataLength();
 
         if (fragment_offset + fragment_length > data_length)
         {
