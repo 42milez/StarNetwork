@@ -476,5 +476,42 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
   LOG(" Step 4 : Guest 2 sends a fragmented segment to Host");
   LOG("==================================================");
 
-  // ...
+  std::string msg2
+      {".luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO"};
+  auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
+  auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
+  auto segment2 = std::make_shared<RUdpSegment>(payload2, flags2);
+
+  LOG("");
+  LOG("[GUEST 2 : SEND (1)]");
+  REQUIRE(guest2->Send(0, SysCh::RELIABLE, segment2) == Error::OK);
+  DELAY_SHORT();
+
+  LOG("");
+  LOG("[GUEST 2 (2)]");
+  REQUIRE(guest2->Service(guest2_event, 0) == EventStatus::NO_EVENT_OCCURRED);
+  DELAY_LONG();
+
+  LOG("");
+  LOG("[HOST (3)]");
+  REQUIRE(host->Service(host_event, 0) == EventStatus::NO_EVENT_OCCURRED);
+  DELAY_LONG();
+
+  LOG("");
+  LOG("[HOST (6)]");
+  event_status = host->Service(host_event, 0);
+  REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
+  REQUIRE(host_event->TypeIs(RUdpEventType::RECEIVE));
+  REQUIRE(host_event->DataAsString() == msg2);
+  DELAY_SHORT();
+
+  LOG("");
+  LOG("[GUEST 2 (7)]");
+  REQUIRE(guest2->Service(guest2_event, 0) == EventStatus::NO_EVENT_OCCURRED);
+  DELAY_SHORT();
+
+  LOG("");
+  LOG("[HOST (8)]");
+  REQUIRE(host->Service(host_event, 0) == EventStatus::NO_EVENT_OCCURRED);
+  DELAY_SHORT();
 }
