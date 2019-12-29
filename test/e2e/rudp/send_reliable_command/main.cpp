@@ -57,9 +57,6 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
   RUdpAddress guest2_address;
   guest2_address.port(10002);
   auto guest2 = std::make_unique<RUdpHost>(guest2_address, SysCh::MAX, 1, 100, 100);
-
-  EventStatus event_status;
-
   auto host_event = std::make_unique<RUdpEvent>();
   auto guest1_event = std::make_unique<RUdpEvent>();
   auto guest2_event = std::make_unique<RUdpEvent>();
@@ -222,9 +219,6 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
   RUdpAddress guest2_address;
   guest2_address.port(10002);
   auto guest2 = std::make_unique<RUdpHost>(guest2_address, SysCh::MAX, 1, 100, 100);
-
-  EventStatus event_status;
-
   auto host_event = std::make_unique<RUdpEvent>();
   auto guest1_event = std::make_unique<RUdpEvent>();
   auto guest2_event = std::make_unique<RUdpEvent>();
