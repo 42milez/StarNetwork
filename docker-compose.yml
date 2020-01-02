@@ -1,0 +1,22 @@
+---
+version: "3"
+services:
+  e2e_test:
+    build:
+      context: "."
+      dockerfile: './test/Dockerfile'
+    container_name: "p2p-techdemo-e2e-test"
+    image: "p2p-techdemo-e2e-test"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "./app:/var/app/app"
+      - "./cmake:/var/app/cmake"
+      - "./core:/var/app/core"
+      - "./lib:/var/app/lib"
+      - "./module:/var/app/module"
+      - "./test:/var/app/test"
+    # ビルドしてからテストを実行する
+    command: >
+      /usr/bin/cmake --build /var/app/cmake-build-test --target all -- -j 4 &&
+      /var/app/cmake-build-test/test/e2e/rudp/basic_connection -r console -d yes --order lex
