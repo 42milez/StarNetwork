@@ -16,7 +16,8 @@ services:
       - "./lib:/var/app/lib"
       - "./module:/var/app/module"
       - "./test:/var/app/test"
+      - "./CMakeLists.txt:/var/app/CMakeLists.txt"
     # ビルドしてからテストを実行する
-    command: >
-      /usr/bin/cmake --build /var/app/cmake-build-test --target all -- -j 4 &&
-      /var/app/cmake-build-test/test/e2e/rudp/basic_connection -r console -d yes --order lex
+    #command: >
+    #  /usr/bin/cmake --build /var/app/build --target all -- -j 4
+    #  && /var/app/cmake-build-test/test/e2e/rudp/basic_connection -r console -d yes --order lex

@@ -22,7 +22,9 @@ cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 
 # https://stackoverflow.com/questions/6077414/how-to-set-the-ldflags-in-cmakelists-txt
 # TODO: Indicate suitable path for each platform.
-set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
+if (APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
+endif()
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 
