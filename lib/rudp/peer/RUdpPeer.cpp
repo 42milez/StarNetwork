@@ -1,6 +1,7 @@
 #include <utility>
 
 #include "core/hash.h"
+#include "core/singleton.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpMacro.h"
@@ -34,7 +35,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 
     address_ = address;
 
-    connect_id_ = hash32();
+    connect_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
 
     net_->Setup();
 

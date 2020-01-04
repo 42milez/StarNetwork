@@ -10,8 +10,8 @@ RUN apk update &&               \
       g++=9.2.0-r3              \
       gcc=9.2.0-r3              \
       linux-headers=4.19.36-r0  \
-      make=4.2.1-r2
-    #rm -rf /var/cache/apk/*
+      make=4.2.1-r2             \
+      zlib-dev=1.2.11-r3
 
 ENV APP_ROOT /var/app
 ENV BUILD_DIR /var/app/build

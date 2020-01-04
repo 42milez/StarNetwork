@@ -1,7 +1,8 @@
+#ifdef __APPLE__
 #include <sys/event.h>
-#include <sys/time.h>
-#include <sys/types.h>
+#endif
 #include <unistd.h>
+#include <ctime>
 
 #include "event_poll.h"
 

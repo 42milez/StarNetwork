@@ -2,6 +2,8 @@
 #include <mach/mach_time.h>
 #endif
 
+#include <string>
+
 #include "os.h"
 
 OS::OS()
@@ -31,10 +33,4 @@ OS::GetTicksUsec() const
     longtime -= clock_start_;
 
     return longtime;
-}
-
-uint32_t
-OS::GetTicksMsec() const
-{
-    return GetTicksUsec() / 1000;
 }

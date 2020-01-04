@@ -18,6 +18,8 @@ services:
       - "./test:/var/app/test"
       - "./CMakeLists.txt:/var/app/CMakeLists.txt"
     # ビルドしてからテストを実行する
-    #command: >
-    #  /usr/bin/cmake --build /var/app/build --target all -- -j 4
+    command: >
+      cd /var/app/build &&
+      /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G "CodeBlocks - Unix Makefiles" /var/app &&
+      /usr/bin/cmake --build /var/app/build --target all -- -j 4
     #  && /var/app/cmake-build-test/test/e2e/rudp/basic_connection -r console -d yes --order lex
