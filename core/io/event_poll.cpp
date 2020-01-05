@@ -15,8 +15,8 @@ namespace
 
     const int N_EVENT = 10;
 
-    bool
 #ifdef __APPLE__
+    bool
     is_socket_read(int sock, struct kevent events[], int nfds)
     {
         for (auto i = 0; i < nfds; i++)
