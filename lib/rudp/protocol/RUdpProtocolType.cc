@@ -1,3 +1,7 @@
+#ifdef __linux__
+#include <arpa/inet.h>
+#endif
+
 #include "lib/rudp/RUdpConst.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "RUdpProtocolType.h"

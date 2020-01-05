@@ -1,3 +1,6 @@
+#ifdef __linux__
+#include <arpa/inet.h>
+#endif
 #include <utility>
 
 #include "core/hash.h"

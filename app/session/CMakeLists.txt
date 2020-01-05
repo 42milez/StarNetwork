@@ -6,7 +6,6 @@ add_executable(session main.cpp ${sources} ${headers})
 set(libs
     p2p_techdemo-buildinfo
     spdlog::spdlog
-    core
-    network)
+    core)
 
 target_link_libraries(session PRIVATE ${libs})

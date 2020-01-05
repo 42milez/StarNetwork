@@ -1,3 +1,6 @@
+#ifdef __linux__
+#include <arpa/inet.h>
+#endif
 #include "core/logger.h"
 #include "core/singleton.h"
 #include "RUdpEnum.h"
