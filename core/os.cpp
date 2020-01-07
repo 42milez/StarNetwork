@@ -16,7 +16,15 @@ OS::OS()
     clock_scale_ = (static_cast<double>(info.numer) / static_cast<double>(info.denom)) / 1000.0;
     clock_start_ = mach_absolute_time() * clock_scale_;
 #else
-    // ...
+#if defined(CLOCK_MONOTONIC_RAW) && !defined(JAVASCRIPT_ENABLED) // This is a better clock on Linux.
+#define RUDP_CLOCK CLOCK_MONOTONIC_RAW
+#else
+#define RUDP_CLOCK CLOCK_MONOTONIC
+#endif
+  struct timespec tv_now = { 0, 0 };
+  //ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
+  //ERR_FAIL_COND(clock_gettime(RUDP_CLOCK, &tv_now) != 0);
+  clock_start_ = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 #endif
 }
 
@@ -27,7 +35,7 @@ OS::GetTicksUsec() const
     uint64_t longtime = mach_absolute_time() * clock_scale_;
 #else
     struct timespec tv_now = {0, 0};
-    clock_gettime(CLOCK_MONOTONIC_RAW, &tv_now);
+    clock_gettime(RUDP_CLOCK, &tv_now);
     uint64_t longtime = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 #endif
     longtime -= clock_start_;

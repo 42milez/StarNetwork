@@ -17,7 +17,7 @@ services:
       - "./module:/var/app/module"
       - "./test:/var/app/test"
       - "./CMakeLists.txt:/var/app/CMakeLists.txt"
-     - "build:/var/app/build"
+      - "build:/var/app/build"
     command: >
       /bin/bash -c '
         cd /var/app/build &&
