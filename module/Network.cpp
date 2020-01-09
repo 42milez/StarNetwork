@@ -118,7 +118,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 #endif
     dst_address.port(server_port);
 
-    unique_id_ = hash32();
+    unique_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
 
     return host_->Connect(dst_address, channel_count_, unique_id_);
 }
@@ -162,7 +162,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
     server_ = true;
     connection_status_ = ConnectionStatus::CONNECTED;
 
-    unique_id_ = hash32();
+    unique_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
 
     return Error::OK;
 }
@@ -243,7 +243,7 @@ Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
 //    while (total) {
 //        for (auto i = 0; i < in_buffer_size; i++) {
 //            auto to_copy = std::min(total, in_buffers.at(i).DataLength());
-//            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).data_, to_copy);
+//            memcpy(&src_compressor_mem_.at(offset), in_buffers.at(i).buffer_, to_copy);
 //            offset += to_copy;
 //            total -= to_copy;
 //        }

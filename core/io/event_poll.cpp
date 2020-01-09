@@ -1,7 +1,8 @@
+#ifdef __APPLE__
 #include <sys/event.h>
-#include <sys/time.h>
-#include <sys/types.h>
+#endif
 #include <unistd.h>
+#include <ctime>
 
 #include "event_poll.h"
 
@@ -14,8 +15,8 @@ namespace
 
     const int N_EVENT = 10;
 
-    bool
 #ifdef __APPLE__
+    bool
     is_socket_read(int sock, struct kevent events[], int nfds)
     {
         for (auto i = 0; i < nfds; i++)

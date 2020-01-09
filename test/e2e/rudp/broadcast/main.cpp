@@ -11,26 +11,26 @@
 
 namespace
 {
-constexpr auto SLEEP_DURATION = 10 * 1000; // microsecond
+    constexpr auto SLEEP_DURATION = 10 * 1000; // microsecond
 
-void
-LOG(const std::string &message)
-{ core::Singleton<core::Logger>::Instance().Debug(message); }
+    void
+    LOG(const std::string &message)
+    { core::Singleton<core::Logger>::Instance().Debug(message); }
 
-void
-DELAY()
-{ usleep(SLEEP_DURATION); }
+    void
+    DELAY()
+    { usleep(SLEEP_DURATION); }
 }
 
-class Peer2IPv4Fixture
+class HostFixture
 {
 public:
-    Peer2IPv4Fixture()
+    HostFixture()
     {
         RUdpAddress address;
         address.port(8888);
         host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
-        core::Singleton<core::Logger>::Instance().Init("Broadcast");
+        core::Singleton<core::Logger>::Instance().Init("Broadcast Test");
     }
 
     void
@@ -49,151 +49,215 @@ private:
     std::shared_ptr<RUdpHost> host_;
 };
 
-TEST_CASE_METHOD(Peer2IPv4Fixture, "Broadcast", "[IPv4]")
+TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 {
-    RUdpAddress peer1_address;
-    peer1_address.port(8889);
-    auto peer1 = std::make_unique<RUdpHost>(peer1_address, SysCh::MAX, 32, 100, 100);
+    // host
+    IpAddress host_ip{"::FFFF:127.0.0.1"};
+    RUdpAddress host_address;
+    host_address.host(host_ip.GetIPv6());
+    host_address.port(8888);
 
-    IpAddress peer2_ip{"::FFFF:127.0.0.1"};
-    RUdpAddress peer2_address;
-    peer2_address.host(peer2_ip.GetIPv6());
-    peer2_address.port(8888);
+    // guest1
+    RUdpAddress guest1_address;
+    guest1_address.port(8889);
+    auto guest1 = std::make_unique<RUdpHost>(guest1_address, SysCh::MAX, 32, 100, 100);
 
-    auto peer1_event = std::make_unique<RUdpEvent>();
-    auto peer2_event = std::make_unique<RUdpEvent>();
+    // guest2
+    RUdpAddress guest2_address;
+    guest2_address.port(8890);
+    auto guest2 = std::make_unique<RUdpHost>(guest2_address, SysCh::MAX, 32, 100, 100);
+
+    EventStatus event_status;
+
+    auto host_event = std::make_unique<RUdpEvent>();
+    auto guest1_event = std::make_unique<RUdpEvent>();
+    auto guest2_event = std::make_unique<RUdpEvent>();
 
     LOG("==================================================");
-    LOG(" Step 1 : peer1 sends CONNECT command to peer2");
+    LOG(" Step 1 : Guest 1 sends CONNECT command to Host");
     LOG("==================================================");
 
     LOG("");
-    LOG("[PEER 1 : CONNECT (1)]");
+    LOG("[GUEST 1 : CONNECT (1)]");
 
-    peer1->Connect(peer2_address, SysCh::MAX, 0);
+    guest1->Connect(host_address, SysCh::MAX, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (2)]");
+    LOG("[GUEST 1 (2)]");
 
-    peer1->Service(peer1_event, 0);
+    guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (3)]");
+    LOG("[HOST (3)]");
 
-    Service(peer2_event, 0);
+    Service(host_event, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (4)]");
+    LOG("[GUEST 1 (4)]");
 
-    peer1->Service(peer1_event, 0);
+    guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (5)]");
+    LOG("[HOST (5)]");
 
-    Service(peer2_event, 0);
+    Service(host_event, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (6)]");
+    LOG("[GUEST 1 (6)]");
 
-    peer1->Service(peer1_event, 0);
+    guest1->Service(guest1_event, 0);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (7)]");
+    LOG("[HOST (7)]");
 
-    Service(peer2_event, 0);
+    Service(host_event, 0);
+
     DELAY();
 
-    REQUIRE(peer1->PeerState(0) == RUdpPeerState::CONNECTED);
     REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(guest1->PeerState(0) == RUdpPeerState::CONNECTED);
 
     LOG("");
     LOG("==================================================");
-    LOG(" Step 2 : Broadcast (from peer1)");
+    LOG(" Step 2 : Guest 2 sends CONNECT command to Host");
     LOG("==================================================");
 
-    std::string msg1{"send broadcast from peer1"};
-    auto data1 = std::make_shared<std::vector<uint8_t>>(msg1.begin(), msg1.end());
-    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-                  static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
+    LOG("");
+    LOG("[GUEST 2 : CONNECT (1)]");
+
+    guest2->Connect(host_address, SysCh::MAX, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[GUEST 2 (2)]");
+
+    guest2->Service(guest2_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[HOST (3)]");
+
+    Service(host_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[GUEST 2 (4)]");
+
+    guest2->Service(guest2_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[HOST (5)]");
+
+    Service(host_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[GUEST 2 (6)]");
+
+    guest2->Service(guest2_event, 0);
+
+    DELAY();
+
+    LOG("");
+    LOG("[HOST (7)]");
+
+    Service(host_event, 0);
+
+    DELAY();
+
+    REQUIRE(PeerState(1) == RUdpPeerState::CONNECTED);
+    REQUIRE(guest2->PeerState(0) == RUdpPeerState::CONNECTED);
+
+    LOG("");
+    LOG("==================================================");
+    LOG(" Step 3 : Broadcast from Host");
+    LOG("==================================================");
+
+    std::string msg1{"broadcast command from host"};
+    auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
+    auto flags1 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE);
     auto segment1 = std::make_shared<RUdpSegment>(data1, flags1);
 
     LOG("");
-    LOG("[PEER 1 : BROADCAST (1)]");
+    LOG("[HOST : BROADCAST (1)]");
 
-    peer1->Broadcast(SysCh::RELIABLE, segment1);
+    Broadcast(SysCh::RELIABLE, segment1);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (2)]");
+    LOG("[HOST (2)]");
 
-    peer1->Service(peer1_event, 0);
+    event_status = Service(guest1_event, 0);
+
+    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (3)]");
+    LOG("[GUEST 1 (3)]");
 
-    Service(peer2_event, 0);
+    event_status = guest1->Service(guest1_event, 0);
+
+    REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
+    REQUIRE(guest1_event->TypeIs(RUdpEventType::RECEIVE));
+    REQUIRE(guest1_event->DataAsString() == "broadcast command from host");
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (4)]");
+    LOG("[GUEST 2 (4)]");
 
-    peer1->Service(peer1_event, 0);
+    event_status = guest2->Service(guest2_event, 0);
+
+    REQUIRE(event_status == EventStatus::AN_EVENT_OCCURRED);
+    REQUIRE(guest2_event->TypeIs(RUdpEventType::RECEIVE));
+    REQUIRE(guest2_event->DataAsString() == "broadcast command from host");
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (5)]");
+    LOG("[HOST (5)]");
 
-    Service(peer2_event, 0);
-    DELAY();
+    event_status = Service(guest1_event, 0);
 
-    REQUIRE(true);
+    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
 
-    // ==================================================
-    //  Step 3 : Broadcast (from peer2 )
-    // ==================================================
-
-    std::string msg2{"send broadcast from peer2"};
-    auto data2 = std::make_shared<std::vector<uint8_t>>(msg2.begin(), msg2.end());
-    auto flags2 = static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-        static_cast<uint32_t>(RUdpSegmentFlag::NO_ALLOCATE);
-    auto segment2 = std::make_shared<RUdpSegment>(data2, flags2);
-
-    LOG("");
-    LOG("[PEER 2 : BROADCAST (1)]");
-
-    Broadcast(SysCh::RELIABLE, segment2);
     DELAY();
 
     LOG("");
-    LOG("[PEER 2 (2)]");
+    LOG("[GUEST 1 (6)]");
 
-    Service(peer2_event, 0);
+    event_status = guest1->Service(host_event, 0);
+
+    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
+
     DELAY();
 
     LOG("");
-    LOG("[PEER 1 (3)]");
+    LOG("[GUEST 2 (7)]");
 
-    peer1->Service(peer1_event, 0);
+    event_status = guest2->Service(guest2_event, 0);
+
+    REQUIRE(event_status == EventStatus::NO_EVENT_OCCURRED);
+
     DELAY();
-
-    LOG("");
-    LOG("[PEER 2 (4)]");
-
-    Service(peer2_event, 0);
-    DELAY();
-
-    LOG("");
-    LOG("[PEER 1 (5)]");
-
-    peer1->Service(peer1_event, 0);
-    DELAY();
-
-    REQUIRE(true);
 }

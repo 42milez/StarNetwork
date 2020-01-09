@@ -1,3 +1,7 @@
+#ifdef __linux__
+#include <arpa/inet.h>
+#endif
+
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "RUdpPeerNet.h"
@@ -72,7 +76,7 @@ RUdpPeerPod::AvailablePeer()
     }
 
 #define EXCEEDS_RECEIVED_LENGTH()                              \
-    auto data_length = ntohs(cmd->send_reliable.data_length);  \
+    auto data_length = cmd->send_reliable.data_length;  \
     auto pos = current_data + data_length;                     \
                                                                \
     if ((data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||   \
@@ -209,8 +213,8 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
         if (received_data_length_ < (size_t) &((RUdpProtocolHeader *) nullptr)->sent_time)
             continue;
 
-        auto header = reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0)));
-        auto peer_id = ntohs(header->peer_id);
+        auto header = rudp::type::ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0))));
+        auto peer_id = header->peer_id;
         auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
         auto flags = peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
         auto header_size =
@@ -264,24 +268,25 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
             if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
                 break;
 
-            auto cmd = reinterpret_cast<RUdpProtocolType *>(&(*current_data));
-            auto cmd_number = cmd->header.command & PROTOCOL_COMMAND_MASK;
+            auto cmd_raw = rudp::type::ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
+            auto cmd = std::make_shared<RUdpProtocolType>(*cmd_raw);
+            auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
-            if (cmd_number >= static_cast<uint8_t>(RUdpProtocolCommand::COUNT))
+            if (cmd_type >= RUdpProtocolCommand::COUNT)
                 break;
 
-            auto cmd_size = COMMAND_SIZES.at(cmd_number);
+            auto cmd_size = COMMAND_SIZES.at(static_cast<uint8_t>(cmd_type));
             if (cmd_size == 0 || current_data + cmd_size > end)
                 break;
 
             current_data += cmd_size;
 
-            if (peer == nullptr && cmd_number != static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
+            if (peer == nullptr && cmd_type != RUdpProtocolCommand::CONNECT)
                 break;
 
-            cmd->header.reliable_sequence_number = ntohs(cmd->header.reliable_sequence_number);
+            auto cmd_body = std::vector<uint8_t>{current_data, end};
 
-            if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::ACKNOWLEDGE))
+            if (cmd_type == RUdpProtocolCommand::ACKNOWLEDGE)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: ACKNOWLEDGE ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -293,7 +298,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::CONNECT))
+            else if (cmd_type == RUdpProtocolCommand::CONNECT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: CONNECT ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -334,7 +339,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                                          host_incoming_bandwidth_,
                                          host_outgoing_bandwidth_);
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT))
+            else if (cmd_type == RUdpProtocolCommand::VERIFY_CONNECT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: VERIFY_CONNECT ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -342,7 +347,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
+            else if (cmd_type == RUdpProtocolCommand::DISCONNECT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: DISCONNECT ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -350,7 +355,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
+            else if (cmd_type == RUdpProtocolCommand::PING)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: PING ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -358,19 +363,20 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 if (protocol_->HandlePing(peer) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE))
+            else if (cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_RELIABLE ({0})",
                                                                 cmd->header.reliable_sequence_number);
-                core::Singleton<core::Logger>::Instance().Debug("received data: {0}", std::string{current_data, end});
+                core::Singleton<core::Logger>::Instance().Debug("received data: {0}", std::string{cmd_body.begin(), cmd_body.end()});
 
                 EXCEEDS_CHANNEL_COUNT()
                 EXCEEDS_RECEIVED_LENGTH()
 
-                if (protocol_->HandleSendReliable(peer, cmd, current_data) == Error::ERROR)
+                if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
+                                                  static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE), 0) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE))
+            else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -379,7 +385,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 //                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED))
+            else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNSEQUENCED ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -388,16 +394,19 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 //                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT))
+            else if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
                                                                 cmd->header.reliable_sequence_number);
 
-                // TODO:
-//                if (protocol_->HandleSendFragment(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                EXCEEDS_CHANNEL_COUNT()
+                EXCEEDS_RECEIVED_LENGTH()
+
+                if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
+                                                  static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE)) == Error::ERROR)
+                { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::BANDWIDTH_LIMIT))
+            else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: BANDWIDTH_LIMIT ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -405,7 +414,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                 if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR)
                 { IS_EVENT_AVAILABLE() }
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::THROTTLE_CONFIGURE))
+            else if (cmd_type == RUdpProtocolCommand::THROTTLE_CONFIGURE)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: THROTTLE_CONFIGURE ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -414,7 +423,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 //                if (protocol_->HandleThrottleConfigure(peer, cmd))
 //                    IS_EVENT_AVAILABLE()
             }
-            else if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT))
+            else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
             {
                 core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
                                                                 cmd->header.reliable_sequence_number);
@@ -434,7 +443,7 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
                     break;
 
                 auto &net = peer->net();
-                auto sent_time = ntohs(header->sent_time);
+                auto sent_time = header->sent_time;
 
                 if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
                     net->StateIs(RUdpPeerState::ACKNOWLEDGING_CONNECT) ||
@@ -462,7 +471,9 @@ RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, Checksum
 void
 RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum)
 {
-    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(nullptr, static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
+    std::vector<uint8_t> empty_data;
+    std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(empty_data,
+            static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
 
     segment->AddSysMsg(SysMsg::REMOVE_PEER);
     segment->AddPeerIdx(peer_idx);
@@ -471,13 +482,11 @@ RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer>
 }
 
 EventStatus
-RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
-                                  uint32_t service_time,
-                                  bool check_for_timeouts,
-                                  ChecksumCallback checksum)
+RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time,
+                                  bool check_for_timeouts, ChecksumCallback checksum)
 {
-    auto header_data = std::make_shared<VecUInt8>(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
-    auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data->at(0)));
+    auto header_data = VecUInt8(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
+    auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data.at(0)));
 
     protocol_->continue_sending(true);
 
@@ -540,6 +549,8 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             if (protocol_->chamber()->command_count() == 0)
                 continue;
 
+            auto drop_sent_time = false;
+
             if (net->segment_loss_epoch() == 0)
             {
                 net->segment_loss_epoch(service_time);
@@ -549,14 +560,6 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
                 net->CalculateSegmentLoss(service_time);
             }
 
-            // ⚠️ buffers_[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる
-            //
-            // buffers_[0]: ヘッダ
-            // buffers_[1]: コマンド
-            // buffers_[2]: コマンド
-            // buffers_[n]: コマンド
-            protocol_->chamber()->SetHeader(header_data);
-
             if (protocol_->chamber()->header_flags() & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME))
             {
                 header->sent_time = htons(service_time & 0xFFFF);
@@ -564,8 +567,7 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             }
             else
             {
-                //protocol_->chamber()->set_data_length((size_t) &((RUdpProtocolHeader *) 0)->sent_time);
-                protocol_->chamber()->DropSentTime();
+                drop_sent_time = true;
             }
 
             auto should_compress = false;
@@ -593,6 +595,14 @@ RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event,
             {
                 // ...
             }
+
+            // ⚠️ buffers_[0]には必ずヘッダが設定される。なので、_buffersは以下の構造となる
+            //
+            // buffers_[0]: ヘッダ
+            // buffers_[1]: コマンド
+            // buffers_[2]: コマンド
+            // buffers_[n]: コマンド
+            protocol_->chamber()->SetHeader(header_data, drop_sent_time);
 
             net->last_send_time(service_time);
 

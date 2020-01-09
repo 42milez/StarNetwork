@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <thread>
 #include <vector>
+#include <condition_variable>
 
 #include "core/singleton.h"
 

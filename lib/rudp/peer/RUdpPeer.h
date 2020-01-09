@@ -42,10 +42,11 @@ public:
     PopAcknowledgement();
 
     void
-    QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time);
+    QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time);
 
-    std::shared_ptr<RUdpIncomingCommand>
-    QueueIncomingCommand();
+    Error
+    QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
+                         uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data);
 
     void
     QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
@@ -71,7 +72,7 @@ public:
           uint32_t host_outgoing_bandwidth, uint32_t data);
 
     void
-    SetupConnectedPeer(const RUdpProtocolType *cmd, const RUdpAddress &received_address,
+    SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd, const RUdpAddress &received_address,
                        uint32_t host_incoming_bandwidth, uint32_t host_outgoing_bandwidth,
                        uint32_t channel_count);
 
@@ -87,6 +88,9 @@ public:
     inline void
     Address(const RUdpAddress val) { address_ = val; }
 
+    std::shared_ptr<RUdpChannel>
+    Channel(uint8_t val) { return channels_.at(val); }
+
     inline bool
     ChannelExists() { return !channels_.empty(); }
 
@@ -98,6 +102,10 @@ public:
 
     inline bool
     Disconnected() { return net_->StateIs(RUdpPeerState::DISCONNECTED); }
+
+    void
+    PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<RUdpIncomingCommand>> &commands)
+    { for (auto &cmd : commands) dispatched_commands_.push(cmd); }
 
     inline bool
     DispatchedCommandExists() { return !dispatched_commands_.empty(); }
@@ -116,6 +124,10 @@ public:
 
     inline uint8_t
     StateAsNumber() { return static_cast<uint8_t>(net_->state()); }
+
+    inline bool
+    StateIs(RUdpPeerState val)
+    { return net_->StateIs(val); }
 
 public:
     inline const std::unique_ptr<RUdpCommandPod> &
@@ -161,8 +173,7 @@ private:
     std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
     std::vector<std::shared_ptr<RUdpChannel>> channels_;
     std::unique_ptr<RUdpCommandPod> command_pod_;
-    VecUInt8 data_;
-    std::queue<RUdpIncomingCommand> dispatched_commands_;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
     std::unique_ptr<RUdpPeerNet> net_;
     std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 

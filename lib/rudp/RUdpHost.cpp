@@ -12,7 +12,6 @@ RUdpHost::RUdpHost(const RUdpAddress &address, SysCh channel_count, size_t peer_
       conn_(std::make_shared<RUdpConnection>(address)),
       incoming_bandwidth_(in_bandwidth),
       maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
-      maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA),
       mtu_(HOST_DEFAULT_MTU),
       outgoing_bandwidth_(out_bandwidth)
 {
@@ -63,6 +62,26 @@ RUdpHost::Connect(const RUdpAddress &address, SysCh channel_count, uint32_t data
     auto err = peer->Setup(address, channel_count, incoming_bandwidth_, outgoing_bandwidth_, data);
 
     return err;
+}
+
+void
+RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
+{
+    peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
+}
+
+Error
+RUdpHost::Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+{
+    auto peer = peer_pod_->Peer(peer_id);
+    auto &net = peer->net();
+
+    if (net->StateIsNot(RUdpPeerState::CONNECTED))
+        return Error::ERROR;
+
+    peer->Send(ch, segment, checksum_);
+
+    return Error::OK;
 }
 
 #define RETURN_ON_EVENT_OCCURRED(val)       \
@@ -163,10 +182,4 @@ RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
     while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
     return EventStatus::NO_EVENT_OCCURRED;
-}
-
-void
-RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
-{
-    peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
 }

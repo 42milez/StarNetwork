@@ -22,12 +22,23 @@ cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 
 # https://stackoverflow.com/questions/6077414/how-to-set-the-ldflags-in-cmakelists-txt
 # TODO: Indicate suitable path for each platform.
-set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
+if (APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib")
+endif()
+
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 
 if (APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.15")
+endif()
+
+if (APPLE)
+    set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
+    set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
+elseif()
+    set(CMAKE_C_COMPILER "/usr/bin/clang")
+    set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 endif()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -O1 -fno-omit-frame-pointer -g")
@@ -62,5 +73,6 @@ add_subdirectory(app/session)
 # --------------------------------------------------
 add_subdirectory(test/e2e/rudp/basic_connection)
 add_subdirectory(test/e2e/rudp/broadcast)
+add_subdirectory(test/e2e/rudp/send_reliable_command)
 add_subdirectory(test/unit/core/io)
 add_subdirectory(test/unit/module)

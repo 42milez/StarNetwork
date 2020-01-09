@@ -70,7 +70,7 @@ enum class RUdpSegmentFlag: uint16_t
     // segment will not be sequenced with other segments not supported for reliable segments
     UNSEQUENCED = (1u << 1u),
 
-    // segment will not allocate data_, and user must supply it instead
+    // segment will not allocate, and user must supply it instead
     NO_ALLOCATE = (1u << 2u),
 
     // segment will be fragmented using unreliable (instead of reliable) sends if it exceeds the MTU

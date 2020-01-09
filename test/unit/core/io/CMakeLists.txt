@@ -1,7 +1,7 @@
 set(headers ../../../../core/io/ip_address.h)
 
 set(sources ip_address_test.cpp
-    ../../../../core/io/ip_address.cpp)
+        ../../../../core/io/ip_address.cpp)
 
 add_executable(ip_address_test ${headers} ${sources})
 

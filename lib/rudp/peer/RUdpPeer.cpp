@@ -1,5 +1,10 @@
-#include "core/hash.h"
+#ifdef __linux__
+#include <arpa/inet.h>
+#endif
+#include <utility>
 
+#include "core/hash.h"
+#include "core/singleton.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpMacro.h"
@@ -33,7 +38,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 
     address_ = address;
 
-    connect_id_ = hash32();
+    connect_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
 
     net_->Setup();
 
@@ -44,7 +49,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
     cmd->header.channel_id = 0xFF;
 
     cmd->connect.channel_count = htonl(static_cast<uint32_t>(channel_count));
-    cmd->connect.connect_id = connect_id_;
+    cmd->connect.connect_id = htonl(connect_id_);
     cmd->connect.data = htonl(data);
     cmd->connect.mtu = htonl(net_->mtu());
     cmd->connect.window_size = htonl(net_->window_size());
@@ -66,7 +71,7 @@ RUdpPeer::Setup(const RUdpAddress &address, SysCh channel_count, uint32_t host_i
 }
 
 void
-RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
+RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
                              const RUdpAddress &received_address,
                              uint32_t host_incoming_bandwidth,
                              uint32_t host_outgoing_bandwidth,
@@ -75,13 +80,13 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     net_->state(RUdpPeerState::ACKNOWLEDGING_CONNECT);
     connect_id_ = cmd->connect.connect_id;
     address_ = received_address;
-    outgoing_peer_id_ = ntohs(cmd->connect.outgoing_peer_id);
-    net_->incoming_bandwidth(ntohl(cmd->connect.incoming_bandwidth));
-    net_->outgoing_bandwidth(ntohl(cmd->connect.outgoing_bandwidth));
-    net_->segment_throttle_interval(ntohl(cmd->connect.segment_throttle_interval));
-    net_->segment_throttle_acceleration(ntohl(cmd->connect.segment_throttle_acceleration));
-    net_->segment_throttle_deceleration(ntohl(cmd->connect.segment_throttle_deceleration));
-    event_data_ = ntohl(cmd->connect.data);
+    outgoing_peer_id_ = cmd->connect.outgoing_peer_id;
+    net_->incoming_bandwidth(cmd->connect.incoming_bandwidth);
+    net_->outgoing_bandwidth(cmd->connect.outgoing_bandwidth);
+    net_->segment_throttle_interval(cmd->connect.segment_throttle_interval);
+    net_->segment_throttle_acceleration(cmd->connect.segment_throttle_acceleration);
+    net_->segment_throttle_deceleration(cmd->connect.segment_throttle_deceleration);
+    event_data_ = cmd->connect.data;
 
     auto incoming_session_id = cmd->connect.incoming_session_id == 0xFF ? outgoing_session_id_ :
                                cmd->connect.incoming_session_id;
@@ -110,7 +115,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     for (auto &ch : channels_)
         ch->Reset();
 
-    auto mtu = ntohl(cmd->connect.mtu);
+    auto mtu = cmd->connect.mtu;
 
     if (mtu < PROTOCOL_MINIMUM_MTU)
     {
@@ -164,8 +169,8 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
         window_size = (host_incoming_bandwidth / PEER_WINDOW_SIZE_SCALE) * PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
 
-    if (window_size > ntohl(cmd->connect.window_size))
-        window_size = ntohl(cmd->connect.window_size);
+    if (window_size > cmd->connect.window_size)
+        window_size = cmd->connect.window_size;
 
     if (window_size < PROTOCOL_MINIMUM_WINDOW_SIZE)
     {
@@ -192,7 +197,7 @@ RUdpPeer::SetupConnectedPeer(const RUdpProtocolType *cmd,
     verify_cmd->verify_connect.segment_throttle_interval = htonl(net_->segment_throttle_interval());
     verify_cmd->verify_connect.segment_throttle_acceleration = htonl(net_->segment_throttle_acceleration());
     verify_cmd->verify_connect.segment_throttle_deceleration = htonl(net_->segment_throttle_deceleration());
-    verify_cmd->verify_connect.connect_id = connect_id_;
+    verify_cmd->verify_connect.connect_id = htonl(connect_id_);
 
     QueueOutgoingCommand(verify_cmd, nullptr, 0);
 }
@@ -213,7 +218,7 @@ RUdpPeer::Ping()
 }
 
 void
-RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
+RUdpPeer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
 {
     if (cmd->header.channel_id < channels_.size())
     {
@@ -243,12 +248,37 @@ RUdpPeer::QueueAcknowledgement(const RUdpProtocolType *cmd, uint16_t sent_time)
                                                     cmd->header.reliable_sequence_number);
 }
 
-std::shared_ptr<RUdpIncomingCommand>
-RUdpPeer::QueueIncomingCommand()
+namespace
 {
-    //core::Singleton<core::Logger>::Instance().Debug("Queued command: **********");
+Error
+DiscardCommand(uint32_t fragment_count)
+{
+    if (fragment_count > 0)
+        return Error::ERROR;
 
-    return nullptr;
+    return Error::OK;
+}
+}
+
+Error
+RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
+                               uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
+{
+    if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
+        return DiscardCommand(fragment_count);
+
+    if (total_waiting_data_ >= maximum_waiting_data)
+        return DiscardCommand(fragment_count);
+
+    auto ch = channels_.at(cmd->header.channel_id);
+    auto [_, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
+
+    if (error == Error::OK)
+        total_waiting_data_ += data_length;
+    else
+        return error;
+
+    return Error::OK;
 }
 
 // TODO: Is segment necessary as an argument?
@@ -272,7 +302,7 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     }
 
     auto channel_id = protocol_type->header.channel_id;
-    auto cmd_number = outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK;
+    auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK);
     std::shared_ptr<RUdpChannel> channel = nullptr;
 
     if (channel_id < channels_.size())
@@ -280,17 +310,18 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
 
     command_pod_->SetupOutgoingCommand(outgoing_command, channel);
 
-    if (cmd_number == static_cast<uint8_t>(RUdpProtocolCommand::PING))
+    if (cmd_type == RUdpProtocolCommand::PING)
     {
         auto host = address_.host();
         auto port = address_.port();
         core::Singleton<core::Logger>::Instance().Debug("command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
-                                                        ntohs(outgoing_command->command()->header.reliable_sequence_number),
+                                                        outgoing_command->command()->header.reliable_sequence_number,
                                                         host.at(12), host.at(13), host.at(14), host.at(15), port);
     }
     else
     {
-        core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}", COMMANDS_AS_STRING.at(cmd_number));
+        core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}",
+                                                        COMMANDS_AS_STRING.at(static_cast<uint8_t>(cmd_type)));
     }
 }
 
@@ -301,11 +332,13 @@ RUdpPeer::Receive()
         return {nullptr, 0};
 
     auto incoming_command = dispatched_commands_.front();
-    auto segment = incoming_command.segment();
+    auto segment = incoming_command->segment();
 
     total_waiting_data_ -= segment->DataLength();
 
-    return {segment, incoming_command.header_channel_id()};
+    dispatched_commands_.pop();
+
+    return {segment, incoming_command->header_channel_id()};
 }
 
 Error
@@ -313,17 +346,17 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
 {
     if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
         static_cast<uint32_t>(ch) >= channels_.size() ||
-        data_.size() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
+        segment->DataLength() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
     {
         return Error::ERROR;
     }
 
     auto fragment_length = net_->mtu() - sizeof(RUdpProtocolHeader) - sizeof(RUdpProtocolSendFragment);
 
-    if (!checksum)
+    if (checksum != nullptr)
         fragment_length -= sizeof(uint32_t);
 
-    auto data_length = data_.size() * sizeof(uint8_t);
+    auto data_length = segment->DataLength();
     auto channel = channels_.at(static_cast<uint32_t>(ch));
     uint8_t command_number;
     uint16_t start_sequence_number;
@@ -338,6 +371,7 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
         if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
             return Error::ERROR;
 
+        // process a segment as unreliable fragment when the frag has RELIABLE and UNRELIABLE_FRAGMENT
         if ((segment->flags() & (
                 static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
                 static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT)
@@ -345,14 +379,14 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
             channel->outgoing_unreliable_sequence_number() < 0xFFFF)
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
-            start_sequence_number = htons(channel->outgoing_unreliable_sequence_number() + 1);
+            start_sequence_number = channel->outgoing_unreliable_sequence_number() + 1;
             core::Singleton<core::Logger>::Instance().Debug("**********");
         }
         else
         {
             command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
                              static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
-            start_sequence_number = htons(channel->outgoing_reliable_sequence_number() + 1);
+            start_sequence_number = channel->outgoing_reliable_sequence_number() + 1;
             core::Singleton<core::Logger>::Instance().Debug("**********");
         }
 
@@ -371,17 +405,21 @@ RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCa
                 // ...
             }
 
+            auto cmd = std::make_shared<RUdpProtocolType>();
+
+            cmd->header.command = command_number;
+            cmd->header.channel_id = static_cast<uint32_t>(ch);
+            cmd->send_fragment.start_sequence_number = htons(start_sequence_number);
+            cmd->send_fragment.data_length = htons(fragment_length);
+            cmd->send_fragment.fragment_count = htonl(fragment_count);
+            cmd->send_fragment.fragment_number = htonl(fragment_number);
+            cmd->send_fragment.total_length = htonl(segment->DataLength());
+            cmd->send_fragment.fragment_offset = htonl(fragment_offset);
+
+            fragment->command(cmd);
             fragment->fragment_offset(fragment_offset);
             fragment->fragment_length(fragment_length);
             fragment->segment(segment);
-            fragment->header_command_number(command_number);
-            fragment->header_channel_id(static_cast<uint32_t>(ch));
-            fragment->send_fragment_start_sequence_number(start_sequence_number);
-            fragment->send_fragment_data_length(htons(fragment_length));
-            fragment->send_fragment_fragment_count(htonl(fragment_count));
-            fragment->send_fragment_fragment_number(htonl(fragment_number));
-            fragment->send_fragment_start_total_length(htonl(segment->DataLength()));
-            fragment->send_fragment_fragment_offset(ntohl(fragment_offset));
 
             fragments.push_back(fragment);
         }
@@ -435,7 +473,7 @@ RUdpPeer::PopAcknowledgement()
 void
 RUdpPeer::ClearDispatchedCommandQueue()
 {
-    std::queue<RUdpIncomingCommand> empty;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
     std::swap(dispatched_commands_, empty);
 }
 
@@ -481,11 +519,10 @@ RUdpPeer::Reset(uint16_t peer_idx)
     command_pod_->Reset();
     net_->Reset();
 
-    std::queue<RUdpIncomingCommand> empty;
+    std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
     dispatched_commands_.swap(empty);
 
     address_.Reset();
-    data_.clear();
 
     connect_id_ = 0;
     event_data_ = 0;
@@ -523,7 +560,7 @@ RUdpPeer::ResetPeerQueues()
 
     if (!dispatched_commands_.empty())
     {
-        std::queue<RUdpIncomingCommand> empty;
+        std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
         std::swap(dispatched_commands_, empty);
     }
 

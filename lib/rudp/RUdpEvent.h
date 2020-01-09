@@ -12,6 +12,12 @@ public:
     void
     Reset();
 
+    inline std::string
+    DataAsString() {
+        auto data = segment_->Data();
+        return std::string{data.begin(), data.end()};
+    }
+
     inline bool
     TypeIs(RUdpEventType val) { return type_ == val; }
 

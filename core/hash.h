@@ -3,6 +3,12 @@
 
 #include <cstdint>
 
-uint32_t hash32();
+namespace core
+{
+class Hash {
+ public:
+  uint32_t uniqueID();
+};
+}
 
 #endif // P2P_TECHDEMO_CORE_HASH_H

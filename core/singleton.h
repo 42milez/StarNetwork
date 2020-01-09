@@ -1,6 +1,7 @@
 #ifndef P2P_TECHDEMO_CORE_SINGLETON_H
 #define P2P_TECHDEMO_CORE_SINGLETON_H
 
+#include <cassert>
 #include <mutex>
 
 namespace core

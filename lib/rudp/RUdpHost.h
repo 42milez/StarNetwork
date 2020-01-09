@@ -24,6 +24,9 @@ public:
     void
     RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
 
+    Error
+    Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment);
+
     EventStatus
     Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
 
@@ -50,7 +53,6 @@ private:
     SysCh channel_count_;
 
     size_t maximum_segment_size_;
-    size_t maximum_waiting_data_;
 
     uint32_t incoming_bandwidth_;
     uint32_t outgoing_bandwidth_;

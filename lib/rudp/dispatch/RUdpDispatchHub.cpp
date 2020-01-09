@@ -58,6 +58,9 @@ RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState st
     }
 }
 
+// MEMO:
+//  ピアが接続したことをRUdpEventインスタンスを介して呼び出し元に通知する
+//  接続済みのピア群に対して新しいピアが接続してきたことを通知するものではない
 void
 RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
 {

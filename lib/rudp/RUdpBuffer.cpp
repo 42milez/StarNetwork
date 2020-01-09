@@ -10,12 +10,12 @@ namespace
 enum class BufferVariant : uint8_t
 {
     RUdpProtocolTypeSP,
-    VecUInt8SharedPtr
+    VecUInt8
 };
 }
 
 RUdpBuffer::RUdpBuffer()
-    : data_(),
+    : buffer_(),
       offset_(),
       size_()
 {}
@@ -23,29 +23,41 @@ RUdpBuffer::RUdpBuffer()
 void
 RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
 {
-    data_ = data;
+    buffer_ = data;
     size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
 }
 
 void
-RUdpBuffer::Add(const VecUInt8SharedPtr &data, size_t offset, size_t size)
+RUdpBuffer::CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size)
 {
-    data_ = data;
+    buffer_ = data;
     offset_ = offset;
 
     if (size != 0)
         size_ = size;
     else
-        size_ = data->size() * sizeof(uint8_t);
+        size_ = data.size() * sizeof(uint8_t);
+}
+
+void
+RUdpBuffer::CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size)
+{
+    buffer_ = segment->Data(offset, size);
+    offset_ = offset;
+
+    if (size != 0)
+        size_ = size;
+    else
+        size_ = segment->DataLength();
 }
 
 std::string
 RUdpBuffer::ProtocolCommandAsString()
 {
-    if (data_.index() != static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
+    if (buffer_.index() != static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
         return "NOT A COMMAND";
 
-    auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(data_);
+    auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(buffer_);
 
     if (protocol == nullptr)
         return "INVALID COMMAND";
@@ -61,28 +73,29 @@ RUdpBuffer::ProtocolCommandAsString()
 VecUInt8It
 RUdpBuffer::CopyTo(VecUInt8It it)
 {
-    if (data_.index() == static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
+    if (buffer_.index() == static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
     {
-        auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(data_);
+        auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(buffer_);
 
         if (protocol)
         {
             memcpy(&(*it), &(*protocol), size_);
-            core::Singleton<core::Logger>::Instance().Debug("command was copied to the buffer: {0} (sn: {1}, size: {2})",
+            core::Singleton<core::Logger>::Instance().Debug("command was copied to buffer: {0} (sn: {1}, size: {2})",
                                                             ProtocolCommandAsString(),
-                                                            ntohs(protocol->header.reliable_sequence_number),
+                                                            protocol->header.reliable_sequence_number,
                                                             size_);
         }
 
         return it + size_;
     }
 
-    auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8SharedPtr)>(data_);
+    // TODO: std::vector のコピーが発生する（バッファーに std::variant を使うのはよくない）
+    auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8)>(buffer_);
 
     if (size_ > 0)
     {
-        memcpy(&(*it), &(payload->at(0)), size_);
-        core::Singleton<core::Logger>::Instance().Debug("payload was copied to the buffer (size: {0})", size_);
+        memcpy(&(*it), &(payload.at(0)), size_);
+        core::Singleton<core::Logger>::Instance().Debug("payload was copied to buffer (size: {0})", size_);
     }
 
     return it + size_;

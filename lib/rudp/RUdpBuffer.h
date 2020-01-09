@@ -7,6 +7,7 @@
 #include <variant>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "RUdpSegment.h"
 #include "RUdpType.h"
 
 class RUdpBuffer
@@ -18,7 +19,10 @@ public:
     Add(const RUdpProtocolTypeSP &data);
 
     void
-    Add(const VecUInt8SharedPtr &data, size_t offset, size_t size = 0);
+    CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
+
+    void
+    CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size = 0);
 
     std::string
     ProtocolCommandAsString();
@@ -33,9 +37,9 @@ public:
     Size(size_t val) { size_ = val; }
 
 private:
-    using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8SharedPtr>;
+    using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8>;
 
-    VariantBuffer data_;
+    VariantBuffer buffer_;
     size_t offset_;
     size_t size_;
 };
