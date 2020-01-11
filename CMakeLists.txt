@@ -73,7 +73,6 @@ add_subdirectory(app/session)
 # --------------------------------------------------
 add_subdirectory(test/e2e/rudp/basic_connection)
 add_subdirectory(test/e2e/rudp/broadcast)
-add_subdirectory(test/e2e/rudp/packet_loss)
 add_subdirectory(test/e2e/rudp/send_reliable_command)
 add_subdirectory(test/unit/core/io)
 add_subdirectory(test/unit/module)

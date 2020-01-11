@@ -298,6 +298,7 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
     return Error::OK;
 }
 
+// ToDo: 未実装
 Error
 Socket::poll(Socket::PollType type, int timeout)
 {
