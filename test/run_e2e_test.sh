@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WORKING_DIRECTORY=${HOME}
+WORKING_DIRECTORY=/tmp
 BUILD_DIRECTORY="${WORKING_DIRECTORY}/build"
 
 "${BUILD_DIRECTORY}"/test/e2e/rudp/basic_connection/basic_connection_test -r console -d yes --order lex

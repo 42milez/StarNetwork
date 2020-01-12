@@ -3,9 +3,8 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: ~/
+    working_directory: /tmp
     steps:
-      - run: ls
       - checkout
       - run:
           name: "Create Build Directory"
@@ -24,7 +23,7 @@ jobs:
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: ~/
+    working_directory: /tmp
     store_test_results:
       path: /tmp/test-results
     steps:
