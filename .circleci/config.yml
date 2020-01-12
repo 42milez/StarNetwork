@@ -13,7 +13,10 @@ jobs:
       - checkout
       - run:
           name: Create Build Directory
-          command: mkdir build
+          command: |
+            if [[ ! -e ./build ]]; then
+              mkdir ./build
+            fi
       - run:
           name: Run E2E Test
           command: /bin/bash ./test/run_e2e_test.sh
