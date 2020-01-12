@@ -26,7 +26,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - checkout
+      - run: ls
       - run:
           name: "Run E2E Test"
           command: /bin/bash /var/app/test/run_e2e_test.sh
