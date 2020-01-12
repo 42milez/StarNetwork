@@ -2,29 +2,29 @@ version: 2
 jobs:
   build:
     docker:
-      - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /var/app
+      - image: "42milez/alpine-cmake-clang:latest"
+    working_directory: "/var/app"
     steps:
       - restore_cache:
           keys:
-            - source-v1-{{ .Branch }}-{{ .Revision }}
-            - source-v1-{{ .Branch }}-
-            - source-v1-
+            - "source-v1-{{ .Branch }}-{{ .Revision }}"
+            - "source-v1-{{ .Branch }}-"
+            - "source-v1-"
       - checkout
       - run:
-          name: Create Build Directory
+          name: "Create Build Directory"
           command: |
             if [[ ! -e ./build ]]; then
               mkdir ./build
             fi
       - run:
-          name: Run E2E Test
+          name: "Run E2E Test"
           command: /bin/bash ./test/run_e2e_test.sh
       - run:
-          name: Run Unit Test
+          name: "Run Unit Test"
           command: /bin/bash ./test/run_unit_test.sh
       - save_cache:
-          key: source-v1-{{ .Branch }}-{{ .Revision }}
+          key: "source-v1-{{ .Branch }}-{{ .Revision }}"
           paths:
             - ".git"
             - ".hunter"
