@@ -16,10 +16,10 @@ jobs:
           name: "Build Project"
           command: /bin/bash ./test/build.sh
       - persist_to_workspace:
-          root: /
+          root: .
           paths:
-            - /root/.hunter
-            - /var/app/build
+            - ../../../.hunter
+            - ./build
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
