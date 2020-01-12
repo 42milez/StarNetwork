@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /var/app
+    working_directory: /root
     steps:
       - checkout
       - run:
@@ -18,12 +18,11 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./../../../.hunter
-            - ./build
+            - .hunter
+            - build
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /var/app
     store_test_results:
       path: /tmp/test-results
     steps:
