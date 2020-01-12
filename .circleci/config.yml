@@ -29,10 +29,10 @@ jobs:
           at: .
       - run:
           name: "Run E2E Test"
-          command: /bin/bash ./test/run_e2e_test.sh
+          command: /bin/bash /var/app/test/run_e2e_test.sh
       - run:
           name: "Run Unit Test"
-          command: /bin/bash ./test/run_unit_test.sh
+          command: /bin/bash /var/app/test/run_unit_test.sh
 workflows:
   version: 2
   build_and_test:
