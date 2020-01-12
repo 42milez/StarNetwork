@@ -1,7 +1,9 @@
 #ifndef P2P_TECHDEMO_RUDPCOMMANDPOD_H
 #define P2P_TECHDEMO_RUDPCOMMANDPOD_H
 
+#include <array>
 #include <list>
+#include <map>
 #include <memory>
 
 #include "lib/rudp/peer/RUdpPeerNet.h"
@@ -14,7 +16,8 @@ class RUdpCommandPod {
   RUdpCommandPod();
 
   bool
-  LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net,
+  LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
+                                  std::unique_ptr<RUdpPeerNet> &net,
                                   const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                                   uint32_t service_time);
 
@@ -22,8 +25,7 @@ class RUdpCommandPod {
   LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
 
   RUdpProtocolCommand
-  RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
-                            std::shared_ptr<RUdpChannel> &channel);
+  RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, std::shared_ptr<RUdpChannel> &channel);
 
   void
   RemoveSentUnreliableCommands();
@@ -32,8 +34,7 @@ class RUdpCommandPod {
   Reset();
 
   void
-  SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
-                       const std::shared_ptr<RUdpChannel> &channel);
+  SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command, const std::shared_ptr<RUdpChannel> &channel);
 
   bool
   Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
@@ -67,6 +68,16 @@ class RUdpCommandPod {
 
   inline void
   IncrementReliableDataInTransit(uint32_t val) { reliable_data_in_transit_ += val; };
+
+  inline
+  std::map<std::string, std::list<std::shared_ptr<RUdpOutgoingCommand>>>
+  Inspect() {
+    std::map<std::string, std::list<std::shared_ptr<RUdpOutgoingCommand>>> ret{
+        {"sent_reliable_commands", sent_reliable_commands_},
+        {"outgoing_reliable_commands", outgoing_reliable_commands_}
+    };
+    return ret;
+  }
 
   inline uint32_t
   NextTimeout() { return next_timeout_; };

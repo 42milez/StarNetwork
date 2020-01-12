@@ -1,12 +1,12 @@
 ---
 version: "3"
 services:
-  e2e_test:
+  test_template: &test_template
     build:
       context: "."
-      dockerfile: './test/Dockerfile'
-    container_name: "p2p-techdemo-e2e-test"
-    image: "p2p-techdemo-e2e-test"
+      dockerfile: "./test/Dockerfile"
+    container_name: "p2p-techdemo-test"
+    image: "p2p-techdemo-test"
     stdin_open: true
     tty: true
     volumes:
@@ -18,7 +18,12 @@ services:
       - "./test:/var/app/test"
       - "./CMakeLists.txt:/var/app/CMakeLists.txt"
       - "build:/var/app/build"
-    command: /bin/bash /var/app/test/run.sh
+  e2e_test:
+    <<: *test_template
+    command: /bin/bash /var/app/test/run_e2e_test.sh
+  unit_test:
+    <<: *test_template
+    command: /bin/bash /var/app/test/run_unit_test.sh
 volumes:
  build:
    driver: 'local'

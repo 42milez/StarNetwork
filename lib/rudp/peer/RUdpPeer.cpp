@@ -305,6 +305,7 @@ RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol
     auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK);
     std::shared_ptr<RUdpChannel> channel = nullptr;
 
+    // ToDO: エラーハンドリング
     if (channel_id < channels_.size())
         channel = channels_.at(channel_id);
 

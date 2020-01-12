@@ -1,8 +1,10 @@
+#include "RUdpCommandPod.h"
+
 #ifdef __linux__
 #include <arpa/inet.h>
 #endif
+
 #include "lib/rudp/RUdpEnum.h"
-#include "RUdpCommandPod.h"
 #include "RUdpCommandSize.h"
 
 namespace {
