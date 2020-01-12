@@ -33,11 +33,11 @@ jobs:
       - run:
           name: "Run Unit Test"
           command: /bin/bash ./test/run_unit_test.sh
-  workflows:
-    version: 2
-    build_and_test:
-      jobs:
-        - build
-        - test:
-            requires:
-              - build
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
