@@ -5,6 +5,7 @@ jobs:
       - image: 42milez/alpine-cmake-clang:latest
     working_directory: ~/
     steps:
+      - run: ls
       - checkout
       - run:
           name: "Create Build Directory"
