@@ -4,6 +4,7 @@ services:
     build:
       context: "."
       dockerfile: "./test/Dockerfile"
+    image: "p2p-techdemo-test"
     stdin_open: true
     tty: true
     volumes:
@@ -13,8 +14,11 @@ services:
       - "./lib:/var/app/lib"
       - "./module:/var/app/module"
       - "./test:/var/app/test"
+      - "./test/run_e2e_test.sh:/root/run_e2e_test.sh"
+      - "./test/run_unit_test.sh:/root/run_unit_test.sh"
       - "./CMakeLists.txt:/var/app/CMakeLists.txt"
       - "build:/var/app/build"
+      - "hunter:/root/.hunter"
   e2e_test:
     <<: *test_template
     container_name: "p2p-techdemo-e2e-test"
@@ -24,5 +28,7 @@ services:
     container_name: "p2p-techdemo-unit-test"
     command: /bin/bash /var/app/test/run_unit_test.sh
 volumes:
- build:
-   driver: 'local'
+  build:
+    driver: 'local'
+  hunter:
+    driver: 'local'

@@ -1,21 +1,28 @@
 version: 2
 jobs:
   build:
-    machine:
-      image: circleci/classic:edge
-    working_directory: ~/repo
+    docker:
+      - image: 42milez/alpine-cmake-clang:latest
+    working_directory: /var/app
     steps:
+      - restore_cache:
+          keys:
+            - source-v1-{{ .Branch }}-{{ .Revision }}
+            - source-v1-{{ .Branch }}-
+            - source-v1-
       - checkout
       - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.25.1/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+          name: Create Build Directory
+          command: mkdir build
       - run:
-          name: Start Docker Containers
-          command: |
-            set -x
-            docker-compose run e2e_test unit_test
-      - store_test_results:
-          path: ~/test-results
+          name: Run E2E Test
+          command: /bin/bash ./test/run_e2e_test.sh
+      - run:
+          name: Run Unit Test
+          command: /bin/bash ./test/run_unit_test.sh
+      - save_cache:
+          key: source-v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
+            - ".hunter"
+            - "build"
