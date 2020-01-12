@@ -1,4 +1,3 @@
----
 version: "3"
 services:
   test_template: &test_template
