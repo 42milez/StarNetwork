@@ -4,8 +4,6 @@ services:
     build:
       context: "."
       dockerfile: "./test/Dockerfile"
-    container_name: "p2p-techdemo-test"
-    image: "p2p-techdemo-test"
     stdin_open: true
     tty: true
     volumes:
@@ -19,9 +17,11 @@ services:
       - "build:/var/app/build"
   e2e_test:
     <<: *test_template
+    container_name: "p2p-techdemo-e2e-test"
     command: /bin/bash /var/app/test/run_e2e_test.sh
   unit_test:
     <<: *test_template
+    container_name: "p2p-techdemo-unit-test"
     command: /bin/bash /var/app/test/run_unit_test.sh
 volumes:
  build:
