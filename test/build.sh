@@ -1,6 +1,9 @@
 #!/bin/bash
 
-cd /var/app/build || exit
+WORKING_DIRECTORY=${HOME}
+BUILD_DIRECTORY="${WORKING_DIRECTORY}/build"
 
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G "CodeBlocks - Unix Makefiles" /var/app
-/usr/bin/cmake --build /var/app/build --target all -- -j 4
+cd "${BUILD_DIRECTORY}" || exit
+
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G "CodeBlocks - Unix Makefiles" "${WORKING_DIRECTORY}"
+/usr/bin/cmake --build "${BUILD_DIRECTORY}" --target all -- -j 4

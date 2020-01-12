@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /root
+    working_directory: ~/
     steps:
       - checkout
       - run:
@@ -23,6 +23,7 @@ jobs:
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
+    working_directory: ~/
     store_test_results:
       path: /tmp/test-results
     steps:
