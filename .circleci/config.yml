@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
+    working_directory: /tmp/build
     steps:
       - checkout
       - restore_cache:
@@ -10,8 +11,8 @@ jobs:
       - run:
           name: "Create Build Directory"
           command: |
-            if [[ ! -e ./build ]]; then
-              mkdir ./build
+            if [[ ! -e ./cmake-build ]]; then
+              mkdir ./cmake-build
             fi
       - run:
           name: "Build"
@@ -19,11 +20,12 @@ jobs:
       - save_cache:
           key: build-{{ .Branch }}
           paths:
-            - ~/.hunter
-            - ./build
+            - /root/.hunter
+            - /tmp/build/cmake-build
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
+    working_directory: /tmp/test
     steps:
       - checkout
       - restore_cache:

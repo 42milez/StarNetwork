@@ -1,8 +1,9 @@
 #!/bin/bash
 
 WORK_DIR=/tmp
-BUILD_DIR="${WORK_DIR}/build"
-TEST_RESULT_DIR=/tmp/test-results
+TEST_DIR="${WORK_DIR}/test"
+BUILD_DIR="${WORK_DIR}/cmake-build"
+TEST_RESULT_DIR="${WORK_DIR}/test-results"
 
 REPORTER=console
 
