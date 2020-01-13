@@ -24,18 +24,16 @@ jobs:
             - .hunter
             - build
       - persist_to_workspace:
-          root: .
+          root: /root
           paths:
             - .hunter
             - build
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /root
     steps:
-      - checkout
       - attach_workspace:
-          at: .
+          at: /root
       - run:
           name: "Enable XML Reporter"
           command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
