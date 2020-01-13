@@ -3,7 +3,6 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /root
     steps:
       - checkout
       - restore_cache:
@@ -20,21 +19,15 @@ jobs:
       - save_cache:
           key: build-{{ .Branch }}
           paths:
-            - .hunter
-            - build
-      - persist_to_workspace:
-          root: /root
-          paths:
-            - .hunter
-            - build
+            - ~/.hunter
+            - ./build
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /root
     steps:
       - checkout
-      - attach_workspace:
-          at: /root
+      - restore_cache:
+          key: build-{{ .Branch }}
       - run:
           name: "Enable XML Reporter"
           command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
