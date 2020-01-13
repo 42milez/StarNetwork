@@ -5,10 +5,9 @@ jobs:
       - image: 42milez/alpine-cmake-clang:latest
     working_directory: /root
     steps:
-      - restore_cache:
-          keys:
-            - build-{{ .Branch }}
       - checkout
+      - restore_cache:
+          key: build-{{ .Branch }}
       - run:
           name: "Create Build Directory"
           command: |
@@ -31,7 +30,9 @@ jobs:
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
+    working_directory: /root
     steps:
+      - checkout
       - attach_workspace:
           at: /root
       - run:
