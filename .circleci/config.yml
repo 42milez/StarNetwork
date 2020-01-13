@@ -7,21 +7,21 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-
       - run:
           name: "Create Build Directory"
           command: |
-            if [[ ! -e ./cmake-build ]]; then
-              mkdir ./cmake-build
+            if [[ ! -e ./cmake-build-test ]]; then
+              mkdir ./cmake-build-test
             fi
       - run:
           name: "Build"
           command: /bin/bash ./test/build.sh
       - save_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
             - /root/.hunter
-            - /tmp/build/cmake-build
+            - /tmp/build/cmake-build-test
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest

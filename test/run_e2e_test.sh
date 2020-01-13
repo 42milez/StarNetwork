@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORK_DIR=/tmp
-CMAKE_BUILD_DIR="${WORK_DIR}/build/cmake-build"
+CMAKE_BUILD_DIR="${WORK_DIR}/build/cmake-build-test"
 TEST_RESULT_DIR="${WORK_DIR}/test-results"
 
 REPORTER=console

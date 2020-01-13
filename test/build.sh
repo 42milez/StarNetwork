@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORK_DIR=/tmp/build
-BUILD_DIR="${WORK_DIR}/cmake-build"
+BUILD_DIR="${WORK_DIR}/cmake-build-test"
 
 cd "${BUILD_DIR}" || exit
 
