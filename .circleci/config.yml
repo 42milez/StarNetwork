@@ -3,8 +3,11 @@ jobs:
   build:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /tmp
+    working_directory: /root
     steps:
+      - restore_cache:
+          keys:
+            - build-{{ .Branch }}
       - checkout
       - run:
           name: "Create Build Directory"
@@ -13,8 +16,13 @@ jobs:
               mkdir ./build
             fi
       - run:
-          name: "Build Project"
+          name: "Build"
           command: /bin/bash ./test/build.sh
+      - save_cache:
+          key: build-{{ .Branch }}
+          paths:
+            - .hunter
+            - build
       - persist_to_workspace:
           root: .
           paths:
@@ -23,13 +31,14 @@ jobs:
   test:
     docker:
       - image: 42milez/alpine-cmake-clang:latest
-    working_directory: /tmp
-    store_test_results:
-      path: /tmp/test-results
+    working_directory: /root
     steps:
       - checkout
       - attach_workspace:
           at: .
+      - run:
+          name: "Enable XML Reporter"
+          command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
       - run:
           name: "Run E2E Test"
           command: /bin/bash ./test/run_e2e_test.sh

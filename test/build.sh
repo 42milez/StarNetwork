@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WORKING_DIRECTORY=/tmp
+WORKING_DIRECTORY=/root
 BUILD_DIRECTORY="${WORKING_DIRECTORY}/build"
 
 cd "${BUILD_DIRECTORY}" || exit
