@@ -37,14 +37,15 @@ jobs:
               mkdir /tmp/test-results
             fi
       - run:
-          name: "Enable XML Reporter"
-          command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
-      - run:
           name: "Run E2E Test"
           command: /bin/bash ./test/run_e2e_test.sh
+          environment:
+            CATCH_REPORTER: xml
       - run:
           name: "Run Unit Test"
           command: /bin/bash ./test/run_unit_test.sh
+          environment:
+            CATCH_REPORTER: xml
       - store_test_results:
           path: /tmp/test-results
 workflows:
