@@ -31,6 +31,12 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}
       - run:
+          name: "Create Test Results Directory"
+          command: |
+            if [[ ! -e /tmp/test-results ]]; then
+              mkdir /tmp/test-results
+            fi
+      - run:
           name: "Enable XML Reporter"
           command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
       - run:
