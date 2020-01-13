@@ -37,11 +37,14 @@ jobs:
               mkdir /tmp/test-results
             fi
       - run:
+          name: "Enable JUnit Reporter"
+          command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
+      - run:
           name: "Run E2E Test"
-          command: env CATCH_REPORTER=junit /bin/bash ./test/run_e2e_test.sh
+          command: /bin/bash ./test/run_e2e_test.sh
       - run:
           name: "Run Unit Test"
-          command: env CATCH_REPORTER=junit /bin/bash ./test/run_unit_test.sh
+          command: /bin/bash ./test/run_unit_test.sh
       - store_test_results:
           path: /tmp/test-results
 workflows:

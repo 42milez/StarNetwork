@@ -6,7 +6,7 @@ TEST_RESULT_DIR="${WORK_DIR}/test-results"
 
 REPORTER=console
 
-if [[ -z ${CATCH_REPORTER} ]]; then
+if [[ -n ${CATCH_REPORTER} ]]; then
   REPORTER=${CATCH_REPORTER}
 fi
 
