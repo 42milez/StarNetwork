@@ -36,6 +36,8 @@ jobs:
             if [[ ! -e /tmp/test-results ]]; then
               mkdir /tmp/test-results
             fi
+      - store_test_results:
+          path: /tmp/test-results
       - run:
           name: "Enable XML Reporter"
           command: echo "export CATCH_REPORTER=xml" >> $BASH_ENV
