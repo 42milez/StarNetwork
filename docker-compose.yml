@@ -1,0 +1,38 @@
+version: "3"
+services:
+  test_template: &test_template
+    build:
+      context: "."
+      dockerfile: "./docker/Dockerfile"
+    image: "p2p-techdemo-test"
+    stdin_open: true
+    tty: true
+    volumes:
+      - "./.git:/tmp/workspace/.git"
+      - "./app:/tmp/workspace/app"
+      - "./cmake:/tmp/workspace/cmake"
+      - "./core:/tmp/workspace/core"
+      - "./docker:/tmp/workspace/docker"
+      - "./lib:/tmp/workspace/lib"
+      - "./module:/tmp/workspace/module"
+      - "./test:/tmp/workspace/test"
+      - "./CMakeLists.txt:/tmp/workspace/CMakeLists.txt"
+      - "cmake_build_test:/tmp/workspace/cmake-build-test"
+      - "hunter:/root/.hunter"
+  e2e_test:
+    <<: *test_template
+    container_name: "p2p-techdemo-e2e-test"
+    command: >
+      bash -c "/bin/bash ./docker/scripts/build.sh &&
+               /bin/bash ./docker/scripts/run_e2e_test.sh"
+  unit_test:
+    <<: *test_template
+    container_name: "p2p-techdemo-unit-test"
+    command: >
+      bash -c "/bin/bash ./docker/scripts/build.sh &&
+               /bin/bash ./docker/scripts/run_unit_test.sh"
+volumes:
+  cmake_build_test:
+    driver: 'local'
+  hunter:
+    driver: 'local'
