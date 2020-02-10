@@ -1,4 +1,4 @@
-#include "lib/rudp/RUdpConst.h"
+#include "lib/rudp/const.h"
 #include "RUdpPeerNet.h"
 
 namespace rudp
