@@ -18,7 +18,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
   outgoing_command->fragment_offset(0);
   outgoing_command->fragment_length(0);
 
-  std::vector<std::shared_ptr<rudp::RUdpChannel>> channels_;
+  std::vector<std::shared_ptr<rudp::Channel>> channels_;
 
   auto command_pod = std::make_shared<rudp::RUdpCommandPod>();
   command_pod->SetupOutgoingCommand(outgoing_command, nullptr);
@@ -31,10 +31,10 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
 
   auto chamber = std::make_unique<rudp::Chamber>();
   auto channels = {
-      std::make_shared<rudp::RUdpChannel>(),
-      std::make_shared<rudp::RUdpChannel>(),
-      std::make_shared<rudp::RUdpChannel>(),
-      std::make_shared<rudp::RUdpChannel>()
+      std::make_shared<rudp::Channel>(),
+      std::make_shared<rudp::Channel>(),
+      std::make_shared<rudp::Channel>(),
+      std::make_shared<rudp::Channel>()
   };
   auto net = std::make_unique<rudp::RUdpPeerNet>();
   auto service_time = rudp::RUdpTime::Get();

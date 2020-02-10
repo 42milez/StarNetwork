@@ -1,8 +1,8 @@
-#include "RUdpChannel.h"
+#include "channel.h"
 
 namespace rudp
 {
-    RUdpChannel::RUdpChannel()
+    Channel::Channel()
             : incoming_reliable_commands_(),
               incoming_unreliable_commands_(),
               reliable_windows_(),
@@ -14,7 +14,7 @@ namespace rudp
     {}
 
     std::vector<std::shared_ptr<RUdpIncomingCommand>>
-    RUdpChannel::NewIncomingReliableCommands()
+    Channel::NewIncomingReliableCommands()
     {
         std::vector<std::shared_ptr<RUdpIncomingCommand>> commands;
         auto is_new_command_detected = false;
@@ -42,7 +42,7 @@ namespace rudp
         return commands;
     }
 
-    void RUdpChannel::Reset()
+    void Channel::Reset()
     {
         incoming_reliable_commands_.clear();
         incoming_unreliable_commands_.clear();
@@ -67,7 +67,7 @@ namespace rudp
     }
 
     std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
-    RUdpChannel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
+    Channel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
     {
         if (incoming_reliable_commands_.empty()) {
             return {nullptr, Error::DOES_NOT_EXIST};
@@ -113,7 +113,7 @@ namespace rudp
     }
 
     std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
-    RUdpChannel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
+    Channel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
             uint32_t fragment_count)
     {
         uint16_t reliable_sequence_number{};

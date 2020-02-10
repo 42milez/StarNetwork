@@ -12,10 +12,10 @@
 
 namespace rudp
 {
-    class RUdpChannel
+    class Channel
     {
     public:
-        RUdpChannel();
+        Channel();
 
         std::vector<std::shared_ptr<RUdpIncomingCommand>>
         NewIncomingReliableCommands();
@@ -28,7 +28,7 @@ namespace rudp
 
         inline void
         IncrementOutgoingReliableSequenceNumber() {
-            core::Singleton<core::Logger>::Instance().Debug("outgoing reliable sequence number was incremented (RUdpChannel): {0} -> {1}",
+            core::Singleton<core::Logger>::Instance().Debug("outgoing reliable sequence number was incremented (Channel): {0} -> {1}",
                     outgoing_reliable_sequence_number_,
                     outgoing_reliable_sequence_number_ + 1);
             ++outgoing_reliable_sequence_number_;

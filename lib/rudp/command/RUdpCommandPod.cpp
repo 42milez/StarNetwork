@@ -11,7 +11,7 @@ namespace rudp
 {
     namespace {
         bool
-        WindowWraps(const std::shared_ptr<RUdpChannel> &channel,
+        WindowWraps(const std::shared_ptr<Channel> &channel,
                 int reliable_window,
                 const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command) {
             auto has_not_sent_once = outgoing_command->send_attempts() == 0;
@@ -114,7 +114,7 @@ namespace rudp
     bool
     RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
             std::unique_ptr<RUdpPeerNet> &net,
-            const std::vector<std::shared_ptr<RUdpChannel>> &channels,
+            const std::vector<std::shared_ptr<Channel>> &channels,
             uint32_t service_time) {
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
                 outgoing_reliable_commands_.size());
@@ -317,7 +317,7 @@ namespace rudp
 
     RUdpProtocolCommand
     RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
-            std::shared_ptr<RUdpChannel> &channel) {
+            std::shared_ptr<Channel> &channel) {
         std::shared_ptr<RUdpOutgoingCommand> outgoing_command;
         auto it = sent_reliable_commands_.begin();
         auto it_end = sent_reliable_commands_.end();
@@ -434,7 +434,7 @@ namespace rudp
 
     void
     RUdpCommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
-            const std::shared_ptr<RUdpChannel> &channel) {
+            const std::shared_ptr<Channel> &channel) {
         outgoing_data_total_ +=
                 COMMAND_SIZES.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
 

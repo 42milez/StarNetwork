@@ -12,7 +12,7 @@
 #include "lib/rudp/command/RUdpCommandPod.h"
 #include "lib/rudp/network_config.h"
 #include "lib/rudp/chamber.h"
-#include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/channel.h"
 #include "lib/rudp/RUdpChecksum.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "RUdpPeerNet.h"
@@ -90,8 +90,8 @@ namespace rudp
         inline void
         Address(const NetworkConfig val) { address_ = val; }
 
-        std::shared_ptr<RUdpChannel>
-        Channel(uint8_t val) { return channels_.at(val); }
+        std::shared_ptr<Channel>
+        GetChannel(uint8_t val) { return channels_.at(val); }
 
         inline bool
         ChannelExists() { return !channels_.empty(); }
@@ -173,7 +173,7 @@ namespace rudp
 
     private:
         std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
-        std::vector<std::shared_ptr<RUdpChannel>> channels_;
+        std::vector<std::shared_ptr<Channel>> channels_;
         std::unique_ptr<RUdpCommandPod> command_pod_;
         std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
         std::unique_ptr<RUdpPeerNet> net_;

@@ -36,7 +36,7 @@ namespace rudp
             uint32_t host_outgoing_bandwidth, uint32_t data)
     {
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
-            channels_.emplace_back(std::make_shared<RUdpChannel>());
+            channels_.emplace_back(std::make_shared<Channel>());
 
         address_ = address;
 
@@ -112,7 +112,7 @@ namespace rudp
         incoming_session_id_ = outgoing_session_id;
 
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
-            channels_.emplace_back(std::make_shared<RUdpChannel>());
+            channels_.emplace_back(std::make_shared<Channel>());
 
         for (auto &ch : channels_)
             ch->Reset();
@@ -305,7 +305,7 @@ namespace rudp
 
         auto channel_id = protocol_type->header.channel_id;
         auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK);
-        std::shared_ptr<RUdpChannel> channel = nullptr;
+        std::shared_ptr<Channel> channel = nullptr;
 
         // ToDO: エラーハンドリング
         if (channel_id < channels_.size())
@@ -548,7 +548,7 @@ namespace rudp
     void
     RUdpPeer::ResetPeerQueues()
     {
-        std::unique_ptr<RUdpChannel> channel;
+        std::unique_ptr<Channel> channel;
 
         if (needs_dispatch_)
             needs_dispatch_ = false;
@@ -617,7 +617,7 @@ namespace rudp
     RUdpProtocolCommand
     RUdpPeer::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
     {
-        std::shared_ptr<RUdpChannel> channel;
+        std::shared_ptr<Channel> channel;
 
         if (channel_id < channels_.size())
             channel = channels_.at(channel_id);

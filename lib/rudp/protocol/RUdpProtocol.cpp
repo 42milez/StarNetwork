@@ -3,7 +3,7 @@
 #endif
 
 #include "lib/rudp/command/RUdpCommandSize.h"
-#include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/channel.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "lib/rudp/RUdpTime.h"
 #include "RUdpProtocol.h"
@@ -292,7 +292,7 @@ namespace rudp
     RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
             const std::shared_ptr<RUdpProtocolType> &cmd)
     {
-        auto ch = peer->Channel(cmd->header.channel_id);
+        auto ch = peer->GetChannel(cmd->header.channel_id);
 
         auto reliable_commands = ch->NewIncomingReliableCommands();
 
@@ -427,7 +427,7 @@ namespace rudp
         if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
             return Error::ERROR;
 
-        auto ch = peer->Channel(cmd->header.channel_id);
+        auto ch = peer->GetChannel(cmd->header.channel_id);
         auto start_sequence_number = cmd->send_fragment.start_sequence_number;
         auto start_window = start_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
         auto current_window = ch->incoming_reliable_sequence_number() / PEER_RELIABLE_WINDOW_SIZE;

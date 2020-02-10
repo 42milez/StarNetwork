@@ -8,7 +8,7 @@
 
 #include "lib/rudp/peer/RUdpPeerNet.h"
 #include "lib/rudp/chamber.h"
-#include "lib/rudp/RUdpChannel.h"
+#include "lib/rudp/channel.h"
 #include "RUdpCommand.h"
 
 namespace rudp
@@ -20,14 +20,14 @@ namespace rudp
         bool
         LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
                 std::unique_ptr<RUdpPeerNet> &net,
-                const std::vector<std::shared_ptr<RUdpChannel>> &channels,
+                const std::vector<std::shared_ptr<Channel>> &channels,
                 uint32_t service_time);
 
         bool
         LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
 
         RUdpProtocolCommand
-        RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, std::shared_ptr<RUdpChannel> &channel);
+        RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, std::shared_ptr<Channel> &channel);
 
         void
         RemoveSentUnreliableCommands();
@@ -36,7 +36,7 @@ namespace rudp
         Reset();
 
         void
-        SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command, const std::shared_ptr<RUdpChannel> &channel);
+        SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command, const std::shared_ptr<Channel> &channel);
 
         bool
         Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
