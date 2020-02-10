@@ -13,7 +13,7 @@
 #include "lib/rudp/network_config.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
-#include "lib/rudp/RUdpChecksum.h"
+#include "lib/rudp/checksum.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "RUdpPeerNet.h"
 #include "lib/rudp/RUdpSegment.h"

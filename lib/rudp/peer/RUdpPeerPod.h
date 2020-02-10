@@ -5,7 +5,7 @@
 
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/protocol/RUdpProtocol.h"
-#include "lib/rudp/RUdpChecksum.h"
+#include "lib/rudp/checksum.h"
 #include "lib/rudp/compress.h"
 #include "lib/rudp/RUdpConnection.h"
 #include "lib/rudp/RUdpTime.h"
