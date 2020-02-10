@@ -3,27 +3,30 @@
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
 
-class RUdpAcknowledgement
+namespace rudp
 {
-public:
-    RUdpAcknowledgement();
+    class RUdpAcknowledgement
+    {
+    public:
+        RUdpAcknowledgement();
 
-public:
-    inline RUdpProtocolType &
-    command() { return command_; }
+    public:
+        inline RUdpProtocolType &
+        command() { return command_; }
 
-    inline void
-    command(RUdpProtocolType val) { command_ = val; }
+        inline void
+        command(RUdpProtocolType val) { command_ = val; }
 
-    inline uint32_t
-    sent_time() { return sent_time_; }
+        inline uint32_t
+        sent_time() { return sent_time_; }
 
-    inline void
-    sent_time(uint32_t val) { sent_time_ = val; }
+        inline void
+        sent_time(uint32_t val) { sent_time_ = val; }
 
-private:
-    RUdpProtocolType command_;
-    uint32_t sent_time_;
-};
+    private:
+        RUdpProtocolType command_;
+        uint32_t sent_time_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPACKNOWLEDGEMENT_H

@@ -3,76 +3,79 @@
 
 #include "RUdpCommand.h"
 
-class RUdpIncomingCommand : public RUdpCommand
+namespace rudp
 {
-public:
-    RUdpIncomingCommand();
-
-    Error
-    ResizeFragmentBuffer(size_t val);
-
-    inline bool
-    IsFragmentAlreadyReceived(uint32_t fragment_number)
+    class RUdpIncomingCommand : public RUdpCommand
     {
-        auto idx = fragment_number / 32;
-        auto flags = fragments_.at(idx);
-        auto flag = 1u << fragment_number % 32;
+    public:
+        RUdpIncomingCommand();
 
-        return (flags & flag) != 0;
-    }
+        Error
+        ResizeFragmentBuffer(size_t val);
 
-    inline bool
-    IsAllFragmentsReceived()
-    { return fragments_remaining_ == 0; }
+        inline bool
+        IsFragmentAlreadyReceived(uint32_t fragment_number)
+        {
+            auto idx = fragment_number / 32;
+            auto flags = fragments_.at(idx);
+            auto flag = 1u << fragment_number % 32;
 
-    inline void
-    MarkFragmentReceived(uint32_t fragment_number)
-    {
-        auto idx = fragment_number / 32;
-        auto flags = fragments_.at(idx);
-        auto flag = 1u << fragment_number % 32;
+            return (flags & flag) != 0;
+        }
 
-        --fragments_remaining_;
-        fragments_.at(idx) = (flags | flag);
-    }
+        inline bool
+        IsAllFragmentsReceived()
+        { return fragments_remaining_ == 0; }
 
-    inline void
-    CopyFragmentedPayload(std::vector<uint8_t> &payload)
-    { segment_->AppendData(payload); }
+        inline void
+        MarkFragmentReceived(uint32_t fragment_number)
+        {
+            auto idx = fragment_number / 32;
+            auto flags = fragments_.at(idx);
+            auto flag = 1u << fragment_number % 32;
 
-public:
-    uint32_t
-    fragment_count() { return fragment_count_; }
+            --fragments_remaining_;
+            fragments_.at(idx) = (flags | flag);
+        }
 
-    void
-    fragment_count(uint32_t val) { fragment_count_ = val; }
+        inline void
+        CopyFragmentedPayload(std::vector<uint8_t> &payload)
+        { segment_->AppendData(payload); }
 
-    uint32_t
-    fragments_remaining() { return fragments_remaining_; }
+    public:
+        uint32_t
+        fragment_count() { return fragment_count_; }
 
-    void
-    fragments_remaining(uint32_t val) { fragments_remaining_ = val; }
+        void
+        fragment_count(uint32_t val) { fragment_count_ = val; }
 
-    uint16_t
-    reliable_sequence_number() { return reliable_sequence_number_; }
+        uint32_t
+        fragments_remaining() { return fragments_remaining_; }
 
-    void
-    reliable_sequence_number(uint16_t val) { reliable_sequence_number_ = val; }
+        void
+        fragments_remaining(uint32_t val) { fragments_remaining_ = val; }
 
-    uint16_t
-    unreliable_sequence_number() { return unreliable_sequence_number_; }
+        uint16_t
+        reliable_sequence_number() { return reliable_sequence_number_; }
 
-    void
-    unreliable_sequence_number(uint16_t val) { unreliable_sequence_number_ = val; }
+        void
+        reliable_sequence_number(uint16_t val) { reliable_sequence_number_ = val; }
 
-private:
-    std::vector<uint32_t> fragments_;
+        uint16_t
+        unreliable_sequence_number() { return unreliable_sequence_number_; }
 
-    uint32_t fragment_count_;
-    uint32_t fragments_remaining_;
+        void
+        unreliable_sequence_number(uint16_t val) { unreliable_sequence_number_ = val; }
 
-    uint16_t reliable_sequence_number_;
-    uint16_t unreliable_sequence_number_;
-};
+    private:
+        std::vector<uint32_t> fragments_;
+
+        uint32_t fragment_count_;
+        uint32_t fragments_remaining_;
+
+        uint16_t reliable_sequence_number_;
+        uint16_t unreliable_sequence_number_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPINCOMINGCOMMAND_H

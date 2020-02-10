@@ -8,19 +8,19 @@
 
 TEST_CASE("Rebuffering command after command timeout", "[timeout]")
 {
-  auto protocol_type = std::make_shared<RUdpProtocolType>();
-  protocol_type->header.command = static_cast<uint8_t>(RUdpProtocolCommand::PING) |
-                                  static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
+  auto protocol_type = std::make_shared<rudp::RUdpProtocolType>();
+  protocol_type->header.command = static_cast<uint8_t>(rudp::RUdpProtocolCommand::PING) |
+                                  static_cast<uint16_t>(rudp::RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
   protocol_type->header.channel_id = 0xFF;
 
-  auto outgoing_command = std::make_shared<RUdpOutgoingCommand>();
+  auto outgoing_command = std::make_shared<rudp::RUdpOutgoingCommand>();
   outgoing_command->command(protocol_type);
   outgoing_command->fragment_offset(0);
   outgoing_command->fragment_length(0);
 
-  std::vector<std::shared_ptr<RUdpChannel>> channels_;
+  std::vector<std::shared_ptr<rudp::RUdpChannel>> channels_;
 
-  auto command_pod = std::make_shared<RUdpCommandPod>();
+  auto command_pod = std::make_shared<rudp::RUdpCommandPod>();
   command_pod->SetupOutgoingCommand(outgoing_command, nullptr);
 
   auto properties = command_pod->Inspect();
@@ -29,15 +29,15 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
   REQUIRE(prop_sent_reliable_commands.size() == 0);
   REQUIRE(prop_outgoing_reliable_commands.size() == 1);
 
-  auto chamber = std::make_unique<RUdpChamber>();
+  auto chamber = std::make_unique<rudp::RUdpChamber>();
   auto channels = {
-      std::make_shared<RUdpChannel>(),
-      std::make_shared<RUdpChannel>(),
-      std::make_shared<RUdpChannel>(),
-      std::make_shared<RUdpChannel>()
+      std::make_shared<rudp::RUdpChannel>(),
+      std::make_shared<rudp::RUdpChannel>(),
+      std::make_shared<rudp::RUdpChannel>(),
+      std::make_shared<rudp::RUdpChannel>()
   };
-  auto net = std::make_unique<RUdpPeerNet>();
-  auto service_time = RUdpTime::Get();
+  auto net = std::make_unique<rudp::RUdpPeerNet>();
+  auto service_time = rudp::RUdpTime::Get();
 
   command_pod->LoadReliableCommandsIntoChamber(chamber, net, channels, service_time);
 

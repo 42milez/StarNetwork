@@ -7,7 +7,7 @@
 #include "core/string.h"
 #include "core/io/compression.h"
 
-#include "lib/rudp/RUdpAddress.h"
+#include "lib/rudp/network_config.h"
 
 #include "Network.h"
 
@@ -19,7 +19,7 @@ Network::Network()
     : active_(false),
       always_ordered_(false),
       bind_ip_("*"),
-      channel_count_(SysCh::MAX),
+      channel_count_(rudp::SysCh::MAX),
       compression_mode_(CompressionMode::NONE),
       connection_status_(ConnectionStatus::DISCONNECTED),
       current_segment_(Segment{}),
@@ -30,10 +30,10 @@ Network::Network()
       transfer_mode_(TransferMode::RELIABLE),
       unique_id_()
 {
-    compress_ = std::make_shared<RUdpCompress>();
+    compress_ = std::make_shared<rudp::RUdpCompress>();
 
     compress_->SetCompressor(
-        [this](const std::vector<RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,
+        [this](const std::vector<rudp::RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,
             size_t out_limit) -> size_t
         {
             return Compressor(in_buffers, in_limit, out_data, out_limit);
@@ -64,7 +64,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
     if (client_port != 0) {
-        RUdpAddress client_address;
+        rudp::NetworkConfig client_address;
 
 #ifdef P2P_TECHDEMO_IPV6
         if (bind_ip_.is_wildcard())
@@ -83,7 +83,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 #endif
         client_address.port(client_port);
 
-        host_ = std::make_unique<RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
+        host_ = std::make_unique<rudp::RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
     else {
         // create a host with randomly assigned port
@@ -108,7 +108,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
         ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
     }
 
-    RUdpAddress dst_address;
+    rudp::NetworkConfig dst_address;
 
 #ifdef P2P_TECHDEMO_IPV6
     dst_address.SetIP(ip.get_ipv6(), 16);
@@ -132,7 +132,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    RUdpAddress address;
+    rudp::NetworkConfig address;
 
 #ifdef P2P_TECHDEMO_IPV6
     if (bind_ip_.is_wildcard())
@@ -152,7 +152,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
 
     address.port(port);
 
-    host_ = std::make_unique<RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
+    host_ = std::make_unique<rudp::RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
 
@@ -175,27 +175,27 @@ Network::Poll()
 
     PopCurrentSegment();
 
-    std::unique_ptr<RUdpEvent> event;
+    std::unique_ptr<rudp::RUdpEvent> event;
 
     while (true) {
         if (!host_ || !active_)
             return;
 
-        EventStatus ret = host_->Service(event, 0);
+        rudp::EventStatus ret = host_->Service(event, 0);
 
-        if (ret == EventStatus::NO_EVENT_OCCURRED || ret == EventStatus::ERROR)
+        if (ret == rudp::EventStatus::NO_EVENT_OCCURRED || ret == rudp::EventStatus::ERROR)
             break;
 
-        if (event->TypeIs(RUdpEventType::CONNECT)) {
+        if (event->TypeIs(rudp::RUdpEventType::CONNECT)) {
             // ...
         }
-        else if (event->TypeIs(RUdpEventType::DISCONNECT)) {
+        else if (event->TypeIs(rudp::RUdpEventType::DISCONNECT)) {
             // ...
         }
-        else if (event->TypeIs(RUdpEventType::RECEIVE)) {
+        else if (event->TypeIs(rudp::RUdpEventType::RECEIVE)) {
             // ...
         }
-        else if (event->TypeIs(RUdpEventType::NONE)) {
+        else if (event->TypeIs(rudp::RUdpEventType::NONE)) {
             // ...
         }
     }
@@ -229,7 +229,7 @@ Network::Disconnect(int peer_idx, bool now)
 }
 
 size_t
-Network::Compressor(const std::vector<RUdpBuffer> &in_buffers,
+Network::Compressor(const std::vector<rudp::RUdpBuffer> &in_buffers,
                     size_t in_limit,
                     std::vector<uint8_t> &out_data,
                     size_t out_limit)

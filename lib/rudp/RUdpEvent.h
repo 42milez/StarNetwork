@@ -4,57 +4,60 @@
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "RUdpEnum.h"
 
-class RUdpEvent
+namespace rudp
 {
-public:
-    RUdpEvent();
+    class RUdpEvent
+    {
+    public:
+        RUdpEvent();
 
-    void
-    Reset();
+        void
+        Reset();
 
-    inline std::string
-    DataAsString() {
-        auto data = segment_->Data();
-        return std::string{data.begin(), data.end()};
-    }
+        inline std::string
+        DataAsString() {
+            auto data = segment_->Data();
+            return std::string{data.begin(), data.end()};
+        }
 
-    inline bool
-    TypeIs(RUdpEventType val) { return type_ == val; }
+        inline bool
+        TypeIs(RUdpEventType val) { return type_ == val; }
 
-    inline bool
-    TypeIsNot(RUdpEventType val) { return type_ != val; }
+        inline bool
+        TypeIsNot(RUdpEventType val) { return type_ != val; }
 
-public:
-    inline uint8_t
-    channel_id() { return channel_id_; }
+    public:
+        inline uint8_t
+        channel_id() { return channel_id_; }
 
-    inline void
-    channel_id(uint8_t val) { channel_id_ = val; }
+        inline void
+        channel_id(uint8_t val) { channel_id_ = val; }
 
-    inline void
-    data(uint32_t val) { data_ = val; }
+        inline void
+        data(uint32_t val) { data_ = val; }
 
-    inline std::shared_ptr<RUdpPeer>
-    peer() { return peer_; }
+        inline std::shared_ptr<RUdpPeer>
+        peer() { return peer_; }
 
-    inline void
-    peer(std::shared_ptr<RUdpPeer> &val) { peer_ = val; }
+        inline void
+        peer(std::shared_ptr<RUdpPeer> &val) { peer_ = val; }
 
-    inline void
-    segment(std::shared_ptr<RUdpSegment> &val) { segment_ = val; }
+        inline void
+        segment(std::shared_ptr<RUdpSegment> &val) { segment_ = val; }
 
-    inline void
-    type(RUdpEventType val) { type_ = val; }
+        inline void
+        type(RUdpEventType val) { type_ = val; }
 
-private:
-    std::shared_ptr<RUdpPeer> peer_;
-    std::shared_ptr<RUdpSegment> segment_;
+    private:
+        std::shared_ptr<RUdpPeer> peer_;
+        std::shared_ptr<RUdpSegment> segment_;
 
-    RUdpEventType type_;
+        RUdpEventType type_;
 
-    uint32_t data_;
+        uint32_t data_;
 
-    uint8_t channel_id_;
-};
+        uint8_t channel_id_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPEVENT_H

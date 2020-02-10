@@ -5,6 +5,8 @@
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
 
-
+namespace rudp
+{
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPCOMMANDSIZE_H

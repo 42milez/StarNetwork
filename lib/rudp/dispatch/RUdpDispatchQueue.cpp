@@ -1,23 +1,26 @@
 #include "lib/rudp/dispatch/RUdpDispatchQueue.h"
 
-std::shared_ptr<RUdpPeer>
-RUdpDispatchQueue::Dequeue()
+namespace rudp
 {
-    std::shared_ptr<RUdpPeer> peer = queue_.front();
+    std::shared_ptr<RUdpPeer>
+    RUdpDispatchQueue::Dequeue()
+    {
+        std::shared_ptr<RUdpPeer> peer = queue_.front();
 
-    queue_.pop();
+        queue_.pop();
 
-    return peer;
-}
+        return peer;
+    }
 
-void
-RUdpDispatchQueue::Enqueue(std::shared_ptr<RUdpPeer> &peer)
-{
-    queue_.push(peer);
-}
+    void
+    RUdpDispatchQueue::Enqueue(std::shared_ptr<RUdpPeer> &peer)
+    {
+        queue_.push(peer);
+    }
 
-bool
-RUdpDispatchQueue::PeerExists()
-{
-    return !queue_.empty();
-}
+    bool
+    RUdpDispatchQueue::PeerExists()
+    {
+        return !queue_.empty();
+    }
+} // namespace rudp

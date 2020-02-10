@@ -6,22 +6,25 @@
 #include "core/os.h"
 #include "core/singleton.h"
 
-class RUdpTime
+namespace rudp
 {
-public:
-    RUdpTime() = delete;
-    ~RUdpTime() = delete;
-    RUdpTime(const RUdpTime&) = delete;
-    RUdpTime(RUdpTime&&) = delete;
-    RUdpTime& operator=(const RUdpTime&) = delete;
-    RUdpTime& operator=(RUdpTime&&) = delete;
+    class RUdpTime
+    {
+    public:
+        RUdpTime() = delete;
+        ~RUdpTime() = delete;
+        RUdpTime(const RUdpTime&) = delete;
+        RUdpTime(RUdpTime&&) = delete;
+        RUdpTime& operator=(const RUdpTime&) = delete;
+        RUdpTime& operator=(RUdpTime&&) = delete;
 
-public:
-    static uint32_t Get();
-    static void Set(uint32_t new_time_base);
+    public:
+        static uint32_t Get();
+        static void Set(uint32_t new_time_base);
 
-private:
-    static uint32_t time_base_;
-};
+    private:
+        static uint32_t time_base_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPTIME_H

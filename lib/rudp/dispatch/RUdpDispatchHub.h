@@ -4,54 +4,57 @@
 #include "lib/rudp/dispatch/RUdpDispatchQueue.h"
 #include "lib/rudp/RUdpEvent.h"
 
-class RUdpDispatchHub
+namespace rudp
 {
-public:
-    RUdpDispatchHub();
+    class RUdpDispatchHub
+    {
+    public:
+        RUdpDispatchHub();
 
-    void MergePeer(const std::shared_ptr<RUdpPeer> &peer);
-    void PurgePeer(const std::shared_ptr<RUdpPeer> &peer);
+        void MergePeer(const std::shared_ptr<RUdpPeer> &peer);
+        void PurgePeer(const std::shared_ptr<RUdpPeer> &peer);
 
-    void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
+        void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 
-    void NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
-    void NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
+        void NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
+        void NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
 
-public:
-    void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
+    public:
+        void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
 
-    inline void
-    Enqueue(std::shared_ptr<RUdpPeer> &peer) { queue_->Enqueue(peer); }
+        inline void
+        Enqueue(std::shared_ptr<RUdpPeer> &peer) { queue_->Enqueue(peer); }
 
-    inline std::shared_ptr<RUdpPeer>
-    Dequeue() { return queue_->Dequeue(); }
+        inline std::shared_ptr<RUdpPeer>
+        Dequeue() { return queue_->Dequeue(); }
 
-    inline bool
-    PeerExists() { return queue_->PeerExists(); }
+        inline bool
+        PeerExists() { return queue_->PeerExists(); }
 
-public:
-    inline size_t
-    bandwidth_limited_peers() { return bandwidth_limited_peers_; }
+    public:
+        inline size_t
+        bandwidth_limited_peers() { return bandwidth_limited_peers_; }
 
-    inline size_t
-    connected_peers() { return connected_peers_; }
+        inline size_t
+        connected_peers() { return connected_peers_; }
 
-    inline bool
-    recalculate_bandwidth_limits() { return recalculate_bandwidth_limits_; }
+        inline bool
+        recalculate_bandwidth_limits() { return recalculate_bandwidth_limits_; }
 
-    inline void
-    recalculate_bandwidth_limits(bool val) {
-        core::Singleton<core::Logger>::Instance().Debug("recalculate bandwidth limit: {0}", val);
-        recalculate_bandwidth_limits_ = val;
-    }
+        inline void
+        recalculate_bandwidth_limits(bool val) {
+            core::Singleton<core::Logger>::Instance().Debug("recalculate bandwidth limit: {0}", val);
+            recalculate_bandwidth_limits_ = val;
+        }
 
-private:
-    std::unique_ptr<RUdpDispatchQueue> queue_;
+    private:
+        std::unique_ptr<RUdpDispatchQueue> queue_;
 
-    size_t bandwidth_limited_peers_;
-    size_t connected_peers_;
+        size_t bandwidth_limited_peers_;
+        size_t connected_peers_;
 
-    bool recalculate_bandwidth_limits_;
-};
+        bool recalculate_bandwidth_limits_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPDISPATCHHUB_H

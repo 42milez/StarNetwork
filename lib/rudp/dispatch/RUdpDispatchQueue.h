@@ -6,17 +6,20 @@
 
 #include "lib/rudp/peer/RUdpPeer.h"
 
-class RUdpDispatchQueue
+namespace rudp
 {
-public:
-    void Enqueue(std::shared_ptr<RUdpPeer> &peer);
-    std::shared_ptr<RUdpPeer> Dequeue();
+    class RUdpDispatchQueue
+    {
+    public:
+        void Enqueue(std::shared_ptr<RUdpPeer> &peer);
+        std::shared_ptr<RUdpPeer> Dequeue();
 
-public:
-    bool PeerExists();
+    public:
+        bool PeerExists();
 
-private:
-    std::queue<std::shared_ptr<RUdpPeer>> queue_;
-};
+    private:
+        std::queue<std::shared_ptr<RUdpPeer>> queue_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPDISPATCHQUEUE_H

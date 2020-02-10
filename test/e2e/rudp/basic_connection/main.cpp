@@ -27,35 +27,35 @@ class HostFixture
 public:
     HostFixture()
     {
-        RUdpAddress address;
+        rudp::NetworkConfig address;
         address.port(8888);
-        host_ = std::make_unique<RUdpHost>(address, SysCh::MAX, 32, 100, 100);
+        host_ = std::make_unique<rudp::RUdpHost>(address, rudp::SysCh::MAX, 32, 100, 100);
         core::Singleton<core::Logger>::Instance().Init("Basic Connection Test");
     }
 
-    EventStatus Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
+    rudp::EventStatus Service(std::unique_ptr<rudp::RUdpEvent> &event, uint32_t timeout)
     { return host_->Service(event, timeout); }
 
-    RUdpPeerState PeerState(size_t idx)
+    rudp::RUdpPeerState PeerState(size_t idx)
     { return host_->PeerState(0); }
 
 private:
-    std::shared_ptr<RUdpHost> host_;
+    std::shared_ptr<rudp::RUdpHost> host_;
 };
 
 TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from Host", "basic_connection")
 {
-    RUdpAddress guest_address;
+    rudp::NetworkConfig guest_address;
     guest_address.port(8889);
-    auto guest = std::make_unique<RUdpHost>(guest_address, SysCh::MAX, 32, 100, 100);
+    auto guest = std::make_unique<rudp::RUdpHost>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
 
     IpAddress host_ip{"::FFFF:127.0.0.1"};
-    RUdpAddress host_address;
+    rudp::NetworkConfig host_address;
     host_address.host(host_ip.GetIPv6());
     host_address.port(8888);
 
-    auto guest_event = std::make_unique<RUdpEvent>();
-    auto host_event = std::make_unique<RUdpEvent>();
+    auto guest_event = std::make_unique<rudp::RUdpEvent>();
+    auto host_event = std::make_unique<rudp::RUdpEvent>();
 
     LOG("==================================================");
     LOG(" Step 1 : Connect to Host");
@@ -65,7 +65,7 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from H
     LOG("[GUEST (1-1)]");
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    guest->Connect(host_address, SysCh::MAX, 0);
+    guest->Connect(host_address, rudp::SysCh::MAX, 0);
 
     // [Send] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     guest->Service(guest_event, 0);
@@ -98,8 +98,8 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from H
     // [Send]  PROTOCOL_COMMAND_BANDWIDTH_LIMIT
     Service(host_event, 0);
 
-    REQUIRE(guest->PeerState(0) == RUdpPeerState::CONNECTED);
-    REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(guest->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
+    REQUIRE(PeerState(0) == rudp::RUdpPeerState::CONNECTED);
 
     LOG("");
     LOG("==================================================");
@@ -141,23 +141,23 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from H
 
     Service(host_event, 0);
 
-    REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
-    REQUIRE(guest->PeerState(0) == RUdpPeerState::DISCONNECTED);
+    REQUIRE(PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
+    REQUIRE(guest->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
 }
 
 TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Host", "basic_connection")
 {
-    RUdpAddress guest_address;
+    rudp::NetworkConfig guest_address;
     guest_address.port(8889);
-    auto guest = std::make_unique<RUdpHost>(guest_address, SysCh::MAX, 32, 100, 100);
+    auto guest = std::make_unique<rudp::RUdpHost>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
 
     IpAddress host_ip{"::FFFF:127.0.0.1"};
-    RUdpAddress host_address;
+    rudp::NetworkConfig host_address;
     host_address.host(host_ip.GetIPv6());
     host_address.port(8888);
 
-    auto guest_event = std::make_unique<RUdpEvent>();
-    auto host_event = std::make_unique<RUdpEvent>();
+    auto guest_event = std::make_unique<rudp::RUdpEvent>();
+    auto host_event = std::make_unique<rudp::RUdpEvent>();
 
     LOG("");
     LOG("==================================================");
@@ -169,7 +169,7 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Ho
 
     // [Queue] PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
     // [Send]  PROTOCOL_COMMAND_CONNECT with RUdpProtocolFlag::COMMAND_ACKNOWLEDGE
-    guest->Connect(host_address, SysCh::MAX, 0);
+    guest->Connect(host_address, rudp::SysCh::MAX, 0);
     guest->Service(guest_event, 0);
 
     DELAY();
@@ -199,8 +199,8 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Ho
     // [Receive] PROTOCOL_COMMAND_ACKNOWLEDGEMENT
     Service(host_event, 0);
 
-    REQUIRE(guest->PeerState(0) == RUdpPeerState::CONNECTED);
-    REQUIRE(PeerState(0) == RUdpPeerState::CONNECTED);
+    REQUIRE(guest->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
+    REQUIRE(PeerState(0) == rudp::RUdpPeerState::CONNECTED);
 
     LOG("");
     LOG("==================================================");
@@ -241,6 +241,6 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Ho
 
     guest->Service(guest_event, 0);
 
-    REQUIRE(guest->PeerState(0) == RUdpPeerState::DISCONNECTED);
-    REQUIRE(PeerState(0) == RUdpPeerState::DISCONNECTED);
+    REQUIRE(guest->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
+    REQUIRE(PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
 }

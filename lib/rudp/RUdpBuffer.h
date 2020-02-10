@@ -10,38 +10,41 @@
 #include "RUdpSegment.h"
 #include "RUdpType.h"
 
-class RUdpBuffer
+namespace rudp
 {
-public:
-    RUdpBuffer();
+    class RUdpBuffer
+    {
+    public:
+        RUdpBuffer();
 
-    void
-    Add(const RUdpProtocolTypeSP &data);
+        void
+        Add(const RUdpProtocolTypeSP &data);
 
-    void
-    CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
+        void
+        CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
 
-    void
-    CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size = 0);
+        void
+        CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size = 0);
 
-    std::string
-    ProtocolCommandAsString();
+        std::string
+        ProtocolCommandAsString();
 
-    VecUInt8It
-    CopyTo(VecUInt8It it);
+        VecUInt8It
+        CopyTo(VecUInt8It it);
 
-    inline size_t
-    Size() { return size_; };
+        inline size_t
+        Size() { return size_; };
 
-    inline void
-    Size(size_t val) { size_ = val; }
+        inline void
+        Size(size_t val) { size_ = val; }
 
-private:
-    using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8>;
+    private:
+        using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8>;
 
-    VariantBuffer buffer_;
-    size_t offset_;
-    size_t size_;
-};
+        VariantBuffer buffer_;
+        size_t offset_;
+        size_t size_;
+    };
+} // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPBUFFER_H
