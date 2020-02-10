@@ -9,14 +9,14 @@
 
 namespace rudp
 {
-    class RUdpChamber
+    class Chamber
     {
     private:
         using CmdBufIt = std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
         using DataBufIt = std::array<std::shared_ptr<Buffer>, BUFFER_MAXIMUM>::iterator;
 
     public:
-        RUdpChamber();
+        Chamber();
 
         const CmdBufIt
         EmptyCommandBuffer();
@@ -25,7 +25,7 @@ namespace rudp
         EmptyDataBuffer();
 
         bool
-        SendingContinues(RUdpChamber::CmdBufIt cmd_it, RUdpChamber::DataBufIt buf_it, uint32_t mtu,
+        SendingContinues(Chamber::CmdBufIt cmd_it, Chamber::DataBufIt buf_it, uint32_t mtu,
                 const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
 
         int

@@ -3,11 +3,11 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 #include "lib/rudp/command/RUdpCommandSize.h"
-#include "RUdpChamber.h"
+#include "chamber.h"
 
 namespace rudp
 {
-    RUdpChamber::RUdpChamber()
+    Chamber::Chamber()
             : buffer_count_(),
               command_count_(),
               continue_sending_(),
@@ -21,8 +21,8 @@ namespace rudp
             cmd = std::make_shared<RUdpProtocolType>();
     }
 
-    const RUdpChamber::CmdBufIt
-    RUdpChamber::EmptyCommandBuffer()
+    const Chamber::CmdBufIt
+    Chamber::EmptyCommandBuffer()
     {
         if (command_count_ >= commands_.size())
             return nullptr;
@@ -30,8 +30,8 @@ namespace rudp
         return commands_.begin() + (command_count_++);
     }
 
-    const RUdpChamber::DataBufIt
-    RUdpChamber::EmptyDataBuffer()
+    const Chamber::DataBufIt
+    Chamber::EmptyDataBuffer()
     {
         if (buffer_count_ >= buffers_.size())
             return nullptr;
@@ -40,8 +40,8 @@ namespace rudp
     }
 
     bool
-    RUdpChamber::SendingContinues(const RUdpChamber::CmdBufIt cmd_it,
-            const RUdpChamber::DataBufIt buf_it,
+    Chamber::SendingContinues(const Chamber::CmdBufIt cmd_it,
+            const Chamber::DataBufIt buf_it,
             uint32_t mtu,
             const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command)
     {
@@ -82,7 +82,7 @@ namespace rudp
     }
 
     int
-    RUdpChamber::Write(VecUInt8 &out)
+    Chamber::Write(VecUInt8 &out)
     {
         core::Singleton<core::Logger>::Instance().Debug("buffer count: {0}", buffer_count_);
 

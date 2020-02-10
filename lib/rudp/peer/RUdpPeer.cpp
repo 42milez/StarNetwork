@@ -499,7 +499,7 @@ namespace rudp
     }
 
     bool
-    RUdpPeer::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time)
+    RUdpPeer::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, uint32_t service_time)
     {
         auto can_ping = command_pod_->LoadReliableCommandsIntoChamber(chamber, net_, channels_, service_time);
 
@@ -507,7 +507,7 @@ namespace rudp
     }
 
     bool
-    RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber)
+    RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber)
     {
         auto disconnected = command_pod_->LoadUnreliableCommandsIntoChamber(chamber, net_);
 

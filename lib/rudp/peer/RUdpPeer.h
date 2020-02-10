@@ -11,7 +11,7 @@
 #include "lib/rudp/command/RUdpCommand.h"
 #include "lib/rudp/command/RUdpCommandPod.h"
 #include "lib/rudp/network_config.h"
-#include "lib/rudp/RUdpChamber.h"
+#include "lib/rudp/chamber.h"
 #include "lib/rudp/RUdpChannel.h"
 #include "lib/rudp/RUdpChecksum.h"
 #include "lib/rudp/RUdpMacro.h"
@@ -32,10 +32,10 @@ namespace rudp
         EventOccur(const NetworkConfig &address, uint8_t session_id);
 
         bool
-        LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, uint32_t service_time);
+        LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, uint32_t service_time);
 
         bool
-        LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber);
+        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber);
 
         void
         Ping();

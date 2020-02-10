@@ -112,7 +112,7 @@ namespace rudp
  *
  * */
     bool
-    RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
+    RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
             std::unique_ptr<RUdpPeerNet> &net,
             const std::vector<std::shared_ptr<RUdpChannel>> &channels,
             uint32_t service_time) {
@@ -238,7 +238,7 @@ namespace rudp
     }
 
     bool
-    RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
+    RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
             std::unique_ptr<RUdpPeerNet> &net) {
         auto can_disconnect = false;
         auto current_command = outgoing_unreliable_commands_.begin();

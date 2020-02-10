@@ -2,7 +2,7 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 
-#include "RUdpChamber.h"
+#include "chamber.h"
 #include "RUdpConnection.h"
 
 namespace rudp
@@ -74,7 +74,7 @@ namespace rudp
     }
 
     ssize_t
-    RUdpConnection::Send(const NetworkConfig &address, const std::unique_ptr<RUdpChamber> &chamber)
+    RUdpConnection::Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber)
     {
         IpAddress dest;
 

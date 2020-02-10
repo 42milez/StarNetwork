@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "lib/rudp/peer/RUdpPeerNet.h"
-#include "lib/rudp/RUdpChamber.h"
+#include "lib/rudp/chamber.h"
 #include "lib/rudp/RUdpChannel.h"
 #include "RUdpCommand.h"
 
@@ -18,13 +18,13 @@ namespace rudp
         RUdpCommandPod();
 
         bool
-        LoadReliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber,
+        LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
                 std::unique_ptr<RUdpPeerNet> &net,
                 const std::vector<std::shared_ptr<RUdpChannel>> &channels,
                 uint32_t service_time);
 
         bool
-        LoadUnreliableCommandsIntoChamber(std::unique_ptr<RUdpChamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
+        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
 
         RUdpProtocolCommand
         RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, std::shared_ptr<RUdpChannel> &channel);

@@ -4,7 +4,7 @@
 #include "core/io/socket.h"
 
 #include "network_config.h"
-#include "RUdpChamber.h"
+#include "chamber.h"
 
 namespace rudp
 {
@@ -18,7 +18,7 @@ namespace rudp
         Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count);
 
         ssize_t
-        Send(const NetworkConfig &address, const std::unique_ptr<RUdpChamber> &chamber);
+        Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber);
 
     private:
         std::unique_ptr<Socket> socket_;

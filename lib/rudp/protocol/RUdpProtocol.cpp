@@ -12,7 +12,7 @@ namespace rudp
 {
     RUdpProtocol::RUdpProtocol() :
             bandwidth_throttle_epoch_(),
-            chamber_(std::make_unique<RUdpChamber>()),
+            chamber_(std::make_unique<Chamber>()),
             dispatch_hub_(std::make_unique<RUdpDispatchHub>()),
             maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA)
     {}

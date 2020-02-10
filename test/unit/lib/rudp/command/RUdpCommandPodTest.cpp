@@ -29,7 +29,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
   REQUIRE(prop_sent_reliable_commands.size() == 0);
   REQUIRE(prop_outgoing_reliable_commands.size() == 1);
 
-  auto chamber = std::make_unique<rudp::RUdpChamber>();
+  auto chamber = std::make_unique<rudp::Chamber>();
   auto channels = {
       std::make_shared<rudp::RUdpChannel>(),
       std::make_shared<rudp::RUdpChannel>(),

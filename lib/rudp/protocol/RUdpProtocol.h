@@ -5,7 +5,7 @@
 
 #include "lib/rudp/dispatch/RUdpDispatchHub.h"
 #include "lib/rudp/peer/RUdpPeer.h"
-#include "lib/rudp/RUdpChamber.h"
+#include "lib/rudp/chamber.h"
 #include "lib/rudp/RUdpEnum.h"
 #include "lib/rudp/RUdpEvent.h"
 
@@ -78,11 +78,11 @@ namespace rudp
         { chamber_->continue_sending(val); };
 
     public:
-        inline const std::unique_ptr<RUdpChamber> & chamber()
+        inline const std::unique_ptr<Chamber> & chamber()
         { return chamber_; };
 
     private:
-        std::unique_ptr<RUdpChamber> chamber_;
+        std::unique_ptr<Chamber> chamber_;
         std::unique_ptr<RUdpDispatchHub> dispatch_hub_;
 
         size_t maximum_waiting_data_;
