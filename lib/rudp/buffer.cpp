@@ -1,7 +1,7 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 #include "lib/rudp/command/RUdpCommandSize.h"
-#include "RUdpBuffer.h"
+#include "buffer.h"
 #include "RUdpConst.h"
 #include "RUdpEnum.h"
 
@@ -16,21 +16,21 @@ namespace rudp
         };
     }
 
-    RUdpBuffer::RUdpBuffer()
+    Buffer::Buffer()
             : buffer_(),
               offset_(),
               size_()
     {}
 
     void
-    RUdpBuffer::Add(const RUdpProtocolTypeSP &data)
+    Buffer::Add(const RUdpProtocolTypeSP &data)
     {
         buffer_ = data;
         size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
     }
 
     void
-    RUdpBuffer::CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size)
+    Buffer::CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size)
     {
         buffer_ = data;
         offset_ = offset;
@@ -42,7 +42,7 @@ namespace rudp
     }
 
     void
-    RUdpBuffer::CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size)
+    Buffer::CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size)
     {
         buffer_ = segment->Data(offset, size);
         offset_ = offset;
@@ -54,7 +54,7 @@ namespace rudp
     }
 
     std::string
-    RUdpBuffer::ProtocolCommandAsString()
+    Buffer::ProtocolCommandAsString()
     {
         if (buffer_.index() != static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
             return "NOT A COMMAND";
@@ -73,7 +73,7 @@ namespace rudp
     }
 
     VecUInt8It
-    RUdpBuffer::CopyTo(VecUInt8It it)
+    Buffer::CopyTo(VecUInt8It it)
     {
         if (buffer_.index() == static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
         {

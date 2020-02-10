@@ -15,7 +15,7 @@ namespace rudp
               segment_size_()
     {
         for (auto &buf : buffers_)
-            buf = std::make_shared<RUdpBuffer>();
+            buf = std::make_shared<Buffer>();
 
         for (auto &cmd : commands_)
             cmd = std::make_shared<RUdpProtocolType>();
@@ -57,7 +57,7 @@ namespace rudp
             return true;
 
         // unsent buffer_ exists
-        //if (buffer + 1 >= &buffers_.at(sizeof(buffers_) / sizeof(RUdpBuffer)))
+        //if (buffer + 1 >= &buffers_.at(sizeof(buffers_) / sizeof(Buffer)))
         // If the next is the end of the iterator, no more data cannot be pushed into buffer.
         if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))
             return true;

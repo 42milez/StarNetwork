@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
-#include "lib/rudp/RUdpBuffer.h"
+#include "lib/rudp/buffer.h"
 #include "lib/rudp/RUdpConst.h"
 #include "lib/rudp/RUdpMacro.h"
 #include "lib/rudp/RUdpSegment.h"
@@ -30,7 +30,7 @@ namespace rudp
         IsUnsequenced() { return command_->header.command & static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED); }
 
         void
-        MoveDataTo(const std::shared_ptr<RUdpBuffer> &buffer);
+        MoveDataTo(const std::shared_ptr<Buffer> &buffer);
 
     public:
         inline uint8_t

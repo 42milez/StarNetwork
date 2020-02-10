@@ -3,11 +3,11 @@
 
 #include <functional>
 
-#include "RUdpBuffer.h"
+#include "buffer.h"
 
 namespace rudp
 {
-    using CompressorType = std::function<size_t(const std::vector<RUdpBuffer> &in_buffers,
+    using CompressorType = std::function<size_t(const std::vector<Buffer> &in_buffers,
             size_t in_limit,
             VecUInt8 &out_data,
             size_t out_limit)>;

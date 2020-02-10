@@ -12,10 +12,10 @@
 
 namespace rudp
 {
-    class RUdpBuffer
+    class Buffer
     {
     public:
-        RUdpBuffer();
+        Buffer();
 
         void
         Add(const RUdpProtocolTypeSP &data);

@@ -4,7 +4,7 @@
 #include <array>
 
 #include "lib/rudp/command/RUdpOutgoingCommand.h"
-#include "RUdpBuffer.h"
+#include "buffer.h"
 #include "RUdpMacro.h"
 
 namespace rudp
@@ -13,7 +13,7 @@ namespace rudp
     {
     private:
         using CmdBufIt = std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
-        using DataBufIt = std::array<std::shared_ptr<RUdpBuffer>, BUFFER_MAXIMUM>::iterator;
+        using DataBufIt = std::array<std::shared_ptr<Buffer>, BUFFER_MAXIMUM>::iterator;
 
     public:
         RUdpChamber();
@@ -41,7 +41,7 @@ namespace rudp
         }
 
         //bool command_buffer_have_enough_space(RUdpProtocolType *command);
-        //bool data_buffer_have_enough_space(RUdpBuffer *buffer);
+        //bool data_buffer_have_enough_space(Buffer *buffer);
 
     public:
         inline void
@@ -71,11 +71,11 @@ namespace rudp
         inline void
         segment_size(size_t val) { segment_size_ = val; }
 
-        //void update_buffer_count(const RUdpBuffer *buffer);
+        //void update_buffer_count(const Buffer *buffer);
         //void update_command_count(const RUdpProtocolType *command);
 
     private:
-        std::array<std::shared_ptr<RUdpBuffer>, BUFFER_MAXIMUM> buffers_;
+        std::array<std::shared_ptr<Buffer>, BUFFER_MAXIMUM> buffers_;
         std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> commands_;
 
         size_t buffer_count_;

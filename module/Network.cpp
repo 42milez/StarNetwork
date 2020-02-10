@@ -33,7 +33,7 @@ Network::Network()
     compress_ = std::make_shared<rudp::RUdpCompress>();
 
     compress_->SetCompressor(
-        [this](const std::vector<rudp::RUdpBuffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,
+        [this](const std::vector<rudp::Buffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,
             size_t out_limit) -> size_t
         {
             return Compressor(in_buffers, in_limit, out_data, out_limit);
@@ -229,7 +229,7 @@ Network::Disconnect(int peer_idx, bool now)
 }
 
 size_t
-Network::Compressor(const std::vector<rudp::RUdpBuffer> &in_buffers,
+Network::Compressor(const std::vector<rudp::Buffer> &in_buffers,
                     size_t in_limit,
                     std::vector<uint8_t> &out_data,
                     size_t out_limit)

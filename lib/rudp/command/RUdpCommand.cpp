@@ -10,7 +10,7 @@ namespace rudp
     {}
 
     void
-    RUdpCommand::MoveDataTo(const std::shared_ptr<RUdpBuffer> &buffer)
+    RUdpCommand::MoveDataTo(const std::shared_ptr<Buffer> &buffer)
     {
         buffer->CopySegmentFrom(segment_, fragment_offset_, fragment_length_);
     }
