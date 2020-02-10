@@ -6,7 +6,7 @@
 
 #include "lib/rudp/peer/RUdpPeerPod.h"
 #include "network_config.h"
-#include "RUdpConnection.h"
+#include "connection.h"
 
 namespace rudp
 {
@@ -48,7 +48,7 @@ namespace rudp
         SocketWait(uint8_t wait_condition, uint32_t timeout) { return 0; };
 
     private:
-        std::shared_ptr<RUdpConnection> conn_;
+        std::shared_ptr<Connection> conn_;
         std::unique_ptr<RUdpPeerPod> peer_pod_;
 
         ChecksumCallback checksum_;

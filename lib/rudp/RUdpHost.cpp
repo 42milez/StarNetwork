@@ -11,7 +11,7 @@ namespace rudp
             uint32_t in_bandwidth, uint32_t out_bandwidth)
             : channel_count_(channel_count),
               checksum_(),
-              conn_(std::make_shared<RUdpConnection>(address)),
+              conn_(std::make_shared<Connection>(address)),
               incoming_bandwidth_(in_bandwidth),
               maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
               mtu_(HOST_DEFAULT_MTU),

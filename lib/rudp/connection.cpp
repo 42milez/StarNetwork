@@ -3,11 +3,11 @@
 #include "core/singleton.h"
 
 #include "chamber.h"
-#include "RUdpConnection.h"
+#include "connection.h"
 
 namespace rudp
 {
-    RUdpConnection::RUdpConnection(const NetworkConfig &address)
+    Connection::Connection(const NetworkConfig &address)
     {
         socket_ = std::make_unique<Socket>();
 
@@ -41,7 +41,7 @@ namespace rudp
     }
 
     ssize_t
-    RUdpConnection::Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count)
+    Connection::Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count)
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
@@ -74,7 +74,7 @@ namespace rudp
     }
 
     ssize_t
-    RUdpConnection::Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber)
+    Connection::Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber)
     {
         IpAddress dest;
 

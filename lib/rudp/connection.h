@@ -8,11 +8,11 @@
 
 namespace rudp
 {
-    class RUdpConnection
+    class Connection
     {
     public:
         explicit
-        RUdpConnection(const NetworkConfig &address);
+        Connection(const NetworkConfig &address);
 
         ssize_t
         Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count);

@@ -7,7 +7,7 @@
 #include "lib/rudp/protocol/RUdpProtocol.h"
 #include "lib/rudp/checksum.h"
 #include "lib/rudp/compress.h"
-#include "lib/rudp/RUdpConnection.h"
+#include "lib/rudp/connection.h"
 #include "lib/rudp/RUdpTime.h"
 
 namespace rudp
@@ -18,7 +18,7 @@ namespace rudp
     {
     public:
         RUdpPeerPod(size_t peer_count,
-                std::shared_ptr<RUdpConnection> &conn,
+                std::shared_ptr<Connection> &conn,
                 uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth);
 
@@ -78,7 +78,7 @@ namespace rudp
 
     private:
         std::shared_ptr<Compress> compressor_;
-        std::shared_ptr<RUdpConnection> conn_;
+        std::shared_ptr<Connection> conn_;
         std::vector<std::shared_ptr<RUdpPeer>> peers_;
         std::unique_ptr<RUdpProtocol> protocol_;
         VecUInt8RawPtr received_data_;
