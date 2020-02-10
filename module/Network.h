@@ -9,7 +9,7 @@
 #include "core/errors.h"
 
 #include "lib/rudp/buffer.h"
-#include "lib/rudp/RUdpCompress.h"
+#include "lib/rudp/compress.h"
 #include "lib/rudp/RUdpEvent.h"
 #include "lib/rudp/RUdpHost.h"
 #include "lib/rudp/RUdpSegment.h"
@@ -90,7 +90,7 @@ private:
     std::vector<uint8_t> dst_compressor_mem_;
     std::vector<uint8_t> src_compressor_mem_;
 
-    std::shared_ptr<rudp::RUdpCompress> compress_;
+    std::shared_ptr<rudp::Compress> compress_;
     std::shared_ptr<rudp::RUdpHost> host_;
 
     CompressionMode compression_mode_;

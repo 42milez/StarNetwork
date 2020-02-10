@@ -6,7 +6,7 @@
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/protocol/RUdpProtocol.h"
 #include "lib/rudp/RUdpChecksum.h"
-#include "lib/rudp/RUdpCompress.h"
+#include "lib/rudp/compress.h"
 #include "lib/rudp/RUdpConnection.h"
 #include "lib/rudp/RUdpTime.h"
 
@@ -77,7 +77,7 @@ namespace rudp
         service_time() { return service_time_; }
 
     private:
-        std::shared_ptr<RUdpCompress> compressor_;
+        std::shared_ptr<Compress> compressor_;
         std::shared_ptr<RUdpConnection> conn_;
         std::vector<std::shared_ptr<RUdpPeer>> peers_;
         std::unique_ptr<RUdpProtocol> protocol_;

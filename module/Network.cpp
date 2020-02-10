@@ -30,7 +30,7 @@ Network::Network()
       transfer_mode_(TransferMode::RELIABLE),
       unique_id_()
 {
-    compress_ = std::make_shared<rudp::RUdpCompress>();
+    compress_ = std::make_shared<rudp::Compress>();
 
     compress_->SetCompressor(
         [this](const std::vector<rudp::Buffer> &in_buffers, size_t in_limit, std::vector<uint8_t> &out_data,

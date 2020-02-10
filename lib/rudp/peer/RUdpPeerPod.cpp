@@ -11,7 +11,7 @@ namespace rudp
 {
     RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<RUdpConnection> &conn, uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth)
-            : compressor_(std::make_shared<RUdpCompress>()),
+            : compressor_(std::make_shared<Compress>()),
               conn_(conn),
               duplicate_peers_(PROTOCOL_MAXIMUM_PEER_ID),
               host_incoming_bandwidth_(host_incoming_bandwidth),

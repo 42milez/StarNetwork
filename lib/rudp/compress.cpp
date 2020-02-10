@@ -1,4 +1,4 @@
-#include "RUdpCompress.h"
+#include "compress.h"
 
 namespace rudp
 {

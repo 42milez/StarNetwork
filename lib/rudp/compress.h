@@ -19,7 +19,7 @@ namespace rudp
 
     using CleanerType = std::function<void()>;
 
-    class RUdpCompress
+    class Compress
     {
     public:
         inline bool
