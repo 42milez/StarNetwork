@@ -3,7 +3,7 @@
 #endif
 
 #include "lib/rudp/command/RUdpCommandSize.h"
-#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/enum.h"
 #include "RUdpPeerNet.h"
 #include "RUdpPeerPod.h"
 

@@ -3,7 +3,7 @@
 #endif
 
 #include "lib/rudp/const.h"
-#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/enum.h"
 #include "RUdpProtocolType.h"
 
 namespace rudp

@@ -3,7 +3,7 @@
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "buffer.h"
 #include "const.h"
-#include "RUdpEnum.h"
+#include "enum.h"
 
 namespace rudp
 {

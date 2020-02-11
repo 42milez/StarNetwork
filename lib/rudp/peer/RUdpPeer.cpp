@@ -6,7 +6,7 @@
 #include "core/hash.h"
 #include "core/singleton.h"
 #include "lib/rudp/peer/RUdpPeer.h"
-#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/enum.h"
 #include "lib/rudp/RUdpMacro.h"
 
 namespace rudp

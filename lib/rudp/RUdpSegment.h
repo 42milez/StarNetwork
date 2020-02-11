@@ -6,7 +6,7 @@
 #include <functional>
 #include <vector>
 
-#include "RUdpEnum.h"
+#include "enum.h"
 #include "RUdpType.h"
 
 namespace rudp

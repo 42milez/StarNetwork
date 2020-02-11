@@ -6,7 +6,7 @@
 #include "lib/rudp/dispatch/RUdpDispatchHub.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/chamber.h"
-#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/enum.h"
 #include "lib/rudp/RUdpEvent.h"
 
 namespace rudp

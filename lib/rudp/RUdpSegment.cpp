@@ -3,7 +3,7 @@
 #endif
 #include "core/logger.h"
 #include "core/singleton.h"
-#include "RUdpEnum.h"
+#include "enum.h"
 #include "RUdpSegment.h"
 
 namespace rudp

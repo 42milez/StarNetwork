@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include "lib/rudp/RUdpEnum.h"
+#include "lib/rudp/enum.h"
 #include "RUdpCommandSize.h"
 
 namespace rudp
