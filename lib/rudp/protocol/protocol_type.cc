@@ -21,8 +21,8 @@ namespace rudp
         return header;
     }
 
-    RUdpProtocolType *
-    ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolType *cmd) {
+    ProtocolType *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolType *cmd) {
         if (cmd == nullptr) {
             return nullptr;
         }

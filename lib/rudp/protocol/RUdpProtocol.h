@@ -25,23 +25,23 @@ namespace rudp
 
         Error
         DispatchIncomingReliableCommands(std::shared_ptr<Peer> &peer,
-                const std::shared_ptr<RUdpProtocolType> &cmd);
+                const std::shared_ptr<ProtocolType> &cmd);
 
         Error
         DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer> &peer,
-                const std::shared_ptr<RUdpProtocolType> &cmd);
+                const std::shared_ptr<ProtocolType> &cmd);
 
         Error HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
-                const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
+                const std::shared_ptr<ProtocolType> &cmd, uint32_t service_time,
                 std::function<void(std::shared_ptr<Peer> &peer)> disconnect);
 
         Error
-        HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+        HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                 VecUInt8It &data);
 
         void HandleConnect(std::shared_ptr<Peer> &peer,
                 const ProtocolHeader *header,
-                const std::shared_ptr<RUdpProtocolType> &cmd,
+                const std::shared_ptr<ProtocolType> &cmd,
                 const NetworkConfig &received_address,
                 uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth);
@@ -50,16 +50,16 @@ namespace rudp
         HandlePing(const std::shared_ptr<Peer> &peer);
 
         Error
-        HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags);
+        HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t flags);
 
         Error
-        HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data,
+        HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data,
                 uint16_t data_length, uint16_t flags, uint32_t fragment_count);
 
         Error HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
-                const std::shared_ptr<RUdpProtocolType> &cmd);
+                const std::shared_ptr<ProtocolType> &cmd);
 
-        Error HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd);
+        Error HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd);
 
         void ResetPeer(const std::shared_ptr<Peer> &peer);
 

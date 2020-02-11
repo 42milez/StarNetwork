@@ -18,7 +18,7 @@ namespace rudp
             buf = std::make_shared<Buffer>();
 
         for (auto &cmd : commands_)
-            cmd = std::make_shared<RUdpProtocolType>();
+            cmd = std::make_shared<ProtocolType>();
     }
 
     const Chamber::CmdBufIt

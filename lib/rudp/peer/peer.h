@@ -44,14 +44,14 @@ namespace rudp
         PopAcknowledgement();
 
         void
-        QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time);
+        QueueAcknowledgement(const std::shared_ptr<ProtocolType> &cmd, uint16_t sent_time);
 
         Error
-        QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
+        QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
                 uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data);
 
         void
-        QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<Segment> &segment,
+        QueueOutgoingCommand(const std::shared_ptr<ProtocolType> &command, const std::shared_ptr<Segment> &segment,
                 uint32_t offset);
 
         std::tuple<std::shared_ptr<Segment>, uint8_t>
@@ -74,7 +74,7 @@ namespace rudp
                 uint32_t host_outgoing_bandwidth, uint32_t data);
 
         void
-        SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd, const NetworkConfig &received_address,
+        SetupConnectedPeer(const std::shared_ptr<ProtocolType> &cmd, const NetworkConfig &received_address,
                 uint32_t host_incoming_bandwidth, uint32_t host_outgoing_bandwidth,
                 uint32_t channel_count);
 

@@ -39,11 +39,11 @@ namespace rudp
         inline void
         header_channel_id(uint8_t val) { command_->header.channel_id = val; }
 
-        inline RUdpProtocolTypeSP
+        inline ProtocolTypeSP
         command() { return command_; }
 
         inline void
-        command(const RUdpProtocolTypeSP &command) { command_ = command; }
+        command(const ProtocolTypeSP &command) { command_ = command; }
 
         inline uint16_t
         fragment_length() { return fragment_length_; }
@@ -94,7 +94,7 @@ namespace rudp
         send_unsequenced_unsequenced_group(uint16_t val) { command_->send_unsequenced.unsequenced_group = val; }
 
     protected:
-        RUdpProtocolTypeSP command_;
+        ProtocolTypeSP command_;
         SegmentSP segment_;
 
         uint32_t fragment_offset_;

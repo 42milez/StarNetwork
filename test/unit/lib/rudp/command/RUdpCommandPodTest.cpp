@@ -8,7 +8,7 @@
 
 TEST_CASE("Rebuffering command after command timeout", "[timeout]")
 {
-  auto protocol_type = std::make_shared<rudp::RUdpProtocolType>();
+  auto protocol_type = std::make_shared<rudp::ProtocolType>();
   protocol_type->header.command = static_cast<uint8_t>(rudp::RUdpProtocolCommand::PING) |
                                   static_cast<uint16_t>(rudp::RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
   protocol_type->header.channel_id = 0xFF;

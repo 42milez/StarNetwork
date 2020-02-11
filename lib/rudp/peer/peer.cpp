@@ -44,7 +44,7 @@ namespace rudp
 
         net_->Setup();
 
-        std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+        std::shared_ptr<ProtocolType> cmd = std::make_shared<ProtocolType>();
 
         cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::CONNECT) |
                               static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
@@ -73,7 +73,7 @@ namespace rudp
     }
 
     void
-    Peer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
+    Peer::SetupConnectedPeer(const std::shared_ptr<ProtocolType> &cmd,
             const NetworkConfig &received_address,
             uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth,
@@ -183,7 +183,7 @@ namespace rudp
             window_size = PROTOCOL_MAXIMUM_WINDOW_SIZE;
         }
 
-        std::shared_ptr<RUdpProtocolType> verify_cmd = std::make_shared<RUdpProtocolType>();
+        std::shared_ptr<ProtocolType> verify_cmd = std::make_shared<ProtocolType>();
 
         verify_cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::VERIFY_CONNECT) |
                                      static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
@@ -210,7 +210,7 @@ namespace rudp
         if (net_->StateIsNot(RUdpPeerState::CONNECTED))
             return;
 
-        std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+        std::shared_ptr<ProtocolType> cmd = std::make_shared<ProtocolType>();
 
         cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::PING) |
                               static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
@@ -220,7 +220,7 @@ namespace rudp
     }
 
     void
-    Peer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
+    Peer::QueueAcknowledgement(const std::shared_ptr<ProtocolType> &cmd, uint16_t sent_time)
     {
         if (cmd->header.channel_id < channels_.size())
         {
@@ -263,7 +263,7 @@ namespace rudp
     }
 
     Error
-    Peer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
+    Peer::QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
             uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
     {
         if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
@@ -285,7 +285,7 @@ namespace rudp
 
     // TODO: Is segment necessary as an argument?
     void
-    Peer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
+    Peer::QueueOutgoingCommand(const std::shared_ptr<ProtocolType> &protocol_type,
             const std::shared_ptr<Segment> &segment, uint32_t offset)
     {
         std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
@@ -408,7 +408,7 @@ namespace rudp
                     // ...
                 }
 
-                auto cmd = std::make_shared<RUdpProtocolType>();
+                auto cmd = std::make_shared<ProtocolType>();
 
                 cmd->header.command = command_number;
                 cmd->header.channel_id = static_cast<uint32_t>(ch);
@@ -435,7 +435,7 @@ namespace rudp
             return Error::OK;
         }
 
-        auto cmd = std::make_shared<RUdpProtocolType>();
+        auto cmd = std::make_shared<ProtocolType>();
 
         if ((segment->flags() & (static_cast<uint16_t>(SegmentFlag::RELIABLE) |
                                  static_cast<uint16_t>(SegmentFlag::UNSEQUENCED))

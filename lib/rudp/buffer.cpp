@@ -11,7 +11,7 @@ namespace rudp
     {
         enum class BufferVariant : uint8_t
         {
-            RUdpProtocolTypeSP,
+            ProtocolTypeSP,
             VecUInt8
         };
     }
@@ -23,7 +23,7 @@ namespace rudp
     {}
 
     void
-    Buffer::Add(const RUdpProtocolTypeSP &data)
+    Buffer::Add(const ProtocolTypeSP &data)
     {
         buffer_ = data;
         size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
@@ -56,10 +56,10 @@ namespace rudp
     std::string
     Buffer::ProtocolCommandAsString()
     {
-        if (buffer_.index() != static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
+        if (buffer_.index() != static_cast<int>(BufferVariant::ProtocolTypeSP))
             return "NOT A COMMAND";
 
-        auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(buffer_);
+        auto protocol = std::get<static_cast<int>(BufferVariant::ProtocolTypeSP)>(buffer_);
 
         if (protocol == nullptr)
             return "INVALID COMMAND";
@@ -75,9 +75,9 @@ namespace rudp
     VecUInt8It
     Buffer::CopyTo(VecUInt8It it)
     {
-        if (buffer_.index() == static_cast<int>(BufferVariant::RUdpProtocolTypeSP))
+        if (buffer_.index() == static_cast<int>(BufferVariant::ProtocolTypeSP))
         {
-            auto protocol = std::get<static_cast<int>(BufferVariant::RUdpProtocolTypeSP)>(buffer_);
+            auto protocol = std::get<static_cast<int>(BufferVariant::ProtocolTypeSP)>(buffer_);
 
             if (protocol)
             {

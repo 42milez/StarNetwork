@@ -118,7 +118,7 @@ namespace rudp
         uint32_t segment_throttle_deceleration;
     };
 
-    using RUdpProtocolType = union RUdpProtocolType
+    using ProtocolType = union ProtocolType
     {
         ProtocolCommandHeader header;
         ProtocolAcknowledge acknowledge;
@@ -134,13 +134,13 @@ namespace rudp
         ProtocolThrottleConfigure throttle_configure;
     };
 
-    using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
+    using ProtocolTypeSP = std::shared_ptr<ProtocolType>;
 
     ProtocolHeader *
     ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader *header);
 
-    RUdpProtocolType *
-    ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolType *cmd);
+    ProtocolType *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolType *cmd);
 } // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOLTYPE_H

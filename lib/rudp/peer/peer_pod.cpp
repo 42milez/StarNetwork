@@ -103,7 +103,7 @@ namespace rudp
 
         peer->ResetPeerQueues();
 
-        auto cmd = std::make_shared<RUdpProtocolType>();
+        auto cmd = std::make_shared<ProtocolType>();
         cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT);
         cmd->header.channel_id = 0xFF;
         cmd->disconnect.data = htonl(data);
@@ -159,7 +159,7 @@ namespace rudp
         if (net->StateIs(RUdpPeerState::DISCONNECTED))
             return Error::ERROR;
 
-        std::shared_ptr<RUdpProtocolType> cmd = std::make_shared<RUdpProtocolType>();
+        std::shared_ptr<ProtocolType> cmd = std::make_shared<ProtocolType>();
 
         if (net->StateIsNot(RUdpPeerState::ZOMBIE) && net->StateIsNot(RUdpPeerState::DISCONNECTING))
         {
@@ -270,8 +270,8 @@ namespace rudp
                 if (current_data + sizeof(ProtocolCommandHeader) > end)
                     break;
 
-                auto cmd_raw = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
-                auto cmd = std::make_shared<RUdpProtocolType>(*cmd_raw);
+                auto cmd_raw = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolType *>(&(*current_data)));
+                auto cmd = std::make_shared<ProtocolType>(*cmd_raw);
                 auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
                 if (cmd_type >= RUdpProtocolCommand::COUNT)

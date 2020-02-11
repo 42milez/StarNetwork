@@ -113,7 +113,7 @@ namespace rudp
     }
 
     std::tuple<std::shared_ptr<IncomingCommand>, Error>
-    Channel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
+    Channel::QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
             uint32_t fragment_count)
     {
         uint16_t reliable_sequence_number{};

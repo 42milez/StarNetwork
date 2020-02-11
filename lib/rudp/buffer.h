@@ -18,7 +18,7 @@ namespace rudp
         Buffer();
 
         void
-        Add(const RUdpProtocolTypeSP &data);
+        Add(const ProtocolTypeSP &data);
 
         void
         CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
@@ -39,7 +39,7 @@ namespace rudp
         Size(size_t val) { size_ = val; }
 
     private:
-        using VariantBuffer = std::variant<RUdpProtocolTypeSP, VecUInt8>;
+        using VariantBuffer = std::variant<ProtocolTypeSP, VecUInt8>;
 
         VariantBuffer buffer_;
         size_t offset_;

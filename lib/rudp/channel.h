@@ -54,7 +54,7 @@ namespace rudp
         ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count);
 
         std::tuple<std::shared_ptr<IncomingCommand>, Error>
-        QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
+        QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
                 uint32_t fragment_count);
 
         inline uint16_t

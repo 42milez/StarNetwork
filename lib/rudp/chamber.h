@@ -12,7 +12,7 @@ namespace rudp
     class Chamber
     {
     private:
-        using CmdBufIt = std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
+        using CmdBufIt = std::array<ProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS>::iterator;
         using DataBufIt = std::array<std::shared_ptr<Buffer>, BUFFER_MAXIMUM>::iterator;
 
     public:
@@ -40,7 +40,7 @@ namespace rudp
             buffers_.at(0)->CopyHeaderFrom(header, 0, header_size);
         }
 
-        //bool command_buffer_have_enough_space(RUdpProtocolType *command);
+        //bool command_buffer_have_enough_space(ProtocolType *command);
         //bool data_buffer_have_enough_space(Buffer *buffer);
 
     public:
@@ -72,11 +72,11 @@ namespace rudp
         segment_size(size_t val) { segment_size_ = val; }
 
         //void update_buffer_count(const Buffer *buffer);
-        //void update_command_count(const RUdpProtocolType *command);
+        //void update_command_count(const ProtocolType *command);
 
     private:
         std::array<std::shared_ptr<Buffer>, BUFFER_MAXIMUM> buffers_;
-        std::array<RUdpProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> commands_;
+        std::array<ProtocolTypeSP, PROTOCOL_MAXIMUM_SEGMENT_COMMANDS> commands_;
 
         size_t buffer_count_;
         size_t command_count_;
