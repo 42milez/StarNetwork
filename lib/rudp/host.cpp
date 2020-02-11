@@ -67,7 +67,7 @@ namespace rudp
     }
 
     void
-    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
+    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer> &peer)
     {
         peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
     }
@@ -75,7 +75,7 @@ namespace rudp
     Error
     Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment)
     {
-        auto peer = peer_pod_->Peer(peer_id);
+        auto peer = peer_pod_->GetPeer(peer_id);
         auto &net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTED))

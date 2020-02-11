@@ -13,7 +13,7 @@
 #include "lib/rudp/event.h"
 #include "lib/rudp/host.h"
 #include "lib/rudp/segment.h"
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 
 class Network
 {
@@ -85,7 +85,7 @@ private:
     };
 
     std::list<Segment> incoming_segments_;
-    std::map<int, std::shared_ptr<rudp::RUdpPeer>> peers_;
+    std::map<int, std::shared_ptr<rudp::Peer>> peers_;
 
     std::vector<uint8_t> dst_compressor_mem_;
     std::vector<uint8_t> src_compressor_mem_;

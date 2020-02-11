@@ -24,7 +24,7 @@ namespace rudp
         Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data);
 
         void
-        RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
+        RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer> &peer);
 
         Error
         Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment);
@@ -33,15 +33,15 @@ namespace rudp
         Service(std::unique_ptr<Event> &event, uint32_t timeout);
 
         inline Error
-        DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+        DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data)
         { return peer_pod_->DisconnectNow(peer, data, checksum_); }
 
         inline Error
-        DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)
+        DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data)
         { return peer_pod_->DisconnectLater(peer, data, checksum_); }
 
         inline RUdpPeerState
-        PeerState(size_t idx) { return peer_pod_->Peer(idx)->net()->state(); }
+        PeerState(size_t idx) { return peer_pod_->GetPeer(idx)->net()->state(); }
 
     private:
         inline int

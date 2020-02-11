@@ -4,7 +4,7 @@
 #include <array>
 
 #include "lib/rudp/dispatch/dispatch_hub.h"
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/enum.h"
 #include "lib/rudp/event.h"
@@ -17,29 +17,29 @@ namespace rudp
         RUdpProtocol();
 
         void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
-                const std::vector<std::shared_ptr<RUdpPeer>> &peers);
+                const std::vector<std::shared_ptr<Peer>> &peers);
 
-        void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<Event> &event);
+        void NotifyDisconnect(std::shared_ptr<Peer> &peer, const std::unique_ptr<Event> &event);
 
         EventStatus DispatchIncomingCommands(std::unique_ptr<Event> &event);
 
         Error
-        DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
+        DispatchIncomingReliableCommands(std::shared_ptr<Peer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd);
 
         Error
-        DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer,
+        DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd);
 
-        Error HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
+        Error HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
-                std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect);
+                std::function<void(std::shared_ptr<Peer> &peer)> disconnect);
 
         Error
-        HandleBandwidthLimit(const std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
+        HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd,
                 VecUInt8It &data);
 
-        void HandleConnect(std::shared_ptr<RUdpPeer> &peer,
+        void HandleConnect(std::shared_ptr<Peer> &peer,
                 const RUdpProtocolHeader *header,
                 const std::shared_ptr<RUdpProtocolType> &cmd,
                 const NetworkConfig &received_address,
@@ -47,27 +47,27 @@ namespace rudp
                 uint32_t host_outgoing_bandwidth);
 
         static Error
-        HandlePing(const std::shared_ptr<RUdpPeer> &peer);
+        HandlePing(const std::shared_ptr<Peer> &peer);
 
         Error
-        HandleSendFragment(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags);
+        HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags);
 
         Error
-        HandleSendReliable(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data,
+        HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data,
                 uint16_t data_length, uint16_t flags, uint32_t fragment_count);
 
-        Error HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
+        Error HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd);
 
-        Error HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd);
+        Error HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd);
 
-        void ResetPeer(const std::shared_ptr<RUdpPeer> &peer);
+        void ResetPeer(const std::shared_ptr<Peer> &peer);
 
-        void SendAcknowledgements(std::shared_ptr<RUdpPeer> &peer);
-        bool SendReliableOutgoingCommands(const std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
-        void SendUnreliableOutgoingCommands(std::shared_ptr<RUdpPeer> &peer, uint32_t service_time);
+        void SendAcknowledgements(std::shared_ptr<Peer> &peer);
+        bool SendReliableOutgoingCommands(const std::shared_ptr<Peer> &peer, uint32_t service_time);
+        void SendUnreliableOutgoingCommands(std::shared_ptr<Peer> &peer, uint32_t service_time);
 
-        inline void PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer)
+        inline void PeerOnDisconnect(const std::shared_ptr<Peer> &peer)
         { dispatch_hub_->PurgePeer(peer); }
 
     public:

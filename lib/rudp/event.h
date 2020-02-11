@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 #include "enum.h"
 
 namespace rudp
@@ -36,11 +36,11 @@ namespace rudp
         inline void
         data(uint32_t val) { data_ = val; }
 
-        inline std::shared_ptr<RUdpPeer>
+        inline std::shared_ptr<Peer>
         peer() { return peer_; }
 
         inline void
-        peer(std::shared_ptr<RUdpPeer> &val) { peer_ = val; }
+        peer(std::shared_ptr<Peer> &val) { peer_ = val; }
 
         inline void
         segment(std::shared_ptr<Segment> &val) { segment_ = val; }
@@ -49,7 +49,7 @@ namespace rudp
         type(EventType val) { type_ = val; }
 
     private:
-        std::shared_ptr<RUdpPeer> peer_;
+        std::shared_ptr<Peer> peer_;
         std::shared_ptr<Segment> segment_;
 
         EventType type_;

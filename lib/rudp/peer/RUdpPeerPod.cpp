@@ -38,13 +38,13 @@ namespace rudp
         uint16_t idx = 0;
         for (auto &peer : peers_)
         {
-            peer = std::make_unique<RUdpPeer>();
+            peer = std::make_unique<Peer>();
             peer->Reset(idx);
             idx++;
         }
     }
 
-    std::shared_ptr<RUdpPeer>
+    std::shared_ptr<Peer>
     RUdpPeerPod::AvailablePeer()
     {
         for (auto &peer : peers_)
@@ -89,7 +89,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
+    RUdpPeerPod::Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
@@ -130,7 +130,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
+    RUdpPeerPod::DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
         auto &cmd_pod = peer->command_pod();
@@ -152,7 +152,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum)
+    RUdpPeerPod::DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
@@ -228,7 +228,7 @@ namespace rudp
             if (checksum)
                 header_size += sizeof(uint32_t);
 
-            std::shared_ptr<RUdpPeer> peer;
+            std::shared_ptr<Peer> peer;
 
             if (peer_id == PROTOCOL_MAXIMUM_PEER_ID)
             {
@@ -293,7 +293,7 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("command was received: ACKNOWLEDGE ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    auto disconnect = [this, checksum](std::shared_ptr<RUdpPeer> &peer){
+                    auto disconnect = [this, checksum](std::shared_ptr<Peer> &peer){
                         Disconnect(peer, peer->event_data(), checksum);
                     };
 
@@ -471,7 +471,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum)
+    RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer> &peer, ChecksumCallback checksum)
     {
         std::vector<uint8_t> empty_data;
         std::shared_ptr<Segment> segment = std::make_shared<Segment>(empty_data,

@@ -11,21 +11,21 @@ namespace rudp
     public:
         DispatchHub();
 
-        void MergePeer(const std::shared_ptr<RUdpPeer> &peer);
-        void PurgePeer(const std::shared_ptr<RUdpPeer> &peer);
+        void MergePeer(const std::shared_ptr<Peer> &peer);
+        void PurgePeer(const std::shared_ptr<Peer> &peer);
 
-        void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
+        void ChangeState(const std::shared_ptr<Peer> &peer, const RUdpPeerState &state);
 
-        void NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer);
-        void NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer);
+        void NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer);
+        void NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer);
 
     public:
-        void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);
+        void DispatchState(std::shared_ptr<Peer> &peer, RUdpPeerState state);
 
         inline void
-        Enqueue(std::shared_ptr<RUdpPeer> &peer) { queue_->Enqueue(peer); }
+        Enqueue(std::shared_ptr<Peer> &peer) { queue_->Enqueue(peer); }
 
-        inline std::shared_ptr<RUdpPeer>
+        inline std::shared_ptr<Peer>
         Dequeue() { return queue_->Dequeue(); }
 
         inline bool

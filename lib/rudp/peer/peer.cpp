@@ -5,13 +5,13 @@
 
 #include "core/hash.h"
 #include "core/singleton.h"
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 #include "lib/rudp/enum.h"
 #include "lib/rudp/macro.h"
 
 namespace rudp
 {
-    RUdpPeer::RUdpPeer() :
+    Peer::Peer() :
             command_pod_(std::make_unique<CommandPod>()),
             connect_id_(),
             event_data_(),
@@ -32,7 +32,7 @@ namespace rudp
     {}
 
     Error
-    RUdpPeer::Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
+    Peer::Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth, uint32_t data)
     {
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
@@ -73,7 +73,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
+    Peer::SetupConnectedPeer(const std::shared_ptr<RUdpProtocolType> &cmd,
             const NetworkConfig &received_address,
             uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth,
@@ -205,7 +205,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::Ping()
+    Peer::Ping()
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED))
             return;
@@ -220,7 +220,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
+    Peer::QueueAcknowledgement(const std::shared_ptr<RUdpProtocolType> &cmd, uint16_t sent_time)
     {
         if (cmd->header.channel_id < channels_.size())
         {
@@ -263,7 +263,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
+    Peer::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
             uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
     {
         if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
@@ -285,7 +285,7 @@ namespace rudp
 
     // TODO: Is segment necessary as an argument?
     void
-    RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
+    Peer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
             const std::shared_ptr<Segment> &segment, uint32_t offset)
     {
         std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
@@ -329,7 +329,7 @@ namespace rudp
     }
 
     std::tuple<std::shared_ptr<Segment>, uint8_t>
-    RUdpPeer::Receive()
+    Peer::Receive()
     {
         if (dispatched_commands_.empty())
             return {nullptr, 0};
@@ -345,7 +345,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeer::Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
+    Peer::Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
             static_cast<uint32_t>(ch) >= channels_.size() ||
@@ -464,7 +464,7 @@ namespace rudp
     }
 
     std::shared_ptr<Acknowledgement>
-    RUdpPeer::PopAcknowledgement()
+    Peer::PopAcknowledgement()
     {
         auto acknowledgement = acknowledgements_.front();
 
@@ -474,14 +474,14 @@ namespace rudp
     }
 
     void
-    RUdpPeer::ClearDispatchedCommandQueue()
+    Peer::ClearDispatchedCommandQueue()
     {
         std::queue<std::shared_ptr<IncomingCommand>> empty;
         std::swap(dispatched_commands_, empty);
     }
 
     bool
-    RUdpPeer::EventOccur(const NetworkConfig &address, uint8_t session_id)
+    Peer::EventOccur(const NetworkConfig &address, uint8_t session_id)
     {
         if (net_->StateIs(RUdpPeerState::DISCONNECTED))
             return false;
@@ -499,7 +499,7 @@ namespace rudp
     }
 
     bool
-    RUdpPeer::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, uint32_t service_time)
+    Peer::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, uint32_t service_time)
     {
         auto can_ping = command_pod_->LoadReliableCommandsIntoChamber(chamber, net_, channels_, service_time);
 
@@ -507,7 +507,7 @@ namespace rudp
     }
 
     bool
-    RUdpPeer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber)
+    Peer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber)
     {
         auto disconnected = command_pod_->LoadUnreliableCommandsIntoChamber(chamber, net_);
 
@@ -515,7 +515,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::Reset(uint16_t peer_idx)
+    Peer::Reset(uint16_t peer_idx)
     {
         acknowledgements_.clear();
         channels_.clear();
@@ -546,7 +546,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::ResetPeerQueues()
+    Peer::ResetPeerQueues()
     {
         std::unique_ptr<Channel> channel;
 
@@ -572,7 +572,7 @@ namespace rudp
     }
 
     void
-    RUdpPeer::UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time)
+    Peer::UpdateRoundTripTimeVariance(uint32_t service_time, uint32_t round_trip_time)
     {
         auto rttv = command_pod_->round_trip_time_variance();
         command_pod_->round_trip_time_variance(rttv - (rttv / 4));
@@ -615,7 +615,7 @@ namespace rudp
     }
 
     RUdpProtocolCommand
-    RUdpPeer::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
+    Peer::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id)
     {
         std::shared_ptr<Channel> channel;
 

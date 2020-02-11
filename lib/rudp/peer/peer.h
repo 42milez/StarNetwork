@@ -20,10 +20,10 @@
 
 namespace rudp
 {
-    class RUdpPeer
+    class Peer
     {
     public:
-        RUdpPeer();
+        Peer();
 
         void
         ClearDispatchedCommandQueue();

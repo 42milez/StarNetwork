@@ -2,10 +2,10 @@
 
 namespace rudp
 {
-    std::shared_ptr<RUdpPeer>
+    std::shared_ptr<Peer>
     DispatchQueue::Dequeue()
     {
-        std::shared_ptr<RUdpPeer> peer = queue_.front();
+        std::shared_ptr<Peer> peer = queue_.front();
 
         queue_.pop();
 
@@ -13,7 +13,7 @@ namespace rudp
     }
 
     void
-    DispatchQueue::Enqueue(std::shared_ptr<RUdpPeer> &peer)
+    DispatchQueue::Enqueue(std::shared_ptr<Peer> &peer)
     {
         queue_.push(peer);
     }

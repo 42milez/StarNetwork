@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 #include "lib/rudp/protocol/RUdpProtocol.h"
 #include "lib/rudp/checksum.h"
 #include "lib/rudp/compress.h"
@@ -22,17 +22,17 @@ namespace rudp
                 uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth);
 
-        std::shared_ptr<RUdpPeer>
+        std::shared_ptr<Peer>
         AvailablePeer();
 
         Error
-        Disconnect(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
+        Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
         Error
-        DisconnectLater(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
+        DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
         Error
-        DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data, ChecksumCallback checksum);
+        DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
         void
         Flush(ChecksumCallback checksum);
@@ -41,7 +41,7 @@ namespace rudp
         ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum);
 
         void
-        RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum);
+        RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer> &peer, ChecksumCallback checksum);
 
         EventStatus
         SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time, bool check_for_timeouts,
@@ -54,11 +54,11 @@ namespace rudp
         inline EventStatus
         DispatchIncomingCommands(std::unique_ptr<Event> &event) { return protocol_->DispatchIncomingCommands(event); }
 
-        inline std::shared_ptr<RUdpPeer>
-        Peer(size_t peer_idx) { return peers_.at(peer_idx); }
+        inline std::shared_ptr<Peer>
+        GetPeer(size_t peer_idx) { return peers_.at(peer_idx); }
 
         inline void
-        PeerOnDisconnect(const std::shared_ptr<RUdpPeer> &peer) { protocol_->PeerOnDisconnect(peer); }
+        PeerOnDisconnect(const std::shared_ptr<Peer> &peer) { protocol_->PeerOnDisconnect(peer); }
 
         inline void
         UpdateServiceTime() {
@@ -70,7 +70,7 @@ namespace rudp
         }
 
     public:
-        inline const std::vector<std::shared_ptr<RUdpPeer>> &
+        inline const std::vector<std::shared_ptr<Peer>> &
         peers() { return peers_; }
 
         inline uint32_t
@@ -79,7 +79,7 @@ namespace rudp
     private:
         std::shared_ptr<Compress> compressor_;
         std::shared_ptr<Connection> conn_;
-        std::vector<std::shared_ptr<RUdpPeer>> peers_;
+        std::vector<std::shared_ptr<Peer>> peers_;
         std::unique_ptr<RUdpProtocol> protocol_;
         VecUInt8RawPtr received_data_;
         VecUInt8 segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU

@@ -4,21 +4,21 @@
 #include <memory>
 #include <queue>
 
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/peer/peer.h"
 
 namespace rudp
 {
     class DispatchQueue
     {
     public:
-        void Enqueue(std::shared_ptr<RUdpPeer> &peer);
-        std::shared_ptr<RUdpPeer> Dequeue();
+        void Enqueue(std::shared_ptr<Peer> &peer);
+        std::shared_ptr<Peer> Dequeue();
 
     public:
         bool PeerExists();
 
     private:
-        std::queue<std::shared_ptr<RUdpPeer>> queue_;
+        std::queue<std::shared_ptr<Peer>> queue_;
     };
 } // namespace rudp
 
