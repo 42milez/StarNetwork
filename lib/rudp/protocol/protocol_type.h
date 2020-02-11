@@ -44,7 +44,7 @@ namespace rudp
         uint32_t data;
     };
 
-    using RUdpProtocolVerifyConnect = struct RUdpProtocolVerifyConnect
+    using ProtocolVerifyConnect = struct ProtocolVerifyConnect
     {
         ProtocolCommandHeader header;
         uint16_t outgoing_peer_id;
@@ -123,7 +123,7 @@ namespace rudp
         ProtocolCommandHeader header;
         ProtocolAcknowledge acknowledge;
         ProtocolConnect connect;
-        RUdpProtocolVerifyConnect verify_connect;
+        ProtocolVerifyConnect verify_connect;
         RUdpProtocolDisconnect disconnect;
         RUdpProtocolPing ping;
         RUdpProtocolSendReliable send_reliable;
