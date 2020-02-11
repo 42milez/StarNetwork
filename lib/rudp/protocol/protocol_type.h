@@ -110,7 +110,7 @@ namespace rudp
         uint32_t outgoing_bandwidth;
     };
 
-    using RUdpProtocolThrottleConfigure = struct RUdpProtocolThrottleConfigure
+    using ProtocolThrottleConfigure = struct ProtocolThrottleConfigure
     {
         ProtocolCommandHeader header;
         uint32_t segment_throttle_interval;
@@ -131,7 +131,7 @@ namespace rudp
         ProtocolSendUnsequenced send_unsequenced;
         ProtocolSendFragment send_fragment;
         ProtocolBandwidthLimit bandwidth_limit;
-        RUdpProtocolThrottleConfigure throttle_configure;
+        ProtocolThrottleConfigure throttle_configure;
     };
 
     using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
