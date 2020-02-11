@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "lib/rudp/dispatch/RUdpDispatchHub.h"
+#include "lib/rudp/dispatch/dispatch_hub.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/enum.h"
@@ -83,7 +83,7 @@ namespace rudp
 
     private:
         std::unique_ptr<Chamber> chamber_;
-        std::unique_ptr<RUdpDispatchHub> dispatch_hub_;
+        std::unique_ptr<DispatchHub> dispatch_hub_;
 
         size_t maximum_waiting_data_;
 

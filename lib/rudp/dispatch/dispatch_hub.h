@@ -6,10 +6,10 @@
 
 namespace rudp
 {
-    class RUdpDispatchHub
+    class DispatchHub
     {
     public:
-        RUdpDispatchHub();
+        DispatchHub();
 
         void MergePeer(const std::shared_ptr<RUdpPeer> &peer);
         void PurgePeer(const std::shared_ptr<RUdpPeer> &peer);

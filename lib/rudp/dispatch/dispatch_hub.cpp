@@ -1,8 +1,8 @@
-#include "lib/rudp/dispatch/RUdpDispatchHub.h"
+#include "lib/rudp/dispatch/dispatch_hub.h"
 
 namespace rudp
 {
-    RUdpDispatchHub::RUdpDispatchHub() :
+    DispatchHub::DispatchHub() :
             bandwidth_limited_peers_(),
             connected_peers_(),
             queue_(std::make_unique<RUdpDispatchQueue>()),
@@ -10,7 +10,7 @@ namespace rudp
     {}
 
     void
-    RUdpDispatchHub::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
+    DispatchHub::MergePeer(const std::shared_ptr<RUdpPeer> &peer)
     {
         auto &net = peer->net();
 
@@ -24,7 +24,7 @@ namespace rudp
     }
 
     void
-    RUdpDispatchHub::PurgePeer(const std::shared_ptr<RUdpPeer> &peer)
+    DispatchHub::PurgePeer(const std::shared_ptr<RUdpPeer> &peer)
     {
         auto &net = peer->net();
 
@@ -38,7 +38,7 @@ namespace rudp
     }
 
     void
-    RUdpDispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
+    DispatchHub::ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state)
     {
         if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
             MergePeer(peer);
@@ -49,7 +49,7 @@ namespace rudp
     }
 
     void
-    RUdpDispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
+    DispatchHub::DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state)
     {
         ChangeState(peer, state);
 
@@ -64,7 +64,7 @@ namespace rudp
 //  ピアが接続したことをEventインスタンスを介して呼び出し元に通知する
 //  接続済みのピア群に対して新しいピアが接続してきたことを通知するものではない
     void
-    RUdpDispatchHub::NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
+    DispatchHub::NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
     {
         recalculate_bandwidth_limits(true);
 
@@ -85,7 +85,7 @@ namespace rudp
     }
 
     void
-    RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
+    DispatchHub::NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
     {
         auto &net = peer->net();
 
