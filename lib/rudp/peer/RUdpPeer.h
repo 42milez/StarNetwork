@@ -106,7 +106,7 @@ namespace rudp
         Disconnected() { return net_->StateIs(RUdpPeerState::DISCONNECTED); }
 
         void
-        PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<RUdpIncomingCommand>> &commands)
+        PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<IncomingCommand>> &commands)
         { for (auto &cmd : commands) dispatched_commands_.push(cmd); }
 
         inline bool
@@ -175,7 +175,7 @@ namespace rudp
         std::list<std::shared_ptr<Acknowledgement>> acknowledgements_;
         std::vector<std::shared_ptr<Channel>> channels_;
         std::unique_ptr<CommandPod> command_pod_;
-        std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
+        std::queue<std::shared_ptr<IncomingCommand>> dispatched_commands_;
         std::unique_ptr<RUdpPeerNet> net_;
         std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 

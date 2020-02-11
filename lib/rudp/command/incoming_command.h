@@ -5,10 +5,10 @@
 
 namespace rudp
 {
-    class RUdpIncomingCommand : public Command
+    class IncomingCommand : public Command
     {
     public:
-        RUdpIncomingCommand();
+        IncomingCommand();
 
         Error
         ResizeFragmentBuffer(size_t val);

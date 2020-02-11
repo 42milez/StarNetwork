@@ -476,7 +476,7 @@ namespace rudp
     void
     RUdpPeer::ClearDispatchedCommandQueue()
     {
-        std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
+        std::queue<std::shared_ptr<IncomingCommand>> empty;
         std::swap(dispatched_commands_, empty);
     }
 
@@ -522,7 +522,7 @@ namespace rudp
         command_pod_->Reset();
         net_->Reset();
 
-        std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
+        std::queue<std::shared_ptr<IncomingCommand>> empty;
         dispatched_commands_.swap(empty);
 
         address_.Reset();
@@ -563,7 +563,7 @@ namespace rudp
 
         if (!dispatched_commands_.empty())
         {
-            std::queue<std::shared_ptr<RUdpIncomingCommand>> empty;
+            std::queue<std::shared_ptr<IncomingCommand>> empty;
             std::swap(dispatched_commands_, empty);
         }
 

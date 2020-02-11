@@ -2,11 +2,11 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 
-#include "RUdpIncomingCommand.h"
+#include "incoming_command.h"
 
 namespace rudp
 {
-    RUdpIncomingCommand::RUdpIncomingCommand()
+    IncomingCommand::IncomingCommand()
             : fragments_(),
               fragment_count_(),
               fragments_remaining_(),
@@ -15,7 +15,7 @@ namespace rudp
     {}
 
     Error
-    RUdpIncomingCommand::ResizeFragmentBuffer(size_t val) {
+    IncomingCommand::ResizeFragmentBuffer(size_t val) {
         try
         {
             fragments_.resize(val);

@@ -13,10 +13,10 @@ namespace rudp
               used_reliable_windows_()
     {}
 
-    std::vector<std::shared_ptr<RUdpIncomingCommand>>
+    std::vector<std::shared_ptr<IncomingCommand>>
     Channel::NewIncomingReliableCommands()
     {
-        std::vector<std::shared_ptr<RUdpIncomingCommand>> commands;
+        std::vector<std::shared_ptr<IncomingCommand>> commands;
         auto is_new_command_detected = false;
 
         for (auto &cmd : incoming_reliable_commands_)
@@ -66,7 +66,7 @@ namespace rudp
         }
     }
 
-    std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
+    std::tuple<std::shared_ptr<IncomingCommand>, Error>
     Channel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
     {
         if (incoming_reliable_commands_.empty()) {
@@ -112,7 +112,7 @@ namespace rudp
         return std::make_tuple((*cmd), Error::OK);
     }
 
-    std::tuple<std::shared_ptr<RUdpIncomingCommand>, Error>
+    std::tuple<std::shared_ptr<IncomingCommand>, Error>
     Channel::QueueIncomingCommand(const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data, uint16_t flags,
             uint32_t fragment_count)
     {
@@ -133,7 +133,7 @@ namespace rudp
         }
 
         auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
-        std::list<std::shared_ptr<RUdpIncomingCommand>>::iterator insert_pos;
+        std::list<std::shared_ptr<IncomingCommand>>::iterator insert_pos;
 
         if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
         {
@@ -238,7 +238,7 @@ namespace rudp
         if (segment == nullptr)
             return std::tuple(nullptr, Error::CANT_ALLOCATE);
 
-        auto in_cmd = std::make_shared<RUdpIncomingCommand>();
+        auto in_cmd = std::make_shared<IncomingCommand>();
 
         if (in_cmd == nullptr)
             return std::tuple(nullptr, Error::CANT_ALLOCATE);
