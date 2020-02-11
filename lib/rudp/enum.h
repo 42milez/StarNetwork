@@ -12,7 +12,7 @@ namespace rudp
         ERROR = -1
     };
 
-    enum class RUdpEventType: uint8_t
+    enum class EventType: uint8_t
     {
         NONE,
         CONNECT,

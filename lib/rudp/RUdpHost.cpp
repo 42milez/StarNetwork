@@ -2,7 +2,7 @@
 
 #include "lib/rudp/peer/RUdpPeerPod.h"
 #include "RUdpMacro.h"
-#include "RUdpEvent.h"
+#include "event.h"
 #include "RUdpHost.h"
 
 namespace rudp
@@ -108,7 +108,7 @@ namespace rudp
     @remarks RUdpHost::Service should be called fairly regularly for adequate performance
 */
     EventStatus
-    RUdpHost::Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout)
+    RUdpHost::Service(std::unique_ptr<Event> &event, uint32_t timeout)
     {
         EventStatus ret;
 

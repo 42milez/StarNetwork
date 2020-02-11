@@ -30,7 +30,7 @@ namespace rudp
         Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment);
 
         EventStatus
-        Service(std::unique_ptr<RUdpEvent> &event, uint32_t timeout);
+        Service(std::unique_ptr<Event> &event, uint32_t timeout);
 
         inline Error
         DisconnectNow(const std::shared_ptr<RUdpPeer> &peer, uint32_t data)

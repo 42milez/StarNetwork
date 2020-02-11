@@ -57,13 +57,13 @@ namespace rudp
     }
 
 #define IS_EVENT_TYPE_NONE()                   \
-    if (event->TypeIsNot(RUdpEventType::NONE)) \
+    if (event->TypeIsNot(EventType::NONE)) \
         return EventStatus::AN_EVENT_OCCURRED; \
     else                                       \
         continue;
 
 #define IS_EVENT_AVAILABLE()                                       \
-    if (event != nullptr && event->TypeIsNot(RUdpEventType::NONE)) \
+    if (event != nullptr && event->TypeIsNot(EventType::NONE)) \
         return EventStatus::AN_EVENT_OCCURRED;                     \
     else                                                           \
         return EventStatus::NO_EVENT_OCCURRED;
@@ -189,7 +189,7 @@ namespace rudp
     }
 
     EventStatus
-    RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, ChecksumCallback checksum)
+    RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum)
     {
         for (auto i = 0; i < 256; ++i)
         {
@@ -484,7 +484,7 @@ namespace rudp
     }
 
     EventStatus
-    RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time,
+    RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time,
             bool check_for_timeouts, ChecksumCallback checksum)
     {
         auto header_data = VecUInt8(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);

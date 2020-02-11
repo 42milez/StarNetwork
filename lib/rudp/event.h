@@ -6,10 +6,10 @@
 
 namespace rudp
 {
-    class RUdpEvent
+    class Event
     {
     public:
-        RUdpEvent();
+        Event();
 
         void
         Reset();
@@ -21,10 +21,10 @@ namespace rudp
         }
 
         inline bool
-        TypeIs(RUdpEventType val) { return type_ == val; }
+        TypeIs(EventType val) { return type_ == val; }
 
         inline bool
-        TypeIsNot(RUdpEventType val) { return type_ != val; }
+        TypeIsNot(EventType val) { return type_ != val; }
 
     public:
         inline uint8_t
@@ -46,13 +46,13 @@ namespace rudp
         segment(std::shared_ptr<RUdpSegment> &val) { segment_ = val; }
 
         inline void
-        type(RUdpEventType val) { type_ = val; }
+        type(EventType val) { type_ = val; }
 
     private:
         std::shared_ptr<RUdpPeer> peer_;
         std::shared_ptr<RUdpSegment> segment_;
 
-        RUdpEventType type_;
+        EventType type_;
 
         uint32_t data_;
 

@@ -61,10 +61,10 @@ namespace rudp
     }
 
 // MEMO:
-//  ピアが接続したことをRUdpEventインスタンスを介して呼び出し元に通知する
+//  ピアが接続したことをEventインスタンスを介して呼び出し元に通知する
 //  接続済みのピア群に対して新しいピアが接続してきたことを通知するものではない
     void
-    RUdpDispatchHub::NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
+    RUdpDispatchHub::NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
     {
         recalculate_bandwidth_limits(true);
 
@@ -72,7 +72,7 @@ namespace rudp
         {
             ChangeState(peer, RUdpPeerState::CONNECTED);
 
-            event->type(RUdpEventType::CONNECT);
+            event->type(EventType::CONNECT);
             event->peer(peer);
             event->data(peer->event_data());
         }
@@ -85,7 +85,7 @@ namespace rudp
     }
 
     void
-    RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer)
+    RUdpDispatchHub::NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer)
     {
         auto &net = peer->net();
 
@@ -99,7 +99,7 @@ namespace rudp
         }
         else if (event)
         {
-            event->type(RUdpEventType::DISCONNECT);
+            event->type(EventType::DISCONNECT);
             event->peer(peer);
             event->data(0);
 

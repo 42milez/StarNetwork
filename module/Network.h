@@ -10,7 +10,7 @@
 
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/compress.h"
-#include "lib/rudp/RUdpEvent.h"
+#include "lib/rudp/event.h"
 #include "lib/rudp/RUdpHost.h"
 #include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/peer/RUdpPeer.h"

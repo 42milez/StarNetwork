@@ -57,9 +57,9 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
   rudp::NetworkConfig guest2_address;
   guest2_address.port(10002);
   auto guest2 = std::make_unique<rudp::RUdpHost>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
-  auto host_event = std::make_unique<rudp::RUdpEvent>();
-  auto guest1_event = std::make_unique<rudp::RUdpEvent>();
-  auto guest2_event = std::make_unique<rudp::RUdpEvent>();
+  auto host_event = std::make_unique<rudp::Event>();
+  auto guest1_event = std::make_unique<rudp::Event>();
+  auto guest2_event = std::make_unique<rudp::Event>();
 
   LOG_WITH_NO_EMPTY_LINE("================================================================================");
   LOG_WITH_NO_EMPTY_LINE(" Step 1 : Guest 1 sends CONNECT command to Host");
@@ -152,7 +152,7 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
 
   LOG("[HOST (3)]");
   REQUIRE(host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED);
-  REQUIRE(host_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+  REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
   REQUIRE(host_event->DataAsString() == msg1);
   DELAY_SHORT();
 
@@ -185,7 +185,7 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
 
   LOG("[HOST (3)]");
   REQUIRE(host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED);
-  REQUIRE(host_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+  REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
   REQUIRE(host_event->DataAsString() == msg2);
   DELAY_SHORT();
 
@@ -219,9 +219,9 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
   rudp::NetworkConfig guest2_address;
   guest2_address.port(10002);
   auto guest2 = std::make_unique<rudp::RUdpHost>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
-  auto host_event = std::make_unique<rudp::RUdpEvent>();
-  auto guest1_event = std::make_unique<rudp::RUdpEvent>();
-  auto guest2_event = std::make_unique<rudp::RUdpEvent>();
+  auto host_event = std::make_unique<rudp::Event>();
+  auto guest1_event = std::make_unique<rudp::Event>();
+  auto guest2_event = std::make_unique<rudp::Event>();
 
   LOG("================================================================================");
   LOG_WITH_NO_EMPTY_LINE(
@@ -321,7 +321,7 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
 
   LOG("[HOST (6)]");
   REQUIRE(host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED);
-  REQUIRE(host_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+  REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
   REQUIRE(host_event->DataAsString() == msg1);
   DELAY_SHORT();
 
@@ -359,7 +359,7 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
 
   LOG("[HOST (6)]");
   REQUIRE(host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED);
-  REQUIRE(host_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+  REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
   REQUIRE(host_event->DataAsString() == msg2);
   DELAY_SHORT();
 

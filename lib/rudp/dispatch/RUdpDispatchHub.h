@@ -2,7 +2,7 @@
 #define P2P_TECHDEMO_RUDPDISPATCHHUB_H
 
 #include "lib/rudp/dispatch/RUdpDispatchQueue.h"
-#include "lib/rudp/RUdpEvent.h"
+#include "lib/rudp/event.h"
 
 namespace rudp
 {
@@ -16,8 +16,8 @@ namespace rudp
 
         void ChangeState(const std::shared_ptr<RUdpPeer> &peer, const RUdpPeerState &state);
 
-        void NotifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
-        void NotifyDisconnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer);
+        void NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer);
+        void NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer);
 
     public:
         void DispatchState(std::shared_ptr<RUdpPeer> &peer, RUdpPeerState state);

@@ -175,7 +175,7 @@ Network::Poll()
 
     PopCurrentSegment();
 
-    std::unique_ptr<rudp::RUdpEvent> event;
+    std::unique_ptr<rudp::Event> event;
 
     while (true) {
         if (!host_ || !active_)
@@ -186,16 +186,16 @@ Network::Poll()
         if (ret == rudp::EventStatus::NO_EVENT_OCCURRED || ret == rudp::EventStatus::ERROR)
             break;
 
-        if (event->TypeIs(rudp::RUdpEventType::CONNECT)) {
+        if (event->TypeIs(rudp::EventType::CONNECT)) {
             // ...
         }
-        else if (event->TypeIs(rudp::RUdpEventType::DISCONNECT)) {
+        else if (event->TypeIs(rudp::EventType::DISCONNECT)) {
             // ...
         }
-        else if (event->TypeIs(rudp::RUdpEventType::RECEIVE)) {
+        else if (event->TypeIs(rudp::EventType::RECEIVE)) {
             // ...
         }
-        else if (event->TypeIs(rudp::RUdpEventType::NONE)) {
+        else if (event->TypeIs(rudp::EventType::NONE)) {
             // ...
         }
     }

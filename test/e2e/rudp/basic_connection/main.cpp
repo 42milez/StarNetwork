@@ -33,7 +33,7 @@ public:
         core::Singleton<core::Logger>::Instance().Init("Basic Connection Test");
     }
 
-    rudp::EventStatus Service(std::unique_ptr<rudp::RUdpEvent> &event, uint32_t timeout)
+    rudp::EventStatus Service(std::unique_ptr<rudp::Event> &event, uint32_t timeout)
     { return host_->Service(event, timeout); }
 
     rudp::RUdpPeerState PeerState(size_t idx)
@@ -54,8 +54,8 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from H
     host_address.host(host_ip.GetIPv6());
     host_address.port(8888);
 
-    auto guest_event = std::make_unique<rudp::RUdpEvent>();
-    auto host_event = std::make_unique<rudp::RUdpEvent>();
+    auto guest_event = std::make_unique<rudp::Event>();
+    auto host_event = std::make_unique<rudp::Event>();
 
     LOG("==================================================");
     LOG(" Step 1 : Connect to Host");
@@ -156,8 +156,8 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Ho
     host_address.host(host_ip.GetIPv6());
     host_address.port(8888);
 
-    auto guest_event = std::make_unique<rudp::RUdpEvent>();
-    auto host_event = std::make_unique<rudp::RUdpEvent>();
+    auto guest_event = std::make_unique<rudp::Event>();
+    auto host_event = std::make_unique<rudp::Event>();
 
     LOG("");
     LOG("==================================================");

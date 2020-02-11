@@ -195,7 +195,7 @@ namespace rudp
     }
 
     void
-    RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event)
+    RUdpProtocol::NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<Event> &event)
     {
         auto &net = peer->net();
 
@@ -214,7 +214,7 @@ namespace rudp
         }
             // ピアが接続済みである場合
         else if (event != nullptr) {
-            event->type(RUdpEventType::DISCONNECT);
+            event->type(EventType::DISCONNECT);
             event->peer(peer);
             event->data(0);
 
@@ -228,7 +228,7 @@ namespace rudp
     }
 
     EventStatus
-    RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event)
+    RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<Event> &event)
     {
         while (dispatch_hub_->PeerExists()) {
             auto peer = dispatch_hub_->Dequeue();
@@ -241,7 +241,7 @@ namespace rudp
                 // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
                 dispatch_hub_->ChangeState(peer, RUdpPeerState::CONNECTED);
 
-                event->type(RUdpEventType::CONNECT);
+                event->type(EventType::CONNECT);
                 event->peer(peer);
                 event->data(peer->event_data());
 
@@ -250,7 +250,7 @@ namespace rudp
             else if (net->StateIs(RUdpPeerState::ZOMBIE)) {
                 dispatch_hub_->recalculate_bandwidth_limits(true);
 
-                event->type(RUdpEventType::DISCONNECT);
+                event->type(EventType::DISCONNECT);
                 event->peer(peer);
                 event->data(peer->event_data());
 
@@ -271,7 +271,7 @@ namespace rudp
 
                 event->segment(segment);
                 event->channel_id(channel_id);
-                event->type(RUdpEventType::RECEIVE);
+                event->type(EventType::RECEIVE);
                 event->peer(peer);
 
                 // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
@@ -324,7 +324,7 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+    RUdpProtocol::HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
             const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
             std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect)
     {
@@ -520,7 +520,7 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+    RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
             const std::shared_ptr<RUdpProtocolType> &cmd)
     {
         auto &net = peer->net();

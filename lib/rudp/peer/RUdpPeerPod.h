@@ -12,7 +12,7 @@
 
 namespace rudp
 {
-    using InterceptCallback = std::function<int (RUdpEvent &event)>;
+    using InterceptCallback = std::function<int (Event &event)>;
 
     class RUdpPeerPod
     {
@@ -38,13 +38,13 @@ namespace rudp
         Flush(ChecksumCallback checksum);
 
         EventStatus
-        ReceiveIncomingCommands(std::unique_ptr<RUdpEvent> &event, ChecksumCallback checksum);
+        ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum);
 
         void
         RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum);
 
         EventStatus
-        SendOutgoingCommands(const std::unique_ptr<RUdpEvent> &event, uint32_t service_time, bool check_for_timeouts,
+        SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time, bool check_for_timeouts,
                 ChecksumCallback checksum);
 
         inline void
@@ -52,7 +52,7 @@ namespace rudp
         { protocol_->BandwidthThrottle(service_time, incoming_bandwidth, outgoing_bandwidth, peers_); }
 
         inline EventStatus
-        DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event) { return protocol_->DispatchIncomingCommands(event); }
+        DispatchIncomingCommands(std::unique_ptr<Event> &event) { return protocol_->DispatchIncomingCommands(event); }
 
         inline std::shared_ptr<RUdpPeer>
         Peer(size_t peer_idx) { return peers_.at(peer_idx); }

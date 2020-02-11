@@ -7,7 +7,7 @@
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/enum.h"
-#include "lib/rudp/RUdpEvent.h"
+#include "lib/rudp/event.h"
 
 namespace rudp
 {
@@ -19,9 +19,9 @@ namespace rudp
         void BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
                 const std::vector<std::shared_ptr<RUdpPeer>> &peers);
 
-        void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<RUdpEvent> &event);
+        void NotifyDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::unique_ptr<Event> &event);
 
-        EventStatus DispatchIncomingCommands(std::unique_ptr<RUdpEvent> &event);
+        EventStatus DispatchIncomingCommands(std::unique_ptr<Event> &event);
 
         Error
         DispatchIncomingReliableCommands(std::shared_ptr<RUdpPeer> &peer,
@@ -31,7 +31,7 @@ namespace rudp
         DispatchIncomingUnreliableCommands(const std::shared_ptr<RUdpPeer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd);
 
-        Error HandleAcknowledge(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+        Error HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd, uint32_t service_time,
                 std::function<void(std::shared_ptr<RUdpPeer> &peer)> disconnect);
 
@@ -56,7 +56,7 @@ namespace rudp
         HandleSendReliable(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd, VecUInt8 &data,
                 uint16_t data_length, uint16_t flags, uint32_t fragment_count);
 
-        Error HandleVerifyConnect(const std::unique_ptr<RUdpEvent> &event, std::shared_ptr<RUdpPeer> &peer,
+        Error HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<RUdpPeer> &peer,
                 const std::shared_ptr<RUdpProtocolType> &cmd);
 
         Error HandleDisconnect(std::shared_ptr<RUdpPeer> &peer, const std::shared_ptr<RUdpProtocolType> &cmd);

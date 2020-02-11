@@ -42,7 +42,7 @@ public:
     { return host_->PeerState(0); }
 
     rudp::EventStatus
-    Service(std::unique_ptr<rudp::RUdpEvent> &event, uint32_t timeout)
+    Service(std::unique_ptr<rudp::Event> &event, uint32_t timeout)
     { return host_->Service(event, timeout); }
 
 private:
@@ -69,9 +69,9 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     rudp::EventStatus event_status;
 
-    auto host_event = std::make_unique<rudp::RUdpEvent>();
-    auto guest1_event = std::make_unique<rudp::RUdpEvent>();
-    auto guest2_event = std::make_unique<rudp::RUdpEvent>();
+    auto host_event = std::make_unique<rudp::Event>();
+    auto guest1_event = std::make_unique<rudp::Event>();
+    auto guest2_event = std::make_unique<rudp::Event>();
 
     LOG("==================================================");
     LOG(" Step 1 : Guest 1 sends CONNECT command to Host");
@@ -218,7 +218,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     event_status = guest1->Service(guest1_event, 0);
 
     REQUIRE(event_status == rudp::EventStatus::AN_EVENT_OCCURRED);
-    REQUIRE(guest1_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+    REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE));
     REQUIRE(guest1_event->DataAsString() == "broadcast command from host");
 
     DELAY();
@@ -229,7 +229,7 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     event_status = guest2->Service(guest2_event, 0);
 
     REQUIRE(event_status == rudp::EventStatus::AN_EVENT_OCCURRED);
-    REQUIRE(guest2_event->TypeIs(rudp::RUdpEventType::RECEIVE));
+    REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE));
     REQUIRE(guest2_event->DataAsString() == "broadcast command from host");
 
     DELAY();
