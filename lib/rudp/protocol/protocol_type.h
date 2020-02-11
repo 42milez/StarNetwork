@@ -26,7 +26,7 @@ namespace rudp
         uint16_t received_sent_time;
     };
 
-    using RUdpProtocolConnect = struct RUdpProtocolConnect
+    using ProtocolConnect = struct ProtocolConnect
     {
         ProtocolCommandHeader header;
         uint16_t outgoing_peer_id;
@@ -122,7 +122,7 @@ namespace rudp
     {
         ProtocolCommandHeader header;
         ProtocolAcknowledge acknowledge;
-        RUdpProtocolConnect connect;
+        ProtocolConnect connect;
         RUdpProtocolVerifyConnect verify_connect;
         RUdpProtocolDisconnect disconnect;
         RUdpProtocolPing ping;
