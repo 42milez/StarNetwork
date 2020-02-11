@@ -1,6 +1,5 @@
-set(headers ${P2P_TECHDEMO_SOURCE_DIR}/lib/core/io/ip_address.h)
-set(sources ip_address_test.cc ${P2P_TECHDEMO_SOURCE_DIR}/lib/core/io/ip_address.cc)
+file(GLOB sources *.cc)
 
-add_executable(ip_address_test ${headers} ${sources})
+add_executable(ip_address_test ${sources})
 
-target_link_libraries(ip_address_test PRIVATE Catch2::Catch2)
+target_link_libraries(ip_address_test PRIVATE core Catch2::Catch2)
