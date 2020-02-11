@@ -1,4 +1,4 @@
-set(sources NetworkTests.cpp)
+set(sources NetworkTests.cc)
 
 add_executable(network_test ${sources})
 

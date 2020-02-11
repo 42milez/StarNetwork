@@ -1,4 +1,4 @@
-file(GLOB sources *.cpp io/*.cpp)
+file(GLOB sources *.cc io/*.cc)
 file(GLOB headers *.h io/*.h)
 
 add_library(core STATIC ${sources} ${headers})

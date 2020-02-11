@@ -1,12 +1,12 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.cc)
 file(GLOB headers *.h)
-file(GLOB sources_command command/*.cpp)
+file(GLOB sources_command command/*.cc)
 file(GLOB headers_command command/*.h)
-file(GLOB sources_dispatch dispatch/*.cpp)
+file(GLOB sources_dispatch dispatch/*.cc)
 file(GLOB headers_dispatch dispatch/*.h)
 file(GLOB headers_peer peer/*.h)
-file(GLOB sources_peer peer/*.cpp)
-file(GLOB sources_protocol protocol/*.cpp protocol/*.cc)
+file(GLOB sources_peer peer/*.cc)
+file(GLOB sources_protocol protocol/*.cc protocol/*.cc)
 file(GLOB headers_protocol protocol/*.h)
 
 add_library(rudp STATIC

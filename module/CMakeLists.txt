@@ -1,4 +1,4 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.cc)
 file(GLOB headers *.h)
 
 add_library(module STATIC ${sources} ${headers})

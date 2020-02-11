@@ -1,4 +1,4 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.cc)
 
 add_executable(basic_connection_test ${sources})
 
