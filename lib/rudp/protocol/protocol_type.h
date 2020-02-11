@@ -12,7 +12,7 @@ namespace rudp
         uint16_t sent_time;
     };
 
-    using RUdpProtocolCommandHeader = struct RUdpProtocolCommandHeader
+    using ProtocolCommandHeader = struct ProtocolCommandHeader
     {
         uint8_t command;
         uint8_t channel_id;
@@ -21,14 +21,14 @@ namespace rudp
 
     using RUdpProtocolAcknowledge = struct RUdpProtocolAcknowledge
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t received_reliable_sequence_number;
         uint16_t received_sent_time;
     };
 
     using RUdpProtocolConnect = struct RUdpProtocolConnect
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t outgoing_peer_id;
         uint8_t incoming_session_id;
         uint8_t outgoing_session_id;
@@ -46,7 +46,7 @@ namespace rudp
 
     using RUdpProtocolVerifyConnect = struct RUdpProtocolVerifyConnect
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t outgoing_peer_id;
         uint8_t incoming_session_id;
         uint8_t outgoing_session_id;
@@ -63,38 +63,38 @@ namespace rudp
 
     using RUdpProtocolDisconnect = struct RUdpProtocolDisconnect
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint32_t data;
     };
 
     using RUdpProtocolPing = struct RUdpProtocolPing
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
     };
 
     using RUdpProtocolSendReliable = struct RUdpProtocolSendReliable
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t data_length;
     };
 
     using RUdpProtocolSendUnreliable = struct RUdpProtocolSendUnreliable
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t unreliable_sequence_number;
         uint16_t data_length;
     };
 
     using RUdpProtocolSendUnsequenced = struct RUdpProtocolSendUnsequenced
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t unsequenced_group;
         uint16_t data_length;
     };
 
     using RUdpProtocolSendFragment = struct RUdpProtocolSendFragment
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint16_t start_sequence_number;
         uint16_t data_length;
         uint32_t fragment_count;
@@ -105,14 +105,14 @@ namespace rudp
 
     using RUdpProtocolBandwidthLimit = struct RUdpProtocolBandwidthLimit
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint32_t incoming_bandwidth;
         uint32_t outgoing_bandwidth;
     };
 
     using RUdpProtocolThrottleConfigure = struct RUdpProtocolThrottleConfigure
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         uint32_t segment_throttle_interval;
         uint32_t segment_throttle_acceleration;
         uint32_t segment_throttle_deceleration;
@@ -120,7 +120,7 @@ namespace rudp
 
     using RUdpProtocolType = union RUdpProtocolType
     {
-        RUdpProtocolCommandHeader header;
+        ProtocolCommandHeader header;
         RUdpProtocolAcknowledge acknowledge;
         RUdpProtocolConnect connect;
         RUdpProtocolVerifyConnect verify_connect;

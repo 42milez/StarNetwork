@@ -267,7 +267,7 @@ namespace rudp
 
             while (current_data < end)
             {
-                if (current_data + sizeof(RUdpProtocolCommandHeader) > end)
+                if (current_data + sizeof(ProtocolCommandHeader) > end)
                     break;
 
                 auto cmd_raw = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolType *>(&(*current_data)));
