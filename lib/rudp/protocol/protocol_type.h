@@ -6,7 +6,7 @@
 
 namespace rudp
 {
-    using RUdpProtocolHeader = struct RUdpProtocolHeader
+    using ProtocolHeader = struct ProtocolHeader
     {
         uint16_t peer_id;
         uint16_t sent_time;
@@ -136,8 +136,8 @@ namespace rudp
 
     using RUdpProtocolTypeSP = std::shared_ptr<RUdpProtocolType>;
 
-    RUdpProtocolHeader *
-    ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolHeader *header);
+    ProtocolHeader *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader *header);
 
     RUdpProtocolType *
     ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolType *cmd);

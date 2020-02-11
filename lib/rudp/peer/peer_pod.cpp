@@ -212,15 +212,15 @@ namespace rudp
                 // ...
             }
 
-            if (received_data_length_ < (size_t) &((RUdpProtocolHeader *) nullptr)->sent_time)
+            if (received_data_length_ < (size_t) &((ProtocolHeader *) nullptr)->sent_time)
                 continue;
 
-            auto header = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<RUdpProtocolHeader *>(&(received_data_->at(0))));
+            auto header = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolHeader *>(&(received_data_->at(0))));
             auto peer_id = header->peer_id;
             auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
             auto flags = peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
             auto header_size =
-                    (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME) ? sizeof(RUdpProtocolHeader) : (size_t) &((RUdpProtocolHeader *) 0)
+                    (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME) ? sizeof(ProtocolHeader) : (size_t) &((ProtocolHeader *) 0)
                             ->sent_time);
 
             peer_id &= ~(static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK) | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK));
@@ -487,8 +487,8 @@ namespace rudp
     PeerPod::SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time,
             bool check_for_timeouts, ChecksumCallback checksum)
     {
-        auto header_data = VecUInt8(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);
-        auto header = reinterpret_cast<RUdpProtocolHeader *>(&(header_data.at(0)));
+        auto header_data = VecUInt8(sizeof(ProtocolHeader) + sizeof(uint32_t), 0);
+        auto header = reinterpret_cast<ProtocolHeader *>(&(header_data.at(0)));
 
         protocol_->continue_sending(true);
 
@@ -506,7 +506,7 @@ namespace rudp
                 protocol_->chamber()->header_flags(0);
                 protocol_->chamber()->command_count(0);
                 protocol_->chamber()->buffer_count(1);
-                protocol_->chamber()->segment_size(sizeof(RUdpProtocolHeader));
+                protocol_->chamber()->segment_size(sizeof(ProtocolHeader));
 
                 //  ACKを返す
                 // --------------------------------------------------
@@ -565,7 +565,7 @@ namespace rudp
                 if (protocol_->chamber()->header_flags() & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME))
                 {
                     header->sent_time = htons(service_time & 0xFFFF);
-                    //protocol_->chamber()->set_data_length(sizeof(RUdpProtocolHeader));
+                    //protocol_->chamber()->set_data_length(sizeof(ProtocolHeader));
                 }
                 else
                 {

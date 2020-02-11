@@ -40,7 +40,7 @@ namespace rudp
                 VecUInt8It &data);
 
         void HandleConnect(std::shared_ptr<Peer> &peer,
-                const RUdpProtocolHeader *header,
+                const ProtocolHeader *header,
                 const std::shared_ptr<RUdpProtocolType> &cmd,
                 const NetworkConfig &received_address,
                 uint32_t host_incoming_bandwidth,

@@ -8,8 +8,8 @@
 
 namespace rudp
 {
-    RUdpProtocolHeader *
-    ConvertNetworkByteOrderToHostByteOrder(RUdpProtocolHeader *header) {
+    ProtocolHeader *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader *header) {
         header->peer_id = ntohs(header->peer_id);
 
         uint16_t flags = header->peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
