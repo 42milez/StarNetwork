@@ -1,5 +1,5 @@
 FROM 42milez/alpine-cmake-clang:latest
 
-RUN mkdir /tmp/workspace
+RUN mkdir /var/app
 
-WORKDIR /tmp/workspace
+WORKDIR /var/app
