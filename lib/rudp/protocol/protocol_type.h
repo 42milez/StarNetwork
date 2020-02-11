@@ -92,7 +92,7 @@ namespace rudp
         uint16_t data_length;
     };
 
-    using RUdpProtocolSendFragment = struct RUdpProtocolSendFragment
+    using ProtocolSendFragment = struct ProtocolSendFragment
     {
         ProtocolCommandHeader header;
         uint16_t start_sequence_number;
@@ -129,7 +129,7 @@ namespace rudp
         ProtocolSendReliable send_reliable;
         ProtocolSendUnreliable send_unreliable;
         ProtocolSendUnsequenced send_unsequenced;
-        RUdpProtocolSendFragment send_fragment;
+        ProtocolSendFragment send_fragment;
         RUdpProtocolBandwidthLimit bandwidth_limit;
         RUdpProtocolThrottleConfigure throttle_configure;
     };

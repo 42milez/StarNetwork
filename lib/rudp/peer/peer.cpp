@@ -354,7 +354,7 @@ namespace rudp
             return Error::ERROR;
         }
 
-        auto fragment_length = net_->mtu() - sizeof(ProtocolHeader) - sizeof(RUdpProtocolSendFragment);
+        auto fragment_length = net_->mtu() - sizeof(ProtocolHeader) - sizeof(ProtocolSendFragment);
 
         if (checksum != nullptr)
             fragment_length -= sizeof(uint32_t);

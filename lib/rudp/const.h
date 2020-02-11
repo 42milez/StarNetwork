@@ -17,11 +17,11 @@ namespace rudp
             sizeof(ProtocolPing),
             sizeof(ProtocolSendReliable),
             sizeof(ProtocolSendUnreliable),
-            sizeof(RUdpProtocolSendFragment),
+            sizeof(ProtocolSendFragment),
             sizeof(ProtocolSendUnsequenced),
             sizeof(RUdpProtocolBandwidthLimit),
             sizeof(RUdpProtocolThrottleConfigure),
-            sizeof(RUdpProtocolSendFragment)
+            sizeof(ProtocolSendFragment)
     };
 
     constexpr std::array<const char *, 14> COMMANDS_AS_STRING{
