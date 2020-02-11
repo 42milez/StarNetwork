@@ -7,7 +7,7 @@
 #include <tuple>
 
 #include "core/errors.h"
-#include "lib/rudp/command/RUdpAcknowledgement.h"
+#include "lib/rudp/command/acknowledgement.h"
 #include "lib/rudp/command/RUdpCommand.h"
 #include "lib/rudp/command/RUdpCommandPod.h"
 #include "lib/rudp/network_config.h"
@@ -40,7 +40,7 @@ namespace rudp
         void
         Ping();
 
-        std::shared_ptr<RUdpAcknowledgement>
+        std::shared_ptr<Acknowledgement>
         PopAcknowledgement();
 
         void
@@ -172,7 +172,7 @@ namespace rudp
         outgoing_session_id(uint8_t val) { outgoing_session_id_ = val; }
 
     private:
-        std::list<std::shared_ptr<RUdpAcknowledgement>> acknowledgements_;
+        std::list<std::shared_ptr<Acknowledgement>> acknowledgements_;
         std::vector<std::shared_ptr<Channel>> channels_;
         std::unique_ptr<RUdpCommandPod> command_pod_;
         std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;

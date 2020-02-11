@@ -5,10 +5,10 @@
 
 namespace rudp
 {
-    class RUdpAcknowledgement
+    class Acknowledgement
     {
     public:
-        RUdpAcknowledgement();
+        Acknowledgement();
 
     public:
         inline RUdpProtocolType &

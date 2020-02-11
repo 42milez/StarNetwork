@@ -1,8 +1,8 @@
-#include "RUdpAcknowledgement.h"
+#include "acknowledgement.h"
 
 namespace rudp
 {
-    RUdpAcknowledgement::RUdpAcknowledgement()
+    Acknowledgement::Acknowledgement()
             : command_(),
               sent_time_()
     {}

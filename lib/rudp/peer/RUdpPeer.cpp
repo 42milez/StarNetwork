@@ -235,7 +235,7 @@ namespace rudp
                 return;
         }
 
-        auto ack = std::make_shared<RUdpAcknowledgement>();
+        auto ack = std::make_shared<Acknowledgement>();
         if (ack == nullptr)
             return;
 
@@ -463,7 +463,7 @@ namespace rudp
         return Error::OK;
     }
 
-    std::shared_ptr<RUdpAcknowledgement>
+    std::shared_ptr<Acknowledgement>
     RUdpPeer::PopAcknowledgement()
     {
         auto acknowledgement = acknowledgements_.front();
