@@ -6,8 +6,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "core/RUdpLogger.h"
-#include "core/singleton.h"
+#include "lib/core/RUdpLogger.h"
+#include "lib/core/singleton.h"
 
 #include "SocketUtil.h"
 #include "TCPSocket.h"

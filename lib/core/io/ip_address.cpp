@@ -5,7 +5,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#include "core/string.h"
+#include "lib/core/string.h"
 #include "ip_address.h"
 
 namespace

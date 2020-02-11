@@ -1,4 +1,4 @@
-#include "core/singleton.h"
+#include "lib/core/singleton.h"
 #include "ExitHandler.h"
 
 namespace core

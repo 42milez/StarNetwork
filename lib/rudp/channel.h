@@ -5,9 +5,9 @@
 #include <list>
 #include <tuple>
 
-#include "core/errors.h"
-#include "core/logger.h"
-#include "core/singleton.h"
+#include "lib/core/errors.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 #include "lib/rudp/command/incoming_command.h"
 
 namespace rudp

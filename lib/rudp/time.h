@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "core/os.h"
-#include "core/singleton.h"
+#include "lib/core/os.h"
+#include "lib/core/singleton.h"
 
 namespace rudp
 {

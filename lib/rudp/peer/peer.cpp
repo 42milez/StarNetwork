@@ -3,8 +3,8 @@
 #endif
 #include <utility>
 
-#include "core/hash.h"
-#include "core/singleton.h"
+#include "lib/core/hash.h"
+#include "lib/core/singleton.h"
 #include "lib/rudp/peer/peer.h"
 #include "lib/rudp/enum.h"
 #include "lib/rudp/macro.h"

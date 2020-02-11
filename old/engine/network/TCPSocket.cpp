@@ -2,8 +2,8 @@
 
 #include <sys/socket.h>
 
-#include "core/RUdpLogger.h"
-#include "core/singleton.h"
+#include "lib/core/RUdpLogger.h"
+#include "lib/core/singleton.h"
 
 #include "SocketUtil.h"
 

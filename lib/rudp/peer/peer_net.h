@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "core/logger.h"
-#include "core/singleton.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 #include "lib/rudp/const.h"
 #include "lib/rudp/enum.h"
 #include "lib/rudp/macro.h"

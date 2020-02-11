@@ -5,8 +5,8 @@
 #include <map>
 #include <vector>
 
-#include "core/io/ip_address.h"
-#include "core/errors.h"
+#include "lib/core/io/ip_address.h"
+#include "lib/core/errors.h"
 
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/compress.h"

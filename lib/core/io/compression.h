@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_CORE_COMPRESSION_H
 #define P2P_TECHDEMO_CORE_COMPRESSION_H
 
-#include "core/typedefs.h"
+#include "lib/core/typedefs.h"
 
 class Compression
 {

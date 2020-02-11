@@ -1,4 +1,4 @@
-#include "core/hash.h"
+#include "lib/core/hash.h"
 
 #include "lib/rudp/peer/peer_pod.h"
 #include "macro.h"

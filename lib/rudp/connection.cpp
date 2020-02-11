@@ -1,6 +1,6 @@
-#include "core/error_macros.h"
-#include "core/logger.h"
-#include "core/singleton.h"
+#include "lib/core/error_macros.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 
 #include "chamber.h"
 #include "connection.h"

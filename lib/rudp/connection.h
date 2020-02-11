@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPCONNECTION_H
 #define P2P_TECHDEMO_RUDPCONNECTION_H
 
-#include "core/io/socket.h"
+#include "lib/core/io/socket.h"
 
 #include "network_config.h"
 #include "chamber.h"

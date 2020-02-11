@@ -2,7 +2,7 @@
 
 #include <zlib.h>
 
-#include "core/error_macros.h"
+#include "lib/core/error_macros.h"
 #include "compression.h"
 
 int

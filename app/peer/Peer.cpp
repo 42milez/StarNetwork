@@ -1,6 +1,5 @@
-#include <core/singleton.h>
-
-#include "core/ExitHandler.h"
+#include "lib/core/singleton.h"
+#include "lib/core/ExitHandler.h"
 #include "Network.h"
 #include "Peer.h"
 

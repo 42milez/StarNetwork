@@ -1,5 +1,5 @@
-#include "core/logger.h"
-#include "core/singleton.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 #include "lib/rudp/command/command_size.h"
 #include "buffer.h"
 #include "const.h"

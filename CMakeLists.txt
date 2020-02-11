@@ -16,7 +16,7 @@ HunterGate(
     LOCAL
 )
 
-project(p2p_techdemo)
+project(P2P_TECHDEMO)
 set(PROJECT_VERSION 0.0.1)
 cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
 
@@ -63,7 +63,7 @@ find_package(spdlog CONFIG REQUIRED)
 #  Directories
 # --------------------------------------------------
 include_directories(${CMAKE_SOURCE_DIR})
-add_subdirectory(core)
+add_subdirectory(lib/core)
 add_subdirectory(lib/rudp)
 add_subdirectory(module)
 add_subdirectory(app/peer)

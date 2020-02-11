@@ -4,7 +4,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "core/io/ip_address.h"
+#include "lib/core/io/ip_address.h"
 
 TEST_CASE("Create IPv4 address (1)", "[IPv4][IpAddress]")
 {

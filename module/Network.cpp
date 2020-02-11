@@ -1,11 +1,11 @@
 #include <algorithm>
 #include <string>
 
-#include "core/error_macros.h"
-#include "core/hash.h"
-#include "core/singleton.h"
-#include "core/string.h"
-#include "core/io/compression.h"
+#include "lib/core/error_macros.h"
+#include "lib/core/hash.h"
+#include "lib/core/singleton.h"
+#include "lib/core/string.h"
+#include "lib/core/io/compression.h"
 
 #include "lib/rudp/network_config.h"
 

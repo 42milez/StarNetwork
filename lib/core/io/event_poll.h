@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_CORE_EVENTPOLL_H
 #define P2P_TECHDEMO_CORE_EVENTPOLL_H
 
-#include "core/errors.h"
+#include "lib/core/errors.h"
 #include "socket.h"
 
 class EventPoll

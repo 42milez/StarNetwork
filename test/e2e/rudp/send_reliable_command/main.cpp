@@ -5,8 +5,8 @@
 
 #include <catch2/catch.hpp>
 
-#include "core/logger.h"
-#include "core/singleton.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 #include "lib/rudp/host.h"
 
 namespace {
