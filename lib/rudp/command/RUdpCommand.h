@@ -8,7 +8,7 @@
 #include "lib/rudp/const.h"
 #include "lib/rudp/macro.h"
 #include "lib/rudp/segment.h"
-#include "lib/rudp/RUdpType.h"
+#include "lib/rudp/type.h"
 
 namespace rudp
 {

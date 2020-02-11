@@ -8,7 +8,7 @@
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
 #include "segment.h"
-#include "RUdpType.h"
+#include "type.h"
 
 namespace rudp
 {
