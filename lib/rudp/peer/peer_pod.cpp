@@ -9,7 +9,9 @@
 
 namespace rudp
 {
-    PeerPod::PeerPod(size_t peer_count, std::shared_ptr<Connection> &conn, uint32_t host_incoming_bandwidth,
+    PeerPod::PeerPod(size_t peer_count,
+            std::shared_ptr<Connection>& conn,
+            uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth)
             : compressor_(std::make_shared<Compress>()),
               conn_(conn),
@@ -36,7 +38,7 @@ namespace rudp
         segment_data_2_.resize(PROTOCOL_MAXIMUM_MTU);
 
         uint16_t idx = 0;
-        for (auto &peer : peers_)
+        for (auto& peer : peers_)
         {
             peer = std::make_unique<Peer>();
             peer->Reset(idx);
@@ -47,7 +49,7 @@ namespace rudp
     std::shared_ptr<Peer>
     PeerPod::AvailablePeer()
     {
-        for (auto &peer : peers_)
+        for (auto& peer : peers_)
         {
             if (peer->Disconnected())
                 return peer;
@@ -89,9 +91,9 @@ namespace rudp
     }
 
     Error
-    PeerPod::Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::Disconnect(const std::shared_ptr<Peer>& peer, uint32_t data, ChecksumCallback checksum)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
             net->StateIs(RUdpPeerState::DISCONNECTED) ||
@@ -130,10 +132,10 @@ namespace rudp
     }
 
     Error
-    PeerPod::DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::DisconnectLater(const std::shared_ptr<Peer>& peer, uint32_t data, ChecksumCallback checksum)
     {
-        auto &net = peer->net();
-        auto &cmd_pod = peer->command_pod();
+        auto& net = peer->net();
+        auto& cmd_pod = peer->command_pod();
 
         if ((net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER)) &&
             (cmd_pod->OutgoingReliableCommandExists() ||
@@ -152,9 +154,9 @@ namespace rudp
     }
 
     Error
-    PeerPod::DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::DisconnectNow(const std::shared_ptr<Peer>& peer, uint32_t data, ChecksumCallback checksum)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED))
             return Error::ERROR;
@@ -189,7 +191,7 @@ namespace rudp
     }
 
     EventStatus
-    PeerPod::ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum)
+    PeerPod::ReceiveIncomingCommands(std::unique_ptr<Event>& event, ChecksumCallback checksum)
     {
         for (auto i = 0; i < 256; ++i)
         {
@@ -212,18 +214,22 @@ namespace rudp
                 // ...
             }
 
-            if (received_data_length_ < (size_t) &((ProtocolHeader *) nullptr)->sent_time)
+            if (received_data_length_ < (size_t)&((ProtocolHeader*)nullptr)->sent_time)
                 continue;
 
-            auto header = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolHeader *>(&(received_data_->at(0))));
+            auto header = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolHeader*>(&(received_data_->at(
+                    0))));
             auto peer_id = header->peer_id;
-            auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
+            auto session_id = (peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK))
+                    >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
             auto flags = peer_id & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK);
             auto header_size =
-                    (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME) ? sizeof(ProtocolHeader) : (size_t) &((ProtocolHeader *) 0)
-                            ->sent_time);
+                    (flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME) ? sizeof(ProtocolHeader)
+                                                                                       : (size_t)&((ProtocolHeader*)0)
+                                    ->sent_time);
 
-            peer_id &= ~(static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK) | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK));
+            peer_id &= ~(static_cast<uint16_t>(RUdpProtocolFlag::HEADER_MASK) |
+                         static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK));
 
             if (checksum)
                 header_size += sizeof(uint32_t);
@@ -270,7 +276,7 @@ namespace rudp
                 if (current_data + sizeof(ProtocolCommandHeader) > end)
                     break;
 
-                auto cmd_raw = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolType *>(&(*current_data)));
+                auto cmd_raw = ConvertNetworkByteOrderToHostByteOrder(reinterpret_cast<ProtocolType*>(&(*current_data)));
                 auto cmd = std::make_shared<ProtocolType>(*cmd_raw);
                 auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
@@ -286,14 +292,15 @@ namespace rudp
                 if (peer == nullptr && cmd_type != RUdpProtocolCommand::CONNECT)
                     break;
 
-                auto cmd_body = std::vector<uint8_t>{current_data, end};
+                auto cmd_body = std::vector<uint8_t>{ current_data, end };
 
                 if (cmd_type == RUdpProtocolCommand::ACKNOWLEDGE)
                 {
                     core::Singleton<core::Logger>::Instance().Debug("command was received: ACKNOWLEDGE ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    auto disconnect = [this, checksum](std::shared_ptr<Peer> &peer){
+                    auto disconnect = [this, checksum](std::shared_ptr<Peer>& peer)
+                    {
                         Disconnect(peer, peer->event_data(), checksum);
                     };
 
@@ -310,9 +317,9 @@ namespace rudp
 
                     auto duplicate_peers = 0;
 
-                    for (auto &p : peers_)
+                    for (auto& p : peers_)
                     {
-                        auto &net = p->net();
+                        auto& net = p->net();
 
                         if (net->StateIs(RUdpPeerState::DISCONNECTED))
                         {
@@ -369,7 +376,8 @@ namespace rudp
                 {
                     core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_RELIABLE ({0})",
                             cmd->header.reliable_sequence_number);
-                    core::Singleton<core::Logger>::Instance().Debug("received data: {0}", std::string{cmd_body.begin(), cmd_body.end()});
+                    core::Singleton<core::Logger>::Instance().Debug("received data: {0}",
+                            std::string{ cmd_body.begin(), cmd_body.end() });
 
                     EXCEEDS_CHANNEL_COUNT()
                     EXCEEDS_RECEIVED_LENGTH()
@@ -427,7 +435,8 @@ namespace rudp
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
                 {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
+                    core::Singleton<core::Logger>::Instance().Debug(
+                            "command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
                             cmd->header.reliable_sequence_number);
 
                     // TODO:
@@ -444,7 +453,7 @@ namespace rudp
                     if (!(flags & static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME)))
                         break;
 
-                    auto &net = peer->net();
+                    auto& net = peer->net();
                     auto sent_time = header->sent_time;
 
                     if (net->StateIs(RUdpPeerState::DISCONNECTING) ||
@@ -456,7 +465,8 @@ namespace rudp
                     }
                     else if (net->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT))
                     {
-                        if ((cmd->header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
+                        if ((cmd->header.command & PROTOCOL_COMMAND_MASK) ==
+                            static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))
                             peer->QueueAcknowledgement(cmd, sent_time);
                     }
                     else
@@ -471,7 +481,7 @@ namespace rudp
     }
 
     void
-    PeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer> &peer, ChecksumCallback checksum)
+    PeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer>& peer, ChecksumCallback checksum)
     {
         std::vector<uint8_t> empty_data;
         std::shared_ptr<Segment> segment = std::make_shared<Segment>(empty_data,
@@ -484,11 +494,13 @@ namespace rudp
     }
 
     EventStatus
-    PeerPod::SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time,
-            bool check_for_timeouts, ChecksumCallback checksum)
+    PeerPod::SendOutgoingCommands(const std::unique_ptr<Event>& event,
+            uint32_t service_time,
+            bool check_for_timeouts,
+            ChecksumCallback checksum)
     {
         auto header_data = VecUInt8(sizeof(ProtocolHeader) + sizeof(uint32_t), 0);
-        auto header = reinterpret_cast<ProtocolHeader *>(&(header_data.at(0)));
+        auto header = reinterpret_cast<ProtocolHeader*>(&(header_data.at(0)));
 
         protocol_->continue_sending(true);
 
@@ -496,9 +508,9 @@ namespace rudp
         {
             protocol_->continue_sending(false);
 
-            for (auto &peer : peers_)
+            for (auto& peer : peers_)
             {
-                auto &net = peer->net();
+                auto& net = peer->net();
 
                 if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
                     continue;
@@ -517,7 +529,7 @@ namespace rudp
                 //  タイムアウト処理
                 // --------------------------------------------------
 
-                auto &cmd_pod = peer->command_pod();
+                auto& cmd_pod = peer->command_pod();
 
                 if (check_for_timeouts &&
                     cmd_pod->SentReliableCommandExists() &&
@@ -582,7 +594,8 @@ namespace rudp
                 if (peer->outgoing_peer_id() < PROTOCOL_MAXIMUM_PEER_ID)
                 {
                     auto header_flags = protocol_->chamber()->header_flags();
-                    header_flags |= peer->outgoing_session_id() << static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
+                    header_flags |= peer->outgoing_session_id()
+                            << static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT);
                     protocol_->chamber()->header_flags(header_flags);
                 }
 

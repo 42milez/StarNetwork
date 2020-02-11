@@ -66,11 +66,13 @@ namespace rudp
 
         segment_loss_variance_ -= segment_loss_variance_ / 4;
 
-        if (segment_loss >= segment_loss_) {
+        if (segment_loss >= segment_loss_)
+        {
             segment_loss_ += (segment_loss - segment_loss_) / 8;
             segment_loss_variance_ += (segment_loss - segment_loss_) / 4;
         }
-        else {
+        else
+        {
             segment_loss_ -= (segment_loss_ - segment_loss) / 8;
             segment_loss_variance_ += (segment_loss_ - segment_loss) / 4;
         }

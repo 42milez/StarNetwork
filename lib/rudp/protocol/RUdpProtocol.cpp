@@ -10,21 +10,24 @@
 
 namespace rudp
 {
-    RUdpProtocol::RUdpProtocol() :
-            bandwidth_throttle_epoch_(),
-            chamber_(std::make_unique<Chamber>()),
-            dispatch_hub_(std::make_unique<DispatchHub>()),
-            maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA)
+    RUdpProtocol::RUdpProtocol()
+            : bandwidth_throttle_epoch_(),
+              chamber_(std::make_unique<Chamber>()),
+              dispatch_hub_(std::make_unique<DispatchHub>()),
+              maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA)
     {}
 
 #define IS_PEER_NOT_CONNECTED(peer) \
     peer->net()->StateIsNot(RUdpPeerState::CONNECTED) && peer->net()->StateIsNot(RUdpPeerState::DISCONNECT_LATER)
 
     void
-    RUdpProtocol::BandwidthThrottle(uint32_t service_time, uint32_t incoming_bandwidth, uint32_t outgoing_bandwidth,
-            const std::vector<std::shared_ptr<Peer>> &peers)
+    RUdpProtocol::BandwidthThrottle(uint32_t service_time,
+            uint32_t incoming_bandwidth,
+            uint32_t outgoing_bandwidth,
+            const std::vector<std::shared_ptr<Peer>>& peers)
     {
-        if (UDP_TIME_DIFFERENCE(service_time, bandwidth_throttle_epoch_) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
+        if (UDP_TIME_DIFFERENCE(service_time, bandwidth_throttle_epoch_) >= HOST_BANDWIDTH_THROTTLE_INTERVAL)
+        {
             auto time_current = Time::Get();
             auto time_elapsed = time_current - bandwidth_throttle_epoch_;
             auto peers_remaining = dispatch_hub_->connected_peers();
@@ -45,11 +48,13 @@ namespace rudp
             //  Throttle outgoing bandwidth
             // --------------------------------------------------
 
-            if (outgoing_bandwidth != 0) {
+            if (outgoing_bandwidth != 0)
+            {
                 data_total = 0;
                 bandwidth = outgoing_bandwidth * (time_elapsed / 1000);
 
-                for (const auto &peer : peers) {
+                for (const auto& peer : peers)
+                {
                     if (IS_PEER_NOT_CONNECTED(peer))
                         continue;
 
@@ -60,7 +65,8 @@ namespace rudp
             //  Throttle peer bandwidth : Case A ( adjustment is needed )
             // --------------------------------------------------
 
-            while (peers_remaining > 0 && needs_adjustment) {
+            while (peers_remaining > 0 && needs_adjustment)
+            {
                 needs_adjustment = false;
 
                 if (data_total <= bandwidth)
@@ -68,14 +74,16 @@ namespace rudp
                 else
                     throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
-                for (auto &peer : peers) {
+                for (auto& peer : peers)
+                {
                     uint32_t peer_bandwidth;
-                    auto &net = peer->net();
-                    auto &cmd_pod = peer->command_pod();
+                    auto& net = peer->net();
+                    auto& cmd_pod = peer->command_pod();
 
                     if ((IS_PEER_NOT_CONNECTED(peer)) ||
                         net->incoming_bandwidth() == 0 ||
-                        net->outgoing_bandwidth_throttle_epoch() == time_current) {
+                        net->outgoing_bandwidth_throttle_epoch() == time_current)
+                    {
                         continue;
                     }
 
@@ -108,15 +116,17 @@ namespace rudp
             //  Throttle peer bandwidth : Case B ( adjustment is NOT needed )
             // --------------------------------------------------
 
-            if (peers_remaining > 0) {
+            if (peers_remaining > 0)
+            {
                 if (data_total <= bandwidth)
                     throttle = PEER_SEGMENT_THROTTLE_SCALE;
                 else
                     throttle = (bandwidth * PEER_SEGMENT_THROTTLE_SCALE) / data_total;
 
-                for (auto &peer : peers) {
-                    auto &net = peer->net();
-                    auto &cmd_pod = peer->command_pod();
+                for (auto& peer : peers)
+                {
+                    auto& net = peer->net();
+                    auto& cmd_pod = peer->command_pod();
 
                     if ((IS_PEER_NOT_CONNECTED(peer)) || net->outgoing_bandwidth_throttle_epoch() == time_current)
                         continue;
@@ -134,22 +144,27 @@ namespace rudp
             //  Recalculate Bandwidth Limits
             // --------------------------------------------------
 
-            if (dispatch_hub_->recalculate_bandwidth_limits()) {
+            if (dispatch_hub_->recalculate_bandwidth_limits())
+            {
                 dispatch_hub_->recalculate_bandwidth_limits(false);
                 peers_remaining = dispatch_hub_->connected_peers();
                 bandwidth = incoming_bandwidth;
                 needs_adjustment = true;
 
-                if (bandwidth == 0) {
+                if (bandwidth == 0)
+                {
                     bandwidth_limit = 0;
                 }
-                else {
-                    while (peers_remaining > 0 && needs_adjustment) {
+                else
+                {
+                    while (peers_remaining > 0 && needs_adjustment)
+                    {
                         needs_adjustment = false;
                         bandwidth_limit = bandwidth / peers_remaining;
 
-                        for (auto &peer: peers) {
-                            auto &net = peer->net();
+                        for (auto& peer: peers)
+                        {
+                            auto& net = peer->net();
 
                             if ((IS_PEER_NOT_CONNECTED(peer)) ||
                                 net->incoming_bandwidth_throttle_epoch() == time_current)
@@ -170,8 +185,9 @@ namespace rudp
                     }
                 }
 
-                for (auto &peer : peers) {
-                    auto &net = peer->net();
+                for (auto& peer : peers)
+                {
+                    auto& net = peer->net();
 
                     if (IS_PEER_NOT_CONNECTED(peer))
                         continue;
@@ -195,9 +211,9 @@ namespace rudp
     }
 
     void
-    RUdpProtocol::NotifyDisconnect(std::shared_ptr<Peer> &peer, const std::unique_ptr<Event> &event)
+    RUdpProtocol::NotifyDisconnect(std::shared_ptr<Peer>& peer, const std::unique_ptr<Event>& event)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIsGreaterThanOrEqual(RUdpPeerState::CONNECTION_PENDING))
             // ピアを切断するのでバンド幅を再計算する
@@ -209,18 +225,21 @@ namespace rudp
         // 3. CONNECTION_PENDING
         //if (peer->state != RUdpPeerState::CONNECTING && peer->state < RUdpPeerState::CONNECTION_SUCCEEDED)
         if (net->StateIsNot(RUdpPeerState::CONNECTING)
-            && net->StateIsLessThanOrEqual(RUdpPeerState::CONNECTION_SUCCEEDED)) {
+            && net->StateIsLessThanOrEqual(RUdpPeerState::CONNECTION_SUCCEEDED))
+        {
             ResetPeer(peer);
         }
             // ピアが接続済みである場合
-        else if (event != nullptr) {
+        else if (event != nullptr)
+        {
             event->type(EventType::DISCONNECT);
             event->peer(peer);
             event->data(0);
 
             ResetPeer(peer);
         }
-        else {
+        else
+        {
             peer->event_data(0);
 
             dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
@@ -228,16 +247,18 @@ namespace rudp
     }
 
     EventStatus
-    RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<Event> &event)
+    RUdpProtocol::DispatchIncomingCommands(std::unique_ptr<Event>& event)
     {
-        while (dispatch_hub_->PeerExists()) {
+        while (dispatch_hub_->PeerExists())
+        {
             auto peer = dispatch_hub_->Dequeue();
-            auto &net = peer->net();
+            auto& net = peer->net();
 
             peer->needs_dispatch(false);
 
             if (net->StateIs(RUdpPeerState::CONNECTION_PENDING) ||
-                net->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED)) {
+                net->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED))
+            {
                 // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
                 dispatch_hub_->ChangeState(peer, RUdpPeerState::CONNECTED);
 
@@ -247,7 +268,8 @@ namespace rudp
 
                 return EventStatus::AN_EVENT_OCCURRED;
             }
-            else if (net->StateIs(RUdpPeerState::ZOMBIE)) {
+            else if (net->StateIs(RUdpPeerState::ZOMBIE))
+            {
                 dispatch_hub_->recalculate_bandwidth_limits(true);
 
                 event->type(EventType::DISCONNECT);
@@ -259,12 +281,13 @@ namespace rudp
 
                 return EventStatus::AN_EVENT_OCCURRED;
             }
-            else if (net->StateIs(RUdpPeerState::CONNECTED)) {
+            else if (net->StateIs(RUdpPeerState::CONNECTED))
+            {
                 if (!peer->DispatchedCommandExists())
                     continue;
 
                 // 接続済みのピアからセグメントを取得
-                auto [segment, channel_id] = peer->Receive();
+                auto[segment, channel_id] = peer->Receive();
 
                 if (segment == nullptr)
                     continue;
@@ -275,7 +298,8 @@ namespace rudp
                 event->peer(peer);
 
                 // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
-                if (peer->DispatchedCommandExists()) {
+                if (peer->DispatchedCommandExists())
+                {
                     peer->needs_dispatch(true);
 
                     dispatch_hub_->Enqueue(peer);
@@ -289,8 +313,8 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<Peer> &peer,
-            const std::shared_ptr<ProtocolType> &cmd)
+    RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd)
     {
         auto ch = peer->GetChannel(cmd->header.channel_id);
 
@@ -314,8 +338,8 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer> &peer,
-            const std::shared_ptr<ProtocolType> &cmd)
+    RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd)
     {
         // TODO: 実装
         // ...
@@ -324,12 +348,14 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
-            const std::shared_ptr<ProtocolType> &cmd, uint32_t service_time,
-            std::function<void(std::shared_ptr<Peer> &peer)> disconnect)
+    RUdpProtocol::HandleAcknowledge(const std::unique_ptr<Event>& event,
+            std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd,
+            uint32_t service_time,
+            std::function<void(std::shared_ptr<Peer>& peer)> disconnect)
     {
-        auto &net = peer->net();
-        auto &cmd_pod = peer->command_pod();
+        auto& net = peer->net();
+        auto& cmd_pod = peer->command_pod();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
             return Error::OK;
@@ -356,7 +382,8 @@ namespace rudp
         core::Singleton<core::Logger>::Instance().Debug("acknowledge was received ({0})",
                 received_reliable_sequence_number);
 
-        auto command_number = peer->RemoveSentReliableCommand(received_reliable_sequence_number, cmd->header.channel_id);
+        auto command_number = peer->RemoveSentReliableCommand(received_reliable_sequence_number,
+                cmd->header.channel_id);
 
         auto state = net->state();
         if (state == RUdpPeerState::ACKNOWLEDGING_CONNECT)
@@ -387,8 +414,9 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
-            VecUInt8It &data)
+    RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd,
+            VecUInt8It& data)
     {
         // ToDo
         // ...
@@ -397,22 +425,29 @@ namespace rudp
     }
 
     void
-    RUdpProtocol::HandleConnect(std::shared_ptr<Peer> &peer, const ProtocolHeader *header,
-            const std::shared_ptr<ProtocolType> &cmd, const NetworkConfig &received_address,
-            uint32_t host_outgoing_bandwidth, uint32_t host_incoming_bandwidth)
+    RUdpProtocol::HandleConnect(std::shared_ptr<Peer>& peer,
+            const ProtocolHeader* header,
+            const std::shared_ptr<ProtocolType>& cmd,
+            const NetworkConfig& received_address,
+            uint32_t host_outgoing_bandwidth,
+            uint32_t host_incoming_bandwidth)
     {
         auto channel_count = cmd->connect.channel_count;
 
         if (channel_count < PROTOCOL_MINIMUM_CHANNEL_COUNT || channel_count > PROTOCOL_MAXIMUM_CHANNEL_COUNT)
             return;
 
-        peer->SetupConnectedPeer(cmd, received_address, host_incoming_bandwidth, host_outgoing_bandwidth, channel_count);
+        peer->SetupConnectedPeer(cmd,
+                received_address,
+                host_incoming_bandwidth,
+                host_outgoing_bandwidth,
+                channel_count);
     }
 
     Error
-    RUdpProtocol::HandlePing(const std::shared_ptr<Peer> &peer)
+    RUdpProtocol::HandlePing(const std::shared_ptr<Peer>& peer)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::CONNECTED) && net->StateIs(RUdpPeerState::DISCONNECT_LATER))
             return Error::ERROR;
@@ -421,8 +456,9 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
-            VecUInt8 &data, uint16_t flags)
+    RUdpProtocol::HandleSendFragment(std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd,
+            VecUInt8& data, uint16_t flags)
     {
         if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
             return Error::ERROR;
@@ -453,12 +489,12 @@ namespace rudp
             return Error::ERROR;
         }
 
-        auto [firstCmd, err] = ch->ExtractFirstCommand(start_sequence_number, total_length, fragment_count);
+        auto[firstCmd, err] = ch->ExtractFirstCommand(start_sequence_number, total_length, fragment_count);
 
         if (!firstCmd)
         {
             cmd->header.reliable_sequence_number = start_sequence_number;
-            auto [in_cmd, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
+            auto[in_cmd, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
             in_cmd->MarkFragmentReceived(fragment_number);
 
@@ -481,7 +517,8 @@ namespace rudp
 
             firstCmd->CopyFragmentedPayload(data);
 
-            if (firstCmd->IsAllFragmentsReceived()) {
+            if (firstCmd->IsAllFragmentsReceived())
+            {
                 DispatchIncomingReliableCommands(peer, cmd);
             }
         }
@@ -490,8 +527,12 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
-            VecUInt8 &data, uint16_t data_length, uint16_t flags, uint32_t fragment_count)
+    RUdpProtocol::HandleSendReliable(std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd,
+            VecUInt8& data,
+            uint16_t data_length,
+            uint16_t flags,
+            uint32_t fragment_count)
     {
         auto ret = peer->QueueIncomingCommand(cmd, data, data_length, flags, fragment_count, maximum_waiting_data_);
 
@@ -520,10 +561,11 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
-            const std::shared_ptr<ProtocolType> &cmd)
+    RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<Event>& event,
+            std::shared_ptr<Peer>& peer,
+            const std::shared_ptr<ProtocolType>& cmd)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTING))
             return Error::OK;
@@ -579,9 +621,9 @@ namespace rudp
     }
 
     Error
-    RUdpProtocol::HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd)
+    RUdpProtocol::HandleDisconnect(std::shared_ptr<Peer>& peer, const std::shared_ptr<ProtocolType>& cmd)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED) ||
             net->StateIs(RUdpPeerState::ZOMBIE) ||
@@ -622,7 +664,7 @@ namespace rudp
 
 // void enet_peer_reset (ENetPeer * peer)
     void
-    RUdpProtocol::ResetPeer(const std::shared_ptr<Peer> &peer)
+    RUdpProtocol::ResetPeer(const std::shared_ptr<Peer>& peer)
     {
         dispatch_hub_->PurgePeer(peer);
 
@@ -631,9 +673,10 @@ namespace rudp
     }
 
     void
-    RUdpProtocol::SendAcknowledgements(std::shared_ptr<Peer> &peer)
+    RUdpProtocol::SendAcknowledgements(std::shared_ptr<Peer>& peer)
     {
-        while (peer->AcknowledgementExists()) {
+        while (peer->AcknowledgementExists())
+        {
             auto command = chamber_->EmptyCommandBuffer();
             auto buffer = chamber_->EmptyDataBuffer();
             auto ack = peer->PopAcknowledgement();
@@ -670,7 +713,7 @@ namespace rudp
     }
 
     bool
-    RUdpProtocol::SendReliableOutgoingCommands(const std::shared_ptr<Peer> &peer, uint32_t service_time)
+    RUdpProtocol::SendReliableOutgoingCommands(const std::shared_ptr<Peer>& peer, uint32_t service_time)
     {
         auto can_ping = peer->LoadReliableCommandsIntoChamber(chamber_, service_time);
 
@@ -678,7 +721,7 @@ namespace rudp
     }
 
     void
-    RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<Peer> &peer, uint32_t service_time)
+    RUdpProtocol::SendUnreliableOutgoingCommands(std::shared_ptr<Peer>& peer, uint32_t service_time)
     {
         auto can_disconnect = peer->LoadUnreliableCommandsIntoChamber(chamber_);
 

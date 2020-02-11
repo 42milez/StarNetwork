@@ -11,17 +11,21 @@ namespace rudp
         Acknowledgement();
 
     public:
-        inline ProtocolType &
-        command() { return command_; }
+        inline ProtocolType&
+        command()
+        { return command_; }
 
         inline void
-        command(ProtocolType val) { command_ = val; }
+        command(ProtocolType val)
+        { command_ = val; }
 
         inline uint32_t
-        sent_time() { return sent_time_; }
+        sent_time()
+        { return sent_time_; }
 
         inline void
-        sent_time(uint32_t val) { sent_time_ = val; }
+        sent_time(uint32_t val)
+        { sent_time_ = val; }
 
     private:
         ProtocolType command_;

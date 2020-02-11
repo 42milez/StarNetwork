@@ -14,10 +14,10 @@ namespace rudp
               header_flags_(),
               segment_size_()
     {
-        for (auto &buf : buffers_)
+        for (auto& buf : buffers_)
             buf = std::make_shared<Buffer>();
 
-        for (auto &cmd : commands_)
+        for (auto& cmd : commands_)
             cmd = std::make_shared<ProtocolType>();
     }
 
@@ -43,7 +43,7 @@ namespace rudp
     Chamber::SendingContinues(const Chamber::CmdBufIt cmd_it,
             const Chamber::DataBufIt buf_it,
             uint32_t mtu,
-            const std::shared_ptr<OutgoingCommand> &outgoing_command)
+            const std::shared_ptr<OutgoingCommand>& outgoing_command)
     {
         // MEMO: [誤] SendReliableOutgoingCommands() では
         //            buffer に command が挿入されたら同時にインクリメントされるので、
@@ -74,7 +74,8 @@ namespace rudp
         // has not enough space for command with payload
         auto has_not_enough_space = static_cast<uint16_t>(mtu - segment_size_) <
                                     static_cast<uint16_t>(command_size + outgoing_command->fragment_length());
-        if (has_not_enough_space) {
+        if (has_not_enough_space)
+        {
             return true;
         }
 
@@ -82,7 +83,7 @@ namespace rudp
     }
 
     int
-    Chamber::Write(VecUInt8 &out)
+    Chamber::Write(VecUInt8& out)
     {
         core::Singleton<core::Logger>::Instance().Debug("buffer count: {0}", buffer_count_);
 

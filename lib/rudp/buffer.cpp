@@ -23,14 +23,14 @@ namespace rudp
     {}
 
     void
-    Buffer::Add(const ProtocolTypeSP &data)
+    Buffer::Add(const ProtocolTypeSP& data)
     {
         buffer_ = data;
         size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
     }
 
     void
-    Buffer::CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size)
+    Buffer::CopyHeaderFrom(const VecUInt8& data, size_t offset, size_t size)
     {
         buffer_ = data;
         offset_ = offset;
@@ -42,7 +42,7 @@ namespace rudp
     }
 
     void
-    Buffer::CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size)
+    Buffer::CopySegmentFrom(const std::shared_ptr<Segment>& segment, size_t offset, size_t size)
     {
         buffer_ = segment->Data(offset, size);
         offset_ = offset;

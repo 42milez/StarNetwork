@@ -7,11 +7,12 @@
 
 namespace rudp
 {
-    Connection::Connection(const NetworkConfig &address)
+    Connection::Connection(const NetworkConfig& address)
     {
         socket_ = std::make_unique<Socket>();
 
-        if (socket_ == nullptr) {
+        if (socket_ == nullptr)
+        {
             // throw exception
             // ...
         }
@@ -34,14 +35,15 @@ namespace rudp
 
         auto ret = socket_->bind(ip, address.port());
 
-        if (ret != Error::OK) {
+        if (ret != Error::OK)
+        {
             // throw exception
             // ...
         }
     }
 
     ssize_t
-    Connection::Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count)
+    Connection::Receive(NetworkConfig& received_address, VecUInt8& buffer, size_t buffer_count)
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
@@ -74,7 +76,7 @@ namespace rudp
     }
 
     ssize_t
-    Connection::Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber)
+    Connection::Send(const NetworkConfig& address, const std::unique_ptr<Chamber>& chamber)
     {
         IpAddress dest;
 
@@ -88,7 +90,8 @@ namespace rudp
 
         auto err = socket_->sendto(&(out.at(0)), size, sent, dest, address.port());
 
-        if (err != Error::OK) {
+        if (err != Error::OK)
+        {
             if (err == Error::ERR_BUSY)
                 return 0;
 

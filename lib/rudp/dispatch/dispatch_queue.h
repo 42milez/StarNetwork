@@ -11,7 +11,8 @@ namespace rudp
     class DispatchQueue
     {
     public:
-        void Enqueue(std::shared_ptr<Peer> &peer);
+        void Enqueue(std::shared_ptr<Peer>& peer);
+
         std::shared_ptr<Peer> Dequeue();
 
     public:

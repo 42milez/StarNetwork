@@ -1,6 +1,7 @@
 #ifdef __linux__
 #include <arpa/inet.h>
 #endif
+
 #include <utility>
 
 #include "lib/core/hash.h"
@@ -11,29 +12,32 @@
 
 namespace rudp
 {
-    Peer::Peer() :
-            command_pod_(std::make_unique<CommandPod>()),
-            connect_id_(),
-            event_data_(),
-            highest_round_trip_time_variance_(),
-            incoming_peer_id_(),
-            incoming_session_id_(0xFF),
-            last_receive_time_(),
-            last_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
-            last_round_trip_time_variance_(),
-            lowest_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
-            needs_dispatch_(),
-            net_(std::make_unique<PeerNet>()),
-            outgoing_peer_id_(PROTOCOL_MAXIMUM_PEER_ID),
-            outgoing_session_id_(0xFF),
-            ping_interval_(PEER_PING_INTERVAL),
-            total_waiting_data_(),
-            unsequenced_windows_()
+    Peer::Peer()
+            : command_pod_(std::make_unique<CommandPod>()),
+              connect_id_(),
+              event_data_(),
+              highest_round_trip_time_variance_(),
+              incoming_peer_id_(),
+              incoming_session_id_(0xFF),
+              last_receive_time_(),
+              last_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
+              last_round_trip_time_variance_(),
+              lowest_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
+              needs_dispatch_(),
+              net_(std::make_unique<PeerNet>()),
+              outgoing_peer_id_(PROTOCOL_MAXIMUM_PEER_ID),
+              outgoing_session_id_(0xFF),
+              ping_interval_(PEER_PING_INTERVAL),
+              total_waiting_data_(),
+              unsequenced_windows_()
     {}
 
     Error
-    Peer::Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
-            uint32_t host_outgoing_bandwidth, uint32_t data)
+    Peer::Setup(const NetworkConfig& address,
+            SysCh channel_count,
+            uint32_t host_incoming_bandwidth,
+            uint32_t host_outgoing_bandwidth,
+            uint32_t data)
     {
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
             channels_.emplace_back(std::make_shared<Channel>());
@@ -73,8 +77,8 @@ namespace rudp
     }
 
     void
-    Peer::SetupConnectedPeer(const std::shared_ptr<ProtocolType> &cmd,
-            const NetworkConfig &received_address,
+    Peer::SetupConnectedPeer(const std::shared_ptr<ProtocolType>& cmd,
+            const NetworkConfig& received_address,
             uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth,
             uint32_t channel_count)
@@ -93,28 +97,32 @@ namespace rudp
         auto incoming_session_id = cmd->connect.incoming_session_id == 0xFF ? outgoing_session_id_ :
                                    cmd->connect.incoming_session_id;
         incoming_session_id = (incoming_session_id + 1) &
-                              (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
+                              (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)
+                                      >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
         if (incoming_session_id == outgoing_session_id_)
             incoming_session_id = (incoming_session_id + 1) &
-                                  (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
+                                  (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)
+                                          >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
         outgoing_session_id_ = incoming_session_id;
 
         auto outgoing_session_id = cmd->connect.outgoing_session_id == 0xFF ? incoming_session_id_ :
                                    cmd->connect.outgoing_session_id;
-        outgoing_session_id = (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
+        outgoing_session_id = (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)
+                >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
         if (outgoing_session_id == incoming_session_id)
             outgoing_session_id =
-                    (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK) >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
+                    (outgoing_session_id + 1) & (static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_MASK)
+                            >> static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SESSION_SHIFT));
 
         incoming_session_id_ = outgoing_session_id;
 
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
             channels_.emplace_back(std::make_shared<Channel>());
 
-        for (auto &ch : channels_)
+        for (auto& ch : channels_)
             ch->Reset();
 
         auto mtu = cmd->connect.mtu;
@@ -220,7 +228,7 @@ namespace rudp
     }
 
     void
-    Peer::QueueAcknowledgement(const std::shared_ptr<ProtocolType> &cmd, uint16_t sent_time)
+    Peer::QueueAcknowledgement(const std::shared_ptr<ProtocolType>& cmd, uint16_t sent_time)
     {
         if (cmd->header.channel_id < channels_.size())
         {
@@ -231,7 +239,8 @@ namespace rudp
             if (cmd->header.reliable_sequence_number < channel->incoming_reliable_sequence_number())
                 reliable_window += PEER_RELIABLE_WINDOWS;
 
-            if (reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1 && reliable_window <= current_window + PEER_FREE_RELIABLE_WINDOWS)
+            if (reliable_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1 &&
+                reliable_window <= current_window + PEER_FREE_RELIABLE_WINDOWS)
                 return;
         }
 
@@ -263,8 +272,12 @@ namespace rudp
     }
 
     Error
-    Peer::QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, VecUInt8 &data, uint16_t data_length,
-            uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data)
+    Peer::QueueIncomingCommand(const std::shared_ptr<ProtocolType>& cmd,
+            VecUInt8& data,
+            uint16_t data_length,
+            uint16_t flags,
+            uint32_t fragment_count,
+            size_t maximum_waiting_data)
     {
         if (net_->StateIs(RUdpPeerState::DISCONNECT_LATER))
             return DiscardCommand(fragment_count);
@@ -273,7 +286,7 @@ namespace rudp
             return DiscardCommand(fragment_count);
 
         auto ch = channels_.at(cmd->header.channel_id);
-        auto [_, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
+        auto[_, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
         if (error == Error::OK)
             total_waiting_data_ += data_length;
@@ -285,8 +298,9 @@ namespace rudp
 
     // TODO: Is segment necessary as an argument?
     void
-    Peer::QueueOutgoingCommand(const std::shared_ptr<ProtocolType> &protocol_type,
-            const std::shared_ptr<Segment> &segment, uint32_t offset)
+    Peer::QueueOutgoingCommand(const std::shared_ptr<ProtocolType>& protocol_type,
+            const std::shared_ptr<Segment>& segment,
+            uint32_t offset)
     {
         std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
 
@@ -304,7 +318,8 @@ namespace rudp
         }
 
         auto channel_id = protocol_type->header.channel_id;
-        auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command & PROTOCOL_COMMAND_MASK);
+        auto cmd_type = static_cast<RUdpProtocolCommand>(outgoing_command->command()->header.command &
+                                                         PROTOCOL_COMMAND_MASK);
         std::shared_ptr<Channel> channel = nullptr;
 
         // ToDO: エラーハンドリング
@@ -332,7 +347,7 @@ namespace rudp
     Peer::Receive()
     {
         if (dispatched_commands_.empty())
-            return {nullptr, 0};
+            return { nullptr, 0 };
 
         auto incoming_command = dispatched_commands_.front();
         auto segment = incoming_command->segment();
@@ -341,11 +356,11 @@ namespace rudp
 
         dispatched_commands_.pop();
 
-        return {segment, incoming_command->header_channel_id()};
+        return { segment, incoming_command->header_channel_id() };
     }
 
     Error
-    Peer::Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
+    Peer::Send(SysCh ch, const std::shared_ptr<Segment>& segment, ChecksumCallback checksum)
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
             static_cast<uint32_t>(ch) >= channels_.size() ||
@@ -395,7 +410,8 @@ namespace rudp
 
             std::list<std::shared_ptr<OutgoingCommand>> fragments;
 
-            for (auto fragment_number = 0, fragment_offset = 0; fragment_offset < data_length; ++fragment_number, fragment_offset += fragment_length)
+            for (auto fragment_number = 0, fragment_offset = 0;
+                 fragment_offset < data_length; ++fragment_number, fragment_offset += fragment_length)
             {
                 if (data_length - fragment_offset < fragment_length)
                     fragment_length = data_length - fragment_offset;
@@ -427,7 +443,7 @@ namespace rudp
                 fragments.push_back(fragment);
             }
 
-            for (auto &f : fragments)
+            for (auto& f : fragments)
             {
                 command_pod_->SetupOutgoingCommand(f, channels_.at(f->header_channel_id()));
             }
@@ -442,7 +458,7 @@ namespace rudp
             ) == static_cast<uint16_t>(SegmentFlag::UNSEQUENCED))
         {
             cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED) |
-                                  static_cast<uint8_t>(RUdpProtocolFlag ::COMMAND_UNSEQUENCED);
+                                  static_cast<uint8_t>(RUdpProtocolFlag::COMMAND_UNSEQUENCED);
             cmd->send_unsequenced.data_length = htons(segment->DataLength());
         }
         else if (segment->flags() & static_cast<uint16_t>(SegmentFlag::RELIABLE) ||
@@ -481,7 +497,7 @@ namespace rudp
     }
 
     bool
-    Peer::EventOccur(const NetworkConfig &address, uint8_t session_id)
+    Peer::EventOccur(const NetworkConfig& address, uint8_t session_id)
     {
         if (net_->StateIs(RUdpPeerState::DISCONNECTED))
             return false;
@@ -499,7 +515,7 @@ namespace rudp
     }
 
     bool
-    Peer::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, uint32_t service_time)
+    Peer::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber, uint32_t service_time)
     {
         auto can_ping = command_pod_->LoadReliableCommandsIntoChamber(chamber, net_, channels_, service_time);
 
@@ -507,7 +523,7 @@ namespace rudp
     }
 
     bool
-    Peer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber)
+    Peer::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber)
     {
         auto disconnected = command_pod_->LoadUnreliableCommandsIntoChamber(chamber, net_);
 
@@ -605,9 +621,9 @@ namespace rudp
         if (net_->segment_throttle_epoch() == 0 ||
             UDP_TIME_DIFFERENCE(service_time, net_->segment_throttle_epoch() >= net_->segment_throttle_interval()))
         {
-            last_round_trip_time_             = lowest_round_trip_time_;
-            last_round_trip_time_variance_    = highest_round_trip_time_variance_;
-            lowest_round_trip_time_           = command_pod_->round_trip_time();
+            last_round_trip_time_ = lowest_round_trip_time_;
+            last_round_trip_time_variance_ = highest_round_trip_time_variance_;
+            lowest_round_trip_time_ = command_pod_->round_trip_time();
             highest_round_trip_time_variance_ = command_pod_->round_trip_time_variance();
 
             net_->segment_throttle_epoch(service_time);

@@ -12,13 +12,13 @@ namespace rudp
     {
     public:
         explicit
-        Connection(const NetworkConfig &address);
+        Connection(const NetworkConfig& address);
 
         ssize_t
-        Receive(NetworkConfig &received_address, VecUInt8 &buffer, size_t buffer_count);
+        Receive(NetworkConfig& received_address, VecUInt8& buffer, size_t buffer_count);
 
         ssize_t
-        Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber);
+        Send(const NetworkConfig& address, const std::unique_ptr<Chamber>& chamber);
 
     private:
         std::unique_ptr<Socket> socket_;

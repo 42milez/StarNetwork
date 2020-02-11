@@ -14,9 +14,9 @@ namespace rudp
     class Segment
     {
     public:
-        Segment(VecUInt8 &data, uint32_t flags);
+        Segment(VecUInt8& data, uint32_t flags);
 
-        Segment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size);
+        Segment(VecUInt8& data, uint32_t flags, uint32_t buffer_size);
 
         void
         AddPeerIdx(uint32_t peer_idx);
@@ -28,20 +28,23 @@ namespace rudp
         Destroy();
 
         inline uint32_t
-        AddFlag(uint32_t flag) { return flags_ |= flag; }
+        AddFlag(uint32_t flag)
+        { return flags_ |= flag; }
 
         inline void
-        AppendData(std::vector<uint8_t> &fragment)
+        AppendData(std::vector<uint8_t>& fragment)
         {
             std::copy(fragment.begin(), fragment.end(), data_.begin() + buffer_pos_);
             buffer_pos_ += fragment.size();
         }
 
         inline VecUInt8
-        Data() { return data_; }
+        Data()
+        { return data_; }
 
         inline VecUInt8
-        Data(size_t offset, size_t size) {
+        Data(size_t offset, size_t size)
+        {
             VecUInt8 ret(size);
             auto begin = data_.begin() + offset;
             auto end = begin + size;
@@ -50,11 +53,13 @@ namespace rudp
         }
 
         inline size_t
-        DataLength() { return data_.size() * sizeof(uint8_t); }
+        DataLength()
+        { return data_.size() * sizeof(uint8_t); }
 
     public:
         inline uint32_t
-        flags() { return flags_; }
+        flags()
+        { return flags_; }
 
     private:
         VecUInt8 data_;
@@ -62,7 +67,7 @@ namespace rudp
 
         size_t buffer_pos_;
 
-        std::function<void(Segment *)> free_callback_;
+        std::function<void(Segment*)> free_callback_;
 
         uint32_t flags_;
     };

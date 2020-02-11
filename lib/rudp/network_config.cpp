@@ -19,7 +19,7 @@ namespace rudp
     }
 
     void
-    NetworkConfig::SetIP(const uint8_t *ip, size_t size)
+    NetworkConfig::SetIP(const uint8_t* ip, size_t size)
     {
         auto len = size > HOST_LENGTH ? HOST_LENGTH : size;
 
@@ -28,8 +28,8 @@ namespace rudp
         memcpy(&host_, ip, len); // network byte-order (big endian)
     }
 
-    NetworkConfig &
-    NetworkConfig::operator=(const NetworkConfig &address)
+    NetworkConfig&
+    NetworkConfig::operator=(const NetworkConfig& address)
     {
         if (this == &address)
             return *this;
@@ -41,7 +41,7 @@ namespace rudp
     }
 
     bool
-    NetworkConfig::operator==(const NetworkConfig &address) const
+    NetworkConfig::operator==(const NetworkConfig& address) const
     {
         auto same_host = memcmp(&host_, &address.host(), HOST_LENGTH) == 0;
         auto same_port = port_ == address.port();
@@ -50,7 +50,7 @@ namespace rudp
     }
 
     bool
-    NetworkConfig::operator!=(const NetworkConfig &address) const
+    NetworkConfig::operator!=(const NetworkConfig& address) const
     {
         auto same_host = memcmp(&host_, &address.host(), HOST_LENGTH) == 0;
         auto same_port = port_ == address.port();

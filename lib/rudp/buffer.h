@@ -18,13 +18,13 @@ namespace rudp
         Buffer();
 
         void
-        Add(const ProtocolTypeSP &data);
+        Add(const ProtocolTypeSP& data);
 
         void
-        CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
+        CopyHeaderFrom(const VecUInt8& data, size_t offset, size_t size);
 
         void
-        CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size = 0);
+        CopySegmentFrom(const std::shared_ptr<Segment>& segment, size_t offset, size_t size = 0);
 
         std::string
         ProtocolCommandAsString();
@@ -33,10 +33,12 @@ namespace rudp
         CopyTo(VecUInt8It it);
 
         inline size_t
-        Size() { return size_; };
+        Size()
+        { return size_; };
 
         inline void
-        Size(size_t val) { size_ = val; }
+        Size(size_t val)
+        { size_ = val; }
 
     private:
         using VariantBuffer = std::variant<ProtocolTypeSP, VecUInt8>;

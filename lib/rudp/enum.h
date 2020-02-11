@@ -5,14 +5,14 @@
 
 namespace rudp
 {
-    enum class EventStatus: int
+    enum class EventStatus : int
     {
         AN_EVENT_OCCURRED = 1,
         NO_EVENT_OCCURRED = 0,
         ERROR = -1
     };
 
-    enum class EventType: uint8_t
+    enum class EventType : uint8_t
     {
         NONE,
         CONNECT,
@@ -20,7 +20,7 @@ namespace rudp
         RECEIVE
     };
 
-    enum class RUdpPeerState: uint8_t
+    enum class RUdpPeerState : uint8_t
     {
         DISCONNECTED = 0,
         CONNECTING,
@@ -36,34 +36,34 @@ namespace rudp
 
     enum class RUdpProtocolCommand : uint8_t
     {
-        NONE                     = 0,
-        ACKNOWLEDGE              = 1,
-        CONNECT                  = 2,
-        VERIFY_CONNECT           = 3,
-        DISCONNECT               = 4,
-        PING                     = 5,
-        SEND_RELIABLE            = 6,
-        SEND_UNRELIABLE          = 7,
-        SEND_FRAGMENT            = 8,
-        SEND_UNSEQUENCED         = 9,
-        BANDWIDTH_LIMIT          = 10,
-        THROTTLE_CONFIGURE       = 11,
+        NONE = 0,
+        ACKNOWLEDGE = 1,
+        CONNECT = 2,
+        VERIFY_CONNECT = 3,
+        DISCONNECT = 4,
+        PING = 5,
+        SEND_RELIABLE = 6,
+        SEND_UNRELIABLE = 7,
+        SEND_FRAGMENT = 8,
+        SEND_UNSEQUENCED = 9,
+        BANDWIDTH_LIMIT = 10,
+        THROTTLE_CONFIGURE = 11,
         SEND_UNRELIABLE_FRAGMENT = 12,
-        COUNT                    = 13
+        COUNT = 13
     };
 
     enum class RUdpProtocolFlag : uint16_t
     {
-        COMMAND_ACKNOWLEDGE  = (1u << 7u),
-        COMMAND_UNSEQUENCED  = (1u << 6u),
-        HEADER_COMPRESSED    = (1u << 14u),
-        HEADER_SENT_TIME     = (1u << 15u),
-        HEADER_MASK          = HEADER_COMPRESSED | HEADER_SENT_TIME,
-        HEADER_SESSION_MASK  = (3u << 12u),
+        COMMAND_ACKNOWLEDGE = (1u << 7u),
+        COMMAND_UNSEQUENCED = (1u << 6u),
+        HEADER_COMPRESSED = (1u << 14u),
+        HEADER_SENT_TIME = (1u << 15u),
+        HEADER_MASK = HEADER_COMPRESSED | HEADER_SENT_TIME,
+        HEADER_SESSION_MASK = (3u << 12u),
         HEADER_SESSION_SHIFT = 12
     };
 
-    enum class SegmentFlag: uint16_t
+    enum class SegmentFlag : uint16_t
     {
         // segment must be received by the target peer and
         // resend attempts should be made until the segment is delivered
@@ -82,7 +82,7 @@ namespace rudp
                 SENT = (1u << 8u)
     };
 
-    enum class SocketWait: uint8_t
+    enum class SocketWait : uint8_t
     {
         NONE = 0,
         SEND = (1u << 0u),
@@ -90,7 +90,7 @@ namespace rudp
         INTERRUPT = (1u << 2u)
     };
 
-    enum class SysCh: uint8_t
+    enum class SysCh : uint8_t
     {
         CONFIG,
         RELIABLE,
@@ -98,7 +98,7 @@ namespace rudp
         MAX
     };
 
-    enum class SysMsg: uint8_t
+    enum class SysMsg : uint8_t
     {
         ADD_PEER,
         REMOVE_PEER

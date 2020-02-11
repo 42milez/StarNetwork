@@ -15,12 +15,13 @@ namespace rudp
     {}
 
     Error
-    IncomingCommand::ResizeFragmentBuffer(size_t val) {
+    IncomingCommand::ResizeFragmentBuffer(size_t val)
+    {
         try
         {
             fragments_.resize(val);
         }
-        catch (std::bad_alloc &e)
+        catch (std::bad_alloc& e)
         {
             core::Singleton<core::Logger>::Instance().Critical("BAD ALLOCATION");
 

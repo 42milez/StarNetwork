@@ -2,17 +2,17 @@
 
 namespace rudp
 {
-    DispatchHub::DispatchHub() :
-            bandwidth_limited_peers_(),
-            connected_peers_(),
-            queue_(std::make_unique<DispatchQueue>()),
-            recalculate_bandwidth_limits_()
+    DispatchHub::DispatchHub()
+            : bandwidth_limited_peers_(),
+              connected_peers_(),
+              queue_(std::make_unique<DispatchQueue>()),
+              recalculate_bandwidth_limits_()
     {}
 
     void
-    DispatchHub::MergePeer(const std::shared_ptr<Peer> &peer)
+    DispatchHub::MergePeer(const std::shared_ptr<Peer>& peer)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER))
         {
@@ -24,9 +24,9 @@ namespace rudp
     }
 
     void
-    DispatchHub::PurgePeer(const std::shared_ptr<Peer> &peer)
+    DispatchHub::PurgePeer(const std::shared_ptr<Peer>& peer)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::CONNECTED) || net->StateIs(RUdpPeerState::DISCONNECT_LATER))
         {
@@ -38,7 +38,7 @@ namespace rudp
     }
 
     void
-    DispatchHub::ChangeState(const std::shared_ptr<Peer> &peer, const RUdpPeerState &state)
+    DispatchHub::ChangeState(const std::shared_ptr<Peer>& peer, const RUdpPeerState& state)
     {
         if (state == RUdpPeerState::CONNECTED || state == RUdpPeerState::DISCONNECT_LATER)
             MergePeer(peer);
@@ -49,11 +49,12 @@ namespace rudp
     }
 
     void
-    DispatchHub::DispatchState(std::shared_ptr<Peer> &peer, RUdpPeerState state)
+    DispatchHub::DispatchState(std::shared_ptr<Peer>& peer, RUdpPeerState state)
     {
         ChangeState(peer, state);
 
-        if (!peer->needs_dispatch()) {
+        if (!peer->needs_dispatch())
+        {
             peer->needs_dispatch(true);
 
             queue_->Enqueue(peer);
@@ -64,7 +65,7 @@ namespace rudp
 //  ピアが接続したことをEventインスタンスを介して呼び出し元に通知する
 //  接続済みのピア群に対して新しいピアが接続してきたことを通知するものではない
     void
-    DispatchHub::NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer)
+    DispatchHub::NotifyConnect(const std::unique_ptr<Event>& event, std::shared_ptr<Peer>& peer)
     {
         recalculate_bandwidth_limits(true);
 
@@ -85,9 +86,9 @@ namespace rudp
     }
 
     void
-    DispatchHub::NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer)
+    DispatchHub::NotifyDisconnect(const std::unique_ptr<Event>& event, std::shared_ptr<Peer>& peer)
     {
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIs(RUdpPeerState::CONNECTION_PENDING))
             recalculate_bandwidth_limits(true);

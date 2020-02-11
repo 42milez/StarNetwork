@@ -9,11 +9,13 @@
 
 namespace rudp
 {
-    namespace {
+    namespace
+    {
         bool
-        WindowWraps(const std::shared_ptr<Channel> &channel,
+        WindowWraps(const std::shared_ptr<Channel>& channel,
                 int reliable_window,
-                const std::shared_ptr<OutgoingCommand> &outgoing_command) {
+                const std::shared_ptr<OutgoingCommand>& outgoing_command)
+        {
             auto has_not_sent_once = outgoing_command->send_attempts() == 0;
 
             auto first_command_in_window = !(outgoing_command->reliable_sequence_number() % PEER_RELIABLE_WINDOW_SIZE);
@@ -36,7 +38,8 @@ namespace rudp
         WindowExceeds(uint32_t reliable_data_in_transit,
                 uint32_t mtu,
                 uint32_t window_size,
-                const std::shared_ptr<OutgoingCommand> &outgoing_command) {
+                const std::shared_ptr<OutgoingCommand>& outgoing_command)
+        {
             return (reliable_data_in_transit + outgoing_command->fragment_length()) > std::max(window_size, mtu);
         }
     }
@@ -58,13 +61,16 @@ namespace rudp
               outgoing_reliable_commands_(),
               outgoing_unreliable_commands_(),
               sent_reliable_commands_(),
-              sent_unreliable_commands_() {}
+              sent_unreliable_commands_()
+    {}
 
     bool
-    CommandPod::Timeout(const std::unique_ptr<PeerNet> &net, uint32_t service_time) {
+    CommandPod::Timeout(const std::unique_ptr<PeerNet>& net, uint32_t service_time)
+    {
         auto cur_cmd = sent_reliable_commands_.begin();
 
-        while (cur_cmd != sent_reliable_commands_.end()) {
+        while (cur_cmd != sent_reliable_commands_.end())
+        {
             auto out_cmd = cur_cmd;
 
             ++cur_cmd;
@@ -80,7 +86,8 @@ namespace rudp
             auto exceeds_rtt_timeout_limit = (*out_cmd)->round_trip_timeout() >= (*out_cmd)->round_trip_timeout_limit();
             auto exceeds_timeout_minimum = UDP_TIME_DIFFERENCE(service_time, earliest_timeout_) >= timeout_minimum_;
             if (earliest_timeout_ != 0 &&
-                (exceeds_timeout_maximum || (exceeds_rtt_timeout_limit && exceeds_timeout_minimum))) {
+                (exceeds_timeout_maximum || (exceeds_rtt_timeout_limit && exceeds_timeout_minimum)))
+            {
                 // TODO: call NotifyDisconnect()
                 // ...
 
@@ -89,7 +96,8 @@ namespace rudp
                 return true;
             }
 
-            if ((*out_cmd)->HasPayload()) {
+            if ((*out_cmd)->HasPayload())
+            {
                 reliable_data_in_transit_ -= (*out_cmd)->fragment_length();
             }
 
@@ -108,14 +116,15 @@ namespace rudp
         return false;
     }
 
-/* enet_protocol_send_reliable_outgoing_commands()
- *
- * */
+    /* enet_protocol_send_reliable_outgoing_commands()
+     *
+     * */
     bool
-    CommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
-            std::unique_ptr<PeerNet> &net,
-            const std::vector<std::shared_ptr<Channel>> &channels,
-            uint32_t service_time) {
+    CommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber,
+            std::unique_ptr<PeerNet>& net,
+            const std::vector<std::shared_ptr<Channel>>& channels,
+            uint32_t service_time)
+    {
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
                 outgoing_reliable_commands_.size());
 
@@ -124,7 +133,8 @@ namespace rudp
         auto can_ping = true;
         auto current_command = outgoing_reliable_commands_.begin();
 
-        while (current_command != outgoing_reliable_commands_.end()) {
+        while (current_command != outgoing_reliable_commands_.end())
+        {
             auto command = chamber->EmptyCommandBuffer();
             auto buffer = chamber->EmptyDataBuffer();
 
@@ -139,11 +149,13 @@ namespace rudp
             //  check reliable window is available
             // --------------------------------------------------
 
-            if (channel != nullptr) {
+            if (channel != nullptr)
+            {
                 if (!window_wrap && WindowWraps(channel, reliable_window, (*outgoing_command)))
                     window_wrap = true;
 
-                if (window_wrap) {
+                if (window_wrap)
+                {
                     ++current_command;
 
                     continue;
@@ -153,15 +165,18 @@ namespace rudp
             //  check segment exceeds window size
             // --------------------------------------------------
 
-            if ((*outgoing_command)->HasPayload()) {
-                if (!window_exceeded) {
+            if ((*outgoing_command)->HasPayload())
+            {
+                if (!window_exceeded)
+                {
                     auto ws = (net->segment_throttle() * net->window_size()) / PEER_SEGMENT_THROTTLE_SCALE;
 
                     if (WindowExceeds(reliable_data_in_transit_, net->mtu(), ws, (*outgoing_command)))
                         window_exceeded = true;
                 }
 
-                if (window_exceeded) {
+                if (window_exceeded)
+                {
                     ++current_command;
 
                     continue;
@@ -173,7 +188,8 @@ namespace rudp
 
             can_ping = false;
 
-            if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command))) {
+            if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command)))
+            {
                 chamber->continue_sending(true);
 
                 break;
@@ -181,16 +197,19 @@ namespace rudp
 
             ++current_command;
 
-            if (channel != nullptr && (*outgoing_command)->send_attempts() < 1) {
+            if (channel != nullptr && (*outgoing_command)->send_attempts() < 1)
+            {
                 channel->MarkReliableWindowAsUsed(reliable_window);
                 channel->IncrementReliableWindow(reliable_window);
             }
 
             (*outgoing_command)->IncrementSendAttempts();
 
-            if ((*outgoing_command)->round_trip_timeout() == 0) {
+            if ((*outgoing_command)->round_trip_timeout() == 0)
+            {
                 (*outgoing_command)->round_trip_timeout(round_trip_time_ + 4 * round_trip_time_variance_);
-                (*outgoing_command)->round_trip_timeout_limit(timeout_limit_ * (*outgoing_command)->round_trip_timeout());
+                (*outgoing_command)->round_trip_timeout_limit(
+                        timeout_limit_ * (*outgoing_command)->round_trip_timeout());
             }
 
             if (!sent_reliable_commands_.empty())
@@ -210,7 +229,8 @@ namespace rudp
             // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
             //       これは受信側でパケットを正しく識別するための基本
 
-            if ((*outgoing_command)->HasPayload()) {
+            if ((*outgoing_command)->HasPayload())
+            {
                 buffer = chamber->EmptyDataBuffer();
                 (*outgoing_command)->MoveDataTo((*buffer));
 
@@ -238,19 +258,22 @@ namespace rudp
     }
 
     bool
-    CommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
-            std::unique_ptr<PeerNet> &net) {
+    CommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber,
+            std::unique_ptr<PeerNet>& net)
+    {
         auto can_disconnect = false;
         auto current_command = outgoing_unreliable_commands_.begin();
 
-        while (current_command != outgoing_unreliable_commands_.end()) {
+        while (current_command != outgoing_unreliable_commands_.end())
+        {
             auto command = chamber->EmptyCommandBuffer();
             auto buffer = chamber->EmptyDataBuffer();
 
             auto outgoing_command = current_command;
             auto command_size = COMMAND_SIZES[(*outgoing_command)->CommandNumber()];
 
-            if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command))) {
+            if (chamber->SendingContinues(command, buffer, net->mtu(), (*outgoing_command)))
+            {
                 chamber->continue_sending(true);
 
                 break;
@@ -258,21 +281,25 @@ namespace rudp
 
             ++current_command;
 
-            if ((*outgoing_command)->HasPayload() && (*outgoing_command)->fragment_offset() == 0) {
+            if ((*outgoing_command)->HasPayload() && (*outgoing_command)->fragment_offset() == 0)
+            {
                 net->UpdateSegmentThrottleCounter();
 
-                if (net->ExceedsSegmentThrottleCounter()) {
+                if (net->ExceedsSegmentThrottleCounter())
+                {
                     uint16_t reliable_sequence_number = (*outgoing_command)->reliable_sequence_number();
                     uint16_t unreliable_sequence_number = (*outgoing_command)->unreliable_sequence_number();
 
-                    for (;;) {
+                    for (;;)
+                    {
                         if (current_command == outgoing_unreliable_commands_.end())
                             break;
 
                         outgoing_command = current_command;
 
                         if ((*outgoing_command)->reliable_sequence_number() != reliable_sequence_number ||
-                            (*outgoing_command)->unreliable_sequence_number() != unreliable_sequence_number) {
+                            (*outgoing_command)->unreliable_sequence_number() != unreliable_sequence_number)
+                        {
                             break;
                         }
 
@@ -291,7 +318,8 @@ namespace rudp
 
             outgoing_unreliable_commands_.erase(outgoing_command);
 
-            if ((*outgoing_command)->HasPayload()) {
+            if ((*outgoing_command)->HasPayload())
+            {
                 buffer = chamber->EmptyDataBuffer();
 
                 (*outgoing_command)->MoveDataTo((*buffer));
@@ -306,7 +334,8 @@ namespace rudp
         if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&
             outgoing_reliable_commands_.empty() &&
             outgoing_unreliable_commands_.empty() &&
-            !sent_reliable_commands_.empty()) {
+            !sent_reliable_commands_.empty())
+        {
             can_disconnect = true;
         }
 
@@ -316,16 +345,20 @@ namespace rudp
     }
 
     RUdpProtocolCommand
-    CommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
-            std::shared_ptr<Channel> &channel) {
+    CommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number,
+            uint8_t channel_id,
+            std::shared_ptr<Channel>& channel)
+    {
         std::shared_ptr<OutgoingCommand> outgoing_command;
         auto it = sent_reliable_commands_.begin();
         auto it_end = sent_reliable_commands_.end();
         auto no_sent_reliable_command_matched = false;
 
-        for (; it != it_end; ++it) {
+        for (; it != it_end; ++it)
+        {
             if ((*it)->reliable_sequence_number() == reliable_sequence_number &&
-                (*it)->header_channel_id() == channel_id) {
+                (*it)->header_channel_id() == channel_id)
+            {
                 outgoing_command = (*it);
                 break;
             }
@@ -336,16 +369,19 @@ namespace rudp
 
         auto was_sent = true;
 
-        if (no_sent_reliable_command_matched) {
+        if (no_sent_reliable_command_matched)
+        {
             it = outgoing_reliable_commands_.begin();
             it_end = outgoing_reliable_commands_.end();
 
-            for (; it != it_end; ++it) {
+            for (; it != it_end; ++it)
+            {
                 if ((*it)->send_attempts() < 1)
                     return RUdpProtocolCommand::NONE;
 
                 if (((*it)->reliable_sequence_number() == reliable_sequence_number) &&
-                    ((*it)->header_channel_id() == channel_id)) {
+                    ((*it)->header_channel_id() == channel_id))
+                {
                     outgoing_command = (*it);
                     break;
                 }
@@ -360,9 +396,11 @@ namespace rudp
         if (outgoing_command == nullptr)
             return RUdpProtocolCommand::NONE;
 
-        if (channel) {
+        if (channel)
+        {
             auto reliable_window = reliable_sequence_number / PEER_RELIABLE_WINDOW_SIZE;
-            if (channel->ReliableWindow(reliable_window) > 0) {
+            if (channel->ReliableWindow(reliable_window) > 0)
+            {
                 channel->DecrementReliableWindow(reliable_window);
                 if (channel->ReliableWindow(reliable_window) == 0)
                     channel->MarkReliableWindowAsUnused(reliable_window);
@@ -371,7 +409,8 @@ namespace rudp
 
         auto command_number = outgoing_command->CommandNumber();
 
-        if (outgoing_command->HasPayload()) {
+        if (outgoing_command->HasPayload())
+        {
             if (was_sent)
                 reliable_data_in_transit_ -= outgoing_command->fragment_length();
         }
@@ -384,12 +423,16 @@ namespace rudp
         // TODO: next_timeout_ の更新はメソッド化できる
         next_timeout_ = outgoing_command->NextTimeout();
 
-        if (no_sent_reliable_command_matched) {
+        if (no_sent_reliable_command_matched)
+        {
             outgoing_reliable_commands_.erase(it);
-            core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was removed (on receive): {0} ({1})",
+            core::Singleton<core::Logger>::Instance().Debug(
+                    "outgoing reliable command was removed (on receive): {0} ({1})",
                     COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
                     reliable_sequence_number);
-        } else {
+        }
+        else
+        {
             sent_reliable_commands_.erase(it);
             core::Singleton<core::Logger>::Instance().Debug("sent reliable command was removed (on receive): {0} ({1})",
                     COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
@@ -400,11 +443,14 @@ namespace rudp
     }
 
     void
-    CommandPod::RemoveSentUnreliableCommands() {
-        while (!sent_unreliable_commands_.empty()) {
-            auto &outgoing_command = sent_unreliable_commands_.front();
+    CommandPod::RemoveSentUnreliableCommands()
+    {
+        while (!sent_unreliable_commands_.empty())
+        {
+            auto& outgoing_command = sent_unreliable_commands_.front();
 
-            if (outgoing_command->HasPayload()) {
+            if (outgoing_command->HasPayload())
+            {
                 if (outgoing_command->segment().use_count() == 1)
                     outgoing_command->segment()->AddFlag(static_cast<uint32_t>(SegmentFlag::SENT));
 
@@ -416,7 +462,8 @@ namespace rudp
     }
 
     void
-    CommandPod::Reset() {
+    CommandPod::Reset()
+    {
         incoming_data_total_ = 0;
         outgoing_data_total_ = 0;
         next_timeout_ = 0;
@@ -433,28 +480,36 @@ namespace rudp
     }
 
     void
-    CommandPod::SetupOutgoingCommand(std::shared_ptr<OutgoingCommand> &outgoing_command,
-            const std::shared_ptr<Channel> &channel) {
+    CommandPod::SetupOutgoingCommand(std::shared_ptr<OutgoingCommand>& outgoing_command,
+            const std::shared_ptr<Channel>& channel)
+    {
         outgoing_data_total_ +=
                 COMMAND_SIZES.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
 
-        if (channel == nullptr) {
+        if (channel == nullptr)
+        {
             IncrementOutgoingReliableSequenceNumber();
 
             outgoing_command->reliable_sequence_number(outgoing_reliable_sequence_number_);
             outgoing_command->unreliable_sequence_number(0);
-        } else if (outgoing_command->IsAcknowledge()) {
+        }
+        else if (outgoing_command->IsAcknowledge())
+        {
             channel->IncrementOutgoingReliableSequenceNumber();
             channel->outgoing_unreliable_sequence_number(0);
 
             outgoing_command->reliable_sequence_number(channel->outgoing_reliable_sequence_number());
             outgoing_command->unreliable_sequence_number(0);
-        } else if (outgoing_command->IsUnsequenced()) {
+        }
+        else if (outgoing_command->IsUnsequenced())
+        {
             ++outgoing_unsequenced_group_;
 
             outgoing_command->reliable_sequence_number(0);
             outgoing_command->unreliable_sequence_number(0);
-        } else {
+        }
+        else
+        {
             if (outgoing_command->fragment_offset() == 0)
                 channel->IncrementOutgoingUnreliableSequenceNumber();
 
@@ -470,20 +525,26 @@ namespace rudp
 
         auto cmd = outgoing_command->CommandNumber();
 
-        if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNRELIABLE) {
+        if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNRELIABLE)
+        {
             outgoing_command->send_unreliable_unreliable_sequence_number(
                     htons(outgoing_command->unreliable_sequence_number())
             );
-        } else if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNSEQUENCED) {
+        }
+        else if (static_cast<RUdpProtocolCommand>(cmd) == RUdpProtocolCommand::SEND_UNSEQUENCED)
+        {
             outgoing_command->send_unsequenced_unsequenced_group(htons(outgoing_unsequenced_group_));
         }
 
-        if (outgoing_command->IsAcknowledge()) {
+        if (outgoing_command->IsAcknowledge())
+        {
             outgoing_reliable_commands_.push_back(outgoing_command);
             core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command was added: {0} ({1})",
                     COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
                     outgoing_command->command()->header.reliable_sequence_number);
-        } else {
+        }
+        else
+        {
             outgoing_unreliable_commands_.push_back(outgoing_command);
             core::Singleton<core::Logger>::Instance().Debug("outgoing unreliable command was added: {0} (-)",
                     COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()));

@@ -7,8 +7,11 @@
 
 namespace rudp
 {
-    Host::Host(const NetworkConfig &address, SysCh channel_count, size_t peer_count,
-            uint32_t in_bandwidth, uint32_t out_bandwidth)
+    Host::Host(const NetworkConfig& address,
+            SysCh channel_count,
+            size_t peer_count,
+            uint32_t in_bandwidth,
+            uint32_t out_bandwidth)
             : channel_count_(channel_count),
               checksum_(),
               conn_(std::make_shared<Connection>(address)),
@@ -17,7 +20,8 @@ namespace rudp
               mtu_(HOST_DEFAULT_MTU),
               outgoing_bandwidth_(out_bandwidth)
     {
-        if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
+        if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
+        {
             // TODO: throw exception
             // ...
         }
@@ -26,13 +30,13 @@ namespace rudp
     }
 
     void
-    Host::Broadcast(SysCh ch, std::shared_ptr<Segment> &segment)
+    Host::Broadcast(SysCh ch, std::shared_ptr<Segment>& segment)
     {
-        auto &peers = peer_pod_->peers();
+        auto& peers = peer_pod_->peers();
 
-        for (auto &peer : peers)
+        for (auto& peer : peers)
         {
-            auto &net = peer->net();
+            auto& net = peer->net();
 
             if (net->StateIsNot(RUdpPeerState::CONNECTED))
                 continue;
@@ -54,7 +58,7 @@ namespace rudp
              notifies of an EventType::CONNECT event for the peer.
 */
     Error
-    Host::Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data)
+    Host::Connect(const NetworkConfig& address, SysCh channel_count, uint32_t data)
     {
         auto peer = peer_pod_->AvailablePeer();
 
@@ -67,16 +71,16 @@ namespace rudp
     }
 
     void
-    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer> &peer)
+    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer>& peer)
     {
         peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
     }
 
     Error
-    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment)
+    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment>& segment)
     {
         auto peer = peer_pod_->GetPeer(peer_id);
-        auto &net = peer->net();
+        auto& net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTED))
             return Error::ERROR;
@@ -108,11 +112,12 @@ namespace rudp
     @remarks Host::Service should be called fairly regularly for adequate performance
 */
     EventStatus
-    Host::Service(std::unique_ptr<Event> &event, uint32_t timeout)
+    Host::Service(std::unique_ptr<Event>& event, uint32_t timeout)
     {
         EventStatus ret;
 
-        if (event != nullptr) {
+        if (event != nullptr)
+        {
             event->Reset();
 
             // - キューから取り出されたパケットは event に格納される
@@ -139,7 +144,8 @@ namespace rudp
 
         uint8_t wait_condition;
 
-        do {
+        do
+        {
             peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
 
             ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
@@ -165,7 +171,8 @@ namespace rudp
             if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
                 return EventStatus::NO_EVENT_OCCURRED;
 
-            do {
+            do
+            {
                 peer_pod_->UpdateServiceTime();
 
                 if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
@@ -176,12 +183,10 @@ namespace rudp
 
                 if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, peer_pod_->service_time())) != 0)
                     return EventStatus::ERROR;
-            }
-            while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
+            } while (wait_condition & static_cast<uint32_t>(SocketWait::INTERRUPT));
 
             peer_pod_->UpdateServiceTime();
-        }
-        while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
+        } while (wait_condition & static_cast<uint32_t>(SocketWait::RECEIVE));
 
         return EventStatus::NO_EVENT_OCCURRED;
     }

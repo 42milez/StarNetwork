@@ -136,11 +136,11 @@ namespace rudp
 
     using ProtocolTypeSP = std::shared_ptr<ProtocolType>;
 
-    ProtocolHeader *
-    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader *header);
+    ProtocolHeader*
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader* header);
 
-    ProtocolType *
-    ConvertNetworkByteOrderToHostByteOrder(ProtocolType *cmd);
+    ProtocolType*
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolType* cmd);
 } // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
