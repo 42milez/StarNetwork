@@ -10,10 +10,10 @@
 
 namespace rudp
 {
-    class RUdpHost
+    class Host
     {
     public:
-        RUdpHost(const NetworkConfig &address, SysCh channel_count, size_t peer_count,
+        Host(const NetworkConfig &address, SysCh channel_count, size_t peer_count,
                 uint32_t in_bandwidth,   // bytes per second
                 uint32_t out_bandwidth); // bytes per second
 

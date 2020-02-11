@@ -7,7 +7,7 @@
 
 #include "core/logger.h"
 #include "core/singleton.h"
-#include "lib/rudp/RUdpHost.h"
+#include "lib/rudp/host.h"
 
 namespace
 {
@@ -29,7 +29,7 @@ public:
     {
         rudp::NetworkConfig address;
         address.port(8888);
-        host_ = std::make_unique<rudp::RUdpHost>(address, rudp::SysCh::MAX, 32, 100, 100);
+        host_ = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
         core::Singleton<core::Logger>::Instance().Init("Broadcast Test");
     }
 
@@ -46,7 +46,7 @@ public:
     { return host_->Service(event, timeout); }
 
 private:
-    std::shared_ptr<rudp::RUdpHost> host_;
+    std::shared_ptr<rudp::Host> host_;
 };
 
 TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
@@ -60,12 +60,12 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
     // guest1
     rudp::NetworkConfig guest1_address;
     guest1_address.port(8889);
-    auto guest1 = std::make_unique<rudp::RUdpHost>(guest1_address, rudp::SysCh::MAX, 32, 100, 100);
+    auto guest1 = std::make_unique<rudp::Host>(guest1_address, rudp::SysCh::MAX, 32, 100, 100);
 
     // guest2
     rudp::NetworkConfig guest2_address;
     guest2_address.port(8890);
-    auto guest2 = std::make_unique<rudp::RUdpHost>(guest2_address, rudp::SysCh::MAX, 32, 100, 100);
+    auto guest2 = std::make_unique<rudp::Host>(guest2_address, rudp::SysCh::MAX, 32, 100, 100);
 
     rudp::EventStatus event_status;
 

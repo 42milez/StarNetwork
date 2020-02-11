@@ -3,11 +3,11 @@
 #include "lib/rudp/peer/RUdpPeerPod.h"
 #include "RUdpMacro.h"
 #include "event.h"
-#include "RUdpHost.h"
+#include "host.h"
 
 namespace rudp
 {
-    RUdpHost::RUdpHost(const NetworkConfig &address, SysCh channel_count, size_t peer_count,
+    Host::Host(const NetworkConfig &address, SysCh channel_count, size_t peer_count,
             uint32_t in_bandwidth, uint32_t out_bandwidth)
             : channel_count_(channel_count),
               checksum_(),
@@ -26,7 +26,7 @@ namespace rudp
     }
 
     void
-    RUdpHost::Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+    Host::Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment)
     {
         auto &peers = peer_pod_->peers();
 
@@ -54,7 +54,7 @@ namespace rudp
              notifies of an EventType::CONNECT event for the peer.
 */
     Error
-    RUdpHost::Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data)
+    Host::Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data)
     {
         auto peer = peer_pod_->AvailablePeer();
 
@@ -67,13 +67,13 @@ namespace rudp
     }
 
     void
-    RUdpHost::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
+    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer)
     {
         peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
     }
 
     Error
-    RUdpHost::Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment)
     {
         auto peer = peer_pod_->Peer(peer_id);
         auto &net = peer->net();
@@ -105,10 +105,10 @@ namespace rudp
     @retval EventStatus::NO_EVENT_OCCURRED if no event occurred
     @retval EventStatus::ERROR             on failure
 
-    @remarks RUdpHost::Service should be called fairly regularly for adequate performance
+    @remarks Host::Service should be called fairly regularly for adequate performance
 */
     EventStatus
-    RUdpHost::Service(std::unique_ptr<Event> &event, uint32_t timeout)
+    Host::Service(std::unique_ptr<Event> &event, uint32_t timeout)
     {
         EventStatus ret;
 

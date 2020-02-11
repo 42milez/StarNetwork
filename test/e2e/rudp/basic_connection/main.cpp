@@ -7,7 +7,7 @@
 
 #include "core/logger.h"
 #include "core/singleton.h"
-#include "lib/rudp/RUdpHost.h"
+#include "lib/rudp/host.h"
 
 namespace
 {
@@ -29,7 +29,7 @@ public:
     {
         rudp::NetworkConfig address;
         address.port(8888);
-        host_ = std::make_unique<rudp::RUdpHost>(address, rudp::SysCh::MAX, 32, 100, 100);
+        host_ = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
         core::Singleton<core::Logger>::Instance().Init("Basic Connection Test");
     }
 
@@ -40,14 +40,14 @@ public:
     { return host_->PeerState(0); }
 
 private:
-    std::shared_ptr<rudp::RUdpHost> host_;
+    std::shared_ptr<rudp::Host> host_;
 };
 
 TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from Host", "basic_connection")
 {
     rudp::NetworkConfig guest_address;
     guest_address.port(8889);
-    auto guest = std::make_unique<rudp::RUdpHost>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
+    auto guest = std::make_unique<rudp::Host>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
 
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;
@@ -149,7 +149,7 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect gracefully from Ho
 {
     rudp::NetworkConfig guest_address;
     guest_address.port(8889);
-    auto guest = std::make_unique<rudp::RUdpHost>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
+    auto guest = std::make_unique<rudp::Host>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
 
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;

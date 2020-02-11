@@ -83,7 +83,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 #endif
         client_address.port(client_port);
 
-        host_ = std::make_unique<rudp::RUdpHost>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
+        host_ = std::make_unique<rudp::Host>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
     }
     else {
         // create a host with randomly assigned port
@@ -152,7 +152,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
 
     address.port(port);
 
-    host_ = std::make_unique<rudp::RUdpHost>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
+    host_ = std::make_unique<rudp::Host>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
 

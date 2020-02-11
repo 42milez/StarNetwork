@@ -11,7 +11,7 @@
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/compress.h"
 #include "lib/rudp/event.h"
-#include "lib/rudp/RUdpHost.h"
+#include "lib/rudp/host.h"
 #include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 
@@ -91,7 +91,7 @@ private:
     std::vector<uint8_t> src_compressor_mem_;
 
     std::shared_ptr<rudp::Compress> compress_;
-    std::shared_ptr<rudp::RUdpHost> host_;
+    std::shared_ptr<rudp::Host> host_;
 
     CompressionMode compression_mode_;
     ConnectionStatus connection_status_;
