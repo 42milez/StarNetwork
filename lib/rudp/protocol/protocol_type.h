@@ -103,7 +103,7 @@ namespace rudp
         uint32_t fragment_offset;
     };
 
-    using RUdpProtocolBandwidthLimit = struct RUdpProtocolBandwidthLimit
+    using ProtocolBandwidthLimit = struct ProtocolBandwidthLimit
     {
         ProtocolCommandHeader header;
         uint32_t incoming_bandwidth;
@@ -130,7 +130,7 @@ namespace rudp
         ProtocolSendUnreliable send_unreliable;
         ProtocolSendUnsequenced send_unsequenced;
         ProtocolSendFragment send_fragment;
-        RUdpProtocolBandwidthLimit bandwidth_limit;
+        ProtocolBandwidthLimit bandwidth_limit;
         RUdpProtocolThrottleConfigure throttle_configure;
     };
 

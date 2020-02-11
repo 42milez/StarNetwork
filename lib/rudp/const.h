@@ -19,7 +19,7 @@ namespace rudp
             sizeof(ProtocolSendUnreliable),
             sizeof(ProtocolSendFragment),
             sizeof(ProtocolSendUnsequenced),
-            sizeof(RUdpProtocolBandwidthLimit),
+            sizeof(ProtocolBandwidthLimit),
             sizeof(RUdpProtocolThrottleConfigure),
             sizeof(ProtocolSendFragment)
     };
