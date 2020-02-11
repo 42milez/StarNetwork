@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-#include "lib/rudp/peer/RUdpPeerPod.h"
+#include "lib/rudp/peer/peer_pod.h"
 #include "network_config.h"
 #include "connection.h"
 
@@ -49,7 +49,7 @@ namespace rudp
 
     private:
         std::shared_ptr<Connection> conn_;
-        std::unique_ptr<RUdpPeerPod> peer_pod_;
+        std::unique_ptr<PeerPod> peer_pod_;
 
         ChecksumCallback checksum_;
         SysCh channel_count_;

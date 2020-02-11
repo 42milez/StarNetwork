@@ -1,6 +1,6 @@
 #include "core/hash.h"
 
-#include "lib/rudp/peer/RUdpPeerPod.h"
+#include "lib/rudp/peer/peer_pod.h"
 #include "macro.h"
 #include "event.h"
 #include "host.h"
@@ -22,7 +22,7 @@ namespace rudp
             // ...
         }
 
-        peer_pod_ = std::make_unique<RUdpPeerPod>(peer_count, conn_, incoming_bandwidth_, outgoing_bandwidth_);
+        peer_pod_ = std::make_unique<PeerPod>(peer_count, conn_, incoming_bandwidth_, outgoing_bandwidth_);
     }
 
     void

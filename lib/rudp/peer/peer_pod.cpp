@@ -5,11 +5,11 @@
 #include "lib/rudp/command/command_size.h"
 #include "lib/rudp/enum.h"
 #include "peer_net.h"
-#include "RUdpPeerPod.h"
+#include "peer_pod.h"
 
 namespace rudp
 {
-    RUdpPeerPod::RUdpPeerPod(size_t peer_count, std::shared_ptr<Connection> &conn, uint32_t host_incoming_bandwidth,
+    PeerPod::PeerPod(size_t peer_count, std::shared_ptr<Connection> &conn, uint32_t host_incoming_bandwidth,
             uint32_t host_outgoing_bandwidth)
             : compressor_(std::make_shared<Compress>()),
               conn_(conn),
@@ -45,7 +45,7 @@ namespace rudp
     }
 
     std::shared_ptr<Peer>
-    RUdpPeerPod::AvailablePeer()
+    PeerPod::AvailablePeer()
     {
         for (auto &peer : peers_)
         {
@@ -89,7 +89,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
@@ -130,7 +130,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
         auto &cmd_pod = peer->command_pod();
@@ -152,7 +152,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeerPod::DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
+    PeerPod::DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
@@ -181,7 +181,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerPod::Flush(ChecksumCallback checksum)
+    PeerPod::Flush(ChecksumCallback checksum)
     {
         UpdateServiceTime();
 
@@ -189,7 +189,7 @@ namespace rudp
     }
 
     EventStatus
-    RUdpPeerPod::ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum)
+    PeerPod::ReceiveIncomingCommands(std::unique_ptr<Event> &event, ChecksumCallback checksum)
     {
         for (auto i = 0; i < 256; ++i)
         {
@@ -471,7 +471,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer> &peer, ChecksumCallback checksum)
+    PeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer> &peer, ChecksumCallback checksum)
     {
         std::vector<uint8_t> empty_data;
         std::shared_ptr<Segment> segment = std::make_shared<Segment>(empty_data,
@@ -484,7 +484,7 @@ namespace rudp
     }
 
     EventStatus
-    RUdpPeerPod::SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time,
+    PeerPod::SendOutgoingCommands(const std::unique_ptr<Event> &event, uint32_t service_time,
             bool check_for_timeouts, ChecksumCallback checksum)
     {
         auto header_data = VecUInt8(sizeof(RUdpProtocolHeader) + sizeof(uint32_t), 0);

@@ -311,7 +311,7 @@ namespace rudp
         }
 
         // ↑のロジックの結果次第でtrue/falseを返す
-        // PurgePeer() はRUdpPeerPodから呼ぶ
+        // PurgePeer() はPeerPodから呼ぶ
         return can_disconnect;
     }
 

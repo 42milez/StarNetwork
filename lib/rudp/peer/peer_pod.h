@@ -14,10 +14,10 @@ namespace rudp
 {
     using InterceptCallback = std::function<int (Event &event)>;
 
-    class RUdpPeerPod
+    class PeerPod
     {
     public:
-        RUdpPeerPod(size_t peer_count,
+        PeerPod(size_t peer_count,
                 std::shared_ptr<Connection> &conn,
                 uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth);
