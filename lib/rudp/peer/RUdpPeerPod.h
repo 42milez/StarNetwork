@@ -8,7 +8,7 @@
 #include "lib/rudp/checksum.h"
 #include "lib/rudp/compress.h"
 #include "lib/rudp/connection.h"
-#include "lib/rudp/RUdpTime.h"
+#include "lib/rudp/time.h"
 
 namespace rudp
 {
@@ -63,7 +63,7 @@ namespace rudp
         inline void
         UpdateServiceTime() {
             prev_service_time_ = service_time_;
-            service_time_ = RUdpTime::Get();
+            service_time_ = Time::Get();
             core::Singleton<core::Logger>::Instance().Debug("service time was updated: {0} ({1})",
                     service_time_,
                     service_time_ - prev_service_time_);

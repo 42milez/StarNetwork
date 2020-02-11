@@ -8,15 +8,15 @@
 
 namespace rudp
 {
-    class RUdpTime
+    class Time
     {
     public:
-        RUdpTime() = delete;
-        ~RUdpTime() = delete;
-        RUdpTime(const RUdpTime&) = delete;
-        RUdpTime(RUdpTime&&) = delete;
-        RUdpTime& operator=(const RUdpTime&) = delete;
-        RUdpTime& operator=(RUdpTime&&) = delete;
+        Time() = delete;
+        ~Time() = delete;
+        Time(const Time&) = delete;
+        Time(Time&&) = delete;
+        Time& operator=(const Time&) = delete;
+        Time& operator=(Time&&) = delete;
 
     public:
         static uint32_t Get();

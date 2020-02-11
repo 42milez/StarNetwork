@@ -5,7 +5,7 @@
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "lib/rudp/channel.h"
 #include "lib/rudp/macro.h"
-#include "lib/rudp/RUdpTime.h"
+#include "lib/rudp/time.h"
 #include "RUdpProtocol.h"
 
 namespace rudp
@@ -25,7 +25,7 @@ namespace rudp
             const std::vector<std::shared_ptr<RUdpPeer>> &peers)
     {
         if (UDP_TIME_DIFFERENCE(service_time, bandwidth_throttle_epoch_) >= HOST_BANDWIDTH_THROTTLE_INTERVAL) {
-            auto time_current = RUdpTime::Get();
+            auto time_current = Time::Get();
             auto time_elapsed = time_current - bandwidth_throttle_epoch_;
             auto peers_remaining = dispatch_hub_->connected_peers();
             auto data_total = ~0u;

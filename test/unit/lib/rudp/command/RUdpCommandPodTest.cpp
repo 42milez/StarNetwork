@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include "lib/rudp/command/RUdpCommandPod.h"
-#include "lib/rudp/RUdpTime.h"
+#include "lib/rudp/time.h"
 
 TEST_CASE("Rebuffering command after command timeout", "[timeout]")
 {
@@ -37,7 +37,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
       std::make_shared<rudp::Channel>()
   };
   auto net = std::make_unique<rudp::RUdpPeerNet>();
-  auto service_time = rudp::RUdpTime::Get();
+  auto service_time = rudp::Time::Get();
 
   command_pod->LoadReliableCommandsIntoChamber(chamber, net, channels, service_time);
 
