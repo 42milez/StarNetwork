@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 
-#include "lib/rudp/peer/RUdpPeerNet.h"
+#include "lib/rudp/peer/peer_net.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
 #include "command.h"
@@ -19,12 +19,12 @@ namespace rudp
 
         bool
         LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
-                std::unique_ptr<RUdpPeerNet> &net,
+                std::unique_ptr<PeerNet> &net,
                 const std::vector<std::shared_ptr<Channel>> &channels,
                 uint32_t service_time);
 
         bool
-        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<RUdpPeerNet> &net);
+        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<PeerNet> &net);
 
         RUdpProtocolCommand
         RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id, std::shared_ptr<Channel> &channel);
@@ -39,7 +39,7 @@ namespace rudp
         SetupOutgoingCommand(std::shared_ptr<OutgoingCommand> &outgoing_command, const std::shared_ptr<Channel> &channel);
 
         bool
-        Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
+        Timeout(const std::unique_ptr<PeerNet> &net, uint32_t service_time);
 
         inline void
         ClearOutgoingReliableCommand() { outgoing_reliable_commands_.clear(); };

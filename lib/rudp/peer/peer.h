@@ -15,7 +15,7 @@
 #include "lib/rudp/channel.h"
 #include "lib/rudp/checksum.h"
 #include "lib/rudp/macro.h"
-#include "RUdpPeerNet.h"
+#include "peer_net.h"
 #include "lib/rudp/segment.h"
 
 namespace rudp
@@ -156,7 +156,7 @@ namespace rudp
         inline void
         needs_dispatch(bool val) { needs_dispatch_ = val; };
 
-        inline const std::unique_ptr<RUdpPeerNet> &
+        inline const std::unique_ptr<PeerNet> &
         net() { return net_; };
 
         inline uint16_t
@@ -176,7 +176,7 @@ namespace rudp
         std::vector<std::shared_ptr<Channel>> channels_;
         std::unique_ptr<CommandPod> command_pod_;
         std::queue<std::shared_ptr<IncomingCommand>> dispatched_commands_;
-        std::unique_ptr<RUdpPeerNet> net_;
+        std::unique_ptr<PeerNet> net_;
         std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 
         NetworkConfig address_;

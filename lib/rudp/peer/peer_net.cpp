@@ -1,5 +1,5 @@
 #include "lib/rudp/const.h"
-#include "RUdpPeerNet.h"
+#include "peer_net.h"
 
 namespace rudp
 {
@@ -36,7 +36,7 @@ namespace rudp
         return "disconnected";
     }
 
-    RUdpPeerNet::RUdpPeerNet()
+    PeerNet::PeerNet()
             : state_(RUdpPeerState::DISCONNECTED),
               incoming_bandwidth_(),
               incoming_bandwidth_throttle_epoch_(),
@@ -60,7 +60,7 @@ namespace rudp
     {}
 
     void
-    RUdpPeerNet::CalculateSegmentLoss(uint32_t service_time)
+    PeerNet::CalculateSegmentLoss(uint32_t service_time)
     {
         uint32_t segment_loss = segments_lost_ * PEER_SEGMENT_LOSS_SCALE / segments_sent_;
 
@@ -81,7 +81,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerNet::Reset()
+    PeerNet::Reset()
     {
         state_ = RUdpPeerState::DISCONNECTED;
         incoming_bandwidth_ = 0;
@@ -106,7 +106,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerNet::Setup()
+    PeerNet::Setup()
     {
         state_ = RUdpPeerState::CONNECTING;
 
@@ -123,7 +123,7 @@ namespace rudp
     }
 
     void
-    RUdpPeerNet::UpdateSegmentThrottleCounter()
+    PeerNet::UpdateSegmentThrottleCounter()
     {
         segment_throttle_counter_ += PEER_SEGMENT_THROTTLE_COUNTER;
         segment_throttle_counter_ %= PEER_SEGMENT_THROTTLE_SCALE;

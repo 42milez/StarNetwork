@@ -36,7 +36,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
       std::make_shared<rudp::Channel>(),
       std::make_shared<rudp::Channel>()
   };
-  auto net = std::make_unique<rudp::RUdpPeerNet>();
+  auto net = std::make_unique<rudp::PeerNet>();
   auto service_time = rudp::Time::Get();
 
   command_pod->LoadReliableCommandsIntoChamber(chamber, net, channels, service_time);

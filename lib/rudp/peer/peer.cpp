@@ -23,7 +23,7 @@ namespace rudp
             last_round_trip_time_variance_(),
             lowest_round_trip_time_(PEER_DEFAULT_ROUND_TRIP_TIME),
             needs_dispatch_(),
-            net_(std::make_unique<RUdpPeerNet>()),
+            net_(std::make_unique<PeerNet>()),
             outgoing_peer_id_(PROTOCOL_MAXIMUM_PEER_ID),
             outgoing_session_id_(0xFF),
             ping_interval_(PEER_PING_INTERVAL),

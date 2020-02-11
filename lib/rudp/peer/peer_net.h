@@ -13,10 +13,10 @@ namespace rudp
 {
     std::string PeerStateAsString(RUdpPeerState state);
 
-    class RUdpPeerNet
+    class PeerNet
     {
     public:
-        RUdpPeerNet();
+        PeerNet();
 
         void CalculateSegmentLoss(uint32_t service_time);
         void Reset();

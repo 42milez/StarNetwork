@@ -4,7 +4,7 @@
 
 #include "lib/rudp/command/command_size.h"
 #include "lib/rudp/enum.h"
-#include "RUdpPeerNet.h"
+#include "peer_net.h"
 #include "RUdpPeerPod.h"
 
 namespace rudp

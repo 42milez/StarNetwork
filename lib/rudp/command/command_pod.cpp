@@ -61,7 +61,7 @@ namespace rudp
               sent_unreliable_commands_() {}
 
     bool
-    CommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time) {
+    CommandPod::Timeout(const std::unique_ptr<PeerNet> &net, uint32_t service_time) {
         auto cur_cmd = sent_reliable_commands_.begin();
 
         while (cur_cmd != sent_reliable_commands_.end()) {
@@ -113,7 +113,7 @@ namespace rudp
  * */
     bool
     CommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
-            std::unique_ptr<RUdpPeerNet> &net,
+            std::unique_ptr<PeerNet> &net,
             const std::vector<std::shared_ptr<Channel>> &channels,
             uint32_t service_time) {
         core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
@@ -239,7 +239,7 @@ namespace rudp
 
     bool
     CommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
-            std::unique_ptr<RUdpPeerNet> &net) {
+            std::unique_ptr<PeerNet> &net) {
         auto can_disconnect = false;
         auto current_command = outgoing_unreliable_commands_.begin();
 
