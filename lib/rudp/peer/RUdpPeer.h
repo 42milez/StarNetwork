@@ -9,7 +9,7 @@
 #include "core/errors.h"
 #include "lib/rudp/command/acknowledgement.h"
 #include "lib/rudp/command/command.h"
-#include "lib/rudp/command/RUdpCommandPod.h"
+#include "lib/rudp/command/command_pod.h"
 #include "lib/rudp/network_config.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
@@ -132,7 +132,7 @@ namespace rudp
         { return net_->StateIs(val); }
 
     public:
-        inline const std::unique_ptr<RUdpCommandPod> &
+        inline const std::unique_ptr<CommandPod> &
         command_pod() { return command_pod_; };
 
         inline uint32_t
@@ -174,7 +174,7 @@ namespace rudp
     private:
         std::list<std::shared_ptr<Acknowledgement>> acknowledgements_;
         std::vector<std::shared_ptr<Channel>> channels_;
-        std::unique_ptr<RUdpCommandPod> command_pod_;
+        std::unique_ptr<CommandPod> command_pod_;
         std::queue<std::shared_ptr<RUdpIncomingCommand>> dispatched_commands_;
         std::unique_ptr<RUdpPeerNet> net_;
         std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;

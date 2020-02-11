@@ -12,7 +12,7 @@
 namespace rudp
 {
     RUdpPeer::RUdpPeer() :
-            command_pod_(std::make_unique<RUdpCommandPod>()),
+            command_pod_(std::make_unique<CommandPod>()),
             connect_id_(),
             event_data_(),
             highest_round_trip_time_variance_(),

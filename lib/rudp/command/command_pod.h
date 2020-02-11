@@ -13,9 +13,9 @@
 
 namespace rudp
 {
-    class RUdpCommandPod {
+    class CommandPod {
     public:
-        RUdpCommandPod();
+        CommandPod();
 
         bool
         LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,

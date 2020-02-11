@@ -1,4 +1,4 @@
-#include "RUdpCommandPod.h"
+#include "command_pod.h"
 
 #ifdef __linux__
 #include <arpa/inet.h>
@@ -41,7 +41,7 @@ namespace rudp
         }
     }
 
-    RUdpCommandPod::RUdpCommandPod()
+    CommandPod::CommandPod()
             : incoming_data_total_(),
               outgoing_data_total_(),
               outgoing_reliable_sequence_number_(),
@@ -61,7 +61,7 @@ namespace rudp
               sent_unreliable_commands_() {}
 
     bool
-    RUdpCommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time) {
+    CommandPod::Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time) {
         auto cur_cmd = sent_reliable_commands_.begin();
 
         while (cur_cmd != sent_reliable_commands_.end()) {
@@ -112,7 +112,7 @@ namespace rudp
  *
  * */
     bool
-    RUdpCommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
+    CommandPod::LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
             std::unique_ptr<RUdpPeerNet> &net,
             const std::vector<std::shared_ptr<Channel>> &channels,
             uint32_t service_time) {
@@ -238,7 +238,7 @@ namespace rudp
     }
 
     bool
-    RUdpCommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
+    CommandPod::LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber,
             std::unique_ptr<RUdpPeerNet> &net) {
         auto can_disconnect = false;
         auto current_command = outgoing_unreliable_commands_.begin();
@@ -316,7 +316,7 @@ namespace rudp
     }
 
     RUdpProtocolCommand
-    RUdpCommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
+    CommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
             std::shared_ptr<Channel> &channel) {
         std::shared_ptr<RUdpOutgoingCommand> outgoing_command;
         auto it = sent_reliable_commands_.begin();
@@ -400,7 +400,7 @@ namespace rudp
     }
 
     void
-    RUdpCommandPod::RemoveSentUnreliableCommands() {
+    CommandPod::RemoveSentUnreliableCommands() {
         while (!sent_unreliable_commands_.empty()) {
             auto &outgoing_command = sent_unreliable_commands_.front();
 
@@ -416,7 +416,7 @@ namespace rudp
     }
 
     void
-    RUdpCommandPod::Reset() {
+    CommandPod::Reset() {
         incoming_data_total_ = 0;
         outgoing_data_total_ = 0;
         next_timeout_ = 0;
@@ -433,7 +433,7 @@ namespace rudp
     }
 
     void
-    RUdpCommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
+    CommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
             const std::shared_ptr<Channel> &channel) {
         outgoing_data_total_ +=
                 COMMAND_SIZES.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();

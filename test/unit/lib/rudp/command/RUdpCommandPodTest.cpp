@@ -3,7 +3,7 @@
 #include <catch2/catch.hpp>
 #include <spdlog/spdlog.h>
 
-#include "lib/rudp/command/RUdpCommandPod.h"
+#include "lib/rudp/command/command_pod.h"
 #include "lib/rudp/time.h"
 
 TEST_CASE("Rebuffering command after command timeout", "[timeout]")
@@ -20,7 +20,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
 
   std::vector<std::shared_ptr<rudp::Channel>> channels_;
 
-  auto command_pod = std::make_shared<rudp::RUdpCommandPod>();
+  auto command_pod = std::make_shared<rudp::CommandPod>();
   command_pod->SetupOutgoingCommand(outgoing_command, nullptr);
 
   auto properties = command_pod->Inspect();
