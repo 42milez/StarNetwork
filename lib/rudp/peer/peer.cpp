@@ -239,7 +239,7 @@ namespace rudp
         if (ack == nullptr)
             return;
 
-        command_pod_->IncrementOutgoingDataTotal(sizeof(RUdpProtocolAcknowledge));
+        command_pod_->IncrementOutgoingDataTotal(sizeof(ProtocolAcknowledge));
 
         ack->sent_time(sent_time);
         ack->command(*cmd);

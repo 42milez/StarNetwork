@@ -641,17 +641,17 @@ namespace rudp
             // 送信継続
             // - コマンドバッファに空きがない
             // - データバッファに空きがない
-            // - ピアの MTU とパケットサイズの差が RUdpProtocolAcknowledge のサイズ未満
+            // - ピアの MTU とパケットサイズの差が ProtocolAcknowledge のサイズ未満
             if (command == nullptr ||
                 buffer == nullptr ||
-                peer->net()->mtu() - chamber_->segment_size() < sizeof(RUdpProtocolAcknowledge))
+                peer->net()->mtu() - chamber_->segment_size() < sizeof(ProtocolAcknowledge))
             {
                 chamber_->continue_sending(true);
 
                 break;
             }
 
-            chamber_->IncrementSegmentSize(sizeof(RUdpProtocolAcknowledge));
+            chamber_->IncrementSegmentSize(sizeof(ProtocolAcknowledge));
 
             auto reliable_sequence_number = htons(ack->command().header.reliable_sequence_number);
 

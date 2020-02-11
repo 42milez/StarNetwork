@@ -10,7 +10,7 @@ namespace rudp
 {
     constexpr std::array<size_t, 13> COMMAND_SIZES{
             0,
-            sizeof(RUdpProtocolAcknowledge),
+            sizeof(ProtocolAcknowledge),
             sizeof(RUdpProtocolConnect),
             sizeof(RUdpProtocolVerifyConnect),
             sizeof(RUdpProtocolDisconnect),

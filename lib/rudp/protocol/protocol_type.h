@@ -19,7 +19,7 @@ namespace rudp
         uint16_t reliable_sequence_number;
     };
 
-    using RUdpProtocolAcknowledge = struct RUdpProtocolAcknowledge
+    using ProtocolAcknowledge = struct ProtocolAcknowledge
     {
         ProtocolCommandHeader header;
         uint16_t received_reliable_sequence_number;
@@ -121,7 +121,7 @@ namespace rudp
     using RUdpProtocolType = union RUdpProtocolType
     {
         ProtocolCommandHeader header;
-        RUdpProtocolAcknowledge acknowledge;
+        ProtocolAcknowledge acknowledge;
         RUdpProtocolConnect connect;
         RUdpProtocolVerifyConnect verify_connect;
         RUdpProtocolDisconnect disconnect;
