@@ -1,9 +1,9 @@
-#include "lib/rudp/dispatch/RUdpDispatchQueue.h"
+#include "lib/rudp/dispatch/dispatch_queue.h"
 
 namespace rudp
 {
     std::shared_ptr<RUdpPeer>
-    RUdpDispatchQueue::Dequeue()
+    DispatchQueue::Dequeue()
     {
         std::shared_ptr<RUdpPeer> peer = queue_.front();
 
@@ -13,13 +13,13 @@ namespace rudp
     }
 
     void
-    RUdpDispatchQueue::Enqueue(std::shared_ptr<RUdpPeer> &peer)
+    DispatchQueue::Enqueue(std::shared_ptr<RUdpPeer> &peer)
     {
         queue_.push(peer);
     }
 
     bool
-    RUdpDispatchQueue::PeerExists()
+    DispatchQueue::PeerExists()
     {
         return !queue_.empty();
     }

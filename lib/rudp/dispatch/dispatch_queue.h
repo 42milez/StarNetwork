@@ -8,7 +8,7 @@
 
 namespace rudp
 {
-    class RUdpDispatchQueue
+    class DispatchQueue
     {
     public:
         void Enqueue(std::shared_ptr<RUdpPeer> &peer);

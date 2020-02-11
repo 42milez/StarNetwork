@@ -1,7 +1,7 @@
 #ifndef P2P_TECHDEMO_RUDPDISPATCHHUB_H
 #define P2P_TECHDEMO_RUDPDISPATCHHUB_H
 
-#include "lib/rudp/dispatch/RUdpDispatchQueue.h"
+#include "lib/rudp/dispatch/dispatch_queue.h"
 #include "lib/rudp/event.h"
 
 namespace rudp
@@ -48,7 +48,7 @@ namespace rudp
         }
 
     private:
-        std::unique_ptr<RUdpDispatchQueue> queue_;
+        std::unique_ptr<DispatchQueue> queue_;
 
         size_t bandwidth_limited_peers_;
         size_t connected_peers_;
