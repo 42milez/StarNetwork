@@ -6,7 +6,7 @@
 #include "lib/rudp/protocol/RUdpProtocolType.h"
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/const.h"
-#include "lib/rudp/RUdpMacro.h"
+#include "lib/rudp/macro.h"
 #include "lib/rudp/RUdpSegment.h"
 #include "lib/rudp/RUdpType.h"
 

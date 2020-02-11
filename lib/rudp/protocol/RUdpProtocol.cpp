@@ -4,7 +4,7 @@
 
 #include "lib/rudp/command/RUdpCommandSize.h"
 #include "lib/rudp/channel.h"
-#include "lib/rudp/RUdpMacro.h"
+#include "lib/rudp/macro.h"
 #include "lib/rudp/RUdpTime.h"
 #include "RUdpProtocol.h"
 

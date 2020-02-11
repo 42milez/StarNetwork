@@ -1,7 +1,7 @@
 #include "core/hash.h"
 
 #include "lib/rudp/peer/RUdpPeerPod.h"
-#include "RUdpMacro.h"
+#include "macro.h"
 #include "event.h"
 #include "host.h"
 

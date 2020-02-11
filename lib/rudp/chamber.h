@@ -5,7 +5,7 @@
 
 #include "lib/rudp/command/RUdpOutgoingCommand.h"
 #include "buffer.h"
-#include "RUdpMacro.h"
+#include "macro.h"
 
 namespace rudp
 {

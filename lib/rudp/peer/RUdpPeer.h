@@ -14,7 +14,7 @@
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
 #include "lib/rudp/checksum.h"
-#include "lib/rudp/RUdpMacro.h"
+#include "lib/rudp/macro.h"
 #include "RUdpPeerNet.h"
 #include "lib/rudp/RUdpSegment.h"
 

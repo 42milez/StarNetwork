@@ -7,7 +7,7 @@
 #include "core/singleton.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 #include "lib/rudp/enum.h"
-#include "lib/rudp/RUdpMacro.h"
+#include "lib/rudp/macro.h"
 
 namespace rudp
 {
