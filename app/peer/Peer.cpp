@@ -2,7 +2,7 @@
 
 #include "core/ExitHandler.h"
 #include "Network.h"
-#include "peer.h"
+#include "Peer.h"
 
 namespace peer
 {
