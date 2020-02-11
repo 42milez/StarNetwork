@@ -1,8 +1,8 @@
-#include "RUdpCommand.h"
+#include "command.h"
 
 namespace rudp
 {
-    RUdpCommand::RUdpCommand()
+    Command::Command()
             : command_(),
               fragment_length_(),
               fragment_offset_(),
@@ -10,7 +10,7 @@ namespace rudp
     {}
 
     void
-    RUdpCommand::MoveDataTo(const std::shared_ptr<Buffer> &buffer)
+    Command::MoveDataTo(const std::shared_ptr<Buffer> &buffer)
     {
         buffer->CopySegmentFrom(segment_, fragment_offset_, fragment_length_);
     }

@@ -1,11 +1,11 @@
 #ifndef P2P_TECHDEMO_RUDPINCOMINGCOMMAND_H
 #define P2P_TECHDEMO_RUDPINCOMINGCOMMAND_H
 
-#include "RUdpCommand.h"
+#include "command.h"
 
 namespace rudp
 {
-    class RUdpIncomingCommand : public RUdpCommand
+    class RUdpIncomingCommand : public Command
     {
     public:
         RUdpIncomingCommand();

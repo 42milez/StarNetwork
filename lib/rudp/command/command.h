@@ -12,10 +12,10 @@
 
 namespace rudp
 {
-    class RUdpCommand
+    class Command
     {
     public:
-        RUdpCommand();
+        Command();
 
         inline uint8_t
         CommandNumber() { return command_->header.command & PROTOCOL_COMMAND_MASK; }

@@ -9,7 +9,7 @@
 #include "lib/rudp/peer/RUdpPeerNet.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
-#include "RUdpCommand.h"
+#include "command.h"
 
 namespace rudp
 {
