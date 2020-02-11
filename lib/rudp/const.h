@@ -4,7 +4,7 @@
 #include <array>
 #include <cstdint>
 
-#include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "lib/rudp/protocol/protocol_type.h"
 
 namespace rudp
 {

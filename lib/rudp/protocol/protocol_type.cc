@@ -4,7 +4,7 @@
 
 #include "lib/rudp/const.h"
 #include "lib/rudp/enum.h"
-#include "RUdpProtocolType.h"
+#include "protocol_type.h"
 
 namespace rudp
 {

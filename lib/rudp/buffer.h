@@ -6,7 +6,7 @@
 #include <string>
 #include <variant>
 
-#include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "lib/rudp/protocol/protocol_type.h"
 #include "segment.h"
 #include "type.h"
 

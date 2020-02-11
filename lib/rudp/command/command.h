@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "lib/rudp/protocol/RUdpProtocolType.h"
+#include "lib/rudp/protocol/protocol_type.h"
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/const.h"
 #include "lib/rudp/macro.h"
