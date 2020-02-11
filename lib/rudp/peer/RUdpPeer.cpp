@@ -288,7 +288,7 @@ namespace rudp
     RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
             const std::shared_ptr<Segment> &segment, uint32_t offset)
     {
-        std::shared_ptr<RUdpOutgoingCommand> outgoing_command = std::make_shared<RUdpOutgoingCommand>();
+        std::shared_ptr<OutgoingCommand> outgoing_command = std::make_shared<OutgoingCommand>();
 
         outgoing_command->command(protocol_type);
         outgoing_command->fragment_offset(offset);
@@ -393,14 +393,14 @@ namespace rudp
                 core::Singleton<core::Logger>::Instance().Debug("**********");
             }
 
-            std::list<std::shared_ptr<RUdpOutgoingCommand>> fragments;
+            std::list<std::shared_ptr<OutgoingCommand>> fragments;
 
             for (auto fragment_number = 0, fragment_offset = 0; fragment_offset < data_length; ++fragment_number, fragment_offset += fragment_length)
             {
                 if (data_length - fragment_offset < fragment_length)
                     fragment_length = data_length - fragment_offset;
 
-                std::shared_ptr<RUdpOutgoingCommand> fragment = std::make_shared<RUdpOutgoingCommand>();
+                std::shared_ptr<OutgoingCommand> fragment = std::make_shared<OutgoingCommand>();
 
                 if (fragment == nullptr)
                 {

@@ -36,7 +36,7 @@ namespace rudp
         Reset();
 
         void
-        SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command, const std::shared_ptr<Channel> &channel);
+        SetupOutgoingCommand(std::shared_ptr<OutgoingCommand> &outgoing_command, const std::shared_ptr<Channel> &channel);
 
         bool
         Timeout(const std::unique_ptr<RUdpPeerNet> &net, uint32_t service_time);
@@ -72,9 +72,9 @@ namespace rudp
         IncrementReliableDataInTransit(uint32_t val) { reliable_data_in_transit_ += val; };
 
         inline
-        std::map<std::string, std::list<std::shared_ptr<RUdpOutgoingCommand>>>
+        std::map<std::string, std::list<std::shared_ptr<OutgoingCommand>>>
         Inspect() {
-            std::map<std::string, std::list<std::shared_ptr<RUdpOutgoingCommand>>> ret{
+            std::map<std::string, std::list<std::shared_ptr<OutgoingCommand>>> ret{
                     {"sent_reliable_commands", sent_reliable_commands_},
                     {"outgoing_reliable_commands", outgoing_reliable_commands_}
             };
@@ -122,10 +122,10 @@ namespace rudp
         round_trip_time_variance(uint32_t val) { round_trip_time_variance_ = val; }
 
     private:
-        std::list<std::shared_ptr<RUdpOutgoingCommand>> outgoing_reliable_commands_;
-        std::list<std::shared_ptr<RUdpOutgoingCommand>> outgoing_unreliable_commands_;
-        std::list<std::shared_ptr<RUdpOutgoingCommand>> sent_reliable_commands_;
-        std::list<std::shared_ptr<RUdpOutgoingCommand>> sent_unreliable_commands_;
+        std::list<std::shared_ptr<OutgoingCommand>> outgoing_reliable_commands_;
+        std::list<std::shared_ptr<OutgoingCommand>> outgoing_unreliable_commands_;
+        std::list<std::shared_ptr<OutgoingCommand>> sent_reliable_commands_;
+        std::list<std::shared_ptr<OutgoingCommand>> sent_unreliable_commands_;
 
         uint32_t incoming_data_total_;
         uint32_t outgoing_data_total_;

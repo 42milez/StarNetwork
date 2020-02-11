@@ -43,7 +43,7 @@ namespace rudp
     Chamber::SendingContinues(const Chamber::CmdBufIt cmd_it,
             const Chamber::DataBufIt buf_it,
             uint32_t mtu,
-            const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command)
+            const std::shared_ptr<OutgoingCommand> &outgoing_command)
     {
         // MEMO: [誤] SendReliableOutgoingCommands() では
         //            buffer に command が挿入されたら同時にインクリメントされるので、

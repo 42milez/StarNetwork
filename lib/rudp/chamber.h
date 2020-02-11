@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "lib/rudp/command/RUdpOutgoingCommand.h"
+#include "lib/rudp/command/outgoing_command.h"
 #include "buffer.h"
 #include "macro.h"
 
@@ -26,7 +26,7 @@ namespace rudp
 
         bool
         SendingContinues(Chamber::CmdBufIt cmd_it, Chamber::DataBufIt buf_it, uint32_t mtu,
-                const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command);
+                const std::shared_ptr<OutgoingCommand> &outgoing_command);
 
         int
         Write(VecUInt8 &out);

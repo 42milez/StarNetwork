@@ -5,10 +5,10 @@
 
 namespace rudp
 {
-    class RUdpOutgoingCommand : public Command
+    class OutgoingCommand : public Command
     {
     public:
-        RUdpOutgoingCommand();
+        OutgoingCommand();
 
         inline void
         IncrementSendAttempts() { ++send_attempts_; }

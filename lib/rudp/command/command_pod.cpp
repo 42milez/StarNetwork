@@ -13,7 +13,7 @@ namespace rudp
         bool
         WindowWraps(const std::shared_ptr<Channel> &channel,
                 int reliable_window,
-                const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command) {
+                const std::shared_ptr<OutgoingCommand> &outgoing_command) {
             auto has_not_sent_once = outgoing_command->send_attempts() == 0;
 
             auto first_command_in_window = !(outgoing_command->reliable_sequence_number() % PEER_RELIABLE_WINDOW_SIZE);
@@ -36,7 +36,7 @@ namespace rudp
         WindowExceeds(uint32_t reliable_data_in_transit,
                 uint32_t mtu,
                 uint32_t window_size,
-                const std::shared_ptr<RUdpOutgoingCommand> &outgoing_command) {
+                const std::shared_ptr<OutgoingCommand> &outgoing_command) {
             return (reliable_data_in_transit + outgoing_command->fragment_length()) > std::max(window_size, mtu);
         }
     }
@@ -318,7 +318,7 @@ namespace rudp
     RUdpProtocolCommand
     CommandPod::RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
             std::shared_ptr<Channel> &channel) {
-        std::shared_ptr<RUdpOutgoingCommand> outgoing_command;
+        std::shared_ptr<OutgoingCommand> outgoing_command;
         auto it = sent_reliable_commands_.begin();
         auto it_end = sent_reliable_commands_.end();
         auto no_sent_reliable_command_matched = false;
@@ -433,7 +433,7 @@ namespace rudp
     }
 
     void
-    CommandPod::SetupOutgoingCommand(std::shared_ptr<RUdpOutgoingCommand> &outgoing_command,
+    CommandPod::SetupOutgoingCommand(std::shared_ptr<OutgoingCommand> &outgoing_command,
             const std::shared_ptr<Channel> &channel) {
         outgoing_data_total_ +=
                 COMMAND_SIZES.at(outgoing_command->CommandNumber()) + outgoing_command->fragment_length();
