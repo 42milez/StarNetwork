@@ -227,12 +227,12 @@ namespace rudp
             return {nullptr, DiscardCommand(fragment_count)};
         }
 
-        std::shared_ptr<RUdpSegment> segment = nullptr;
+        std::shared_ptr<Segment> segment = nullptr;
 
         if (fragment_count > 0) {
-            segment = std::make_shared<RUdpSegment>(data, flags, cmd->send_fragment.total_length);
+            segment = std::make_shared<Segment>(data, flags, cmd->send_fragment.total_length);
         } else {
-            segment = std::make_shared<RUdpSegment>(data, flags);
+            segment = std::make_shared<Segment>(data, flags);
         }
 
         if (segment == nullptr)

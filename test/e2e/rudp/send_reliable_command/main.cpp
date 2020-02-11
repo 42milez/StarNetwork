@@ -139,8 +139,8 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
 
   std::string msg1{"command from guest1"};
   auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
-  auto flags1 = static_cast<uint32_t>(rudp::RUdpSegmentFlag::RELIABLE);
-  auto segment1 = std::make_shared<rudp::RUdpSegment>(data1, flags1);
+  auto flags1 = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+  auto segment1 = std::make_shared<rudp::Segment>(data1, flags1);
 
   LOG("[GUEST 1 : SEND (1)]");
   REQUIRE(guest1->Send(0, rudp::SysCh::RELIABLE, segment1) == Error::OK);
@@ -172,8 +172,8 @@ TEST_CASE("guest sends a reliable command to host", "[reliable command]") {
 
   std::string msg2{"command from guest2"};
   auto data2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
-  auto flags2 = static_cast<uint32_t>(rudp::RUdpSegmentFlag::RELIABLE);
-  auto segment2 = std::make_shared<rudp::RUdpSegment>(data2, flags2);
+  auto flags2 = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+  auto segment2 = std::make_shared<rudp::Segment>(data2, flags2);
 
   LOG("[GUEST 2 : SEND (1)]");
   REQUIRE(guest2->Send(0, rudp::SysCh::RELIABLE, segment2) == Error::OK);
@@ -304,8 +304,8 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
   std::string msg1
       {"Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of my soul."};
   auto payload1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
-  auto flags1 = static_cast<uint32_t>(rudp::RUdpSegmentFlag::RELIABLE);
-  auto segment1 = std::make_shared<rudp::RUdpSegment>(payload1, flags1);
+  auto flags1 = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+  auto segment1 = std::make_shared<rudp::Segment>(payload1, flags1);
 
   LOG("[GUEST 1 : SEND (1)]");
   REQUIRE(guest1->Send(0, rudp::SysCh::RELIABLE, segment1) == Error::OK);
@@ -342,8 +342,8 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
   std::string msg2
       {".luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO .luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH ,etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA ,edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI .luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc taht thgin eht fo tuO"};
   auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
-  auto flags2 = static_cast<uint32_t>(rudp::RUdpSegmentFlag::RELIABLE);
-  auto segment2 = std::make_shared<rudp::RUdpSegment>(payload2, flags2);
+  auto flags2 = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+  auto segment2 = std::make_shared<rudp::Segment>(payload2, flags2);
 
   LOG("[GUEST 2 : SEND (1)]");
   REQUIRE(guest2->Send(0, rudp::SysCh::RELIABLE, segment2) == Error::OK);

@@ -7,7 +7,7 @@
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/const.h"
 #include "lib/rudp/macro.h"
-#include "lib/rudp/RUdpSegment.h"
+#include "lib/rudp/segment.h"
 #include "lib/rudp/RUdpType.h"
 
 namespace rudp
@@ -63,11 +63,11 @@ namespace rudp
         inline void
         header_reliable_sequence_number(uint16_t val) { command_->header.reliable_sequence_number = val; }
 
-        inline RUdpSegmentSP &
+        inline SegmentSP &
         segment() { return segment_; }
 
         inline void
-        segment(const RUdpSegmentSP &segment) { segment_ = segment; }
+        segment(const SegmentSP &segment) { segment_ = segment; }
 
         inline void
         send_fragment_data_length(uint16_t val) { command_->send_fragment.data_length = val; }
@@ -95,7 +95,7 @@ namespace rudp
 
     protected:
         RUdpProtocolTypeSP command_;
-        RUdpSegmentSP segment_;
+        SegmentSP segment_;
 
         uint32_t fragment_offset_;
         uint16_t fragment_length_;

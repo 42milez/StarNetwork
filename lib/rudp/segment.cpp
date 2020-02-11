@@ -4,11 +4,11 @@
 #include "core/logger.h"
 #include "core/singleton.h"
 #include "enum.h"
-#include "RUdpSegment.h"
+#include "segment.h"
 
 namespace rudp
 {
-    RUdpSegment::RUdpSegment(VecUInt8 &data, uint32_t flags)
+    Segment::Segment(VecUInt8 &data, uint32_t flags)
             : buffer_pos_(),
               flags_(flags),
               free_callback_(),
@@ -28,7 +28,7 @@ namespace rudp
         }
     }
 
-    RUdpSegment::RUdpSegment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size)
+    Segment::Segment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size)
             : buffer_pos_(),
               flags_(flags),
               free_callback_(),
@@ -49,7 +49,7 @@ namespace rudp
     }
 
     void
-    RUdpSegment::Destroy()
+    Segment::Destroy()
     {
         if (free_callback_ != nullptr)
             free_callback_(this);
@@ -59,7 +59,7 @@ namespace rudp
     }
 
     void
-    RUdpSegment::AddSysMsg(SysMsg msg)
+    Segment::AddSysMsg(SysMsg msg)
     {
         auto msg_encoded = htonl(static_cast<uint32_t>(msg));
 
@@ -67,7 +67,7 @@ namespace rudp
     }
 
     void
-    RUdpSegment::AddPeerIdx(uint32_t peer_idx)
+    Segment::AddPeerIdx(uint32_t peer_idx)
     {
         auto peer_idx_encoded = htonl(peer_idx);
 

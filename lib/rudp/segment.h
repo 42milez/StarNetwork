@@ -11,12 +11,12 @@
 
 namespace rudp
 {
-    class RUdpSegment
+    class Segment
     {
     public:
-        RUdpSegment(VecUInt8 &data, uint32_t flags);
+        Segment(VecUInt8 &data, uint32_t flags);
 
-        RUdpSegment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size);
+        Segment(VecUInt8 &data, uint32_t flags, uint32_t buffer_size);
 
         void
         AddPeerIdx(uint32_t peer_idx);
@@ -62,12 +62,12 @@ namespace rudp
 
         size_t buffer_pos_;
 
-        std::function<void(RUdpSegment *)> free_callback_;
+        std::function<void(Segment *)> free_callback_;
 
         uint32_t flags_;
     };
 
-    using RUdpSegmentSP = std::shared_ptr<RUdpSegment>;
+    using SegmentSP = std::shared_ptr<Segment>;
 } // namespace rudp
 
 #endif // P2P_TECHDEMO_RUDPSEGMENT_H

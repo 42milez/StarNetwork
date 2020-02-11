@@ -26,7 +26,7 @@ namespace rudp
     }
 
     void
-    Host::Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+    Host::Broadcast(SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto &peers = peer_pod_->peers();
 
@@ -73,7 +73,7 @@ namespace rudp
     }
 
     Error
-    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment)
+    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto peer = peer_pod_->Peer(peer_id);
         auto &net = peer->net();

@@ -63,7 +63,7 @@ namespace rudp
         HEADER_SESSION_SHIFT = 12
     };
 
-    enum class RUdpSegmentFlag: uint16_t
+    enum class SegmentFlag: uint16_t
     {
         // segment must be received by the target peer and
         // resend attempts should be made until the segment is delivered

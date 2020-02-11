@@ -16,7 +16,7 @@
 #include "lib/rudp/checksum.h"
 #include "lib/rudp/macro.h"
 #include "RUdpPeerNet.h"
-#include "lib/rudp/RUdpSegment.h"
+#include "lib/rudp/segment.h"
 
 namespace rudp
 {
@@ -51,10 +51,10 @@ namespace rudp
                 uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data);
 
         void
-        QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<RUdpSegment> &segment,
+        QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &command, const std::shared_ptr<Segment> &segment,
                 uint32_t offset);
 
-        std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>
+        std::tuple<std::shared_ptr<Segment>, uint8_t>
         Receive();
 
         RUdpProtocolCommand
@@ -67,7 +67,7 @@ namespace rudp
         ResetPeerQueues();
 
         Error
-        Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCallback checksum);
+        Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum);
 
         Error
         Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,

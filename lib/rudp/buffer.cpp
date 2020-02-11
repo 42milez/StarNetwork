@@ -42,7 +42,7 @@ namespace rudp
     }
 
     void
-    Buffer::CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size)
+    Buffer::CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size)
     {
         buffer_ = segment->Data(offset, size);
         offset_ = offset;

@@ -34,7 +34,7 @@ public:
     }
 
     void
-    Broadcast(rudp::SysCh ch, std::shared_ptr<rudp::RUdpSegment> &segment)
+    Broadcast(rudp::SysCh ch, std::shared_ptr<rudp::Segment> &segment)
     { host_->Broadcast(ch, segment); }
 
     rudp::RUdpPeerState
@@ -193,8 +193,8 @@ TEST_CASE_METHOD(HostFixture, "Broadcast", "[broadcast]")
 
     std::string msg1{"broadcast command from host"};
     auto data1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
-    auto flags1 = static_cast<uint32_t>(rudp::RUdpSegmentFlag::RELIABLE);
-    auto segment1 = std::make_shared<rudp::RUdpSegment>(data1, flags1);
+    auto flags1 = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+    auto segment1 = std::make_shared<rudp::Segment>(data1, flags1);
 
     LOG("");
     LOG("[HOST : BROADCAST (1)]");

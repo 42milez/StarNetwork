@@ -286,7 +286,7 @@ namespace rudp
     // TODO: Is segment necessary as an argument?
     void
     RUdpPeer::QueueOutgoingCommand(const std::shared_ptr<RUdpProtocolType> &protocol_type,
-            const std::shared_ptr<RUdpSegment> &segment, uint32_t offset)
+            const std::shared_ptr<Segment> &segment, uint32_t offset)
     {
         std::shared_ptr<RUdpOutgoingCommand> outgoing_command = std::make_shared<RUdpOutgoingCommand>();
 
@@ -328,7 +328,7 @@ namespace rudp
         }
     }
 
-    std::tuple<std::shared_ptr<RUdpSegment>, uint8_t>
+    std::tuple<std::shared_ptr<Segment>, uint8_t>
     RUdpPeer::Receive()
     {
         if (dispatched_commands_.empty())
@@ -345,7 +345,7 @@ namespace rudp
     }
 
     Error
-    RUdpPeer::Send(SysCh ch, const std::shared_ptr<RUdpSegment> &segment, ChecksumCallback checksum)
+    RUdpPeer::Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED) ||
             static_cast<uint32_t>(ch) >= channels_.size() ||
@@ -376,9 +376,9 @@ namespace rudp
 
             // process a segment as unreliable fragment when the frag has RELIABLE and UNRELIABLE_FRAGMENT
             if ((segment->flags() & (
-                    static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE) |
-                    static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT)
-            )) == static_cast<uint32_t>(RUdpSegmentFlag::UNRELIABLE_FRAGMENT) &&
+                    static_cast<uint32_t>(SegmentFlag::RELIABLE) |
+                    static_cast<uint32_t>(SegmentFlag::UNRELIABLE_FRAGMENT)
+            )) == static_cast<uint32_t>(SegmentFlag::UNRELIABLE_FRAGMENT) &&
                 channel->outgoing_unreliable_sequence_number() < 0xFFFF)
             {
                 command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
@@ -437,15 +437,15 @@ namespace rudp
 
         auto cmd = std::make_shared<RUdpProtocolType>();
 
-        if ((segment->flags() & (static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE) |
-                                 static_cast<uint16_t>(RUdpSegmentFlag::UNSEQUENCED))
-            ) == static_cast<uint16_t>(RUdpSegmentFlag::UNSEQUENCED))
+        if ((segment->flags() & (static_cast<uint16_t>(SegmentFlag::RELIABLE) |
+                                 static_cast<uint16_t>(SegmentFlag::UNSEQUENCED))
+            ) == static_cast<uint16_t>(SegmentFlag::UNSEQUENCED))
         {
             cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNSEQUENCED) |
                                   static_cast<uint8_t>(RUdpProtocolFlag ::COMMAND_UNSEQUENCED);
             cmd->send_unsequenced.data_length = htons(segment->DataLength());
         }
-        else if (segment->flags() & static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE) ||
+        else if (segment->flags() & static_cast<uint16_t>(SegmentFlag::RELIABLE) ||
                  channel->outgoing_unreliable_sequence_number() >= 0xFFFF)
         {
             cmd->header.command = static_cast<uint8_t>(RUdpProtocolCommand::SEND_RELIABLE) |

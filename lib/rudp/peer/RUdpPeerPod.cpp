@@ -375,7 +375,7 @@ namespace rudp
                     EXCEEDS_RECEIVED_LENGTH()
 
                     if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
-                            static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE), 0) == Error::ERROR)
+                            static_cast<uint16_t>(SegmentFlag::RELIABLE), 0) == Error::ERROR)
                     { IS_EVENT_AVAILABLE() }
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE)
@@ -405,7 +405,7 @@ namespace rudp
                     EXCEEDS_RECEIVED_LENGTH()
 
                     if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
-                            static_cast<uint16_t>(RUdpSegmentFlag::RELIABLE)) == Error::ERROR)
+                            static_cast<uint16_t>(SegmentFlag::RELIABLE)) == Error::ERROR)
                     { IS_EVENT_AVAILABLE() }
                 }
                 else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT)
@@ -474,8 +474,8 @@ namespace rudp
     RUdpPeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<RUdpPeer> &peer, ChecksumCallback checksum)
     {
         std::vector<uint8_t> empty_data;
-        std::shared_ptr<RUdpSegment> segment = std::make_shared<RUdpSegment>(empty_data,
-                static_cast<uint32_t>(RUdpSegmentFlag::RELIABLE));
+        std::shared_ptr<Segment> segment = std::make_shared<Segment>(empty_data,
+                static_cast<uint32_t>(SegmentFlag::RELIABLE));
 
         segment->AddSysMsg(SysMsg::REMOVE_PEER);
         segment->AddPeerIdx(peer_idx);

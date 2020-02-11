@@ -18,7 +18,7 @@ namespace rudp
                 uint32_t out_bandwidth); // bytes per second
 
         void
-        Broadcast(SysCh ch, std::shared_ptr<RUdpSegment> &segment);
+        Broadcast(SysCh ch, std::shared_ptr<Segment> &segment);
 
         Error
         Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data);
@@ -27,7 +27,7 @@ namespace rudp
         RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<RUdpPeer> &peer);
 
         Error
-        Send(size_t peer_id, SysCh ch, std::shared_ptr<RUdpSegment> &segment);
+        Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment);
 
         EventStatus
         Service(std::unique_ptr<Event> &event, uint32_t timeout);

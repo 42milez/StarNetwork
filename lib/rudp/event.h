@@ -43,14 +43,14 @@ namespace rudp
         peer(std::shared_ptr<RUdpPeer> &val) { peer_ = val; }
 
         inline void
-        segment(std::shared_ptr<RUdpSegment> &val) { segment_ = val; }
+        segment(std::shared_ptr<Segment> &val) { segment_ = val; }
 
         inline void
         type(EventType val) { type_ = val; }
 
     private:
         std::shared_ptr<RUdpPeer> peer_;
-        std::shared_ptr<RUdpSegment> segment_;
+        std::shared_ptr<Segment> segment_;
 
         EventType type_;
 

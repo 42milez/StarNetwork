@@ -7,7 +7,7 @@
 #include <variant>
 
 #include "lib/rudp/protocol/RUdpProtocolType.h"
-#include "RUdpSegment.h"
+#include "segment.h"
 #include "RUdpType.h"
 
 namespace rudp
@@ -24,7 +24,7 @@ namespace rudp
         CopyHeaderFrom(const VecUInt8 &data, size_t offset, size_t size);
 
         void
-        CopySegmentFrom(const std::shared_ptr<RUdpSegment> &segment, size_t offset, size_t size = 0);
+        CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size = 0);
 
         std::string
         ProtocolCommandAsString();

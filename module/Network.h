@@ -12,7 +12,7 @@
 #include "lib/rudp/compress.h"
 #include "lib/rudp/event.h"
 #include "lib/rudp/host.h"
-#include "lib/rudp/RUdpSegment.h"
+#include "lib/rudp/segment.h"
 #include "lib/rudp/peer/RUdpPeer.h"
 
 class Network
@@ -78,7 +78,7 @@ private:
         Segment();
 
     public:
-        std::shared_ptr<rudp::RUdpSegment> segment;
+        std::shared_ptr<rudp::Segment> segment;
 
         int channel;
         int from;
