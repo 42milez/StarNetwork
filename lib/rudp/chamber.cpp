@@ -2,7 +2,7 @@
 
 #include "core/logger.h"
 #include "core/singleton.h"
-#include "lib/rudp/command/RUdpCommandSize.h"
+#include "lib/rudp/command/command_size.h"
 #include "chamber.h"
 
 namespace rudp

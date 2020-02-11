@@ -5,7 +5,7 @@
 #endif
 
 #include "lib/rudp/enum.h"
-#include "RUdpCommandSize.h"
+#include "command_size.h"
 
 namespace rudp
 {
