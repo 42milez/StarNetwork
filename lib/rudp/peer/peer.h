@@ -119,7 +119,7 @@ namespace rudp
         ExceedsPingInterval(uint32_t service_time) { return UDP_TIME_DIFFERENCE(service_time, last_receive_time_) >= ping_interval_; }
 
         inline bool
-        HasEnoughSpace(size_t segment_size) { return net_->mtu() - segment_size >= sizeof(RUdpProtocolPing); }
+        HasEnoughSpace(size_t segment_size) { return net_->mtu() - segment_size >= sizeof(ProtocolPing); }
 
         inline void
         Reset() { this->Reset(incoming_peer_id_); }

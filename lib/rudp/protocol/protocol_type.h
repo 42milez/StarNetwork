@@ -67,7 +67,7 @@ namespace rudp
         uint32_t data;
     };
 
-    using RUdpProtocolPing = struct RUdpProtocolPing
+    using ProtocolPing = struct ProtocolPing
     {
         ProtocolCommandHeader header;
     };
@@ -125,7 +125,7 @@ namespace rudp
         ProtocolConnect connect;
         ProtocolVerifyConnect verify_connect;
         ProtocolDisconnect disconnect;
-        RUdpProtocolPing ping;
+        ProtocolPing ping;
         RUdpProtocolSendReliable send_reliable;
         RUdpProtocolSendUnreliable send_unreliable;
         RUdpProtocolSendUnsequenced send_unsequenced;
