@@ -16,7 +16,7 @@ namespace rudp
             sizeof(ProtocolDisconnect),
             sizeof(ProtocolPing),
             sizeof(ProtocolSendReliable),
-            sizeof(RUdpProtocolSendUnreliable),
+            sizeof(ProtocolSendUnreliable),
             sizeof(RUdpProtocolSendFragment),
             sizeof(RUdpProtocolSendUnsequenced),
             sizeof(RUdpProtocolBandwidthLimit),

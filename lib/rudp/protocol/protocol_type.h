@@ -78,7 +78,7 @@ namespace rudp
         uint16_t data_length;
     };
 
-    using RUdpProtocolSendUnreliable = struct RUdpProtocolSendUnreliable
+    using ProtocolSendUnreliable = struct ProtocolSendUnreliable
     {
         ProtocolCommandHeader header;
         uint16_t unreliable_sequence_number;
@@ -127,7 +127,7 @@ namespace rudp
         ProtocolDisconnect disconnect;
         ProtocolPing ping;
         ProtocolSendReliable send_reliable;
-        RUdpProtocolSendUnreliable send_unreliable;
+        ProtocolSendUnreliable send_unreliable;
         RUdpProtocolSendUnsequenced send_unsequenced;
         RUdpProtocolSendFragment send_fragment;
         RUdpProtocolBandwidthLimit bandwidth_limit;
