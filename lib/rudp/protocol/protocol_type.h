@@ -85,7 +85,7 @@ namespace rudp
         uint16_t data_length;
     };
 
-    using RUdpProtocolSendUnsequenced = struct RUdpProtocolSendUnsequenced
+    using ProtocolSendUnsequenced = struct ProtocolSendUnsequenced
     {
         ProtocolCommandHeader header;
         uint16_t unsequenced_group;
@@ -128,7 +128,7 @@ namespace rudp
         ProtocolPing ping;
         ProtocolSendReliable send_reliable;
         ProtocolSendUnreliable send_unreliable;
-        RUdpProtocolSendUnsequenced send_unsequenced;
+        ProtocolSendUnsequenced send_unsequenced;
         RUdpProtocolSendFragment send_fragment;
         RUdpProtocolBandwidthLimit bandwidth_limit;
         RUdpProtocolThrottleConfigure throttle_configure;
