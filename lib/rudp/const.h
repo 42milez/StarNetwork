@@ -13,7 +13,7 @@ namespace rudp
             sizeof(ProtocolAcknowledge),
             sizeof(ProtocolConnect),
             sizeof(ProtocolVerifyConnect),
-            sizeof(RUdpProtocolDisconnect),
+            sizeof(ProtocolDisconnect),
             sizeof(RUdpProtocolPing),
             sizeof(RUdpProtocolSendReliable),
             sizeof(RUdpProtocolSendUnreliable),

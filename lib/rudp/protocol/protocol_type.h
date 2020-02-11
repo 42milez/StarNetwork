@@ -61,7 +61,7 @@ namespace rudp
         uint32_t connect_id;
     };
 
-    using RUdpProtocolDisconnect = struct RUdpProtocolDisconnect
+    using ProtocolDisconnect = struct ProtocolDisconnect
     {
         ProtocolCommandHeader header;
         uint32_t data;
@@ -124,7 +124,7 @@ namespace rudp
         ProtocolAcknowledge acknowledge;
         ProtocolConnect connect;
         ProtocolVerifyConnect verify_connect;
-        RUdpProtocolDisconnect disconnect;
+        ProtocolDisconnect disconnect;
         RUdpProtocolPing ping;
         RUdpProtocolSendReliable send_reliable;
         RUdpProtocolSendUnreliable send_unreliable;
