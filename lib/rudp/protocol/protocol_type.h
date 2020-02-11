@@ -72,7 +72,7 @@ namespace rudp
         ProtocolCommandHeader header;
     };
 
-    using RUdpProtocolSendReliable = struct RUdpProtocolSendReliable
+    using ProtocolSendReliable = struct ProtocolSendReliable
     {
         ProtocolCommandHeader header;
         uint16_t data_length;
@@ -126,7 +126,7 @@ namespace rudp
         ProtocolVerifyConnect verify_connect;
         ProtocolDisconnect disconnect;
         ProtocolPing ping;
-        RUdpProtocolSendReliable send_reliable;
+        ProtocolSendReliable send_reliable;
         RUdpProtocolSendUnreliable send_unreliable;
         RUdpProtocolSendUnsequenced send_unsequenced;
         RUdpProtocolSendFragment send_fragment;
