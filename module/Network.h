@@ -1,19 +1,19 @@
-#ifndef P2P_TECHDEMO_NETWORK_H
-#define P2P_TECHDEMO_NETWORK_H
+#ifndef TD_MODULE_NETWORK_H_
+#define TD_MODULE_NETWORK_H_
 
 #include <list>
 #include <map>
 #include <vector>
 
-#include "core/io/ip_address.h"
-#include "core/errors.h"
+#include "lib/core/io/ip_address.h"
+#include "lib/core/errors.h"
 
-#include "lib/rudp/RUdpBuffer.h"
-#include "lib/rudp/RUdpCompress.h"
-#include "lib/rudp/RUdpEvent.h"
-#include "lib/rudp/RUdpHost.h"
-#include "lib/rudp/RUdpSegment.h"
-#include "lib/rudp/peer/RUdpPeer.h"
+#include "lib/rudp/buffer.h"
+#include "lib/rudp/compress.h"
+#include "lib/rudp/event.h"
+#include "lib/rudp/host.h"
+#include "lib/rudp/segment.h"
+#include "lib/rudp/peer/peer.h"
 
 class Network
 {
@@ -78,26 +78,26 @@ private:
         Segment();
 
     public:
-        std::shared_ptr<RUdpSegment> segment;
+        std::shared_ptr<rudp::Segment> segment;
 
         int channel;
         int from;
     };
 
     std::list<Segment> incoming_segments_;
-    std::map<int, std::shared_ptr<RUdpPeer>> peers_;
+    std::map<int, std::shared_ptr<rudp::Peer>> peers_;
 
     std::vector<uint8_t> dst_compressor_mem_;
     std::vector<uint8_t> src_compressor_mem_;
 
-    std::shared_ptr<RUdpCompress> compress_;
-    std::shared_ptr<RUdpHost> host_;
+    std::shared_ptr<rudp::Compress> compress_;
+    std::shared_ptr<rudp::Host> host_;
 
     CompressionMode compression_mode_;
     ConnectionStatus connection_status_;
     IpAddress bind_ip_;
     Segment current_segment_;
-    SysCh channel_count_;
+    rudp::SysCh channel_count_;
     TransferMode transfer_mode_;
 
     uint32_t unique_id_;
@@ -111,7 +111,7 @@ private:
     bool server_;
 
 private:
-    size_t Compressor(const std::vector<RUdpBuffer> &in_buffers,
+    size_t Compressor(const std::vector<rudp::Buffer> &in_buffers,
                       size_t in_limit,
                       std::vector<uint8_t> &out_data,
                       size_t out_limit);
@@ -126,4 +126,4 @@ private:
     void SetupCompressor();
 };
 
-#endif // P2P_TECHDEMO_NETWORK_H
+#endif // TD_MODULE_NETWORK_H_

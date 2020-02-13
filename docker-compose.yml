@@ -1,38 +1,37 @@
-version: "3"
+version: "3.7"
 services:
-  test_template: &test_template
+  test_base: &test_base
     build:
-      context: "."
-      dockerfile: "./docker/Dockerfile"
-    image: "p2p-techdemo-test"
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: p2p-techdemo-test
     stdin_open: true
     tty: true
     volumes:
-      - "./.git:/tmp/workspace/.git"
-      - "./app:/tmp/workspace/app"
-      - "./cmake:/tmp/workspace/cmake"
-      - "./core:/tmp/workspace/core"
-      - "./docker:/tmp/workspace/docker"
-      - "./lib:/tmp/workspace/lib"
-      - "./module:/tmp/workspace/module"
-      - "./test:/tmp/workspace/test"
-      - "./CMakeLists.txt:/tmp/workspace/CMakeLists.txt"
-      - "cmake_build_test:/tmp/workspace/cmake-build-test"
-      - "hunter:/root/.hunter"
+      - ./.git:/var/app/.git
+      - ./app:/var/app/app
+      - ./cmake:/var/app/cmake
+      - ./docker:/var/app/docker
+      - ./lib:/var/app/lib
+      - ./module:/var/app/module
+      - ./test:/var/app/test
+      - ./CMakeLists.txt:/var/app/CMakeLists.txt
+      - cmake_build_test:/var/app/cmake-build-test
+      - hunter:/root/.hunter
   e2e_test:
-    <<: *test_template
-    container_name: "p2p-techdemo-e2e-test"
+    <<: *test_base
+    container_name: p2p-techdemo-e2e-test
     command: >
       bash -c "/bin/bash ./docker/scripts/build.sh &&
                /bin/bash ./docker/scripts/run_e2e_test.sh"
   unit_test:
-    <<: *test_template
-    container_name: "p2p-techdemo-unit-test"
+    <<: *test_base
+    container_name: p2p-techdemo-unit-test
     command: >
       bash -c "/bin/bash ./docker/scripts/build.sh &&
                /bin/bash ./docker/scripts/run_unit_test.sh"
 volumes:
   cmake_build_test:
-    driver: 'local'
+    driver: local
   hunter:
-    driver: 'local'
+    driver: local

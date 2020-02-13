@@ -1,7 +1,7 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.cc)
 file(GLOB headers *.h)
 
-add_executable(peer main.cpp ${sources} ${headers})
+add_executable(peer main.cc ${sources} ${headers})
 
 set(libs
     p2p_techdemo-buildinfo
