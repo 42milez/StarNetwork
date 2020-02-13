@@ -63,7 +63,7 @@ find_package(spdlog CONFIG REQUIRED)
 #  Directories
 # --------------------------------------------------
 include_directories(${CMAKE_SOURCE_DIR})
-add_subdirectory(app/peer)
+add_subdirectory(app)
 add_subdirectory(lib/core)
 add_subdirectory(lib/rudp)
 add_subdirectory(module)
