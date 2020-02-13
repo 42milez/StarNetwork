@@ -1,2 +1,9 @@
 Language: Cpp
 BasedOnStyle: Microsoft
+
+AlwaysBreakAfterReturnType: All
+AlignConsecutiveAssignments: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterNamespace: true
+NamespaceIndentation: All
