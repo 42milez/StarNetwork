@@ -1,10 +1,10 @@
 version: "3.7"
 services:
-  test_base: &test_base
+  base: &base
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
-    image: p2p-techdemo-test
+      dockerfile: docker/base/Dockerfile
+    image: p2p-techdemo-base
     stdin_open: true
     tty: true
     volumes:
@@ -19,17 +19,17 @@ services:
       - cmake_build_test:/var/app/cmake-build-test
       - hunter:/root/.hunter
   e2e_test:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-e2e-test
     command: >
-      bash -c "/bin/bash ./docker/scripts/build.sh &&
-               /bin/bash ./docker/scripts/run_e2e_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_e2e_test.sh"
   unit_test:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-unit-test
     command: >
-      bash -c "/bin/bash ./docker/scripts/build.sh &&
-               /bin/bash ./docker/scripts/run_unit_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_unit_test.sh"
 volumes:
   cmake_build_test:
     driver: local
