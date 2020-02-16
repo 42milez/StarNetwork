@@ -22,7 +22,7 @@ zlib:os=Linux
 # others
 arch=x86_64
 compiler=clang
-compiler.libcxx=libstdc++
+compiler.libcxx=libstdc++11
 compiler.version=9
 os=Linux
 
