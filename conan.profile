@@ -13,6 +13,12 @@ spdlog:compiler=clang
 spdlog:compiler.libcxx=libstdc++
 spdlog:compiler.version=9
 spdlog:os=Linux
+# zlib
+zlib:arch=x86_64
+zlib:build_type=Debug
+zlib:compiler=clang
+zlib:compiler.version=9
+zlib:os=Linux
 # others
 arch=x86_64
 compiler=clang
