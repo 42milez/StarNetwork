@@ -3,7 +3,7 @@ services:
   base: &base
     build:
       context: .
-      dockerfile: docker/base/Dockerfile
+      dockerfile: docker/Dockerfile
     image: p2p-techdemo-base
     stdin_open: true
     tty: true
@@ -16,8 +16,19 @@ services:
       - ./module:/var/app/module
       - ./test:/var/app/test
       - ./CMakeLists.txt:/var/app/CMakeLists.txt
+      - ./conan.profile:/var/app/conan.profile
+      - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
+      - conan:/root/.conan
       - hunter:/root/.hunter
+  dev_server:
+    <<: *base
+    container_name: p2p-techdemo-dev-server
+  build:
+    <<: *base
+    container_name: p2p-techdemo-build
+    command: >
+      bash -c "/bin/bash ./docker/script/build.sh"
   e2e_test:
     <<: *base
     container_name: p2p-techdemo-e2e-test
@@ -32,6 +43,8 @@ services:
                /bin/bash ./docker/script/run_unit_test.sh"
 volumes:
   cmake_build_test:
+    driver: local
+  conan:
     driver: local
   hunter:
     driver: local
