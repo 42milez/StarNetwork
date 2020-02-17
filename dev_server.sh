@@ -10,7 +10,7 @@ fi
 
 state=${1}
 
-START_DEV_SERVER_COMMAND='docker-compose run --rm --detach dev_server'
+START_DEV_SERVER_COMMAND='docker-compose up --detach dev_server'
 STOP_DEV_SERVER_COMMAND='docker-compose down'
 
 if [[ ${state} = 'start' ]]; then
