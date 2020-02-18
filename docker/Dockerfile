@@ -1,16 +1,12 @@
 FROM 42milez/cpp-dev-base:latest
 
 ENV APPROOT /var/app
-ENV CMAKE_BUILD_DIR $APPROOT/cmake-build-debug-remote
 
-RUN mkdir $APPROOT && mkdir $CMAKE_BUILD_DIR
+RUN mkdir $APPROOT
 
 WORKDIR $APPROOT
 
-ADD cmake/conan/conanfile.txt /root/conanfile.txt
-ADD cmake/conan/profile /root/profile
-
-RUN cd $CMAKE_BUILD_DIR && conan install /root/conanfile.txt --profile /root/profile
+ENV CONAN_PROFILE=/root/.conan/profiles/default
 
 # see: https://docs.docker.com/engine/examples/running_ssh_service/
 RUN mkdir /var/run/sshd
