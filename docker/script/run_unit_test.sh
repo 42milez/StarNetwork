@@ -11,7 +11,11 @@ if [[ -n ${CATCH_REPORTER} ]]; then
 fi
 
 if [[ ${REPORTER} = "junit" ]]; then
-  "${CMAKE_BUILD_DIR}"/bin/rudp_command_test -r junit -d yes --order lex -o "${TEST_RESULT_DIR}/unit_rudp_command_test.xml"
+  "${CMAKE_BUILD_DIR}"/bin/command_pod_test -r junit -d yes --order lex -o "${TEST_RESULT_DIR}/unit_command_pod_test.xml"
+  "${CMAKE_BUILD_DIR}"/bin/network_test     -r junit -d yes --order lex -o "${TEST_RESULT_DIR}/unit_network_test.xml"
+  "${CMAKE_BUILD_DIR}"/bin/ip_address_test  -r junit -d yes --order lex -o "${TEST_RESULT_DIR}/unit_ip_address_test.xml"
 else
-  "${CMAKE_BUILD_DIR}"/bin/rudp_command_test -r console -d yes --order lex
+  "${CMAKE_BUILD_DIR}"/bin/command_pod_test -r console -d yes --order lex
+  "${CMAKE_BUILD_DIR}"/bin/network_test     -r console -d yes --order lex
+  "${CMAKE_BUILD_DIR}"/bin/ip_address_test  -r console -d yes --order lex
 fi
