@@ -21,8 +21,8 @@ conan_cmake_run(
         BASIC_SETUP
         BUILD missing
         CONANFILE conanfile.txt
-        ENV CC=/usr/bin/clang-9
-        ENV CXX=/usr/bin/clang++-9
+        ENV CC=/usr/bin/clang
+        ENV CXX=/usr/bin/clang++
         SETTINGS arch=x86_64
         SETTINGS build_type=Debug
         SETTINGS compiler=clang
