@@ -2,12 +2,12 @@ version: 2
 jobs:
   build:
     docker:
-      - image: 42milez/alpine-cmake-clang:latest
+      - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
     steps:
       - checkout
       - restore_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
           name: "Create Build Directory"
           command: |
@@ -16,20 +16,20 @@ jobs:
             fi
       - run:
           name: "Build"
-          command: /bin/bash ./docker/scripts/build.sh
+          command: /bin/bash ./docker/script/build.sh
       - save_cache:
-          key: build-{{ .Branch }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
-            - /root/.hunter
+            - /root/.conan
             - /var/app/cmake-build-test
   test:
     docker:
-      - image: 42milez/alpine-cmake-clang:latest
+      - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
     steps:
       - checkout
       - restore_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
           name: "Create Test Results Directory"
           command: |
@@ -41,10 +41,10 @@ jobs:
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
           name: "Run E2E Test"
-          command: /bin/bash ./docker/scripts/run_e2e_test.sh
+          command: /bin/bash ./docker/script/run_e2e_test.sh
       - run:
           name: "Run Unit Test"
-          command: /bin/bash ./docker/scripts/run_unit_test.sh
+          command: /bin/bash ./docker/script/run_unit_test.sh
       - store_test_results:
           path: /var/app/test-results
 workflows:

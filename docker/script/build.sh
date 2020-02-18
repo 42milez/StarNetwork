@@ -16,7 +16,11 @@ if [[ -z ${git_modifications} ]]; then
   git subtree pull --prefix cmake/cable cable master --squash
 fi
 
+if [[ ! -e "${BUILD_DIR}" ]]; then
+  mkdir "${BUILD_DIR}"
+fi
+
 cd "${BUILD_DIR}" || exit
 
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G "CodeBlocks - Unix Makefiles" "${WORK_DIR}"
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/clang-9 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-9 -G "CodeBlocks - Unix Makefiles" "${WORK_DIR}"
 /usr/bin/cmake --build "${BUILD_DIR}" --target all -- -j 4
