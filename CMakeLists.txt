@@ -37,15 +37,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 # --------------------------------------------------
 include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(app/peer)
-add_subdirectory(lib/core)
-add_subdirectory(lib/rudp)
+add_subdirectory(lib)
 add_subdirectory(module)
 
 #  Directories (Tests)
 # --------------------------------------------------
-add_subdirectory(test/e2e/rudp/basic_connection)
-add_subdirectory(test/e2e/rudp/broadcast)
-add_subdirectory(test/e2e/rudp/send_reliable_command)
-add_subdirectory(test/unit/core/io)
-add_subdirectory(test/unit/module)
-add_subdirectory(test/unit/lib/rudp/command)
+add_subdirectory(test/e2e)
+add_subdirectory(test/unit)

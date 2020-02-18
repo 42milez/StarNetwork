@@ -4,7 +4,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "module/Network.h"
+#include "module/network.h"
 
 TEST_CASE("Create peer", "[IPv4][Network]")
 {

@@ -8,6 +8,8 @@ services:
     stdin_open: true
     tty: true
     volumes:
+      - .git:/var/app/.git
+      - cmake:/var/app/cmake-build-debug-remote
       - conan:/root/.conan
   dev_server:
     <<: *base
@@ -31,5 +33,7 @@ services:
       bash -c "/bin/bash ./docker/script/build.sh &&
                /bin/bash ./docker/script/run_unit_test.sh"
 volumes:
+  cmake:
+    driver: local
   conan:
     driver: local
