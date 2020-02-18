@@ -16,4 +16,4 @@ add_library(rudp STATIC
         ${sources_peer} ${headers_peer}
         ${sources_protocol} ${headers_protocol})
 
-target_link_libraries(rudp PRIVATE core)
+target_link_libraries(rudp INTERFACE core)

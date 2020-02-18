@@ -26,7 +26,7 @@ conan_cmake_run(
         SETTINGS arch=x86_64
         SETTINGS build_type=Debug
         SETTINGS compiler=clang
-        SETTINGS compiler.libcxx=libstdc++
+        SETTINGS compiler.libcxx=libstdc++11
         SETTINGS compiler.version=9
         SETTINGS os=Linux)
 

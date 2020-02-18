@@ -8,4 +8,4 @@ set(libs
     core
     ${CONAN_LIBS})
 
-target_link_libraries(peer PRIVATE ${libs})
+target_link_libraries(peer ${libs})
