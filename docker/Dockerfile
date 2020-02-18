@@ -12,8 +12,6 @@ RUN echo 'root:root' | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
-RUN ln -s /usr/bin/clang-9 /usr/bin/clang && ln -s /usr/bin/clang++-9 /usr/bin/clang++
-
 EXPOSE 22 7777
 
 CMD [ "/usr/sbin/sshd", "-D" ]
