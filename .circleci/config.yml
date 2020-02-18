@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
           name: "Create Build Directory"
           command: |
@@ -18,7 +18,7 @@ jobs:
           name: "Build"
           command: /bin/bash ./docker/script/build.sh
       - save_cache:
-          key: build-{{ .Branch }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
             - /root/.conan
             - /var/app/cmake-build-test
@@ -29,7 +29,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: build-{{ .Branch }}
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
           name: "Create Test Results Directory"
           command: |
