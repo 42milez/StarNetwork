@@ -6,8 +6,6 @@ RUN mkdir $APPROOT
 
 WORKDIR $APPROOT
 
-ENV CONAN_PROFILE=/root/.conan/profiles/default
-
 # see: https://docs.docker.com/engine/examples/running_ssh_service/
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
