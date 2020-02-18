@@ -1,6 +1,8 @@
 #ifndef P2P_TECHDEMO_CORE_COMPRESSION_H
 #define P2P_TECHDEMO_CORE_COMPRESSION_H
 
+#include <vector>
+
 #include "lib/core/typedefs.h"
 
 class Compression
