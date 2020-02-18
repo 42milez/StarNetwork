@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: 42milez/cpp-ci-base:latest
+      - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
     steps:
       - checkout
@@ -24,7 +24,7 @@ jobs:
             - /var/app/cmake-build-test
   test:
     docker:
-      - image: 42milez/cpp-ci-base:latest
+      - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
     steps:
       - checkout
