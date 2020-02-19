@@ -40,8 +40,8 @@ jobs:
           name: "Enable JUnit Reporter"
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
-          name: "Run E2E Test"
-          command: /bin/bash ./docker/script/run_e2e_test.sh
+          name: "Run Feature Test"
+          command: /bin/bash ./docker/script/run_feature_test.sh
       - run:
           name: "Run Unit Test"
           command: /bin/bash ./docker/script/run_unit_test.sh

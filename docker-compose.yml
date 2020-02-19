@@ -36,12 +36,12 @@ services:
       - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
       - conan:/root/.conan
-  e2e_test:
+  feature_test:
     <<: *test_base
-    container_name: p2p-techdemo-e2e-test
+    container_name: p2p-techdemo-feature-test
     command: >
       bash -c "/bin/bash ./docker/script/build.sh &&
-               /bin/bash ./docker/script/run_e2e_test.sh"
+               /bin/bash ./docker/script/run_feature_test.sh"
   unit_test:
     <<: *test_base
     container_name: p2p-techdemo-unit-test
