@@ -3,4 +3,6 @@ BasedOnStyle: Microsoft
 
 AlignAfterOpenBracket: AlwaysBreak
 AlwaysBreakAfterReturnType: All
+BraceWrapping:
+  AfterControlStatement: false
 NamespaceIndentation: All
