@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
 #include <catch2/catch.hpp>
-#include <spdlog/spdlog.h>
 
 #include "lib/rudp/command/command_pod.h"
 #include "lib/rudp/time.h"
@@ -45,7 +44,7 @@ TEST_CASE("Rebuffering command after command timeout", "[timeout]")
   prop_sent_reliable_commands = properties.at("sent_reliable_commands");
   prop_outgoing_reliable_commands = properties.at("outgoing_reliable_commands");
   REQUIRE(prop_sent_reliable_commands.size() == 1);
-  REQUIRE(prop_outgoing_reliable_commands.size() == 0);
+  REQUIRE(prop_outgoing_reliable_commands.empty());
 
   command_pod->Timeout(net, service_time + 1000);
 

@@ -1,5 +1,5 @@
 #include <vector>
-
+#include <cstdint>
 #include <zlib.h>
 
 #include "lib/core/error_macros.h"

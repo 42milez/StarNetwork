@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <cstring>
 #include <fcntl.h>
 #include <errno.h>
 #include <netinet/tcp.h>

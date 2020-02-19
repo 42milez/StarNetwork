@@ -1,14 +1,31 @@
 version: "3.7"
 services:
+  dev_server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: p2p-techdemo-dev-server
+    stdin_open: true
+    tty: true
+    container_name: p2p-techdemo-dev-server
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "2222:22"
+      - "7777:7777"
+    volumes:
+      - ./.git:/var/app/.git
+      - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
+      - conan:/root/.conan
   test_base: &test_base
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
-    image: p2p-techdemo-test
+      dockerfile: docker/Dockerfile
+    image: p2p-techdemo-test-base
     stdin_open: true
     tty: true
     volumes:
-      - ./.git:/var/app/.git
       - ./app:/var/app/app
       - ./cmake:/var/app/cmake
       - ./docker:/var/app/docker
@@ -16,22 +33,25 @@ services:
       - ./module:/var/app/module
       - ./test:/var/app/test
       - ./CMakeLists.txt:/var/app/CMakeLists.txt
+      - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
-      - hunter:/root/.hunter
+      - conan:/root/.conan
   e2e_test:
     <<: *test_base
     container_name: p2p-techdemo-e2e-test
     command: >
-      bash -c "/bin/bash ./docker/scripts/build.sh &&
-               /bin/bash ./docker/scripts/run_e2e_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_e2e_test.sh"
   unit_test:
     <<: *test_base
     container_name: p2p-techdemo-unit-test
     command: >
-      bash -c "/bin/bash ./docker/scripts/build.sh &&
-               /bin/bash ./docker/scripts/run_unit_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_unit_test.sh"
 volumes:
+  cmake_build_debug_remote:
+    driver: local
   cmake_build_test:
     driver: local
-  hunter:
+  conan:
     driver: local

@@ -1,4 +1,6 @@
 #include <list>
+
+#include <cstring>
 #include <map>
 #include <mutex>
 #include <netdb.h>

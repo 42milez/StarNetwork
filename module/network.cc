@@ -9,7 +9,7 @@
 
 #include "lib/rudp/network_config.h"
 
-#include "Network.h"
+#include "network.h"
 
 Network::Segment::Segment()
     : segment(nullptr), from(), channel()
