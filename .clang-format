@@ -1,4 +1,5 @@
 Language: Cpp
 BasedOnStyle: Microsoft
 
+AlwaysBreakAfterReturnType: All
 NamespaceIndentation: All
