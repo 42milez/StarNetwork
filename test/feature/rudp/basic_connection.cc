@@ -1,5 +1,3 @@
-#define CATCH_CONFIG_MAIN
-
 #include <memory>
 #include <unistd.h>
 
@@ -79,7 +77,7 @@ TEST_CASE_METHOD(HostFixture, "Connect to Host and disconnect immediately from H
     // [Queue]   PROTOCOL_COMMAND_VERIFY_CONNECT
     // [Send]    PROTOCOL_COMMAND_VERIFY_CONNECT
     Service(host_event, 0);
-    
+
     DELAY();
 
     LOG("");
