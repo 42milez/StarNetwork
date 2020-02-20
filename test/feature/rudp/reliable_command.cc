@@ -203,21 +203,21 @@ TEST_CASE("guest sends a fragmented reliable command to host", "[fragmented reli
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;
     host_address.host(host_ip.GetIPv6());
-    host_address.port(10000);
+    host_address.port(reliable_command::HOST_PORT);
 
     // host
     rudp::NetworkConfig address;
-    address.port(10000);
+    address.port(reliable_command::HOST_PORT);
     auto host = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
 
     // guest1
     rudp::NetworkConfig guest1_address;
-    guest1_address.port(10001);
+    guest1_address.port(reliable_command::GUEST1_PORT);
     auto guest1 = std::make_unique<rudp::Host>(guest1_address, rudp::SysCh::MAX, 1, 100, 100);
 
     // guest2
     rudp::NetworkConfig guest2_address;
-    guest2_address.port(10002);
+    guest2_address.port(reliable_command::GUEST2_PORT);
     auto guest2 = std::make_unique<rudp::Host>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
     auto guest1_event = std::make_unique<rudp::Event>();
