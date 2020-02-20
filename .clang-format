@@ -2,6 +2,7 @@ Language: Cpp
 BasedOnStyle: Microsoft
 
 AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: true
 AlwaysBreakAfterReturnType: All
 BraceWrapping:
   AfterControlStatement: false
