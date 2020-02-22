@@ -14,9 +14,12 @@ services:
     ports:
       - "2222:22"
       - "7777:7777"
+    command: >
+      bash -c "chmod -R 777 $APPROOT/cmake-build-debug-remote
+              && /usr/sbin/sshd -D"
     volumes:
-      - ./.git:/var/app/.git
-      - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
+      - ./.git:${DC_APP_ROOT}/.git
+      - cmake_build_debug_remote:${DC_APP_ROOT}/cmake-build-debug-remote
       - conan:/root/.conan
   test_base: &test_base
     build:
@@ -26,16 +29,16 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - ./.git:/var/app/.git
-      - ./app:/var/app/app
-      - ./cmake:/var/app/cmake
-      - ./docker:/var/app/docker
-      - ./lib:/var/app/lib
-      - ./module:/var/app/module
-      - ./test:/var/app/test
-      - ./CMakeLists.txt:/var/app/CMakeLists.txt
-      - ./conanfile.txt:/var/app/conanfile.txt
-      - cmake_build_test:/var/app/cmake-build-test
+      - ./.git:${DC_APP_ROOT}/.git
+      - ./app:${DC_APP_ROOT}/app
+      - ./cmake:${DC_APP_ROOT}/cmake
+      - ./docker:${DC_APP_ROOT}/docker
+      - ./lib:${DC_APP_ROOT}/lib
+      - ./module:${DC_APP_ROOT}/module
+      - ./test:${DC_APP_ROOT}/test
+      - ./CMakeLists.txt:${DC_APP_ROOT}/CMakeLists.txt
+      - ./conanfile.txt:${DC_APP_ROOT}/conanfile.txt
+      - cmake_build_test:${DC_APP_ROOT}/cmake-build-test
       - conan:/root/.conan
   feature_test:
     <<: *test_base

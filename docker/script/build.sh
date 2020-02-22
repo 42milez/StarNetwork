@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WORK_DIR=/var/app
+WORK_DIR=/home/dev/app
 BUILD_DIR="${WORK_DIR}/cmake-build-test"
 
 cd "${WORK_DIR}" || exit
