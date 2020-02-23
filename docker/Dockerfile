@@ -5,7 +5,7 @@ ENV DEV_USER_GROUP dev
 
 RUN useradd -ms /bin/bash dev && echo "$DEV_USER:$DEV_USER_GROUP" | chpasswd
 
-ENV APPROOT /home/dev/app
+ENV APPROOT /var/app
 
 RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT
 
