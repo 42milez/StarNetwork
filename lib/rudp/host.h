@@ -42,6 +42,10 @@ namespace rudp
         DisconnectLater(const std::shared_ptr<Peer>& peer, uint32_t data)
         { return peer_pod_->DisconnectLater(peer, data, checksum_); }
 
+        inline std::shared_ptr<Peer>
+        PeerPtr(size_t idx)
+        { return peer_pod_->GetPeer(idx); }
+
         inline RUdpPeerState
         PeerState(size_t idx)
         { return peer_pod_->GetPeer(idx)->net()->state(); }

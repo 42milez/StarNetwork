@@ -1,9 +1,11 @@
 file(GLOB rudp_test_sources
-        rudp/basic_connection.cc
-        rudp/broadcast.cc
+        rudp/connection_test.cc
+        rudp/broadcast_test.cc
         rudp/reliable_command.cc)
 
-file(GLOB rudp_test_headers rudp/var.h)
+file(GLOB rudp_test_headers
+        lib/test/util.h
+        rudp/var.h)
 
 add_executable(feature_test
         main.cc
