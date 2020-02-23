@@ -14,23 +14,23 @@ TEST_CASE("host can broadcast to guest peers", "[broadcast]")
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;
     host_address.host(host_ip.GetIPv6());
-    host_address.port(reliable_command::HOST_PORT);
+    host_address.port(test::HOST_PORT);
 
     // host
     rudp::NetworkConfig address;
-    address.port(reliable_command::HOST_PORT);
+    address.port(test::HOST_PORT);
     auto host       = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
 
     // guest1
     rudp::NetworkConfig guest1_address;
-    guest1_address.port(reliable_command::GUEST1_PORT);
+    guest1_address.port(test::GUEST1_PORT);
     auto guest1       = std::make_unique<rudp::Host>(guest1_address, rudp::SysCh::MAX, 1, 100, 100);
     auto guest1_event = std::make_unique<rudp::Event>();
 
     // guest2
     rudp::NetworkConfig guest2_address;
-    guest2_address.port(reliable_command::GUEST2_PORT);
+    guest2_address.port(test::GUEST2_PORT);
     auto guest2       = std::make_unique<rudp::Host>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
     auto guest2_event = std::make_unique<rudp::Event>();
 

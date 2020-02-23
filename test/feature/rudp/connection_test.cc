@@ -14,17 +14,17 @@ TEST_CASE("guest peer can establish connection with host peer", "[connection]")
     IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;
     host_address.host(host_ip.GetIPv6());
-    host_address.port(connection::HOST_PORT);
+    host_address.port(test::HOST_PORT);
 
     // host
     rudp::NetworkConfig address;
-    address.port(connection::HOST_PORT);
+    address.port(test::HOST_PORT);
     auto host       = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
 
     // guest
     rudp::NetworkConfig guest_address;
-    guest_address.port(connection::GUEST1_PORT);
+    guest_address.port(test::GUEST1_PORT);
     auto guest       = std::make_unique<rudp::Host>(guest_address, rudp::SysCh::MAX, 32, 100, 100);
     auto guest_event = std::make_unique<rudp::Event>();
 
