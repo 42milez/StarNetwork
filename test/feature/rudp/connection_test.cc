@@ -40,7 +40,7 @@ TEST_CASE("guest peer can establish connection with host peer", "[connection]")
                 return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000));
+            test::DEFAULT_TIMEOUT));
 
         guest->DisconnectNow(guest->PeerPtr(0), 0);
         guest->Service(guest_event, 0);
@@ -52,7 +52,7 @@ TEST_CASE("guest peer can establish connection with host peer", "[connection]")
                 return (host->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED) &&
                        (guest->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
             },
-            1000));
+            test::DEFAULT_TIMEOUT));
     }
 
     SECTION("guest peer can gracefully disconnect from host peer")
@@ -67,7 +67,7 @@ TEST_CASE("guest peer can establish connection with host peer", "[connection]")
                 return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000));
+            test::DEFAULT_TIMEOUT));
 
         guest->DisconnectLater(guest->PeerPtr(0), 0);
         guest->Service(guest_event, 0);
@@ -79,6 +79,6 @@ TEST_CASE("guest peer can establish connection with host peer", "[connection]")
                 return (host->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED) &&
                        (guest->PeerState(0) == rudp::RUdpPeerState::DISCONNECTED);
             },
-            1000));
+            test::DEFAULT_TIMEOUT));
     }
 }

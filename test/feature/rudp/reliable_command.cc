@@ -49,7 +49,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
                 return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest1->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         std::string msg1{"command from guest1"};
         auto data1    = std::vector<uint8_t>{msg1.begin(), msg1.end()};
@@ -61,7 +61,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
 
         test::wait(
             [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && host_event->DataAsString() == msg1));
 
@@ -78,7 +78,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
                 return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest2->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         std::string msg2{"command from guest2"};
         auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
@@ -90,7 +90,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
 
         test::wait(
             [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && (host_event->DataAsString() == msg2)));
     }
@@ -110,7 +110,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
                 return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest1->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         std::string msg1{
             "Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my "
@@ -164,7 +164,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
 
         test::wait(
             [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && (host_event->DataAsString() == msg1)));
 
@@ -181,7 +181,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
                 return (host->PeerState(1) == rudp::RUdpPeerState::CONNECTED) &&
                        (guest2->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
             },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         std::string msg2{
             "Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my "
@@ -235,7 +235,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[reliable_comman
 
         test::wait(
             [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
-            1000);
+            test::DEFAULT_TIMEOUT);
 
         REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && (host_event->DataAsString() == msg2)));
     }

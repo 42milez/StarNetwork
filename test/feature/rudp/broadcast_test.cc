@@ -44,7 +44,7 @@ TEST_CASE("host can broadcast to guest peers", "[broadcast]")
             return (host->PeerState(0) == rudp::RUdpPeerState::CONNECTED) &&
                    (guest1->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
         },
-        1000);
+        test::DEFAULT_TIMEOUT);
 
     guest2->Connect(host_address, rudp::SysCh::MAX, 0);
     guest2->Service(guest1_event, 0);
@@ -56,7 +56,7 @@ TEST_CASE("host can broadcast to guest peers", "[broadcast]")
             return (host->PeerState(1) == rudp::RUdpPeerState::CONNECTED) &&
                    (guest2->PeerState(0) == rudp::RUdpPeerState::CONNECTED);
         },
-        1000);
+        test::DEFAULT_TIMEOUT);
 
     std::string msg{"broadcast command from host"};
     auto payload = std::vector<uint8_t>{msg.begin(), msg.end()};
@@ -70,7 +70,7 @@ TEST_CASE("host can broadcast to guest peers", "[broadcast]")
         [&host, &host_event, &guest1, &guest1_event]() {
             return guest1->Service(guest1_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED;
         },
-        1000);
+        test::DEFAULT_TIMEOUT);
 
     REQUIRE((guest1_event->TypeIs(rudp::EventType::RECEIVE) && (guest1_event->DataAsString() == msg)));
 
@@ -78,7 +78,7 @@ TEST_CASE("host can broadcast to guest peers", "[broadcast]")
         [&host, &host_event, &guest2, &guest2_event]() {
             return guest2->Service(guest2_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED;
         },
-        1000);
+        test::DEFAULT_TIMEOUT);
 
     REQUIRE((guest2_event->TypeIs(rudp::EventType::RECEIVE) && (guest2_event->DataAsString() == msg)));
 }
