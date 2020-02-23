@@ -1,8 +1,13 @@
 FROM 42milez/cpp-dev-base:latest
 
+ENV DEV_USER dev
+ENV DEV_USER_GROUP dev
+
+RUN useradd -ms /bin/bash dev && echo "$DEV_USER:$DEV_USER_GROUP" | chpasswd
+
 ENV APPROOT /var/app
 
-RUN mkdir $APPROOT
+RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT
 
 WORKDIR $APPROOT
 
