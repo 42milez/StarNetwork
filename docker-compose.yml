@@ -15,8 +15,8 @@ services:
       - "2222:22"
       - "7777:7777"
     command: >
-      bash -c "chmod -R 777 /var/app/cmake-build-debug-remote
-               && /usr/sbin/sshd -D"
+      bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
+               /usr/sbin/sshd -D"
     volumes:
       - ./.git:/var/app/.git
       - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
@@ -44,14 +44,14 @@ services:
     <<: *test_base
     container_name: p2p-techdemo-feature-test
     command: >
-      bash -c "/bin/bash ./docker/script/build.sh
-               && /bin/bash ./docker/script/run_feature_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_feature_test.sh"
   unit_test:
     <<: *test_base
     container_name: p2p-techdemo-unit-test
     command: >
-      bash -c "/bin/bash ./docker/script/build.sh
-               && /bin/bash ./docker/script/run_unit_test.sh"
+      bash -c "/bin/bash ./docker/script/build.sh &&
+               /bin/bash ./docker/script/run_unit_test.sh"
 volumes:
   cmake_build_debug_remote:
     driver: local
