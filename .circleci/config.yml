@@ -40,11 +40,8 @@ jobs:
           name: "Enable JUnit Reporter"
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
-          name: "Run Feature Test"
-          command: /bin/bash ./docker/script/run_feature_test.sh
-      - run:
-          name: "Run Unit Test"
-          command: /bin/bash ./docker/script/run_unit_test.sh
+          name: "Run All Test"
+          command: /bin/bash ./docker/script/run_all_test.sh
       - store_test_results:
           path: /var/app/test-results
 workflows:
