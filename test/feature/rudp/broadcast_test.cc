@@ -8,7 +8,7 @@
 
 #include "var.h"
 
-TEST_CASE("host can broadcast to guest peers", "[broadcast]")
+TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
 {
     // host address
     IpAddress host_ip{"::FFFF:127.0.0.1"};

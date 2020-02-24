@@ -8,7 +8,7 @@
 
 #include "var.h"
 
-TEST_CASE("guest peer can establish connection with host peer", "[connection]")
+TEST_CASE("guest peer can establish connection with host peer", "[feature][connection]")
 {
     // host address
     IpAddress host_ip{"::FFFF:127.0.0.1"};

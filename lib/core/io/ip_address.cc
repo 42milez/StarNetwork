@@ -358,7 +358,7 @@ IpAddress::IpAddress(const std::string &str)
     {
         _wildcard = true;
     }
-    else if (str.find(':') >= 0)
+    else if (str.find(':') != std::string::npos)
     {
         // IPv6
         _parse_ipv6(str);

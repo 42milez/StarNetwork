@@ -40,18 +40,12 @@ services:
       - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
       - conan:/root/.conan
-  feature_test:
+  all_test:
     <<: *test_base
-    container_name: p2p-techdemo-feature-test
+    container_name: p2p-techdemo-all-test
     command: >
       bash -c "/bin/bash ./docker/script/build.sh &&
-               /bin/bash ./docker/script/run_feature_test.sh"
-  unit_test:
-    <<: *test_base
-    container_name: p2p-techdemo-unit-test
-    command: >
-      bash -c "/bin/bash ./docker/script/build.sh &&
-               /bin/bash ./docker/script/run_unit_test.sh"
+               /bin/bash ./docker/script/run_all_test.sh"
 volumes:
   cmake_build_debug_remote:
     driver: local
