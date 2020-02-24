@@ -3,6 +3,7 @@ BasedOnStyle: Microsoft
 
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: true
+AllowAllArgumentsOnNextLine: true
 AlwaysBreakAfterReturnType: All
 BraceWrapping:
   AfterControlStatement: false

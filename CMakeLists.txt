@@ -42,5 +42,4 @@ add_subdirectory(module)
 
 #  Directories (Tests)
 # --------------------------------------------------
-add_subdirectory(test/feature)
-add_subdirectory(test/unit)
+add_subdirectory(test)

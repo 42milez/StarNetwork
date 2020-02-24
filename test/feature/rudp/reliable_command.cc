@@ -8,7 +8,7 @@
 
 #include "var.h"
 
-TEST_CASE("guest peer can send reliable command to host peer", "[reliable_command]")
+TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliable_command]")
 {
     // host address
     IpAddress host_ip{"::FFFF:127.0.0.1"};
