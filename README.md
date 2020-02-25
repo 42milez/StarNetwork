@@ -18,6 +18,7 @@
 # Roadmap
 
 - Traffic Encryption
+- Data Compression
 - IPv6 support
 
 # Demo
