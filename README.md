@@ -11,7 +11,7 @@
 
 # Technologies used
 
-- Reliable UDP (things rewrited [ENet](https://github.com/lsalzman/enet) into C++)
+- Reliable UDP (inspired by [ENet](https://github.com/lsalzman/enet))
   - Window Control
   - Flow Control
 
