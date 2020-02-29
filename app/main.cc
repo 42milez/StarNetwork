@@ -1,91 +1,61 @@
 #include <iostream>
-#include <vector>
+
+#include <lyra/lyra.hpp>
 
 #include "p2p_techdemo/buildinfo.h"
 
 namespace
 {
-  void
-  version()
-  {
-    const auto *buildinfo = p2p_techdemo_get_buildinfo();
-    std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
-    std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
-  }
+    void
+    version()
+    {
+        const auto *buildinfo = p2p_techdemo_get_buildinfo();
+        std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
+        std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
+    }
 
-  const std::string LOGGER_NAME = "PEER";
-  const std::string PATH_LOG = "/var/log/p2p_techdemo/peer.log";
+    const std::string LOGGER_NAME = "PEER";
+    const std::string PATH_LOG    = "/var/log/p2p_techdemo/peer.log";
 } // namespace
 
 int
-main(int argc, char **argv)
+main(int argc, const char **argv)
 {
-    //  po::options_description opt_desc("OPTIONS", 160);
-    //  opt_desc.add_options()
-    //    ("run,r", "Execute the game peer")
-    //    ("help,h", "Show this help message and exit\n");
+    std::string mode  = "server";
+    int port          = 12345;
+    bool show_version = false;
+    bool show_help    = false;
 
-    //  po::options_description allowed_options("Allowed options");
-    //  allowed_options.add(opt_desc);
+    auto cli = lyra::cli_parser();
+    cli.add_argument(
+        lyra::opt(mode, "mode").name("-m").name("--mode").help("Run mode").choices("client", "server").optional());
+    cli.add_argument(lyra::opt(port, "port")
+                         .name("-p")
+                         .name("--port")
+                         .help("Port to bind")
+                         .choices([](int value) { return 0 <= value && value <= 65535; })
+                         .optional());
+    cli.add_argument(
+        lyra::opt(show_version).name("-v").name("--version").help("Show application version").optional());
+    cli.add_argument(lyra::help(show_help));
 
-    //  po::variables_map vmap;
-    //  std::vector<std::string> unrecognized_options;
+    auto result = cli.parse({argc, argv});
+    if (!result) {
+        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
+        return 1;
+    }
 
-    //  try
-    //  {
-    //    po::parsed_options parsed = po::command_line_parser(argc, argv).options(allowed_options).allow_unregistered().run();
-    //    unrecognized_options = collect_unrecognized(parsed.options, po::include_positional);
-    //    po::store(parsed, vmap);
-    //    po::notify(vmap);
-    //  } catch (po::error const &e)
-    //  {
-    //    std::cerr << e.what();
-    //    return EXIT_FAILURE;
-    //  }
+    if (show_version) {
+        version();
+        return 0;
+    }
 
-    //  if (argc <= 1)
-    //  {
-    //    std::cout << "Requires at least 1 argument." << std::endl << std::endl;
-    //    std::cout << "USAGE:" << std::endl
-    //              << "  p2p_techdemo [options]" << std::endl << std::endl;
-    //    std::cout << opt_desc;
-    //    return EXIT_FAILURE;
-    //  }
-
-    //  for (const auto &option : unrecognized_options)
-    //  {
-    //    std::cerr << "Invalid argument: " << option << "\n";
-    //    return EXIT_FAILURE;
-    //  }
-
-    //  if (vmap.count("h") || vmap.count("help"))
-    //  {
-    //    std::cout << "NAME: " << std::endl
-    //              << "  p2p_techdemo " << p2p_techdemo_get_buildinfo()->project_version << std::endl << std::endl
-    //              << "USAGE:" << std::endl
-    //              << "  p2p_techdemo [options]" << std::endl << std::endl;
-    //    std::cout << opt_desc;
-    //    return EXIT_SUCCESS;
-    //  }
-    //  else if (vmap.count("r") || vmap.count("run"))
-    //  {
-    //    auto &logger = core::Singleton<core::Logger>::Instance();
-    //
-    //    if (!logger.init(LOGGER_NAME, PATH_LOG)) {
-    //      std::cout << "Initialization failed." << std::endl;
-    //      return EXIT_FAILURE;
-    //    }
+    if (show_help) {
+        std::cout << cli;
+        return 0;
+    }
 
     //    auto &peer = core::Singleton<peer::Peer>::Instance();
     //    peer.init();
-
-    //    if (!peer.token_exists())
-    //    {
-    //      // ユーザー認証
-    //      // ...
-    //    }
-
     //    peer.run();
-    //  }
-
-} // namespace
+}
