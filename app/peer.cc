@@ -1,7 +1,7 @@
 #include "lib/core/singleton.h"
 #include "lib/core/ExitHandler.h"
-#include "Network.h"
-#include "Peer.h"
+#include "network.h"
+#include "peer.h"
 
 namespace peer
 {

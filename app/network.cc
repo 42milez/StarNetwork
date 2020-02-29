@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <future>
 
-#include "Network.h"
+#include "network.h"
 
 namespace peer
 {
