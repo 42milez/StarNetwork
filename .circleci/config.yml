@@ -16,7 +16,7 @@ jobs:
             fi
       - run:
           name: "Build"
-          command: /bin/bash ./docker/script/build.sh
+          command: /bin/bash ./docker/script/build.bash
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
@@ -41,7 +41,7 @@ jobs:
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
           name: "Run All Test"
-          command: /bin/bash ./docker/script/run_all_test.sh
+          command: /bin/bash ./docker/script/run_all_test.bash
       - store_test_results:
           path: /var/app/test-results
 workflows:

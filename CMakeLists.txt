@@ -30,7 +30,6 @@ conan_cmake_run(
         SETTINGS compiler.version=9
         SETTINGS os=Linux)
 
-set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 
 #  Directories

@@ -8,12 +8,12 @@ file(GLOB headers
         lib/test/util/*.h
         feature/rudp/*.h)
 
-add_executable(all_test
+add_executable(all_tests
         main.cc
         ${sources}
         ${headers})
 
-target_link_libraries(all_test
+target_link_libraries(all_tests
         core
         rudp
         module
