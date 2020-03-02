@@ -6,8 +6,12 @@ ENV DEV_USER_GROUP dev
 RUN useradd -ms /bin/bash dev && echo "$DEV_USER:$DEV_USER_GROUP" | chpasswd
 
 ENV APPROOT /var/app
+ENV TEST_BUILD_DIR $TEST_WORK_DIR/cmake-build-test
+ENV TEST_RESULT_DIR $TEST_WORK_DIR/test-results
 
-RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT
+RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT && \
+    mkdir -p $TEST_BUILD_DIR && \
+    mkdir -p $TEST_RESULT_DIR
 
 WORKDIR $APPROOT
 

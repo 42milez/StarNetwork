@@ -2,7 +2,6 @@
 
 export WORK_DIR=/var/app
 export BUILD_DIR="${WORK_DIR}/cmake-build-test"
-
 export TEST_RESULT_DIR="${WORK_DIR}/test-results"
 
 export CMAKE_BUILD_TYPE=Debug

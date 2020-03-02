@@ -24,11 +24,7 @@ configure()
     git subtree pull --prefix cmake/cable cable master --squash
   fi
 
-  if [[ ! -e "${BUILD_DIR}" ]]; then
-    mkdir "${BUILD_DIR}"
-  fi
-
-  cd "${BUILD_DIR}"
+  cd "${BUILD_DIR}" || exit 1
 
   SANITIZER="${1}"
 
