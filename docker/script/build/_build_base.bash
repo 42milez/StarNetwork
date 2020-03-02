@@ -28,6 +28,8 @@ configure()
     mkdir "${BUILD_DIR}"
   fi
 
+  cd "${BUILD_DIR}"
+
   SANITIZER="${1}"
 
   if [[ "${SANITIZER}" != '' ]]; then
