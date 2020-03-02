@@ -33,7 +33,7 @@ configure()
   SANITIZER="${1}"
 
   if [[ "${SANITIZER}" != '' ]]; then
-    CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fsanitizer=${SANITIZER}"
+    CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fsanitize=${SANITIZER}"
   fi
 
   /usr/bin/cmake \
