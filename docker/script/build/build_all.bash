@@ -2,7 +2,7 @@
 
 SRC_DIR=$(dirname "${BASH_SOURCE}")
 
-. "${SRC_DIR}/_build_base.bash"
+. "${SRC_DIR}/build_base.bash"
 
 configure ''
 build 'all'
