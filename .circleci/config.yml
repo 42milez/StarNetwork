@@ -9,13 +9,13 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Create Build Directory"
+          name: 'Create Build Directory'
           command: |
-            mkdir -p ./$BUILD_DIR
-            mkdir -p ./$BUILD_DIR_ASAN
-            mkdir -p ./$BUILD_DIR_LSAN
-            mkdir -p ./$BUILD_DIR_MSAN
-            mkdir -p ./$BUILD_DIR_TSAN
+            mkdir -p './${BUILD_DIR}'
+            mkdir -p './${BUILD_DIR_ASAN}'
+            mkdir -p './${BUILD_DIR_LSAN}'
+            mkdir -p './${BUILD_DIR_MSAN}'
+            mkdir -p './${BUILD_DIR_TSAN}'
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
