@@ -84,12 +84,16 @@ workflows:
       - test_asan:
           requires:
             - build
+            - test
       - test_lsan:
           requires:
             - build
+            - test
       - test_msan:
           requires:
             - build
+            - test
       - test_tsan:
           requires:
             - build
+            - test
