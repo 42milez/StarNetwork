@@ -11,8 +11,6 @@ configure()
 {
   EXIT_IF_ARGC_INVALID 1 "${#}"
 
-  cd "${WORK_DIR}" || exit 1
-
   git_modifications=$(git status --porcelain)
   git_remotes=$(git remote -v | grep -q cable)
 
