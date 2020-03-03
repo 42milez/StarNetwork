@@ -52,7 +52,7 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-  all_tests_with_asan:
+  all_tests_asan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-asan
     environment:
@@ -60,7 +60,7 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-  all_tests_with_lsan:
+  all_tests_lsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-lsan
     environment:
@@ -68,7 +68,7 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-  all_tests_with_msan:
+  all_tests_msan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-msan
     environment:
@@ -76,7 +76,7 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-  all_tests_with_tsan:
+  all_tests_tsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-tsan
     environment:
