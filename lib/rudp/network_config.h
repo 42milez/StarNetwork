@@ -28,8 +28,12 @@ namespace rudp
         { return host_; }
 
         inline void
-        host(const uint8_t* ip_address)
-        { memcpy(&host_, ip_address, host_.size()); }
+        host_v4(const uint8_t* ip_address)
+        { memcpy(&host_, ip_address, 4); }
+
+        inline void
+        host_v6(const uint8_t* ip_address)
+        { memcpy(&host_, ip_address, 16); }
 
         [[nodiscard]]
         inline uint16_t

@@ -114,7 +114,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
     dst_address.SetIP(ip.get_ipv6(), 16);
 #else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-    dst_address.host(ip.GetIPv4());
+    dst_address.host_v4(ip.GetIPv4());
 #endif
     dst_address.port(server_port);
 
