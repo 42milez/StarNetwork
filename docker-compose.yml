@@ -49,7 +49,6 @@ services:
     container_name: p2p-techdemo-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
-      - TEST_RESULT_DIR=/var/app/test-result
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
@@ -58,36 +57,32 @@ services:
     container_name: p2p-techdemo-all-test-with-asan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-asan
-      - TEST_RESULT_DIR=/var/app/test-result-asan
     command: >
-      bash -c "/bin/bash ./docker/script/build/build_all_with_asan.bash &&
+      bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_lsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-lsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-lsan
-      - TEST_RESULT_DIR=/var/app/test-result-lsan
     command: >
-      bash -c "/bin/bash ./docker/script/build/build_all_with_lsan.bash &&
+      bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_msan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-msan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-msan
-      - TEST_RESULT_DIR=/var/app/test-result-msan
     command: >
-      bash -c "/bin/bash ./docker/script/build/build_all_with_msan.bash &&
+      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_tsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-tsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-tsan
-      - TEST_RESULT_DIR=/var/app/test-result-tsan
     command: >
-      bash -c "/bin/bash ./docker/script/build/build_all_with_tsan.bash &&
+      bash -c "/bin/bash ./docker/script/build/build_all_tsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
 volumes:
   cmake_build_debug_remote:

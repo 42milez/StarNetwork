@@ -11,18 +11,29 @@ jobs:
       - run:
           name: "Create Build Directory"
           command: |
-            if [[ ! -e ./cmake-build-test ]]; then
-              mkdir ./cmake-build-test
-            fi
+            mkdir ./cmake-build-test
+            mkdir ./cmake-build-test-asan
+            mkdir ./cmake-build-test-lsan
+            mkdir ./cmake-build-test-msan
+            mkdir ./cmake-build-test-tsan
       - run:
-          name: "Build"
-          command: /bin/bash ./docker/script/build.bash
+          name: "Build All"
+          command: |
+            /bin/bash ./docker/script/build/build_all.bash
+            /bin/bash ./docker/script/build/build_all_asan.bash
+            /bin/bash ./docker/script/build/build_all_lsan.bash
+            /bin/bash ./docker/script/build/build_all_msan.bash
+            /bin/bash ./docker/script/build/build_all_tsan.bash
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
             - /root/.conan
             - /var/app/cmake-build-test
-  test:
+            - /var/app/cmake-build-test-asan
+            - /var/app/cmake-build-test-lsan
+            - /var/app/cmake-build-test-msan
+            - /var/app/cmake-build-test-tsan
+  test_base: &test_base
     docker:
       - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
@@ -33,9 +44,7 @@ jobs:
       - run:
           name: "Create Test Results Directory"
           command: |
-            if [[ ! -e ./test-results ]]; then
-              mkdir ./test-results
-            fi
+            mkdir ./test-results
       - run:
           name: "Enable JUnit Reporter"
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
@@ -44,11 +53,43 @@ jobs:
           command: /bin/bash ./docker/script/run_all_test.bash
       - store_test_results:
           path: /var/app/test-results
+  test:
+    <<: *test_base
+    environment:
+      BUILD_DIR: ./cmake-build-test
+  test_asan:
+    <<: *test_base
+    environment:
+      BUILD_DIR: ./cmake-build-test-asan
+  test_lsan:
+    <<: *test_base
+    environment:
+      BUILD_DIR: ./cmake-build-test-lsan
+  test_msan:
+    <<: *test_base
+    environment:
+      BUILD_DIR: ./cmake-build-test-msan
+  test_tsan:
+    <<: *test_base
+    environment:
+      BUILD_DIR: ./cmake-build-test-tsan
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
       - test:
+          requires:
+            - build
+      - test_asan:
+          requires:
+            - build
+      - test_lsan:
+          requires:
+            - build
+      - test_msan:
+          requires:
+            - build
+      - test_tsan:
           requires:
             - build
