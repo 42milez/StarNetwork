@@ -11,11 +11,11 @@ jobs:
       - run:
           name: "Create Build Directory"
           command: |
-            mkdir ./cmake-build-test
-            mkdir ./cmake-build-test-asan
-            mkdir ./cmake-build-test-lsan
-            mkdir ./cmake-build-test-msan
-            mkdir ./cmake-build-test-tsan
+            mkdir -p ./cmake-build-test
+            mkdir -p ./cmake-build-test-asan
+            mkdir -p ./cmake-build-test-lsan
+            mkdir -p ./cmake-build-test-msan
+            mkdir -p ./cmake-build-test-tsan
       - run:
           name: "Build All"
           command: |
