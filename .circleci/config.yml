@@ -11,45 +11,45 @@ jobs:
       - run:
           name: "Create Build Directory"
           command: |
-            mkdir -p ./cmake-build-test
-            mkdir -p ./cmake-build-test-asan
-            mkdir -p ./cmake-build-test-lsan
-            mkdir -p ./cmake-build-test-msan
-            mkdir -p ./cmake-build-test-tsan
+            mkdir -p ./$BUILD_DIR
+            mkdir -p ./$BUILD_DIR_ASAN
+            mkdir -p ./$BUILD_DIR_LSAN
+            mkdir -p ./$BUILD_DIR_MSAN
+            mkdir -p ./$BUILD_DIR_TSAN
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
-            BUILD_DIR: ./cmake-build-test
+            BUILD_DIR: $BUILD_DIR
       - run:
           name: "Build All with Address Sanitizer"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
-            BUILD_DIR: ./cmake-build-test-asan
+            BUILD_DIR: $BUILD_DIR_ASAN
       - run:
           name: "Build All with Leak Sanitizer"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
-            BUILD_DIR: ./cmake-build-test-lsan
+            BUILD_DIR: $BUILD_DIR_LSAN
       - run:
           name: "Build All with Memory Sanitizer"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
-            BUILD_DIR: ./cmake-build-test-msan
+            BUILD_DIR: $BUILD_DIR_MSAN
       - run:
           name: "Build All with Thread Sanitizer"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
-            BUILD_DIR: ./cmake-build-test-tsan
+            BUILD_DIR: $BUILD_DIR_TSAN
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
             - /root/.conan
-            - /var/app/cmake-build-test
-            - /var/app/cmake-build-test-asan
-            - /var/app/cmake-build-test-lsan
-            - /var/app/cmake-build-test-msan
-            - /var/app/cmake-build-test-tsan
+            - ./$BUILD_DIR
+            - ./$BUILD_DIR_ASAN
+            - ./$BUILD_DIR_LSAN
+            - ./$BUILD_DIR_MSAN
+            - ./$BUILD_DIR_TSAN
   test_base: &test_base
     docker:
       - image: 42milez/cpp-dev-base:latest
@@ -73,23 +73,23 @@ jobs:
   test:
     <<: *test_base
     environment:
-      BUILD_DIR: ./cmake-build-test
+      BUILD_DIR: $BUILD_DIR
   test_asan:
     <<: *test_base
     environment:
-      BUILD_DIR: ./cmake-build-test-asan
+      BUILD_DIR: $BUILD_DIR_ASAN
   test_lsan:
     <<: *test_base
     environment:
-      BUILD_DIR: ./cmake-build-test-lsan
+      BUILD_DIR: $BUILD_DIR_LSAN
   test_msan:
     <<: *test_base
     environment:
-      BUILD_DIR: ./cmake-build-test-msan
+      BUILD_DIR: $BUILD_DIR_MSAN
   test_tsan:
     <<: *test_base
     environment:
-      BUILD_DIR: ./cmake-build-test-tsan
+      BUILD_DIR: $BUILD_DIR_TSAN
 workflows:
   version: 2
   build_and_test:
