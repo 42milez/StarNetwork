@@ -18,12 +18,29 @@ jobs:
             mkdir -p ./cmake-build-test-tsan
       - run:
           name: "Build All"
-          command: |
-            /bin/bash ./docker/script/build/build_all.bash
-            /bin/bash ./docker/script/build/build_all_asan.bash
-            /bin/bash ./docker/script/build/build_all_lsan.bash
-            /bin/bash ./docker/script/build/build_all_msan.bash
-            /bin/bash ./docker/script/build/build_all_tsan.bash
+          command: /bin/bash ./docker/script/build/build_all.bash
+          environment:
+            BUILD_DIR: ./cmake-build-test
+      - run:
+          name: "Build All with Address Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all.bash
+          environment:
+            BUILD_DIR: ./cmake-build-test-asan
+      - run:
+          name: "Build All with Leak Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all.bash
+          environment:
+            BUILD_DIR: ./cmake-build-test-lsan
+      - run:
+          name: "Build All with Memory Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all.bash
+          environment:
+            BUILD_DIR: ./cmake-build-test-msan
+      - run:
+          name: "Build All with Thread Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all.bash
+          environment:
+            BUILD_DIR: ./cmake-build-test-tsan
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
