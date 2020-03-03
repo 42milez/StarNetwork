@@ -5,11 +5,11 @@ jobs:
       - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
     environment:
-      BUILD_DIR: &build_dir cmake-build-test
-      BUILD_DIR_ASAN: &build_dir_asan cmake-build-test-asan
-      BUILD_DIR_LSAN: &build_dir_lsan cmake-build-test-lsan
-      BUILD_DIR_MSAN: &build_dir_msan cmake-build-test-msan
-      BUILD_DIR_TSAN: &build_dir_tsan cmake-build-test-tsan
+      BUILD_DIR: &build_dir /var/app/cmake-build-test
+      BUILD_DIR_ASAN: &build_dir_asan /var/app/cmake-build-test-asan
+      BUILD_DIR_LSAN: &build_dir_lsan /var/app/cmake-build-test-lsan
+      BUILD_DIR_MSAN: &build_dir_msan /var/app/cmake-build-test-msan
+      BUILD_DIR_TSAN: &build_dir_tsan /var/app/cmake-build-test-tsan
     steps:
       - checkout
       - restore_cache:
