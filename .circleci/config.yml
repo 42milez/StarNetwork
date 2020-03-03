@@ -17,11 +17,11 @@ jobs:
       - run:
           name: 'Create Build Directory'
           command: |
-            mkdir -p "./${BUILD_DIR}"
-            mkdir -p "./${BUILD_DIR_ASAN}"
-            mkdir -p "./${BUILD_DIR_LSAN}"
-            mkdir -p "./${BUILD_DIR_MSAN}"
-            mkdir -p "./${BUILD_DIR_TSAN}"
+            mkdir -p "${BUILD_DIR}"
+            mkdir -p "${BUILD_DIR_ASAN}"
+            mkdir -p "${BUILD_DIR_LSAN}"
+            mkdir -p "${BUILD_DIR_MSAN}"
+            mkdir -p "${BUILD_DIR_TSAN}"
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
@@ -29,22 +29,22 @@ jobs:
             BUILD_DIR: *build_dir
       - run:
           name: "Build All with Address Sanitizer"
-          command: /bin/bash ./docker/script/build/build_all.bash
+          command: /bin/bash ./docker/script/build/build_all_asan.bash
           environment:
             BUILD_DIR: *build_dir_asan
       - run:
           name: "Build All with Leak Sanitizer"
-          command: /bin/bash ./docker/script/build/build_all.bash
+          command: /bin/bash ./docker/script/build/build_all_lsan.bash
           environment:
             BUILD_DIR: *build_dir_lsan
       - run:
           name: "Build All with Memory Sanitizer"
-          command: /bin/bash ./docker/script/build/build_all.bash
+          command: /bin/bash ./docker/script/build/build_all_msan.bash
           environment:
             BUILD_DIR: *build_dir_msan
       - run:
           name: "Build All with Thread Sanitizer"
-          command: /bin/bash ./docker/script/build/build_all.bash
+          command: /bin/bash ./docker/script/build/build_all_tsan.bash
           environment:
             BUILD_DIR: *build_dir_tsan
       - save_cache:
