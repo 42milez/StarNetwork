@@ -68,14 +68,14 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-  all_tests_msan:
-    <<: *test_base
-    container_name: p2p-techdemo-all-test-with-msan
-    environment:
-      - BUILD_DIR=/var/app/cmake-build-test-msan
-    command: >
-      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
-               /bin/bash ./docker/script/test/run_all_tests.bash"
+#  all_tests_msan:
+#    <<: *test_base
+#    container_name: p2p-techdemo-all-test-with-msan
+#    environment:
+#      - BUILD_DIR=/var/app/cmake-build-test-msan
+#    command: >
+#      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
+#               /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_tsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-tsan
