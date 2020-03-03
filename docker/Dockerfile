@@ -6,12 +6,30 @@ ENV DEV_USER_GROUP dev
 RUN useradd -ms /bin/bash dev && echo "$DEV_USER:$DEV_USER_GROUP" | chpasswd
 
 ENV APPROOT /var/app
-ENV TEST_BUILD_DIR $TEST_WORK_DIR/cmake-build-test
-ENV TEST_RESULT_DIR $TEST_WORK_DIR/test-results
+
+ENV TEST_DEFAULT_BUILD_DIR $APPROOT/cmake-build-test
+ENV TEST_ASAN_BUILD_DIR $APPROOT/cmake-build-test-asan
+ENV TEST_LSAN_BUILD_DIR $APPROOT/cmake-build-test-lsan
+ENV TEST_MSAN_BUILD_DIR $APPROOT/cmake-build-test-msan
+ENV TEST_TSAN_BUILD_DIR $APPROOT/cmake-build-test-tsan
+
+ENV TEST_DEFAULT_RESULT_DIR $APPROOT/test-result
+ENV TEST_ASAN_RESULT_DIR $APPROOT/test-result-asan
+ENV TEST_LSAN_RESULT_DIR $APPROOT/test-result-lsan
+ENV TEST_MSAN_RESULT_DIR $APPROOT/test-result-msan
+ENV TEST_TSAN_RESULT_DIR $APPROOT/test-result-tsan
 
 RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT && \
-    mkdir -p $TEST_BUILD_DIR && \
-    mkdir -p $TEST_RESULT_DIR
+    mkdir -p $TEST_DEFAULT_BUILD_DIR && \
+    mkdir -p $TEST_ASAN_BUILD_DIR && \
+    mkdir -p $TEST_LSAN_BUILD_DIR && \
+    mkdir -p $TEST_MSAN_BUILD_DIR && \
+    mkdir -p $TEST_TSAN_BUILD_DIR && \
+    mkdir -p $TEST_DEFAULT_RESULT_DIR && \
+    mkdir -p $TEST_ASAN_RESULT_DIR && \
+    mkdir -p $TEST_LSAN_RESULT_DIR && \
+    mkdir -p $TEST_MSAN_RESULT_DIR && \
+    mkdir -p $TEST_TSAN_RESULT_DIR
 
 WORKDIR $APPROOT
 

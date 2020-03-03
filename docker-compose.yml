@@ -28,9 +28,6 @@ services:
     image: p2p-techdemo-test-base
     stdin_open: true
     tty: true
-  all_tests:
-    <<: *test_base
-    container_name: p2p-techdemo-all-test
     volumes:
       - ./.git:/var/app/.git
       - ./app:/var/app/app
@@ -42,79 +39,53 @@ services:
       - ./CMakeLists.txt:/var/app/CMakeLists.txt
       - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
+      - cmake_build_test_asan:/var/app/cmake-build-test-asan
+      - cmake_build_test_lsan:/var/app/cmake-build-test-lsan
+      - cmake_build_test_msan:/var/app/cmake-build-test-msan
+      - cmake_build_test_tsan:/var/app/cmake-build-test-tsan
       - conan:/root/.conan
+  all_tests:
+    <<: *test_base
+    container_name: p2p-techdemo-all-test
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test
+      - TEST_RESULT_DIR=/var/app/test-result
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_asan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-asan
-    volumes:
-      - ./.git:/var/app/.git
-      - ./app:/var/app/app
-      - ./cmake:/var/app/cmake
-      - ./docker:/var/app/docker
-      - ./lib:/var/app/lib
-      - ./module:/var/app/module
-      - ./test:/var/app/test
-      - ./CMakeLists.txt:/var/app/CMakeLists.txt
-      - ./conanfile.txt:/var/app/conanfile.txt
-      - cmake_build_test_asan:/var/app/cmake-build-test
-      - conan:/root/.conan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-asan
+      - TEST_RESULT_DIR=/var/app/test-result-asan
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_with_asan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_lsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-lsan
-    volumes:
-      - ./.git:/var/app/.git
-      - ./app:/var/app/app
-      - ./cmake:/var/app/cmake
-      - ./docker:/var/app/docker
-      - ./lib:/var/app/lib
-      - ./module:/var/app/module
-      - ./test:/var/app/test
-      - ./CMakeLists.txt:/var/app/CMakeLists.txt
-      - ./conanfile.txt:/var/app/conanfile.txt
-      - cmake_build_test_lsan:/var/app/cmake-build-test
-      - conan:/root/.conan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-lsan
+      - TEST_RESULT_DIR=/var/app/test-result-lsan
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_with_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_msan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-msan
-    volumes:
-      - ./.git:/var/app/.git
-      - ./app:/var/app/app
-      - ./cmake:/var/app/cmake
-      - ./docker:/var/app/docker
-      - ./lib:/var/app/lib
-      - ./module:/var/app/module
-      - ./test:/var/app/test
-      - ./CMakeLists.txt:/var/app/CMakeLists.txt
-      - ./conanfile.txt:/var/app/conanfile.txt
-      - cmake_build_test_msan:/var/app/cmake-build-test
-      - conan:/root/.conan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-msan
+      - TEST_RESULT_DIR=/var/app/test-result-msan
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_with_msan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_with_tsan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-tsan
-    volumes:
-      - ./.git:/var/app/.git
-      - ./app:/var/app/app
-      - ./cmake:/var/app/cmake
-      - ./docker:/var/app/docker
-      - ./lib:/var/app/lib
-      - ./module:/var/app/module
-      - ./test:/var/app/test
-      - ./CMakeLists.txt:/var/app/CMakeLists.txt
-      - ./conanfile.txt:/var/app/conanfile.txt
-      - cmake_build_test_tsan:/var/app/cmake-build-test
-      - conan:/root/.conan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-tsan
+      - TEST_RESULT_DIR=/var/app/test-result-tsan
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_with_tsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
