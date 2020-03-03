@@ -50,7 +50,7 @@ jobs:
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
           name: "Run All Test"
-          command: /bin/bash ./docker/script/test/run_all_test.bash
+          command: /bin/bash ./docker/script/test/run_all_tests.bash
       - store_test_results:
           path: /var/app/test-results
   test:
