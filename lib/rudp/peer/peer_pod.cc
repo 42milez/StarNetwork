@@ -70,26 +70,6 @@ namespace rudp
     else                                                           \
         return EventStatus::NO_EVENT_OCCURRED;
 
-#define EXCEEDS_CHANNEL_COUNT()                                                                          \
-    auto &net = peer->net();                                                                             \
-                                                                                                         \
-    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||                                             \
-        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER))) \
-    {                                                                                                    \
-        IS_EVENT_AVAILABLE()                                                                             \
-    }
-
-#define EXCEEDS_RECEIVED_LENGTH()                              \
-    auto data_length = cmd->send_reliable.data_length;  \
-    auto pos = current_data + data_length;                     \
-                                                               \
-    if ((data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||   \
-        pos < received_data_->begin() ||                       \
-        pos > received_data_->begin() + received_data_length_) \
-    {                                                          \
-        IS_EVENT_AVAILABLE()                                   \
-    }
-
     Error
     PeerPod::Disconnect(const std::shared_ptr<Peer>& peer, uint32_t data, ChecksumCallback checksum)
     {
@@ -379,8 +359,23 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("received data: {0}",
                             std::string{ cmd_body.begin(), cmd_body.end() });
 
-                    EXCEEDS_CHANNEL_COUNT()
-                    EXCEEDS_RECEIVED_LENGTH()
+                    auto &net = peer->net();
+
+                    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||
+                        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER)))
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
+
+                    auto data_length = cmd->send_reliable.data_length;
+                    auto pos = current_data + data_length;
+
+                    if (/*(data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||*/
+                        pos < received_data_->begin() ||
+                        pos > received_data_->begin() + received_data_length_)
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
 
                     if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
                             static_cast<uint16_t>(SegmentFlag::RELIABLE), 0) == Error::ERROR)
@@ -409,8 +404,23 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    EXCEEDS_CHANNEL_COUNT()
-                    EXCEEDS_RECEIVED_LENGTH()
+                    auto &net = peer->net();
+
+                    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||
+                        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER)))
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
+
+                    auto data_length = cmd->send_reliable.data_length;
+                    auto pos = current_data + data_length;
+
+                    if (/*(data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||*/
+                        pos < received_data_->begin() ||
+                        pos > received_data_->begin() + received_data_length_)
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
 
                     if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
                             static_cast<uint16_t>(SegmentFlag::RELIABLE)) == Error::ERROR)
