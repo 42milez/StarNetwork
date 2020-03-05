@@ -46,7 +46,7 @@ namespace
             return SocketError::ERR_NET_WOULD_BLOCK;
         }
 
-        // ToDo: logging
+        // TODO: logging
         // ...
 
         return SocketError::ERR_NET_OTHER;
@@ -83,7 +83,7 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
 
     if (ip_type == IP::Type::V6 || ip_type == IP::Type::ANY) // IPv6 socket
     {
-        // ToDo: check whether ip is IPv6 only socket with IPv4 address
+        // TODO: check if ip is IPv6 only socket with IPv4 address
         // ...
 
         auto &addr6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
@@ -104,7 +104,7 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
     }
     else // IPv4 socket
     {
-        // ToDo: check if whether ip is IPv4 socket with IPv6 address
+        // TODO: check if ip is IPv4 socket with IPv6 address
         // ...
 
         auto &addr4 = reinterpret_cast<struct sockaddr_in &>(addr);
@@ -299,7 +299,7 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
     return Error::OK;
 }
 
-// ToDo: 未実装
+// TODO: add implemenration
 Error
 Socket::poll(Socket::PollType type, int timeout)
 {

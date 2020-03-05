@@ -151,7 +151,6 @@ namespace rudp
                     if (insert_pos == incoming_reliable_commands_.end())
                         end_of_list = true;
 
-                    // ToDo: 62行目でチェックしているので「>=」ではなくて「>」ではないか
                     if (reliable_sequence_number >= incoming_reliable_sequence_number_)
                     {
                         if ((*insert_pos)->reliable_sequence_number() < incoming_reliable_sequence_number_)
@@ -261,7 +260,7 @@ namespace rudp
             Error is_memory_allocated{};
 
             if (fragment_count <= PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
-                // ToDo: メモリ確保できない場合は std::bad_alloc 例外が送出されるので、うまくハンドリングする
+                // TODO: handle std::bad_alloc
                 is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
 
             if (is_memory_allocated == Error::CANT_ALLOCATE)

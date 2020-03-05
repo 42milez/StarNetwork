@@ -52,10 +52,10 @@ namespace
             }
             else
             {
-                // ToDo: logging
+                // TODO: logging
                 // ...
 
-                // ToDo: error handling
+                // TODO: handle error
                 // ...
             }
 
@@ -92,7 +92,7 @@ IpAddress::operator std::string() const
             ret << ":";
         }
 
-        // ToDo: Try to use _field16
+        // TODO: try to use _field16
         uint16_t num = (_field8[i * 2] << 8) + _field8[i * 2 + 1];
 
         ret << std::hex << num;
@@ -119,10 +119,10 @@ IpAddress::_parse_ipv4(const std::string &str, int start, uint8_t *ret)
 
     if (slices != 3)
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
 
-        // ToDo: error handling
+        // TODO: handle error
         // ...
     }
 
@@ -180,10 +180,10 @@ IpAddress::_parse_ipv6(const std::string &str)
         }
         else
         {
-            // ToDo: logging
+            // TODO: logging
             // ...
 
-            // ToDo: error handling
+            // TODO: handle error
             // ...
 
             return;
@@ -298,7 +298,7 @@ IpAddress::is_wildcard() const
 const uint8_t *
 IpAddress::GetIPv4() const
 {
-    // ToDo: bounds checking
+    // TODO: bounds checking
     // ...
 
     return &(_field8[12]);
@@ -307,7 +307,7 @@ IpAddress::GetIPv4() const
 const uint8_t *
 IpAddress::GetIPv6() const
 {
-    // ToDo: bounds checking
+    // TODO: bounds checking
     // ...
 
     return _field8;
@@ -373,7 +373,7 @@ IpAddress::IpAddress(const std::string &str)
     }
     else
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
     }
 }

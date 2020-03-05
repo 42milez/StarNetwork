@@ -330,7 +330,7 @@ namespace rudp
             outgoing_unreliable_commands_.erase(outgoing_command);
         }
 
-        // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
+        // TODO: Is it better that are the properties (state, throttle, etc.) moved to other class?
         if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&
             outgoing_reliable_commands_.empty() &&
             outgoing_unreliable_commands_.empty() &&
@@ -420,7 +420,7 @@ namespace rudp
 
         outgoing_command = sent_reliable_commands_.front();
 
-        // TODO: next_timeout_ の更新はメソッド化できる
+        // TODO: add a method to update next_timeout_
         next_timeout_ = outgoing_command->NextTimeout();
 
         if (no_sent_reliable_command_matched)

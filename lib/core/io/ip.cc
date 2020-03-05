@@ -78,7 +78,7 @@ namespace
 
         if (s != GETADDRINFO_SUCCESS)
         {
-            // ToDo: logging
+            // TODO: logging
             // ...
 
             return IpAddress();
@@ -86,7 +86,7 @@ namespace
 
         if (results == nullptr || results->ai_addr == nullptr)
         {
-            // ToDo: logging
+            // TODO: logging
             // ...
 
             if (results)
@@ -216,7 +216,7 @@ IP::resolve_hostname_queue_item(const std::string &hostname, IP::Type type)
 
     if (id == IP::RESOLVER_INVALID_ID)
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
 
         return id;
@@ -248,14 +248,14 @@ IP::resolve_hostname_queue_item(const std::string &hostname, IP::Type type)
 IP::ResolverStatus
 IP::get_resolve_item_status(IP::ResolverID id) const
 {
-    // ToDo: bounds checking
+    // TODO: bounds checking
     // ...
 
     auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
 
     if (_resolver->queue[id].status == IP::ResolverStatus::NONE)
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
 
         return IP::ResolverStatus::NONE;
@@ -269,14 +269,14 @@ IP::get_resolve_item_status(IP::ResolverID id) const
 IpAddress
 IP::get_resolve_item_address(IP::ResolverID id) const
 {
-    // ToDo: bounds checking
+    // TODO: bounds checking
     // ...
 
     auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
 
     if (_resolver->queue[id].status != IP::ResolverStatus::DONE)
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
 
         return IpAddress();
@@ -290,7 +290,7 @@ IP::get_resolve_item_address(IP::ResolverID id) const
 void
 IP::erase_resolve_item(IP::ResolverID id)
 {
-    // ToDo: bounds checking
+    // TODO: bounds checking
     // ...
 
     auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
