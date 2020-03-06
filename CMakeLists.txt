@@ -37,7 +37,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(app)
 add_subdirectory(lib)
-add_subdirectory(module)
 
 #  Directories (Tests)
 # --------------------------------------------------

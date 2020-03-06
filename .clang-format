@@ -1,10 +1,10 @@
 Language: Cpp
 BasedOnStyle: Microsoft
 
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
-AllowAllArgumentsOnNextLine: true
 AlwaysBreakAfterReturnType: All
 BraceWrapping:
   AfterControlStatement: false
 NamespaceIndentation: All
+BreakConstructorInitializers: BeforeComma

@@ -1,11 +1,14 @@
 file(GLOB sources
+        ${CMAKE_SOURCE_DIR}/app/network.cc
+        ${CMAKE_SOURCE_DIR}/app/peer.cc
         feature/rudp/*.cc
+        unit/app/*.cc
         unit/core/io/*.cc
-        unit/lib/rudp/command/*.cc
-        unit/module/*.cc)
+        unit/lib/rudp/command/*.cc)
 
 file(GLOB headers
-        lib/test/util/*.h
+        ${CMAKE_SOURCE_DIR}/app/*.h
+        ${CMAKE_SOURCE_DIR}/lib/test/util/*.h
         feature/rudp/*.h)
 
 add_executable(all_tests
@@ -16,5 +19,4 @@ add_executable(all_tests
 target_link_libraries(all_tests
         core
         rudp
-        module
         ${CONAN_LIBS})

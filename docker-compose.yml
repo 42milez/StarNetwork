@@ -34,7 +34,6 @@ services:
       - ./cmake:/var/app/cmake
       - ./docker:/var/app/docker
       - ./lib:/var/app/lib
-      - ./module:/var/app/module
       - ./test:/var/app/test
       - ./CMakeLists.txt:/var/app/CMakeLists.txt
       - ./conanfile.txt:/var/app/conanfile.txt
