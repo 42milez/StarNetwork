@@ -34,22 +34,67 @@ services:
       - ./cmake:/var/app/cmake
       - ./docker:/var/app/docker
       - ./lib:/var/app/lib
-      - ./module:/var/app/module
       - ./test:/var/app/test
       - ./CMakeLists.txt:/var/app/CMakeLists.txt
       - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_test:/var/app/cmake-build-test
+      - cmake_build_test_asan:/var/app/cmake-build-test-asan
+      - cmake_build_test_lsan:/var/app/cmake-build-test-lsan
+      - cmake_build_test_msan:/var/app/cmake-build-test-msan
+      - cmake_build_test_tsan:/var/app/cmake-build-test-tsan
       - conan:/root/.conan
-  all_test:
+  all_tests:
     <<: *test_base
     container_name: p2p-techdemo-all-test
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test
     command: >
-      bash -c "/bin/bash ./docker/script/build.sh &&
-               /bin/bash ./docker/script/run_all_test.sh"
+      bash -c "/bin/bash ./docker/script/build/build_all.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
+  all_tests_asan:
+    <<: *test_base
+    container_name: p2p-techdemo-all-test-with-asan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-asan
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
+  all_tests_lsan:
+    <<: *test_base
+    container_name: p2p-techdemo-all-test-with-lsan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-lsan
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
+#  all_tests_msan:
+#    <<: *test_base
+#    container_name: p2p-techdemo-all-test-with-msan
+#    environment:
+#      - BUILD_DIR=/var/app/cmake-build-test-msan
+#    command: >
+#      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
+#               /bin/bash ./docker/script/test/run_all_tests.bash"
+  all_tests_tsan:
+    <<: *test_base
+    container_name: p2p-techdemo-all-test-with-tsan
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-test-tsan
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all_tsan.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
 volumes:
   cmake_build_debug_remote:
     driver: local
   cmake_build_test:
+    driver: local
+  cmake_build_test_asan:
+    driver: local
+  cmake_build_test_lsan:
+    driver: local
+  cmake_build_test_msan:
+    driver: local
+  cmake_build_test_tsan:
     driver: local
   conan:
     driver: local

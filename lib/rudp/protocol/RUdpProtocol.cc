@@ -341,7 +341,7 @@ namespace rudp
     RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer>& peer,
             const std::shared_ptr<ProtocolType>& cmd)
     {
-        // TODO: 実装
+        // TODO: add implementation
         // ...
 
         return Error::OK;
@@ -418,7 +418,7 @@ namespace rudp
             const std::shared_ptr<ProtocolType>& cmd,
             VecUInt8It& data)
     {
-        // ToDo
+        // TODO
         // ...
 
         return Error::OK;
@@ -543,7 +543,6 @@ namespace rudp
 
         if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE)
         {
-            // ToDo: オリジナルコードは channel を渡しているが、peer から引っ張れるので、ここでは渡さない
             auto commands_dispatched = DispatchIncomingReliableCommands(peer, cmd);
 
             if (ret != Error::OK)
@@ -704,7 +703,8 @@ namespace rudp
             (*command)->acknowledge.received_reliable_sequence_number = reliable_sequence_number;
             (*command)->acknowledge.received_sent_time = htons(ack->sent_time());
 
-            // ToDo: なぜAcknowledgeだけ直接バッファーに転送される？（他のコマンドはoutgoing_reliable_commandsを経由する）
+            // REVIEW: Why is Acknowledge directly moved to buffer?
+            //         Other commands are through outgoing_reliable_commands before moved to buffer.
             (*buffer)->Add(*command);
 
             if ((ack->command().header.command & PROTOCOL_COMMAND_MASK) == static_cast<uint8_t>(RUdpProtocolCommand::DISCONNECT))

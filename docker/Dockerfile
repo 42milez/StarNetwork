@@ -7,7 +7,21 @@ RUN useradd -ms /bin/bash dev && echo "$DEV_USER:$DEV_USER_GROUP" | chpasswd
 
 ENV APPROOT /var/app
 
-RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT
+ENV TEST_DEFAULT_BUILD_DIR $APPROOT/cmake-build-test
+ENV TEST_ASAN_BUILD_DIR $APPROOT/cmake-build-test-asan
+ENV TEST_LSAN_BUILD_DIR $APPROOT/cmake-build-test-lsan
+ENV TEST_MSAN_BUILD_DIR $APPROOT/cmake-build-test-msan
+ENV TEST_TSAN_BUILD_DIR $APPROOT/cmake-build-test-tsan
+
+ENV TEST_RESULT_DIR $APPROOT/test-results
+
+RUN mkdir -p $APPROOT && chown $DEV_USER:$DEV_USER_GROUP $APPROOT && \
+    mkdir -p $TEST_DEFAULT_BUILD_DIR && \
+    mkdir -p $TEST_ASAN_BUILD_DIR && \
+    mkdir -p $TEST_LSAN_BUILD_DIR && \
+    mkdir -p $TEST_MSAN_BUILD_DIR && \
+    mkdir -p $TEST_TSAN_BUILD_DIR && \
+    mkdir -p $TEST_RESULT_DIR
 
 WORKDIR $APPROOT
 

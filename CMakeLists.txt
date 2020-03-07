@@ -30,15 +30,13 @@ conan_cmake_run(
         SETTINGS compiler.version=9
         SETTINGS os=Linux)
 
-set(CMAKE_CXX_FLAGS "")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0")
 
 #  Directories
 # --------------------------------------------------
 include_directories(${CMAKE_SOURCE_DIR})
-add_subdirectory(app/peer)
+add_subdirectory(app)
 add_subdirectory(lib)
-add_subdirectory(module)
 
 #  Directories (Tests)
 # --------------------------------------------------

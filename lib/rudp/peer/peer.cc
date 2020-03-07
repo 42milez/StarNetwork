@@ -296,7 +296,7 @@ namespace rudp
         return Error::OK;
     }
 
-    // TODO: Is segment necessary as an argument?
+    // REVIEW: Is the segment necessary as an argument?
     void
     Peer::QueueOutgoingCommand(const std::shared_ptr<ProtocolType>& protocol_type,
             const std::shared_ptr<Segment>& segment,
@@ -322,7 +322,6 @@ namespace rudp
                                                          PROTOCOL_COMMAND_MASK);
         std::shared_ptr<Channel> channel = nullptr;
 
-        // ToDO: エラーハンドリング
         if (channel_id < channels_.size())
             channel = channels_.at(channel_id);
 

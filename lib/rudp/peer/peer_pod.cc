@@ -70,26 +70,6 @@ namespace rudp
     else                                                           \
         return EventStatus::NO_EVENT_OCCURRED;
 
-#define EXCEEDS_CHANNEL_COUNT()                                                                          \
-    auto &net = peer->net();                                                                             \
-                                                                                                         \
-    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||                                             \
-        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER))) \
-    {                                                                                                    \
-        IS_EVENT_AVAILABLE()                                                                             \
-    }
-
-#define EXCEEDS_RECEIVED_LENGTH()                              \
-    auto data_length = cmd->send_reliable.data_length;  \
-    auto pos = current_data + data_length;                     \
-                                                               \
-    if ((data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||   \
-        pos < received_data_->begin() ||                       \
-        pos > received_data_->begin() + received_data_length_) \
-    {                                                          \
-        IS_EVENT_AVAILABLE()                                   \
-    }
-
     Error
     PeerPod::Disconnect(const std::shared_ptr<Peer>& peer, uint32_t data, ChecksumCallback checksum)
     {
@@ -246,7 +226,7 @@ namespace rudp
             }
             else
             {
-                peer = peers_.at(peer_id); // TODO: How does this access the peers?
+                peer = peers_.at(peer_id);
 
                 if (!peer->EventOccur(received_address_, session_id))
                     continue;
@@ -379,8 +359,23 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("received data: {0}",
                             std::string{ cmd_body.begin(), cmd_body.end() });
 
-                    EXCEEDS_CHANNEL_COUNT()
-                    EXCEEDS_RECEIVED_LENGTH()
+                    auto &net = peer->net();
+
+                    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||
+                        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER)))
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
+
+                    auto data_length = cmd->send_reliable.data_length;
+                    auto pos = current_data + data_length;
+
+                    if (/*(data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||*/
+                        pos < received_data_->begin() ||
+                        pos > received_data_->begin() + received_data_length_)
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
 
                     if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
                             static_cast<uint16_t>(SegmentFlag::RELIABLE), 0) == Error::ERROR)
@@ -391,26 +386,41 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    // TODO:
-//                if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                    // TODO: add implementation
+                    // if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
+                    //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED)
                 {
                     core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNSEQUENCED ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    // TODO:
-//                if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                    // TODO: add implementation
+                    // if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
+                    //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT)
                 {
                     core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    EXCEEDS_CHANNEL_COUNT()
-                    EXCEEDS_RECEIVED_LENGTH()
+                    auto &net = peer->net();
+
+                    if (peer->ExceedsChannelCount(cmd->header.channel_id) ||
+                        (net->StateIsNot(RUdpPeerState::CONNECTED) && net->StateIsNot(RUdpPeerState::DISCONNECT_LATER)))
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
+
+                    auto data_length = cmd->send_reliable.data_length;
+                    auto pos = current_data + data_length;
+
+                    if (/*(data_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) ||*/
+                        pos < received_data_->begin() ||
+                        pos > received_data_->begin() + received_data_length_)
+                    {
+                        IS_EVENT_AVAILABLE()
+                    }
 
                     if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
                             static_cast<uint16_t>(SegmentFlag::RELIABLE)) == Error::ERROR)
@@ -429,9 +439,9 @@ namespace rudp
                     core::Singleton<core::Logger>::Instance().Debug("command was received: THROTTLE_CONFIGURE ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    // TODO:
-//                if (protocol_->HandleThrottleConfigure(peer, cmd))
-//                    IS_EVENT_AVAILABLE()
+                    // TODO: add implementation
+                    // if (protocol_->HandleThrottleConfigure(peer, cmd))
+                    //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT)
                 {
@@ -439,9 +449,9 @@ namespace rudp
                             "command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
                             cmd->header.reliable_sequence_number);
 
-                    // TODO:
-//                if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
-//                    IS_EVENT_AVAILABLE()
+                    // TODO: add implementation
+                    // if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))
+                    //     IS_EVENT_AVAILABLE()
                 }
                 else
                 {

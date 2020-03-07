@@ -241,8 +241,6 @@ namespace rudp
 
             sent_reliable_commands_.push_back(*outgoing_command);
 
-            outgoing_reliable_commands_.erase(outgoing_command);
-
             core::Singleton<core::Logger>::Instance().Debug(
                     "outgoing reliable command was removed (on send): {0} (ch: {1}, sn: {2})",
                     COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()),
@@ -252,6 +250,8 @@ namespace rudp
             core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0} ({1})",
                     outgoing_reliable_commands_.size(),
                     (*outgoing_command)->command()->header.reliable_sequence_number);
+
+            outgoing_reliable_commands_.erase(outgoing_command);
         }
 
         return can_ping;
@@ -316,8 +316,6 @@ namespace rudp
 
             chamber->IncrementSegmentSize(command_size);
 
-            outgoing_unreliable_commands_.erase(outgoing_command);
-
             if ((*outgoing_command)->HasPayload())
             {
                 buffer = chamber->EmptyDataBuffer();
@@ -328,9 +326,11 @@ namespace rudp
 
                 sent_unreliable_commands_.push_back(*outgoing_command);
             }
+
+            outgoing_unreliable_commands_.erase(outgoing_command);
         }
 
-        // TODO: stateやthrottle関連のプロパティは新しいクラスにまとめたい（このクラスはRUdpPeerが所有する）
+        // TODO: Is it better that are the properties (state, throttle, etc.) moved to other class?
         if (net->StateIs(RUdpPeerState::DISCONNECT_LATER) &&
             outgoing_reliable_commands_.empty() &&
             outgoing_unreliable_commands_.empty() &&
@@ -420,7 +420,7 @@ namespace rudp
 
         outgoing_command = sent_reliable_commands_.front();
 
-        // TODO: next_timeout_ の更新はメソッド化できる
+        // TODO: add a method to update next_timeout_
         next_timeout_ = outgoing_command->NextTimeout();
 
         if (no_sent_reliable_command_matched)

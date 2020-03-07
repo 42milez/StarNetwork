@@ -7,7 +7,7 @@ namespace rudp
 {
 #define UDP_TIME_OVERFLOW 86400000 // msec per day (60 sec * 60 sec * 24 h * 1000)
 
-// TODO: 引数が「A is less than B」の順序になるようにする
+// TODO: change argument order as the expression would be "A is less than B"
 #define UDP_TIME_LESS(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW)
 #define UDP_TIME_GREATER(a, b) ((b) - (a) >= UDP_TIME_OVERFLOW)
 #define UDP_TIME_LESS_EQUAL(a, b) (!UDP_TIME_GREATER(a, b))

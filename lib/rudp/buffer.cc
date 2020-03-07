@@ -91,7 +91,7 @@ namespace rudp
             return it + size_;
         }
 
-        // TODO: std::vector のコピーが発生する（バッファーに std::variant を使うのはよくない）
+        // FIXME: get reference of buffer_
         auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8)>(buffer_);
 
         if (size_ > 0)

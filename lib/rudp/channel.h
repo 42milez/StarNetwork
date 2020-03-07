@@ -45,7 +45,7 @@ namespace rudp
         IncrementOutgoingUnreliableSequenceNumber()
         { ++outgoing_unreliable_sequence_number_; }
 
-        // ToDo: 各要素が取りうる値は 0 or 1 であるため、boolean を検討する
+        // FIXME: use boolean instead of number (each element would be 0 or 1)
         inline void
         IncrementReliableWindow(size_t idx)
         { ++reliable_windows_.at(idx); }

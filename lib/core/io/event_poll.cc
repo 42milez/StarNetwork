@@ -49,9 +49,6 @@ EventPoll::register_event(const SOCKET_PTR &sock)
 
     if (kevent(_fd, &event, 1, nullptr, 0, nullptr) == CANNOT_REGISTER_EVENT)
     {
-        // ToDo: logging
-        // ...
-
         return Error::FAILED;
     }
 #else
@@ -65,7 +62,7 @@ Error
 EventPoll::wait_for_receiving(const std::vector<SOCKET_PTR> &in_sockets, std::vector<SOCKET_PTR> &out_sockets)
 {
 #ifdef __APPLE__
-    // ToDo: Consider the size of events. The size may affect I/O throughput.
+    // TODO: How many space do we reserve for events? The size may affect I/O throughput.
     static struct kevent events[N_EVENT];
 
     memset(events, 0, sizeof(events));
@@ -78,7 +75,7 @@ EventPoll::wait_for_receiving(const std::vector<SOCKET_PTR> &in_sockets, std::ve
     }
     else if (nfds == READ_EVENT_TIMEOUT)
     {
-        // ToDo: handle timeout
+        // TODO: handle timeout
         // ...
 
         return Error::FAILED;
@@ -112,7 +109,7 @@ EventPoll::EventPoll()
 
     if (_fd == CANNOT_CREATE_EVENT_QUEUE)
     {
-        // ToDo: logging
+        // TODO: logging
         // ...
     }
 #else

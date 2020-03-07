@@ -2,7 +2,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "module/network.h"
+#include "app/network.h"
 
 TEST_CASE("Create peer", "[unit][network]")
 {
