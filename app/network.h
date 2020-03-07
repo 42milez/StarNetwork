@@ -22,8 +22,8 @@ class Network
     ~Network();
 
     Error
-    CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port, int in_bandwidth,
-                 int out_bandwidth);
+    CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port, int in_bandwidth = 0,
+                 int out_bandwidth = 0);
 
     Error
     CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);

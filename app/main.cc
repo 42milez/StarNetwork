@@ -1,8 +1,11 @@
 #include <iostream>
+#include <memory>
 
 #include <lyra/lyra.hpp>
 
 #include "p2p_techdemo/buildinfo.h"
+
+#include "network.h"
 
 namespace
 {
@@ -64,14 +67,16 @@ main(int argc, const char **argv)
         return 0;
     }
 
+    auto network = std::make_shared<Network>();
+
     if (mode == "server") {
-        // create instance as server
-        // ...
+        network->CreateServer(port);
     }
     else {
-        // create instance as client
-        // ...
+        network->CreateClient(host_address, host_port, port);
     }
+
+    network->Poll();
 
     return 0;
 }
