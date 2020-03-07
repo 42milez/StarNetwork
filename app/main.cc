@@ -16,15 +16,22 @@ namespace
 
     const std::string LOGGER_NAME = "PEER";
     const std::string PATH_LOG    = "/var/log/p2p_techdemo/peer.log";
+
+    const std::string DEFAULT_MODE           = "server";
+    const uint16_t DEFAULT_SERVER_PORT       = 12345;
+    const uint16_t DEFAULT_CLIENT_PORT       = 12346;
+    const std::string DEFAULT_SERVER_ADDRESS = "127.0.0.1";
 } // namespace
 
 int
 main(int argc, const char **argv)
 {
-    std::string mode  = "server";
-    int port          = 12345;
-    bool show_version = false;
-    bool show_help    = false;
+    std::string mode         = DEFAULT_MODE;
+    int port                 = DEFAULT_SERVER_PORT;
+    std::string host_address = DEFAULT_SERVER_ADDRESS;
+    int host_port            = DEFAULT_SERVER_PORT;
+    bool show_version        = false;
+    bool show_help           = false;
 
     auto cli = lyra::cli_parser();
     cli.add_argument(
@@ -36,7 +43,9 @@ main(int argc, const char **argv)
                          .choices([](int value) { return 0 <= value && value <= 65535; })
                          .optional());
     cli.add_argument(
-        lyra::opt(show_version).name("-v").name("--version").help("Show application version").optional());
+        lyra::opt(host_address, "host_address").name("-ha").name("--host-address").help("host address").optional());
+    cli.add_argument(lyra::opt(host_port, "host_port").name("-hp").name("--host-port").help("host port").optional());
+    cli.add_argument(lyra::opt(show_version).name("-v").name("--version").help("Show application version").optional());
     cli.add_argument(lyra::help(show_help));
 
     auto result = cli.parse({argc, argv});
@@ -54,4 +63,15 @@ main(int argc, const char **argv)
         std::cout << cli;
         return 0;
     }
+
+    if (mode == "server") {
+        // create instance as server
+        // ...
+    }
+    else {
+        // create instance as client
+        // ...
+    }
+
+    return 0;
 }
