@@ -54,8 +54,4 @@ main(int argc, const char **argv)
         std::cout << cli;
         return 0;
     }
-
-    //    auto &peer = core::Singleton<peer::Peer>::Instance();
-    //    peer.init();
-    //    peer.run();
 }
