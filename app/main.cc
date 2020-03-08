@@ -21,18 +21,17 @@ namespace
     const std::string PATH_LOG    = "/var/log/p2p_techdemo/peer.log";
 
     const std::string DEFAULT_MODE           = "server";
-    const uint16_t DEFAULT_SERVER_PORT       = 12345;
-    const uint16_t DEFAULT_CLIENT_PORT       = 12346;
     const std::string DEFAULT_SERVER_ADDRESS = "127.0.0.1";
+    const uint16_t DEFAULT_PORT              = 12345;
 } // namespace
 
 int
 main(int argc, const char **argv)
 {
     std::string mode         = DEFAULT_MODE;
-    int port                 = DEFAULT_SERVER_PORT;
+    int port                 = DEFAULT_PORT;
     std::string host_address = DEFAULT_SERVER_ADDRESS;
-    int host_port            = DEFAULT_SERVER_PORT;
+    int host_port            = DEFAULT_PORT;
     bool show_version        = false;
     bool show_help           = false;
 
