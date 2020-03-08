@@ -14,9 +14,9 @@ namespace rudp
     class Segment
     {
     public:
-        Segment(VecUInt8& data, uint32_t flags);
+        Segment(const std::vector<uint8_t> *data, uint32_t flags);
 
-        Segment(VecUInt8& data, uint32_t flags, uint32_t buffer_size);
+        Segment(const std::vector<uint8_t> *data, uint32_t flags, uint32_t buffer_size);
 
         void
         AddPeerIdx(uint32_t peer_idx);

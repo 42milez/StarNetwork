@@ -54,7 +54,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         std::string msg1{"command from guest1"};
         auto data1    = std::vector<uint8_t>{msg1.begin(), msg1.end()};
         auto flags1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment1 = std::make_shared<rudp::Segment>(data1, flags1);
+        auto segment1 = std::make_shared<rudp::Segment>(&data1, flags1);
 
         guest1->Send(0, rudp::SysCh::RELIABLE, segment1);
         guest1->Service(guest1_event, 0);
@@ -83,7 +83,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         std::string msg2{"command from guest2"};
         auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
         auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment2 = std::make_shared<rudp::Segment>(payload2, flags2);
+        auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
 
         guest2->Send(0, rudp::SysCh::RELIABLE, segment2);
         guest2->Service(guest2_event, 0);
@@ -157,7 +157,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
             "soul."};
         auto payload1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
         auto flags1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment1 = std::make_shared<rudp::Segment>(payload1, flags1);
+        auto segment1 = std::make_shared<rudp::Segment>(&payload1, flags1);
 
         guest1->Send(0, rudp::SysCh::RELIABLE, segment1);
         guest1->Service(guest1_event, 0);
@@ -228,7 +228,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
             "soul."};
         auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
         auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment2 = std::make_shared<rudp::Segment>(payload2, flags2);
+        auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
 
         guest2->Send(0, rudp::SysCh::RELIABLE, segment2);
         guest2->Service(guest2_event, 0);

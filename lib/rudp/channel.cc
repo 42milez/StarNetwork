@@ -233,11 +233,11 @@ namespace rudp
 
         if (fragment_count > 0)
         {
-            segment = std::make_shared<Segment>(data, flags, cmd->send_fragment.total_length);
+            segment = std::make_shared<Segment>(&data, flags, cmd->send_fragment.total_length);
         }
         else
         {
-            segment = std::make_shared<Segment>(data, flags);
+            segment = std::make_shared<Segment>(&data, flags);
         }
 
         if (segment == nullptr)

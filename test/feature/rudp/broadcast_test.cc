@@ -61,7 +61,7 @@ TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
     std::string msg{"broadcast command from host"};
     auto payload = std::vector<uint8_t>{msg.begin(), msg.end()};
     auto flags   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-    auto segment = std::make_shared<rudp::Segment>(payload, flags);
+    auto segment = std::make_shared<rudp::Segment>(&payload, flags);
 
     host->Broadcast(rudp::SysCh::RELIABLE, segment);
     host->Service(host_event, 0);

@@ -493,8 +493,7 @@ namespace rudp
     void
     PeerPod::RequestPeerRemoval(size_t peer_idx, const std::shared_ptr<Peer>& peer, ChecksumCallback checksum)
     {
-        std::vector<uint8_t> empty_data;
-        std::shared_ptr<Segment> segment = std::make_shared<Segment>(empty_data,
+        std::shared_ptr<Segment> segment = std::make_shared<Segment>(nullptr,
                 static_cast<uint32_t>(SegmentFlag::RELIABLE));
 
         segment->AddSysMsg(SysMsg::REMOVE_PEER);
