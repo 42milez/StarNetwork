@@ -83,9 +83,9 @@ class Network
     };
 
     std::list<Segment> incoming_segments_;
-    std::map<int, std::shared_ptr<rudp::Peer>> peers_;
+    std::map<uint32_t , std::shared_ptr<rudp::Peer>> peers_;
 
-    std::shared_ptr<rudp::Host> host_;
+    std::unique_ptr<rudp::Host> host_;
 
     ConnectionStatus connection_status_;
     IpAddress bind_ip_;

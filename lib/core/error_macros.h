@@ -1,7 +1,13 @@
 #ifndef P2P_TECHDEMO_CORE_ERROR_MACROS_H
 #define P2P_TECHDEMO_CORE_ERROR_MACROS_H
 
+#include "logger.h"
+#include "singleton.h"
 #include "typedefs.h"
+
+#define ERR_CONTINUE()                                                                      \
+    core::Singleton<core::Logger>::Instance().Critical("__FUNCTION__, __FILE__, __LINE__"); \
+	continue;
 
 #define ERR_FAIL_COND(cond) { \
     if (unlikely(cond)) {     \

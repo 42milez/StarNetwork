@@ -163,6 +163,10 @@ namespace rudp
         connect_id()
         { return connect_id_; }
 
+        inline void
+        data(uint32_t val)
+        { data_ = val; }
+
         inline uint32_t
         event_data()
         { return event_data_; };
@@ -232,6 +236,7 @@ namespace rudp
         uint32_t lowest_round_trip_time_;
 
         uint32_t connect_id_;
+        uint32_t data_;
         uint32_t event_data_;
         uint32_t ping_interval_;
 

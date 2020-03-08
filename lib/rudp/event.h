@@ -42,6 +42,10 @@ namespace rudp
         data(uint32_t val)
         { data_ = val; }
 
+        inline uint32_t
+        data()
+        { return data_; }
+
         inline std::shared_ptr<Peer>
         peer()
         { return peer_; }

@@ -70,12 +70,12 @@ main(int argc, const char **argv)
 
     if (mode == "server") {
         network->CreateServer(port);
+        network->Poll();
     }
     else {
+
         network->CreateClient(host_address, host_port, port);
     }
-
-    network->Poll();
 
     return 0;
 }

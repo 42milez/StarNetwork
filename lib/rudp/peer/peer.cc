@@ -15,6 +15,7 @@ namespace rudp
     Peer::Peer()
             : command_pod_(std::make_unique<CommandPod>()),
               connect_id_(),
+              data_(),
               event_data_(),
               highest_round_trip_time_variance_(),
               incoming_peer_id_(),

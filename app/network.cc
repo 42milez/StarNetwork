@@ -8,6 +8,7 @@
 #include "lib/core/string.h"
 
 #include "lib/rudp/network_config.h"
+#include "lib/rudp/peer/peer.h"
 
 #include "network.h"
 
@@ -161,10 +162,40 @@ Network::Poll()
         rudp::EventStatus ret = host_->Service(event, 0);
 
         if (ret == rudp::EventStatus::NO_EVENT_OCCURRED || ret == rudp::EventStatus::ERROR)
-            break;
+            continue;
 
         if (event->TypeIs(rudp::EventType::CONNECT)) {
-            // ...
+            if (server_ && refuse_connections_) {
+                event->peer()->Reset();
+                break;
+            }
+
+            if (server_ && ((int)event->data() < 2 || peers_.find(event->data()) != peers_.end())) {
+                event->peer()->Reset();
+                ERR_CONTINUE();
+            }
+
+            auto new_id = event->data();
+
+            if (new_id == 0) {
+                new_id = 1;
+            }
+
+            event->peer()->data(new_id);
+
+            peers_.insert(std::make_pair(new_id, event->peer()));
+
+            connection_status_ = ConnectionStatus::CONNECTED;
+
+            if (server_) {
+                for (auto const &peer : peers_) {
+                    if (peer.first == new_id) {
+                        continue;
+                    }
+
+                    // ...
+                }
+            }
         }
         else if (event->TypeIs(rudp::EventType::DISCONNECT)) {
             // ...
