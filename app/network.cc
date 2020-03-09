@@ -12,14 +12,28 @@
 
 #include "network.h"
 
-Network::Segment::Segment()
+namespace
+{
+    std::vector<uint8_t>
+    encode_uint32(uint32_t val)
+    {
+        return {
+            static_cast<uint8_t>((val >> 0) & 0xFF),
+            static_cast<uint8_t>((val >> 8) & 0xFF),
+            static_cast<uint8_t>((val >> 16) & 0xFF),
+            static_cast<uint8_t>((val >> 24) & 0xFF),
+        };
+    }
+}
+
+app::Network::Segment::Segment()
     : segment(nullptr)
     , from()
     , channel()
 {
 }
 
-Network::Network()
+app::Network::Network()
     : active_(false)
     , always_ordered_(false)
     , bind_ip_("*")
@@ -35,14 +49,14 @@ Network::Network()
 {
 }
 
-Network::~Network()
+app::Network::~Network()
 {
     CloseConnection();
 }
 
 Error
-Network::CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port, int in_bandwidth,
-                      int out_bandwidth)
+app::Network::CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port,
+                           int in_bandwidth, int out_bandwidth)
 {
     ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(server_port < 49152 || server_port > 65535, Error::ERR_INVALID_PARAMETER)
@@ -107,7 +121,7 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
 }
 
 Error
-Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
+app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
     ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
@@ -147,7 +161,7 @@ Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, u
 }
 
 void
-Network::Poll()
+app::Network::Poll()
 {
     ERR_FAIL_COND(!active_)
 
@@ -193,7 +207,23 @@ Network::Poll()
                         continue;
                     }
 
-                    // ...
+                    // send existing peers to new peer
+                    auto segment =
+                        std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
+                    auto msg = encode_uint32(static_cast<uint32_t>(SysMsg::ADD_PEER));
+                    auto id = encode_uint32(peer.first);
+                    segment->AppendData(msg);
+                    segment->AppendData(id);
+                    event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
+
+                    // send the new peer to existing peers
+                    segment =
+                        std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
+                    msg = encode_uint32(static_cast<uint32_t>(SysMsg::ADD_PEER));
+                    id = encode_uint32(event->peer()->data());
+                    segment->AppendData(msg);
+                    segment->AppendData(id);
+                    event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
                 }
             }
         }
@@ -211,13 +241,13 @@ Network::Poll()
 
 // TODO: add implementation
 void
-Network::CloseConnection(uint32_t wait_usec)
+app::Network::CloseConnection(uint32_t wait_usec)
 {
     // ...
 }
 
 void
-Network::Disconnect(int peer_idx, bool now)
+app::Network::Disconnect(int peer_idx, bool now)
 {
     ERR_FAIL_COND(!active_)
     ERR_FAIL_COND(!server_)

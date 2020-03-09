@@ -190,6 +190,10 @@ namespace rudp
             return connect_id_;
         }
 
+        inline uint32_t
+        data()
+        { return data_; }
+
         inline void
         data(uint32_t val)
         {
