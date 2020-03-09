@@ -2,6 +2,7 @@
 
 DOCKER_SCRIPT_DIR=$(dirname $(dirname "${BASH_SOURCE}"))
 
+. "${DOCKER_SCRIPT_DIR}/config.bash"
 . "${DOCKER_SCRIPT_DIR}/var.bash"
 
 REPORTER=console
