@@ -115,7 +115,7 @@ namespace rudp
 
     std::tuple<std::shared_ptr<IncomingCommand>, Error>
     Channel::QueueIncomingCommand(const std::shared_ptr<ProtocolType>& cmd,
-            VecUInt8& data,
+                                  std::vector<uint8_t>& data,
             uint16_t flags,
             uint32_t fragment_count)
     {

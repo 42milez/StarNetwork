@@ -9,14 +9,14 @@ namespace rudp
 {
     using CompressorType = std::function<size_t(const std::vector<Buffer>& in_buffers,
             size_t in_limit,
-            VecUInt8& out_data,
+            std::vector<uint8_t> &out_data,
             size_t out_limit)>;
 
     using DecompressorType = std::function<
-    size_t(VecUInt8
+    size_t(std::vector<uint8_t>
     &in_data,
     size_t in_limit,
-            VecUInt8
+           std::vector<uint8_t>
     &out_data,
     size_t out_limit
     )>;

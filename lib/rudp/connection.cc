@@ -43,7 +43,7 @@ namespace rudp
     }
 
     ssize_t
-    Connection::Receive(NetworkConfig& received_address, VecUInt8& buffer, size_t buffer_count)
+    Connection::Receive(NetworkConfig& received_address, std::vector<uint8_t>& buffer, size_t buffer_count)
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
@@ -82,7 +82,7 @@ namespace rudp
 
         dest.set_ipv6(address.host());
 
-        VecUInt8 out;
+        std::vector<uint8_t> out;
 
         auto size = chamber->Write(out);
 

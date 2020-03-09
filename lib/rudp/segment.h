@@ -38,14 +38,14 @@ namespace rudp
             buffer_pos_ += fragment.size();
         }
 
-        inline VecUInt8
+        inline std::vector<uint8_t>
         Data()
         { return data_; }
 
-        inline VecUInt8
+        inline std::vector<uint8_t>
         Data(size_t offset, size_t size)
         {
-            VecUInt8 ret(size);
+            std::vector<uint8_t> ret(size);
             auto begin = data_.begin() + offset;
             auto end = begin + size;
             std::copy(begin, end, ret.begin());
@@ -62,8 +62,8 @@ namespace rudp
         { return flags_; }
 
     private:
-        VecUInt8 data_;
-        VecUInt8 user_data_;
+        std::vector<uint8_t> data_;
+        std::vector<uint8_t> user_data_;
 
         size_t buffer_pos_;
 

@@ -89,9 +89,9 @@ namespace rudp
         std::shared_ptr<Connection> conn_;
         std::vector<std::shared_ptr<Peer>> peers_;
         std::unique_ptr<RUdpProtocol> protocol_;
-        VecUInt8RawPtr received_data_;
-        VecUInt8 segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
-        VecUInt8 segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
+        std::vector<uint8_t>* received_data_;
+        std::vector<uint8_t> segment_data_1_; // TODO: up to PROTOCOL_MAXIMUM_MTU
+        std::vector<uint8_t> segment_data_2_; // TODO: up to PROTOCOL_MAXIMUM_MTU
 
         InterceptCallback intercept_;
         NetworkConfig received_address_;

@@ -508,7 +508,7 @@ namespace rudp
             bool check_for_timeouts,
             ChecksumCallback checksum)
     {
-        auto header_data = VecUInt8(sizeof(ProtocolHeader) + sizeof(uint32_t), 0);
+        auto header_data = std::vector<uint8_t>(sizeof(ProtocolHeader) + sizeof(uint32_t), 0);
         auto header = reinterpret_cast<ProtocolHeader*>(&(header_data.at(0)));
 
         protocol_->continue_sending(true);

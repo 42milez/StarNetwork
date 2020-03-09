@@ -83,7 +83,7 @@ namespace rudp
     }
 
     int
-    Chamber::Write(VecUInt8& out)
+    Chamber::Write(std::vector<uint8_t>& out)
     {
         core::Singleton<core::Logger>::Instance().Debug("buffer count: {0}", buffer_count_);
 

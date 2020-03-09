@@ -29,14 +29,14 @@ namespace rudp
                 const std::shared_ptr<OutgoingCommand>& outgoing_command);
 
         int
-        Write(VecUInt8& out);
+        Write(std::vector<uint8_t> &out);
 
         inline void
         IncrementSegmentSize(size_t val)
         { segment_size_ += val; }
 
         inline void
-        SetHeader(const VecUInt8& header, bool drop_sent_time)
+        SetHeader(const std::vector<uint8_t> &header, bool drop_sent_time)
         {
             auto header_size = drop_sent_time ? 2 : 4;
             buffers_.at(0)->CopyHeaderFrom(header, 0, header_size);

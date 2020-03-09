@@ -274,7 +274,7 @@ namespace rudp
 
     Error
     Peer::QueueIncomingCommand(const std::shared_ptr<ProtocolType>& cmd,
-            VecUInt8& data,
+                               std::vector<uint8_t>& data,
             uint16_t data_length,
             uint16_t flags,
             uint32_t fragment_count,

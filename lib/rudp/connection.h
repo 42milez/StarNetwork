@@ -15,7 +15,7 @@ namespace rudp
         Connection(const NetworkConfig& address);
 
         ssize_t
-        Receive(NetworkConfig& received_address, VecUInt8& buffer, size_t buffer_count);
+        Receive(NetworkConfig& received_address, std::vector<uint8_t>& buffer, size_t buffer_count);
 
         ssize_t
         Send(const NetworkConfig& address, const std::unique_ptr<Chamber>& chamber);

@@ -40,7 +40,7 @@ namespace rudp
         Error
         HandleBandwidthLimit(const std::shared_ptr<Peer>& peer,
                 const std::shared_ptr<ProtocolType>& cmd,
-                VecUInt8It& data);
+                             std::vector<uint8_t>::iterator& data);
 
         void HandleConnect(std::shared_ptr<Peer>& peer,
                 const ProtocolHeader* header,
@@ -55,13 +55,13 @@ namespace rudp
         Error
         HandleSendFragment(std::shared_ptr<Peer>& peer,
                 const std::shared_ptr<ProtocolType>& cmd,
-                VecUInt8& data,
+                           std::vector<uint8_t>& data,
                 uint16_t flags);
 
         Error
         HandleSendReliable(std::shared_ptr<Peer>& peer,
                 const std::shared_ptr<ProtocolType>& cmd,
-                VecUInt8& data,
+                           std::vector<uint8_t>& data,
                 uint16_t data_length,
                 uint16_t flags,
                 uint32_t fragment_count);

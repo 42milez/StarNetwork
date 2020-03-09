@@ -30,7 +30,7 @@ namespace rudp
     }
 
     void
-    Buffer::CopyHeaderFrom(const VecUInt8& data, size_t offset, size_t size)
+    Buffer::CopyHeaderFrom(const std::vector<uint8_t>& data, size_t offset, size_t size)
     {
         buffer_ = data;
         offset_ = offset;
@@ -72,8 +72,8 @@ namespace rudp
         return COMMANDS_AS_STRING.at(cmd_number);
     }
 
-    VecUInt8It
-    Buffer::CopyTo(VecUInt8It it)
+    std::vector<uint8_t>::iterator
+    Buffer::CopyTo(std::vector<uint8_t>::iterator it)
     {
         if (buffer_.index() == static_cast<int>(BufferVariant::ProtocolTypeSP))
         {
