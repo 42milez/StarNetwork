@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_COMPRESSION_H
-#define P2P_TECHDEMO_CORE_COMPRESSION_H
+#ifndef P2P_TECHDEMO_LIB_CORE_IO_COMPRESSION_H_
+#define P2P_TECHDEMO_LIB_CORE_IO_COMPRESSION_H_
 
 #include <vector>
 
@@ -30,4 +30,4 @@ public:
     static int get_max_compressed_buffer_size(int p_src_size, Mode p_mode);
 };
 
-#endif // P2P_TECHDEMO_CORE_COMPRESSION_H
+#endif // P2P_TECHDEMO_LIB_CORE_IO_COMPRESSION_H_

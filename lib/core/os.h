@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_OS_H
-#define P2P_TECHDEMO_CORE_OS_H
+#ifndef P2P_TECHDEMO_LIB_CORE_OS_H_
+#define P2P_TECHDEMO_LIB_CORE_OS_H_
 
 #include <string>
 #include <cstdint>
@@ -18,4 +18,4 @@ public:
     double clock_scale_;
 };
 
-#endif // P2P_TECHDEMO_CORE_OS_H
+#endif // P2P_TECHDEMO_LIB_CORE_OS_H_

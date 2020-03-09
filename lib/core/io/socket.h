@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_SOCKET_H
-#define P2P_TECHDEMO_CORE_SOCKET_H
+#ifndef P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_
+#define P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_
 
 #include <memory>
 
@@ -93,4 +93,4 @@ public:
     ~Socket();
 };
 
-#endif // P2P_TECHDEMO_CORE_SOCKET_H
+#endif // P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_

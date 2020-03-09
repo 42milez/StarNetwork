@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPCHAMBER_H
-#define P2P_TECHDEMO_RUDPCHAMBER_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_CHAMBER_H_
+#define P2P_TECHDEMO_LIB_RUDP_CHAMBER_H_
 
 #include <array>
 
@@ -119,4 +119,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPCHAMBER_H
+#endif // P2P_TECHDEMO_LIB_RUDP_CHAMBER_H_

@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPHOST_H
-#define P2P_TECHDEMO_RUDPHOST_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_HOST_H_
+#define P2P_TECHDEMO_LIB_RUDP_HOST_H_
 
 #include <functional>
 #include <vector>
@@ -78,4 +78,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPHOST_H
+#endif // P2P_TECHDEMO_LIB_RUDP_HOST_H_

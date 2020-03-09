@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPCONNECTION_H
-#define P2P_TECHDEMO_RUDPCONNECTION_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_CONNECTION_H_
+#define P2P_TECHDEMO_LIB_RUDP_CONNECTION_H_
 
 #include "lib/core/io/socket.h"
 
@@ -24,4 +24,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPCONNECTION_H
+#endif // P2P_TECHDEMO_LIB_RUDP_CONNECTION_H_

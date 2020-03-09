@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPBUFFER_H
-#define P2P_TECHDEMO_RUDPBUFFER_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_BUFFER_H_
+#define P2P_TECHDEMO_LIB_RUDP_BUFFER_H_
 
 #include <cstddef>
 #include <memory>
@@ -53,4 +53,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPBUFFER_H
+#endif // P2P_TECHDEMO_LIB_RUDP_BUFFER_H_

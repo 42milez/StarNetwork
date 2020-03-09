@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_IP_ADDRESS_H
-#define P2P_TECHDEMO_CORE_IP_ADDRESS_H
+#ifndef P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_
+#define P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_
 
 #include <array>
 
@@ -53,4 +53,4 @@ public:
     IpAddress();
 };
 
-#endif // P2P_TECHDEMO_CORE_IP_ADDRESS_H
+#endif // P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_

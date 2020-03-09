@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_ERROR_MACROS_H
-#define P2P_TECHDEMO_CORE_ERROR_MACROS_H
+#ifndef P2P_TECHDEMO_LIB_CORE_ERROR_MACROS_H_
+#define P2P_TECHDEMO_LIB_CORE_ERROR_MACROS_H_
 
 #include "logger.h"
 #include "singleton.h"
@@ -31,4 +31,4 @@
 // TODO: add implementation
 #define WARN_PRINT(str) {}
 
-#endif // P2P_TECHDEMO_CORE_ERROR_MACROS_H
+#endif // P2P_TECHDEMO_LIB_CORE_ERROR_MACROS_H_

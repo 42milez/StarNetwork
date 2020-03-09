@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPSEGMENT_H
-#define P2P_TECHDEMO_RUDPSEGMENT_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_
+#define P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -83,4 +83,4 @@ namespace rudp
     using SegmentSP = std::shared_ptr<Segment>;
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPSEGMENT_H
+#endif // P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_

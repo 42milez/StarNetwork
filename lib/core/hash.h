@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_HASH_H
-#define P2P_TECHDEMO_CORE_HASH_H
+#ifndef P2P_TECHDEMO_LIB_CORE_HASH_H_
+#define P2P_TECHDEMO_LIB_CORE_HASH_H_
 
 #include <cstdint>
 
@@ -11,4 +11,4 @@ class Hash {
 };
 }
 
-#endif // P2P_TECHDEMO_CORE_HASH_H
+#endif // P2P_TECHDEMO_LIB_CORE_HASH_H_

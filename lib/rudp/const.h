@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPCONST_H
-#define P2P_TECHDEMO_RUDPCONST_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_CONST_H_
+#define P2P_TECHDEMO_LIB_RUDP_CONST_H_
 
 #include <array>
 #include <cstdint>
@@ -91,4 +91,4 @@ namespace rudp
     constexpr uint32_t SOCKET_WAIT_SEND      = (1u << 0u);
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPCONST_H
+#endif // P2P_TECHDEMO_LIB_RUDP_CONST_H_

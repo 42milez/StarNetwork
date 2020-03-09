@@ -2,11 +2,11 @@
 #include <arpa/inet.h>
 #endif
 
-#include "RUdpProtocol.h"
 #include "lib/rudp/channel.h"
 #include "lib/rudp/command/command_size.h"
 #include "lib/rudp/macro.h"
 #include "lib/rudp/time.h"
+#include "protocol.h"
 
 namespace rudp
 {

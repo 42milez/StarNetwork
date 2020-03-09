@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPPEER_H
-#define P2P_TECHDEMO_RUDPPEER_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
+#define P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
 
 #include <list>
 #include <memory>
@@ -295,4 +295,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPPEER_H
+#endif // P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_

@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_PEER_H
-#define P2P_TECHDEMO_PEER_H
+#ifndef P2P_TECHDEMO_APP_PEER_H_
+#define P2P_TECHDEMO_APP_PEER_H_
 
 #include <memory>
 #include <string>
@@ -19,4 +19,4 @@ private:
 };
 } // namespace peer
 
-#endif // P2P_TECHDEMO_PEER_H
+#endif // P2P_TECHDEMO_APP_PEER_H_

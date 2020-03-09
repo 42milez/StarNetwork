@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
-#define P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_
+#define P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_
 
 #include <cstdint>
 #include <memory>
@@ -142,4 +142,4 @@ namespace rudp
     ConvertNetworkByteOrderToHostByteOrder(ProtocolType *cmd);
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
+#endif // P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_

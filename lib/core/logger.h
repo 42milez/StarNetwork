@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_LOGGER_H
-#define P2P_TECHDEMO_CORE_LOGGER_H
+#ifndef P2P_TECHDEMO_LIB_CORE_LOGGER_H_
+#define P2P_TECHDEMO_LIB_CORE_LOGGER_H_
 
 #include <spdlog/spdlog.h>
 
@@ -43,4 +43,4 @@ private:
 };
 } // namespace core
 
-#endif // P2P_TECHDEMO_CORE_LOGGER_H
+#endif // P2P_TECHDEMO_LIB_CORE_LOGGER_H_

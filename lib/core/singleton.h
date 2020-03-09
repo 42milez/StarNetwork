@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_SINGLETON_H
-#define P2P_TECHDEMO_CORE_SINGLETON_H
+#ifndef P2P_TECHDEMO_LIB_CORE_SINGLETON_H_
+#define P2P_TECHDEMO_LIB_CORE_SINGLETON_H_
 
 #include <cassert>
 #include <mutex>
@@ -52,4 +52,4 @@ template<typename T>
 T *Singleton<T>::instance_ = nullptr;
 } // namespace core
 
-#endif // P2P_TECHDEMO_CORE_SINGLETON_H
+#endif // P2P_TECHDEMO_LIB_CORE_SINGLETON_H_

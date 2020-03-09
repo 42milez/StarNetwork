@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_CORE_EVENTPOLL_H
-#define P2P_TECHDEMO_CORE_EVENTPOLL_H
+#ifndef P2P_TECHDEMO_LIB_CORE_IO_EVENT_POLL_H_
+#define P2P_TECHDEMO_LIB_CORE_IO_EVENT_POLL_H_
 
 #include "lib/core/errors.h"
 #include "socket.h"
@@ -19,4 +19,4 @@ public:
     ~EventPoll();
 };
 
-#endif // P2P_TECHDEMO_CORE_EVENTPOLL_H
+#endif // P2P_TECHDEMO_LIB_CORE_IO_EVENT_POLL_H_

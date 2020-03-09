@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPENUM_H
-#define P2P_TECHDEMO_RUDPENUM_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_ENUM_H_
+#define P2P_TECHDEMO_LIB_RUDP_ENUM_H_
 
 #include <cstdint>
 
@@ -105,4 +105,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPENUM_H
+#endif // P2P_TECHDEMO_LIB_RUDP_ENUM_H_

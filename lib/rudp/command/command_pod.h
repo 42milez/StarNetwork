@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPCOMMANDPOD_H
-#define P2P_TECHDEMO_RUDPCOMMANDPOD_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_
+#define P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_
 
 #include <array>
 #include <list>
@@ -207,4 +207,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H
+#endif // P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_

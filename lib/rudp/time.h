@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPTIME_H
-#define P2P_TECHDEMO_RUDPTIME_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_TIME_H_
+#define P2P_TECHDEMO_LIB_RUDP_TIME_H_
 
 #include <cstdint>
 
@@ -37,4 +37,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPTIME_H
+#endif // P2P_TECHDEMO_LIB_RUDP_TIME_H_

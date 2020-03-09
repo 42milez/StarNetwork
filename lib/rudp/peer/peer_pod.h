@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPPEERPOD_H
-#define P2P_TECHDEMO_RUDPPEERPOD_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_PEER_PEER_POD_H_
+#define P2P_TECHDEMO_LIB_RUDP_PEER_PEER_POD_H_
 
 #include <vector>
 
@@ -7,7 +7,7 @@
 #include "lib/rudp/compress.h"
 #include "lib/rudp/connection.h"
 #include "lib/rudp/peer/peer.h"
-#include "lib/rudp/protocol/RUdpProtocol.h"
+#include "lib/rudp/protocol/protocol.h"
 #include "lib/rudp/time.h"
 
 namespace rudp
@@ -118,4 +118,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPPEERPOD_H
+#endif // P2P_TECHDEMO_LIB_RUDP_PEER_PEER_POD_H_
