@@ -22,7 +22,7 @@ namespace
 
     const std::string DEFAULT_MODE           = "server";
     const std::string DEFAULT_SERVER_ADDRESS = "127.0.0.1";
-    const uint16_t DEFAULT_PORT              = 12345;
+    const uint16_t DEFAULT_PORT              = 49152;
 } // namespace
 
 int

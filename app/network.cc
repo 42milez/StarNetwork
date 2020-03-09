@@ -45,8 +45,8 @@ Network::CreateClient(const std::string &server_address, uint16_t server_port, u
                       int out_bandwidth)
 {
     ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(server_port < 0 || server_port > 65535, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(client_port < 0 || client_port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(server_port < 49152 || server_port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(client_port < 49152 || client_port > 65535, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
