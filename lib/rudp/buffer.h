@@ -14,11 +14,11 @@ namespace rudp
 {
     class Buffer
     {
-    public:
+      public:
         Buffer();
 
         void
-        Add(const ProtocolTypeSP& data);
+        Add(const ProtocolTypeSP &data);
 
         void
         CopyHeaderFrom(const std::vector<uint8_t> &data, size_t offset, size_t size);
@@ -34,13 +34,17 @@ namespace rudp
 
         inline size_t
         Size()
-        { return size_; };
+        {
+            return size_;
+        };
 
         inline void
         Size(size_t val)
-        { size_ = val; }
+        {
+            size_ = val;
+        }
 
-    private:
+      private:
         using VariantBuffer = std::variant<ProtocolTypeSP, std::vector<uint8_t>>;
 
         VariantBuffer buffer_;

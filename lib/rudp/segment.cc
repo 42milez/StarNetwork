@@ -2,29 +2,26 @@
 
 #include <arpa/inet.h>
 
+#include "enum.h"
 #include "lib/core/logger.h"
 #include "lib/core/singleton.h"
-#include "enum.h"
 #include "segment.h"
 
 namespace rudp
 {
     Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags)
-            : buffer_pos_(),
-              flags_(flags),
-              free_callback_(),
-              user_data_()
+        : buffer_pos_()
+        , flags_(flags)
+        , free_callback_()
+        , user_data_()
     {
-        if (data && !data->empty())
-        {
-            try
-            {
+        if (data && !data->empty()) {
+            try {
                 data_.resize(data->size());
                 std::copy(data->begin(), data->end(), data_.begin());
                 buffer_pos_ = data->size();
             }
-            catch (std::bad_alloc& e)
-            {
+            catch (std::bad_alloc &e) {
                 core::Singleton<core::Logger>::Instance().Critical("BAD ALLOCATION");
                 throw e;
             }
@@ -32,21 +29,18 @@ namespace rudp
     }
 
     Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags, uint32_t buffer_size)
-            : buffer_pos_(),
-              flags_(flags),
-              free_callback_(),
-              user_data_()
+        : buffer_pos_()
+        , flags_(flags)
+        , free_callback_()
+        , user_data_()
     {
-        if (data && !data->empty())
-        {
-            try
-            {
+        if (data && !data->empty()) {
+            try {
                 data_.resize(buffer_size);
                 std::copy(data->begin(), data->end(), data_.begin() + buffer_pos_);
                 buffer_pos_ = data->size();
             }
-            catch (std::bad_alloc& e)
-            {
+            catch (std::bad_alloc &e) {
                 core::Singleton<core::Logger>::Instance().Critical("BAD ALLOCATION");
                 throw e;
             }

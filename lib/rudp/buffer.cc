@@ -1,9 +1,9 @@
-#include "lib/core/logger.h"
-#include "lib/core/singleton.h"
-#include "lib/rudp/command/command_size.h"
 #include "buffer.h"
 #include "const.h"
 #include "enum.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
+#include "lib/rudp/command/command_size.h"
 
 namespace rudp
 {
@@ -17,20 +17,21 @@ namespace rudp
     }
 
     Buffer::Buffer()
-            : buffer_(),
-              offset_(),
-              size_()
-    {}
-
-    void
-    Buffer::Add(const ProtocolTypeSP& data)
+        : buffer_()
+        , offset_()
+        , size_()
     {
-        buffer_ = data;
-        size_ = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
     }
 
     void
-    Buffer::CopyHeaderFrom(const std::vector<uint8_t>& data, size_t offset, size_t size)
+    Buffer::Add(const ProtocolTypeSP &data)
+    {
+        buffer_ = data;
+        size_   = COMMAND_SIZES.at(data->header.command & PROTOCOL_COMMAND_MASK);
+    }
+
+    void
+    Buffer::CopyHeaderFrom(const std::vector<uint8_t> &data, size_t offset, size_t size)
     {
         buffer_ = data;
         offset_ = offset;
@@ -42,7 +43,7 @@ namespace rudp
     }
 
     void
-    Buffer::CopySegmentFrom(const std::shared_ptr<Segment>& segment, size_t offset, size_t size)
+    Buffer::CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size)
     {
         buffer_ = segment->Data(offset, size);
         offset_ = offset;
@@ -75,17 +76,14 @@ namespace rudp
     std::vector<uint8_t>::iterator
     Buffer::CopyTo(std::vector<uint8_t>::iterator it)
     {
-        if (buffer_.index() == static_cast<int>(BufferVariant::ProtocolTypeSP))
-        {
+        if (buffer_.index() == static_cast<int>(BufferVariant::ProtocolTypeSP)) {
             auto protocol = std::get<static_cast<int>(BufferVariant::ProtocolTypeSP)>(buffer_);
 
-            if (protocol)
-            {
+            if (protocol) {
                 memcpy(&(*it), &(*protocol), size_);
-                core::Singleton<core::Logger>::Instance().Debug("command was copied to buffer: {0} (sn: {1}, size: {2})",
-                        ProtocolCommandAsString(),
-                        protocol->header.reliable_sequence_number,
-                        size_);
+                core::Singleton<core::Logger>::Instance().Debug(
+                    "command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(),
+                    protocol->header.reliable_sequence_number, size_);
             }
 
             return it + size_;
@@ -94,8 +92,7 @@ namespace rudp
         // FIXME: get reference of buffer_
         auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8)>(buffer_);
 
-        if (size_ > 0)
-        {
+        if (size_ > 0) {
             memcpy(&(*it), &(payload.at(0)), size_);
             core::Singleton<core::Logger>::Instance().Debug("payload was copied to buffer (size: {0})", size_);
         }

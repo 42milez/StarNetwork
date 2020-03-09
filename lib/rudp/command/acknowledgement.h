@@ -7,27 +7,35 @@ namespace rudp
 {
     class Acknowledgement
     {
-    public:
+      public:
         Acknowledgement();
 
-    public:
-        inline ProtocolType&
+      public:
+        inline ProtocolType &
         command()
-        { return command_; }
+        {
+            return command_;
+        }
 
         inline void
         command(ProtocolType val)
-        { command_ = val; }
+        {
+            command_ = val;
+        }
 
         inline uint32_t
         sent_time()
-        { return sent_time_; }
+        {
+            return sent_time_;
+        }
 
         inline void
         sent_time(uint32_t val)
-        { sent_time_ = val; }
+        {
+            sent_time_ = val;
+        }
 
-    private:
+      private:
         ProtocolType command_;
         uint32_t sent_time_;
     };

@@ -1,14 +1,14 @@
 #ifndef P2P_TECHDEMO_RUDPEVENT_H
 #define P2P_TECHDEMO_RUDPEVENT_H
 
-#include "lib/rudp/peer/peer.h"
 #include "enum.h"
+#include "lib/rudp/peer/peer.h"
 
 namespace rudp
 {
     class Event
     {
-    public:
+      public:
         Event();
 
         void
@@ -18,51 +18,71 @@ namespace rudp
         DataAsString()
         {
             auto data = segment_->Data();
-            return std::string{ data.begin(), data.end() };
+            return std::string{data.begin(), data.end()};
         }
 
         inline bool
         TypeIs(EventType val)
-        { return type_ == val; }
+        {
+            return type_ == val;
+        }
 
         inline bool
         TypeIsNot(EventType val)
-        { return type_ != val; }
+        {
+            return type_ != val;
+        }
 
-    public:
+      public:
         inline uint8_t
         channel_id()
-        { return channel_id_; }
+        {
+            return channel_id_;
+        }
 
         inline void
         channel_id(uint8_t val)
-        { channel_id_ = val; }
+        {
+            channel_id_ = val;
+        }
 
         inline void
         data(uint32_t val)
-        { data_ = val; }
+        {
+            data_ = val;
+        }
 
         inline uint32_t
         data()
-        { return data_; }
+        {
+            return data_;
+        }
 
         inline std::shared_ptr<Peer>
         peer()
-        { return peer_; }
+        {
+            return peer_;
+        }
 
         inline void
-        peer(std::shared_ptr<Peer>& val)
-        { peer_ = val; }
+        peer(std::shared_ptr<Peer> &val)
+        {
+            peer_ = val;
+        }
 
         inline void
-        segment(std::shared_ptr<Segment>& val)
-        { segment_ = val; }
+        segment(std::shared_ptr<Segment> &val)
+        {
+            segment_ = val;
+        }
 
         inline void
         type(EventType val)
-        { type_ = val; }
+        {
+            type_ = val;
+        }
 
-    private:
+      private:
         std::shared_ptr<Peer> peer_;
         std::shared_ptr<Segment> segment_;
 

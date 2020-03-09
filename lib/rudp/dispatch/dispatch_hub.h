@@ -8,46 +8,64 @@ namespace rudp
 {
     class DispatchHub
     {
-    public:
+      public:
         DispatchHub();
 
-        void MergePeer(const std::shared_ptr<Peer>& peer);
+        void
+        MergePeer(const std::shared_ptr<Peer> &peer);
 
-        void PurgePeer(const std::shared_ptr<Peer>& peer);
+        void
+        PurgePeer(const std::shared_ptr<Peer> &peer);
 
-        void ChangeState(const std::shared_ptr<Peer>& peer, const RUdpPeerState& state);
+        void
+        ChangeState(const std::shared_ptr<Peer> &peer, const RUdpPeerState &state);
 
-        void NotifyConnect(const std::unique_ptr<Event>& event, std::shared_ptr<Peer>& peer);
+        void
+        NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer);
 
-        void NotifyDisconnect(const std::unique_ptr<Event>& event, std::shared_ptr<Peer>& peer);
+        void
+        NotifyDisconnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer);
 
-    public:
-        void DispatchState(std::shared_ptr<Peer>& peer, RUdpPeerState state);
+      public:
+        void
+        DispatchState(std::shared_ptr<Peer> &peer, RUdpPeerState state);
 
         inline void
-        Enqueue(std::shared_ptr<Peer>& peer)
-        { queue_->Enqueue(peer); }
+        Enqueue(std::shared_ptr<Peer> &peer)
+        {
+            queue_->Enqueue(peer);
+        }
 
         inline std::shared_ptr<Peer>
         Dequeue()
-        { return queue_->Dequeue(); }
+        {
+            return queue_->Dequeue();
+        }
 
         inline bool
         PeerExists()
-        { return queue_->PeerExists(); }
+        {
+            return queue_->PeerExists();
+        }
 
-    public:
+      public:
         inline size_t
         bandwidth_limited_peers()
-        { return bandwidth_limited_peers_; }
+        {
+            return bandwidth_limited_peers_;
+        }
 
         inline size_t
         connected_peers()
-        { return connected_peers_; }
+        {
+            return connected_peers_;
+        }
 
         inline bool
         recalculate_bandwidth_limits()
-        { return recalculate_bandwidth_limits_; }
+        {
+            return recalculate_bandwidth_limits_;
+        }
 
         inline void
         recalculate_bandwidth_limits(bool val)
@@ -56,7 +74,7 @@ namespace rudp
             recalculate_bandwidth_limits_ = val;
         }
 
-    private:
+      private:
         std::unique_ptr<DispatchQueue> queue_;
 
         size_t bandwidth_limited_peers_;
