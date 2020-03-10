@@ -26,6 +26,8 @@ configure()
 
   if [[ "${SANITIZER}" != '' ]]; then
     CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fsanitize=${SANITIZER}"
+  else
+    CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping"
   fi
 
   cd "${BUILD_DIR}" || exit 1
