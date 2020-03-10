@@ -66,7 +66,7 @@ main(int argc, const char **argv)
         return 0;
     }
 
-    auto network = std::make_shared<Network>();
+    auto network = std::make_shared<app::Network>();
 
     if (mode == "server") {
         network->CreateServer(port);
