@@ -1,63 +1,6 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.0.5
-parameters:
-  conf:
-    description: Used to specify the location of the .codecov.yml config file
-    type: string
-    default: .codecov/codecov.yml
-  file:
-    description: Path to the code coverage data file to upload.
-    type: string
-    default: ''
-  flags:
-    description: >-
-      Flag the upload to group coverage metrics (e.g. unittests | integration |
-      ui,chrome)
-    type: string
-    default: ''
-  token:
-    description: >-
-      Set the private repository token (defaults to environment variable
-      $CODECOV_TOKEN)
-    type: string
-    default: '${CODECOV_TOKEN}'
-  upload_name:
-    description: Custom defined name of the upload. Visible in Codecov UI
-    type: string
-    default: '${CIRCLE_BUILD_NUM}'
-  when:
-    description: When should this step run?
-    type: string
-    default: always
-steps:
-  - when:
-      condition: << parameters.file >>
-      steps:
-        - run:
-            name: Upload Coverage Results
-            command: |
-              curl -s https://codecov.io/bash | bash -s -- \
-                -f "<< parameters.file >>" \
-                -t "<< parameters.token >>" \
-                -n "<< parameters.upload_name >>" \
-                -y "<< parameters.conf >>" \
-                -F "<< parameters.flags >>" \
-                -Z || echo 'Codecov upload failed'
-            when: << parameters.when >>
-  - unless:
-      condition: << parameters.file >>
-      steps:
-        - run:
-            name: Upload Coverage Results
-            command: |
-              curl -s https://codecov.io/bash | bash -s -- \
-                -t "<< parameters.token >>" \
-                -n "<< parameters.upload_name >>" \
-                -y "<< parameters.conf >>" \
-                -F "<< parameters.flags >>" \
-                -Z || echo 'Codecov upload failed'
-            when: << parameters.when >>
 jobs:
   build:
     docker:
@@ -69,19 +12,21 @@ jobs:
       BUILD_DIR_LSAN: &build_dir_lsan /var/app/cmake-build-test-lsan
       BUILD_DIR_MSAN: &build_dir_msan /var/app/cmake-build-test-msan
       BUILD_DIR_TSAN: &build_dir_tsan /var/app/cmake-build-test-tsan
-      COVERAGE_FILE_PATH: &coverage_file_path /var/app/cmake-build-test/coverage.json
+      COVERAGE_DIR: /var/app/coverage
+      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.json
     steps:
       - checkout
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: 'Create Build Directory'
+          name: 'Create Directories'
           command: |
             mkdir -p "${BUILD_DIR}"
             mkdir -p "${BUILD_DIR_ASAN}"
             mkdir -p "${BUILD_DIR_LSAN}"
             mkdir -p "${BUILD_DIR_MSAN}"
             mkdir -p "${BUILD_DIR_TSAN}"
+            mkdir -p "${COVERAGE_DIR}"
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
@@ -139,7 +84,7 @@ jobs:
           command: |
             bash "${BUILD_DIR}/bin/all_tests" >/dev/null 2>&1
             llvm-profdata-9 merge -sparse "${BUILD_DIR}/bin/default.profraw" -o "${BUILD_DIR}/default.profdata"
-            llvm-cov-9 export "${BUILD_DIR}/bin/all_tests" -instr-profile="${BUILD_DIR}/default.profdata" > "${COVERAGE_FILE_PATH}"
+            llvm-cov-9 export "${BUILD_DIR}/bin/all_tests" -instr-profile="${BUILD_DIR}/default.profdata" > "${COVERAGE_ALL_PATH}"
       - store_test_results:
           path: /var/app/test-results
   test:
@@ -183,4 +128,5 @@ workflows:
           requires:
             - test
       - codecov/upload:
-          file: *coverage_file_path
+          file: *coverage_all_path
+          flags: all
