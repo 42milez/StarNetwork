@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-namespace peer
+namespace app
 {
 class Peer
 {
@@ -17,6 +17,6 @@ public:
 private:
     std::string token_;
 };
-} // namespace peer
+} // namespace app
 
 #endif // P2P_TECHDEMO_APP_PEER_H_

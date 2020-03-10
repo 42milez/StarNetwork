@@ -3,13 +3,14 @@
 #include "network.h"
 #include "peer.h"
 
-namespace peer
-{
-  using s_exit_handler = core::Singleton<core::ExitHandler>;
-  using s_network = core::Singleton<Network>;
+namespace {
+    using s_exit_handler = core::Singleton<core::ExitHandler>;
+    using s_network = core::Singleton<app::Network>;
+}
 
-  bool Peer::Init()
-  {
+bool
+app::Peer::Init()
+{
 //    auto &eh = s_exit_handler::Instance();
 //
 //    if (!eh.init()) return false;
@@ -19,14 +20,14 @@ namespace peer
 //    if (!network.Init()) return false;
 
     return true;
-  }
+}
 
-  void Peer::Run()
-  {
+void
+app::Peer::Run()
+{
 //    auto &eh = s_exit_handler::Instance();
 //
 //    while (!eh.should_exit()) {
 //      // ...
 //    }
-  }
-} // namespace peer
+}
