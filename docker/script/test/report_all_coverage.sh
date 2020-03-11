@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-"${BUILD_DIR}"/bin/all_tests
+"${BUILD_DIR}"/bin/all_tests >/dev/null 2>&1
 
 llvm-profdata-9 merge -sparse "${BUILD_DIR}/bin/default.profraw" -o "${BUILD_DIR}/default.profdata"
 
