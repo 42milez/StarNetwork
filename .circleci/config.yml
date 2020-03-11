@@ -12,8 +12,6 @@ jobs:
       BUILD_DIR_LSAN: &build_dir_lsan /var/app/cmake-build-test-lsan
       BUILD_DIR_MSAN: &build_dir_msan /var/app/cmake-build-test-msan
       BUILD_DIR_TSAN: &build_dir_tsan /var/app/cmake-build-test-tsan
-      COVERAGE_DIR: /var/app/coverage
-      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.json
     steps:
       - checkout
       - restore_cache:
