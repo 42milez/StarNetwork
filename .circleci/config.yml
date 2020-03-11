@@ -110,17 +110,17 @@ jobs:
   coverage:
     docker:
       - image: 42milez/cpp-dev-base:latest
-      working_directory: /var/app
-      steps:
-        - checkout
-        - restore_cache:
-            key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
-        - run:
-            name: "Export Coverage"
-            command: /bin/bash ./docker/script/test/report_all_coverage.sh
-        - codecov/upload:
-            file: *coverage_all_path
-            flags: all
+    working_directory: /var/app
+    steps:
+      - checkout
+      - restore_cache:
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
+      - run:
+          name: "Export Coverage"
+          command: /bin/bash ./docker/script/test/report_all_coverage.sh
+      - codecov/upload:
+          file: *coverage_all_path
+          flags: all
     environment:
       BUILD_DIR: *build_dir
 workflows:
