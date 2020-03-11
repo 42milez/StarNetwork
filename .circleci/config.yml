@@ -24,7 +24,6 @@ jobs:
             mkdir -p "${BUILD_DIR_LSAN}"
             mkdir -p "${BUILD_DIR_MSAN}"
             mkdir -p "${BUILD_DIR_TSAN}"
-            mkdir -p "${COVERAGE_DIR}"
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
