@@ -48,9 +48,9 @@ services:
     container_name: p2p-techdemo-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
-#    command: >
-#      bash -c "/bin/bash ./docker/script/build/build_all.bash &&
-#               /bin/bash ./docker/script/test/run_all_tests.bash"
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_asan:
     <<: *test_base
     container_name: p2p-techdemo-all-test-with-asan
