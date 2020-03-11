@@ -10,9 +10,7 @@ llvm-profdata-9 merge -sparse "${WORK_DIR}/default.profraw" -o "${WORK_DIR}/defa
 
 EXIT_ON_FAIL $? 'Merge Profile Data Failed'
 
-mkdir -p "${COVERAGE_DIR}"
-
-llvm-cov-9 export "${BUILD_DIR}/bin/all_tests" -instr-profile="${WORK_DIR}/default.profdata" > "${COVERAGE_DIR}/all.json"
+llvm-cov-9 export "${BUILD_DIR}/bin/all_tests" -instr-profile="${WORK_DIR}/default.profdata" > "${COVERAGE_ALL_PATH}"
 
 EXIT_ON_FAIL $? 'Export Coverage Report Failed'
 

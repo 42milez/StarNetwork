@@ -62,30 +62,34 @@ jobs:
     docker:
       - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
+    environment:
+      BUILD_DIR: *build_dir
+      COVERAGE_DIR: /var/app/coverage
+      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.json
+      TEST_RESULT_DIR: /var/app/test-results
     steps:
       - checkout
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Create Test Results Directory"
+          name: "Create Directories"
           command: |
-            mkdir ./test-results
+            mkdir -p "${COVERAGE_DIR}"
+            mkdir -p "${TEST_RESULT_DIR}"
       - run:
           name: "Enable JUnit Reporter"
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
           name: "Run All Tests"
           command: /bin/bash ./docker/script/test/run_all_tests.bash
-#      - run:
-#          name: "Export Coverage"
-#          command: /bin/bash ./docker/script/test/report_all_coverage.sh
-#      - codecov/upload:
-#          file: *coverage_all_path
-#          flags: all
+      - run:
+          name: "Export Coverage"
+          command: /bin/bash ./docker/script/test/report_all_coverage.sh
+      - codecov/upload:
+          file: *coverage_all_path
+          flags: all
       - store_test_results:
           path: /var/app/test-results
-    environment:
-      BUILD_DIR: *build_dir
   sanitize_base: &sanitize_base
     docker:
       - image: 42milez/cpp-dev-base:latest
