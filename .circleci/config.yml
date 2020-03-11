@@ -61,7 +61,7 @@ jobs:
             - *build_dir_lsan
             - *build_dir_msan
             - *build_dir_tsan
-  test_base: &test_base
+  test:
     docker:
       - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
@@ -87,27 +87,9 @@ jobs:
           flags: all
       - store_test_results:
           path: /var/app/test-results
-  test:
-    <<: *test_base
     environment:
       BUILD_DIR: *build_dir
-  test_asan:
-    <<: *test_base
-    environment:
-      BUILD_DIR: *build_dir_asan
-  test_lsan:
-    <<: *test_base
-    environment:
-      BUILD_DIR: *build_dir_lsan
-  test_msan:
-    <<: *test_base
-    environment:
-      BUILD_DIR: *build_dir_msan
-  test_tsan:
-    <<: *test_base
-    environment:
-      BUILD_DIR: *build_dir_tsan
-  coverage:
+  sanitize_base: &sanitize_base
     docker:
       - image: 42milez/cpp-dev-base:latest
     working_directory: /var/app
@@ -116,13 +98,24 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Export Coverage"
-          command: /bin/bash ./docker/script/test/report_all_coverage.sh
-      - codecov/upload:
-          file: *coverage_all_path
-          flags: all
+          name: "Run All Tests"
+          command: /bin/bash ./docker/script/test/run_all_tests.bash
+  sanitize_address:
+    <<: *sanitize_base
     environment:
-      BUILD_DIR: *build_dir
+      BUILD_DIR: *build_dir_asan
+  sanitize_leak:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_lsan
+  sanitize_memory:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_msan
+  sanitize_thread:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_tsan
 workflows:
   version: 2
   build_and_test:
@@ -131,18 +124,15 @@ workflows:
       - test:
           requires:
             - build
-      - test_asan:
+      - sanitize_address:
           requires:
             - test
-      - test_lsan:
+      - sanitize_leak:
           requires:
             - test
-#      - test_msan:
+#      - sanitize_memory:
 #          requires:
 #            - test
-      - test_tsan:
-          requires:
-            - test
-      - coverage:
+      - sanitize_thread:
           requires:
             - test
