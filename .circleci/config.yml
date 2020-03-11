@@ -79,12 +79,12 @@ jobs:
       - run:
           name: "Run All Tests"
           command: /bin/bash ./docker/script/test/run_all_tests.bash
-      - run:
-          name: "Export Coverage"
-          command: /bin/bash ./docker/script/test/report_all_coverage.sh
-      - codecov/upload:
-          file: *coverage_all_path
-          flags: all
+#      - run:
+#          name: "Export Coverage"
+#          command: /bin/bash ./docker/script/test/report_all_coverage.sh
+#      - codecov/upload:
+#          file: *coverage_all_path
+#          flags: all
       - store_test_results:
           path: /var/app/test-results
     environment:
