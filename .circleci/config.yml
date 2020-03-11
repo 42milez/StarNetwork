@@ -125,15 +125,15 @@ workflows:
       - test:
           requires:
             - build
-      - sanitize_address:
-          requires:
-            - test
-      - sanitize_leak:
-          requires:
-            - test
+#      - sanitize_address:
+#          requires:
+#            - test
+#      - sanitize_leak:
+#          requires:
+#            - test
 #      - sanitize_memory:
 #          requires:
 #            - test
-      - sanitize_thread:
-          requires:
-            - test
+#      - sanitize_thread:
+#          requires:
+#            - test
