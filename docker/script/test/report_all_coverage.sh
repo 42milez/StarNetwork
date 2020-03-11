@@ -8,11 +8,11 @@ DOCKER_SCRIPT_DIR=$(dirname $(dirname "${BASH_SOURCE}"))
 
 llvm-profdata-9 merge -sparse "${WORK_DIR}/default.profraw" -o "${WORK_DIR}/default.profdata"
 
-EXIT_ON_FAIL $? 'llvm-profdata failed'
+EXIT_ON_FAIL $? 'Merge Profile Data Failed'
 
 llvm-cov-9 export "${BUILD_DIR}/bin/all_tests" -instr-profile="${WORK_DIR}/default.profdata" > "${COVERAGE_ALL_PATH}"
 
-EXIT_ON_FAIL $? 'llvm-cov failed'
+EXIT_ON_FAIL $? 'Export Coverage Report Failed'
 
 rm "${WORK_DIR}/default.profraw"
 rm "${WORK_DIR}/default.profdata"
