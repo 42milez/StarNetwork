@@ -107,6 +107,22 @@ jobs:
     <<: *test_base
     environment:
       BUILD_DIR: *build_dir_tsan
+  coverage:
+    docker:
+      - image: 42milez/cpp-dev-base:latest
+      working_directory: /var/app
+      steps:
+        - checkout
+        - restore_cache:
+            key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
+        - run:
+            name: "Export Coverage"
+            command: /bin/bash ./docker/script/test/report_all_coverage.sh
+        - codecov/upload:
+            file: *coverage_all_path
+            flags: all
+    environment:
+      BUILD_DIR: *build_dir
 workflows:
   version: 2
   build_and_test:
@@ -125,5 +141,8 @@ workflows:
 #          requires:
 #            - test
       - test_tsan:
+          requires:
+            - test
+      - coverage:
           requires:
             - test
