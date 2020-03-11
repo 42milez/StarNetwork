@@ -12,4 +12,4 @@ EXIT_ON_FAIL $? 'Download grcov Failed'
 
 tar xf "${GRCOV_ASSET}"
 
-grcov --llvm . --token unused --commit-sha unused > "${COVERAGE_FILE_PATH}"
+./grcov --llvm . --token unused --commit-sha unused > "${COVERAGE_FILE_PATH}"
