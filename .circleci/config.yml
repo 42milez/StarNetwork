@@ -64,18 +64,15 @@ jobs:
     working_directory: /var/app
     environment:
       BUILD_DIR: *build_dir
-      COVERAGE_DIR: /var/app/coverage
-      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.txt
+      COVERAGE_FILE_PATH: &coverage_file_path /var/app/covarage.txt
       TEST_RESULT_DIR: /var/app/test-results
     steps:
       - checkout
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Create Directories"
-          command: |
-            mkdir -p "${COVERAGE_DIR}"
-            mkdir -p "${TEST_RESULT_DIR}"
+          name: "Create Test Result Directory"
+          command: mkdir -p "${TEST_RESULT_DIR}"
       - run:
           name: "Enable JUnit Reporter"
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
@@ -84,9 +81,9 @@ jobs:
           command: /bin/bash ./docker/script/test/run_all_tests.bash
       - run:
           name: "Export Coverage"
-          command: /bin/bash ./docker/script/test/report_all_coverage.sh
+          command: /bin/bash ./docker/script/test/report_coverage.sh
       - codecov/upload:
-          file: *coverage_all_path
+          file: *coverage_file_path
           flags: all
       - store_test_results:
           path: /var/app/test-results
