@@ -65,7 +65,7 @@ jobs:
     environment:
       BUILD_DIR: *build_dir
       COVERAGE_DIR: /var/app/coverage
-      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.json
+      COVERAGE_ALL_PATH: &coverage_all_path /var/app/coverage/all.txt
       TEST_RESULT_DIR: /var/app/test-results
     steps:
       - checkout

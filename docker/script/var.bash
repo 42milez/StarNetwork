@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 export WORK_DIR=/var/app
-export COVERAGE_DIR="${WORK_DIR}/coverage"
 
 export CMAKE_BUILD_TYPE=Debug
 export CMAKE_C_COMPILER=/usr/bin/clang-9
