@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 
+#include "lib/core/encode.h"
 #include "enum.h"
 #include "type.h"
 
@@ -61,6 +62,14 @@ namespace rudp
         {
             return data_.size() * sizeof(uint8_t);
         }
+
+        inline uint32_t
+        First4()
+        { return core::DecodeUint32(data_, 0); }
+
+        inline uint32_t
+        Second4()
+        { return core::DecodeUint32(data_, 4); }
 
       public:
         inline uint32_t

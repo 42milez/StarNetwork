@@ -1,11 +1,11 @@
 #include "lib/core/singleton.h"
 #include "lib/core/ExitHandler.h"
-#include "network.h"
+//#include "network.h"
 #include "peer.h"
 
 namespace {
     using s_exit_handler = core::Singleton<core::ExitHandler>;
-    using s_network = core::Singleton<app::Network>;
+    //using s_network = core::Singleton<app::Network>;
 }
 
 bool

@@ -1,9 +1,9 @@
-#include <algorithm>
 #include <string>
 
 #include "lib/core/error_macros.h"
 #include "lib/core/hash.h"
 #include "lib/core/io/compression.h"
+#include "lib/core/encode.h"
 #include "lib/core/singleton.h"
 #include "lib/core/string.h"
 
@@ -11,20 +11,6 @@
 #include "lib/rudp/peer/peer.h"
 
 #include "network.h"
-
-namespace
-{
-    std::vector<uint8_t>
-    encode_uint32(uint32_t val)
-    {
-        return {
-            static_cast<uint8_t>((val >> 0) & 0xFF),
-            static_cast<uint8_t>((val >> 8) & 0xFF),
-            static_cast<uint8_t>((val >> 16) & 0xFF),
-            static_cast<uint8_t>((val >> 24) & 0xFF),
-        };
-    }
-}
 
 app::Network::Segment::Segment()
     : segment(nullptr)
@@ -175,8 +161,13 @@ app::Network::Poll()
 
         rudp::EventStatus ret = host_->Service(event, 0);
 
-        if (ret == rudp::EventStatus::NO_EVENT_OCCURRED || ret == rudp::EventStatus::ERROR)
+        if (ret == rudp::EventStatus::NO_EVENT_OCCURRED) {
             continue;
+        }
+
+        if (ret == rudp::EventStatus::ERROR) {
+            break;
+        }
 
         if (event->TypeIs(rudp::EventType::CONNECT)) {
             if (server_ && refuse_connections_) {
@@ -186,7 +177,7 @@ app::Network::Poll()
 
             if (server_ && ((int)event->data() < 2 || peers_.find(event->data()) != peers_.end())) {
                 event->peer()->Reset();
-                ERR_CONTINUE();
+                ERR_CONTINUE(true);
             }
 
             auto new_id = event->data();
@@ -210,8 +201,8 @@ app::Network::Poll()
                     // send existing peers to new peer
                     auto segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
-                    auto msg = encode_uint32(static_cast<uint32_t>(SysMsg::ADD_PEER));
-                    auto id = encode_uint32(peer.first);
+                    auto msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
+                    auto id = core::EncodeUint32(peer.first);
                     segment->AppendData(msg);
                     segment->AppendData(id);
                     event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
@@ -219,8 +210,8 @@ app::Network::Poll()
                     // send the new peer to existing peers
                     segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
-                    msg = encode_uint32(static_cast<uint32_t>(SysMsg::ADD_PEER));
-                    id = encode_uint32(event->peer()->data());
+                    msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
+                    id = core::EncodeUint32(event->peer()->data());
                     segment->AppendData(msg);
                     segment->AppendData(id);
                     event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
@@ -231,7 +222,28 @@ app::Network::Poll()
             // ...
         }
         else if (event->TypeIs(rudp::EventType::RECEIVE)) {
-            // ...
+            if (event->channel_id() == static_cast<uint8_t>(rudp::SysCh::CONFIG)) {
+                ERR_CONTINUE(event->PayloadLength() < 8)
+                ERR_CONTINUE(server_)
+
+                auto msg = event->Message();
+                auto id = event->Id();
+
+                switch (msg) {
+                case rudp::SysMsg::ADD_PEER:
+                    // ...
+                    break;
+                case rudp::SysMsg::REMOVE_PEER:
+                    // ...
+                    break;
+                }
+            }
+            else if (static_cast<rudp::SysCh>(event->channel_id()) < channel_count_) {
+                // ...
+            }
+            else {
+                ERR_CONTINUE(true)
+            }
         }
         else if (event->TypeIs(rudp::EventType::NONE)) {
             // ...

@@ -1,8 +1,8 @@
 #ifndef P2P_TECHDEMO_LIB_RUDP_EVENT_H_
 #define P2P_TECHDEMO_LIB_RUDP_EVENT_H_
 
-#include "enum.h"
 #include "lib/rudp/peer/peer.h"
+#include "enum.h"
 
 namespace rudp
 {
@@ -20,6 +20,18 @@ namespace rudp
             auto data = segment_->Data();
             return std::string{data.begin(), data.end()};
         }
+
+        inline uint32_t
+        Id()
+        { return segment_->Second4(); }
+
+        inline SysMsg
+        Message()
+        { return static_cast<SysMsg>(segment_->First4()); }
+
+        inline size_t
+        PayloadLength()
+        { return segment_->DataLength(); }
 
         inline bool
         TypeIs(EventType val)

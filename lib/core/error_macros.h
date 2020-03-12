@@ -5,9 +5,12 @@
 #include "singleton.h"
 #include "typedefs.h"
 
-#define ERR_CONTINUE()                                                                      \
-    core::Singleton<core::Logger>::Instance().Critical("__FUNCTION__, __FILE__, __LINE__"); \
-	continue;
+#define ERR_CONTINUE(cond)                                                                      \
+    if (unlikely(cond)) {                                                                       \
+        core::Singleton<core::Logger>::Instance().Critical("__FUNCTION__, __FILE__, __LINE__"); \
+	    continue;                                                                               \
+    }
+
 
 #define ERR_FAIL_COND(cond) { \
     if (unlikely(cond)) {     \
