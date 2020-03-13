@@ -64,12 +64,8 @@ namespace rudp
         }
 
         inline uint32_t
-        First4()
-        { return core::DecodeUint32(data_, 0); }
-
-        inline uint32_t
-        Second4()
-        { return core::DecodeUint32(data_, 4); }
+        ExtractByte(size_t offset)
+        { return core::DecodeUint32(data_, offset); }
 
       public:
         inline uint32_t

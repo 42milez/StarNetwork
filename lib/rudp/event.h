@@ -23,11 +23,11 @@ namespace rudp
 
         inline uint32_t
         Id()
-        { return segment_->Second4(); }
+        { return segment_->ExtractByte(4); }
 
         inline SysMsg
         Message()
-        { return static_cast<SysMsg>(segment_->First4()); }
+        { return static_cast<SysMsg>(segment_->ExtractByte(0)); }
 
         inline size_t
         PayloadLength()
