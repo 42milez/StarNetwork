@@ -7,8 +7,7 @@ DOCKER_SCRIPT_DIR=$(dirname $(dirname "${BASH_SOURCE}"))
 . "${DOCKER_SCRIPT_DIR}/io.bash"
 . "${DOCKER_SCRIPT_DIR}/var.bash"
 
-configure()
-{
+configure() {
   EXIT_IF_ARGC_INVALID 1 "${#}"
 
   git_modifications=$(git status --porcelain)
@@ -42,8 +41,7 @@ configure()
     "${WORK_DIR}"
 }
 
-build()
-{
+build() {
   EXIT_IF_ARGC_INVALID 1 "${#}"
 
   TARGET=${1}
