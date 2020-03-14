@@ -5,33 +5,39 @@
 #include "singleton.h"
 #include "typedefs.h"
 
-#define ERR_CONTINUE(cond)                                                                      \
-    if (unlikely(cond)) {                                                                       \
-        core::Singleton<core::Logger>::Instance().Critical("__FUNCTION__, __FILE__, __LINE__"); \
-	    continue;                                                                               \
+#define ERR_CONTINUE(cond)                                                                                             \
+    if (unlikely(cond)) {                                                                                              \
+        core::Singleton<core::Logger>::Instance().Critical("__FUNCTION__, __FILE__, __LINE__");                        \
+        continue;                                                                                                      \
     }
 
+#define ERR_FAIL_COND(cond)                                                                                            \
+    {                                                                                                                  \
+        if (unlikely(cond)) {                                                                                          \
+            return;                                                                                                    \
+        }                                                                                                              \
+    }
 
-#define ERR_FAIL_COND(cond) { \
-    if (unlikely(cond)) {     \
-        return;               \
-    }                         \
-}
+#define ERR_FAIL_COND_V(cond, retval)                                                                                  \
+    {                                                                                                                  \
+        if (unlikely(cond)) {                                                                                          \
+            return retval;                                                                                             \
+        }                                                                                                              \
+    }
 
-#define ERR_FAIL_COND_V(cond, retval) { \
-    if (unlikely(cond)) {               \
-        return retval;                  \
-    }                                   \
-}
-
-#define ERR_FAIL_V(retval) { \
-    return retval;           \
-}
+#define ERR_FAIL_V(retval)                                                                                             \
+    {                                                                                                                  \
+        return retval;                                                                                                 \
+    }
 
 // TODO: add implementation
-#define ERR_PRINT(str) {}
+#define ERR_PRINT(str)                                                                                                 \
+    {                                                                                                                  \
+    }
 
 // TODO: add implementation
-#define WARN_PRINT(str) {}
+#define WARN_PRINT(str)                                                                                                \
+    {                                                                                                                  \
+    }
 
 #endif // P2P_TECHDEMO_LIB_CORE_ERROR_MACROS_H_

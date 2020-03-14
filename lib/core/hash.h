@@ -5,10 +5,12 @@
 
 namespace core
 {
-class Hash {
- public:
-  uint32_t uniqueID();
-};
-}
+    class Hash
+    {
+      public:
+        uint32_t
+        uniqueID();
+    };
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_HASH_H_

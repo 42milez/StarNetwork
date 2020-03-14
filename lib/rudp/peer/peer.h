@@ -192,7 +192,9 @@ namespace rudp
 
         inline uint32_t
         data()
-        { return data_; }
+        {
+            return data_;
+        }
 
         inline void
         data(uint32_t val)

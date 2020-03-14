@@ -12,7 +12,7 @@ OS::OS()
 #ifdef __APPLE__
     mach_timebase_info_data_t info;
     kern_return_t ret = mach_timebase_info(&info);
-    //ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
+    // ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
     ERR_FAIL_COND(ret != 0);
     clock_scale_ = (static_cast<double>(info.numer) / static_cast<double>(info.denom)) / 1000.0;
     clock_start_ = mach_absolute_time() * clock_scale_;
@@ -22,10 +22,10 @@ OS::OS()
 #else
 #define RUDP_CLOCK CLOCK_MONOTONIC
 #endif
-  struct timespec tv_now = { 0, 0 };
-  //ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
-  ERR_FAIL_COND(clock_gettime(RUDP_CLOCK, &tv_now) != 0);
-  clock_start_ = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
+    struct timespec tv_now = {0, 0};
+    // ERR_EXPLAIN("OS CLOCK IS NOT WORKING!");
+    ERR_FAIL_COND(clock_gettime(RUDP_CLOCK, &tv_now) != 0);
+    clock_start_           = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 #endif
 }
 

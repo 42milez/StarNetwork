@@ -32,4 +32,3 @@ namespace core
 } // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_ENCODE_H_
-

@@ -66,19 +66,15 @@ TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
     host->Broadcast(rudp::SysCh::RELIABLE, segment);
     host->Service(host_event, 0);
 
-    test::wait(
-        [&host, &host_event, &guest1, &guest1_event]() {
-            return guest1->Service(guest1_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED;
-        },
-        test::DEFAULT_TIMEOUT);
+    test::wait([&host, &host_event, &guest1,
+                &guest1_event]() { return guest1->Service(guest1_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+               test::DEFAULT_TIMEOUT);
 
     REQUIRE((guest1_event->TypeIs(rudp::EventType::RECEIVE) && (guest1_event->DataAsString() == msg)));
 
-    test::wait(
-        [&host, &host_event, &guest2, &guest2_event]() {
-            return guest2->Service(guest2_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED;
-        },
-        test::DEFAULT_TIMEOUT);
+    test::wait([&host, &host_event, &guest2,
+                &guest2_event]() { return guest2->Service(guest2_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+               test::DEFAULT_TIMEOUT);
 
     REQUIRE((guest2_event->TypeIs(rudp::EventType::RECEIVE) && (guest2_event->DataAsString() == msg)));
 }

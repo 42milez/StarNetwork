@@ -3,12 +3,13 @@
 
 class InitializationException
 {
-public:
+  public:
     explicit InitializationException(std::string &&msg);
 
-    const char *what() const noexcept;
+    const char *
+    what() const noexcept;
 
-private:
+  private:
     std::string _msg;
 };
 

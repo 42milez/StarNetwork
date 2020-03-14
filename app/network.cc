@@ -1,9 +1,9 @@
 #include <string>
 
+#include "lib/core/encode.h"
 #include "lib/core/error_macros.h"
 #include "lib/core/hash.h"
 #include "lib/core/io/compression.h"
-#include "lib/core/encode.h"
 #include "lib/core/singleton.h"
 #include "lib/core/string.h"
 
@@ -202,7 +202,7 @@ app::Network::Poll()
                     auto segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
                     auto msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
-                    auto id = core::EncodeUint32(peer.first);
+                    auto id  = core::EncodeUint32(peer.first);
                     segment->AppendData(msg);
                     segment->AppendData(id);
                     event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
@@ -211,7 +211,7 @@ app::Network::Poll()
                     segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
                     msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
-                    id = core::EncodeUint32(event->peer()->data());
+                    id  = core::EncodeUint32(event->peer()->data());
                     segment->AppendData(msg);
                     segment->AppendData(id);
                     event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
@@ -227,7 +227,7 @@ app::Network::Poll()
                 ERR_CONTINUE(server_)
 
                 auto msg = event->Message();
-                auto id = event->Id();
+                auto id  = event->Id();
 
                 switch (msg) {
                 case rudp::SysMsg::ADD_PEER:

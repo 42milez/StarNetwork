@@ -6,8 +6,8 @@
 #include <functional>
 #include <vector>
 
-#include "lib/core/encode.h"
 #include "enum.h"
+#include "lib/core/encode.h"
 #include "type.h"
 
 namespace rudp
@@ -65,7 +65,9 @@ namespace rudp
 
         inline uint32_t
         ExtractByte(size_t offset)
-        { return core::DecodeUint32(data_, offset); }
+        {
+            return core::DecodeUint32(data_, offset);
+        }
 
       public:
         inline uint32_t
