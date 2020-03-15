@@ -67,10 +67,10 @@ namespace app
             RELIABLE
         };
 
-        struct Segment
+        struct Payload
         {
           public:
-            Segment();
+            Payload();
 
           public:
             std::shared_ptr<rudp::Segment> segment;
@@ -78,14 +78,14 @@ namespace app
             int from;
         };
 
-        std::list<Segment> incoming_segments_;
+        std::list<Payload> payloads_;
         std::map<uint32_t, std::shared_ptr<rudp::Peer>> peers_;
 
         std::unique_ptr<rudp::Host> host_;
 
         ConnectionStatus connection_status_;
         IpAddress bind_ip_;
-        Segment current_segment_;
+        Payload current_segment_;
         core::SysCh channel_count_;
         TransferMode transfer_mode_;
 
@@ -98,6 +98,7 @@ namespace app
         bool always_ordered_;
         bool refuse_connections_;
         bool server_;
+        bool server_relay_;
     };
 } // namespace app
 

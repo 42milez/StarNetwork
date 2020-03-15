@@ -12,7 +12,7 @@
 
 #include "network.h"
 
-app::Network::Segment::Segment()
+app::Network::Payload::Payload()
     : segment(nullptr)
     , from()
     , channel()
@@ -20,14 +20,15 @@ app::Network::Segment::Segment()
 }
 
 app::Network::Network()
-    : active_(false)
-    , always_ordered_(false)
+    : active_()
+    , always_ordered_()
     , bind_ip_("*")
     , channel_count_(core::SysCh::MAX)
     , connection_status_(ConnectionStatus::DISCONNECTED)
-    , current_segment_(Segment{})
-    , refuse_connections_(false)
-    , server_(false)
+    , current_segment_(Payload{})
+    , refuse_connections_()
+    , server_()
+    , server_relay_()
     , target_peer_()
     , transfer_channel_(-1)
     , transfer_mode_(TransferMode::RELIABLE)
@@ -151,7 +152,7 @@ app::Network::Poll()
 {
     ERR_FAIL_COND(!active_)
 
-    incoming_segments_.pop_front();
+    payloads_.pop_front();
 
     std::unique_ptr<rudp::Event> event;
 
@@ -234,12 +235,60 @@ app::Network::Poll()
                     // ...
                     break;
                 case core::SysMsg::REMOVE_PEER:
-                    // ...
+                    peers_.erase(id);
                     break;
                 }
             }
             else if (static_cast<core::SysCh>(event->channel_id()) < channel_count_) {
-                // ...
+                Payload payload;
+                payload.segment = event->segment();
+
+                ERR_CONTINUE(event->PayloadLength() < 8);
+
+                auto id = event->Id();
+                auto sender_id = event->SenderId();
+                auto receiver_id = event->ReceiverId();
+
+                payload.from = sender_id;
+                payload.channel = event->channel_id();
+
+                if (server_) {
+                    ERR_CONTINUE(sender_id != id)
+
+                    payload.from = id;
+
+                    if (receiver_id == 1) {
+                        payloads_.push_back(payload);
+                    }
+                    else if (!server_relay_) {
+                        continue;
+                    }
+                    else if (receiver_id == 0) {
+                        payloads_.push_back(payload);
+
+                        for (const auto &[id, peer] : peers_) {
+                            if (id == sender_id) {
+                                continue;
+                            }
+
+                            peer->Send(event->Channel(), payload.segment, nullptr);
+                        }
+                    }
+                    else if (receiver_id < 0) {
+                        // ...
+                    }
+                    else if (-receiver_id != 1) {
+
+                    }
+                    else {
+                        ERR_CONTINUE(peers_.find(receiver_id) == peers_.end())
+                        auto peer = peers_.find(receiver_id)->second;
+                        peer->Send(static_cast<core::SysCh>(event->channel_id()), payload.segment, nullptr);
+                    }
+                }
+                else {
+                    payloads_.push_back(payload);
+                }
             }
             else {
                 ERR_CONTINUE(true)
