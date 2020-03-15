@@ -54,12 +54,6 @@ namespace app
             CONNECTED
         };
 
-        //        enum class SysMsg : uint8_t
-        //        {
-        //            ADD_PEER,
-        //            REMOVE_PEER
-        //        };
-
         enum class TargetPeer : uint8_t
         {
             BROADCAST,
