@@ -8,10 +8,10 @@ jobs:
     working_directory: /var/app
     environment:
       BUILD_DIR: &build_dir /var/app/cmake-build-test
-#      BUILD_DIR_ASAN: &build_dir_asan /var/app/cmake-build-test-asan
-#      BUILD_DIR_LSAN: &build_dir_lsan /var/app/cmake-build-test-lsan
-#      BUILD_DIR_MSAN: &build_dir_msan /var/app/cmake-build-test-msan
-#      BUILD_DIR_TSAN: &build_dir_tsan /var/app/cmake-build-test-tsan
+      BUILD_DIR_ASAN: &build_dir_asan /var/app/cmake-build-test-asan
+      BUILD_DIR_LSAN: &build_dir_lsan /var/app/cmake-build-test-lsan
+      BUILD_DIR_MSAN: &build_dir_msan /var/app/cmake-build-test-msan
+      BUILD_DIR_TSAN: &build_dir_tsan /var/app/cmake-build-test-tsan
     steps:
       - checkout
       - restore_cache:
@@ -20,44 +20,44 @@ jobs:
           name: 'Create Directories'
           command: |
             mkdir -p "${BUILD_DIR}"
-#            mkdir -p "${BUILD_DIR_ASAN}"
-#            mkdir -p "${BUILD_DIR_LSAN}"
-#            mkdir -p "${BUILD_DIR_MSAN}"
-#            mkdir -p "${BUILD_DIR_TSAN}"
+            mkdir -p "${BUILD_DIR_ASAN}"
+            mkdir -p "${BUILD_DIR_LSAN}"
+            mkdir -p "${BUILD_DIR_MSAN}"
+            mkdir -p "${BUILD_DIR_TSAN}"
       - run:
           name: "Build All"
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
             BUILD_DIR: *build_dir
-#      - run:
-#          name: "Build All with Address Sanitizer"
-#          command: /bin/bash ./docker/script/build/build_all_asan.bash
-#          environment:
-#            BUILD_DIR: *build_dir_asan
-#      - run:
-#          name: "Build All with Leak Sanitizer"
-#          command: /bin/bash ./docker/script/build/build_all_lsan.bash
-#          environment:
-#            BUILD_DIR: *build_dir_lsan
-#      - run:
-#          name: "Build All with Memory Sanitizer"
-#          command: /bin/bash ./docker/script/build/build_all_msan.bash
-#          environment:
-#            BUILD_DIR: *build_dir_msan
-#      - run:
-#          name: "Build All with Thread Sanitizer"
-#          command: /bin/bash ./docker/script/build/build_all_tsan.bash
-#          environment:
-#            BUILD_DIR: *build_dir_tsan
+      - run:
+          name: "Build All with Address Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all_asan.bash
+          environment:
+            BUILD_DIR: *build_dir_asan
+      - run:
+          name: "Build All with Leak Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all_lsan.bash
+          environment:
+            BUILD_DIR: *build_dir_lsan
+      - run:
+          name: "Build All with Memory Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all_msan.bash
+          environment:
+            BUILD_DIR: *build_dir_msan
+      - run:
+          name: "Build All with Thread Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all_tsan.bash
+          environment:
+            BUILD_DIR: *build_dir_tsan
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:
             - /root/.conan
             - *build_dir
-#            - *build_dir_asan
-#            - *build_dir_lsan
-#            - *build_dir_msan
-#            - *build_dir_tsan
+            - *build_dir_asan
+            - *build_dir_lsan
+            - *build_dir_msan
+            - *build_dir_tsan
   test:
     docker:
       - image: 42milez/cpp-dev-base:latest
@@ -98,22 +98,22 @@ jobs:
       - run:
           name: "Run All Tests"
           command: /bin/bash ./docker/script/test/run_all_tests.bash
-#  sanitize_address:
-#    <<: *sanitize_base
-#    environment:
-#      BUILD_DIR: *build_dir_asan
-#  sanitize_leak:
-#    <<: *sanitize_base
-#    environment:
-#      BUILD_DIR: *build_dir_lsan
-#  sanitize_memory:
-#    <<: *sanitize_base
-#    environment:
-#      BUILD_DIR: *build_dir_msan
-#  sanitize_thread:
-#    <<: *sanitize_base
-#    environment:
-#      BUILD_DIR: *build_dir_tsan
+  sanitize_address:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_asan
+  sanitize_leak:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_lsan
+  sanitize_memory:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_msan
+  sanitize_thread:
+    <<: *sanitize_base
+    environment:
+      BUILD_DIR: *build_dir_tsan
 workflows:
   version: 2
   build_and_test:
@@ -122,15 +122,15 @@ workflows:
       - test:
           requires:
             - build
-#      - sanitize_address:
-#          requires:
-#            - test
-#      - sanitize_leak:
-#          requires:
-#            - test
-#      - sanitize_memory:
-#          requires:
-#            - test
-#      - sanitize_thread:
-#          requires:
-#            - test
+      - sanitize_address:
+          requires:
+            - test
+      - sanitize_leak:
+          requires:
+            - test
+      - sanitize_memory:
+          requires:
+            - test
+      - sanitize_thread:
+          requires:
+            - test
