@@ -23,7 +23,7 @@ app::Network::Network()
     : active_(false)
     , always_ordered_(false)
     , bind_ip_("*")
-    , channel_count_(rudp::SysCh::MAX)
+    , channel_count_(core::SysCh::MAX)
     , connection_status_(ConnectionStatus::DISCONNECTED)
     , current_segment_(Segment{})
     , refuse_connections_(false)
@@ -201,20 +201,20 @@ app::Network::Poll()
                     // send existing peers to new peer
                     auto segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
-                    auto msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
+                    auto msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::ADD_PEER));
                     auto id  = core::EncodeUint32(peer.first);
                     segment->AppendData(msg);
                     segment->AppendData(id);
-                    event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
+                    event->peer()->Send(core::SysCh::CONFIG, segment, nullptr);
 
                     // send the new peer to existing peers
                     segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
-                    msg = core::EncodeUint32(static_cast<uint32_t>(rudp::SysMsg::ADD_PEER));
+                    msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::ADD_PEER));
                     id  = core::EncodeUint32(event->peer()->data());
                     segment->AppendData(msg);
                     segment->AppendData(id);
-                    event->peer()->Send(rudp::SysCh::CONFIG, segment, nullptr);
+                    event->peer()->Send(core::SysCh::CONFIG, segment, nullptr);
                 }
             }
         }
@@ -222,7 +222,7 @@ app::Network::Poll()
             // ...
         }
         else if (event->TypeIs(rudp::EventType::RECEIVE)) {
-            if (event->channel_id() == static_cast<uint8_t>(rudp::SysCh::CONFIG)) {
+            if (event->channel_id() == static_cast<uint8_t>(core::SysCh::CONFIG)) {
                 ERR_CONTINUE(event->PayloadLength() < 8)
                 ERR_CONTINUE(server_)
 
@@ -230,15 +230,15 @@ app::Network::Poll()
                 auto id  = event->Id();
 
                 switch (msg) {
-                case rudp::SysMsg::ADD_PEER:
+                case core::SysMsg::ADD_PEER:
                     // ...
                     break;
-                case rudp::SysMsg::REMOVE_PEER:
+                case core::SysMsg::REMOVE_PEER:
                     // ...
                     break;
                 }
             }
-            else if (static_cast<rudp::SysCh>(event->channel_id()) < channel_count_) {
+            else if (static_cast<core::SysCh>(event->channel_id()) < channel_count_) {
                 // ...
             }
             else {

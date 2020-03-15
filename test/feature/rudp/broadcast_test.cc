@@ -19,22 +19,22 @@ TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
     // host
     rudp::NetworkConfig address;
     address.port(test::HOST_PORT);
-    auto host       = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
+    auto host       = std::make_unique<rudp::Host>(address, core::SysCh::MAX, 32, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
 
     // guest1
     rudp::NetworkConfig guest1_address;
     guest1_address.port(test::GUEST1_PORT);
-    auto guest1       = std::make_unique<rudp::Host>(guest1_address, rudp::SysCh::MAX, 1, 100, 100);
+    auto guest1       = std::make_unique<rudp::Host>(guest1_address, core::SysCh::MAX, 1, 100, 100);
     auto guest1_event = std::make_unique<rudp::Event>();
 
     // guest2
     rudp::NetworkConfig guest2_address;
     guest2_address.port(test::GUEST2_PORT);
-    auto guest2       = std::make_unique<rudp::Host>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
+    auto guest2       = std::make_unique<rudp::Host>(guest2_address, core::SysCh::MAX, 1, 100, 100);
     auto guest2_event = std::make_unique<rudp::Event>();
 
-    guest1->Connect(host_address, rudp::SysCh::MAX, 0);
+    guest1->Connect(host_address, core::SysCh::MAX, 0);
     guest1->Service(guest1_event, 0);
 
     test::wait(
@@ -46,7 +46,7 @@ TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
         },
         test::DEFAULT_TIMEOUT);
 
-    guest2->Connect(host_address, rudp::SysCh::MAX, 0);
+    guest2->Connect(host_address, core::SysCh::MAX, 0);
     guest2->Service(guest1_event, 0);
 
     test::wait(
@@ -63,7 +63,7 @@ TEST_CASE("host can broadcast to guest peers", "[feature][broadcast]")
     auto flags   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
     auto segment = std::make_shared<rudp::Segment>(&payload, flags);
 
-    host->Broadcast(rudp::SysCh::RELIABLE, segment);
+    host->Broadcast(core::SysCh::RELIABLE, segment);
     host->Service(host_event, 0);
 
     test::wait([&host, &host_event, &guest1,

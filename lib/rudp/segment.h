@@ -6,8 +6,9 @@
 #include <functional>
 #include <vector>
 
-#include "enum.h"
+#include "lib/core/network/system.h"
 #include "lib/core/encode.h"
+#include "enum.h"
 #include "type.h"
 
 namespace rudp
@@ -23,7 +24,7 @@ namespace rudp
         AddPeerIdx(uint32_t peer_idx);
 
         void
-        AddSysMsg(SysMsg msg);
+        AddSysMsg(core::SysMsg msg);
 
         void
         Destroy();

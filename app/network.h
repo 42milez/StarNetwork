@@ -7,6 +7,7 @@
 
 #include "lib/core/errors.h"
 #include "lib/core/io/ip_address.h"
+#include "lib/core/network/system.h"
 
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/compress.h"
@@ -91,7 +92,7 @@ namespace app
         ConnectionStatus connection_status_;
         IpAddress bind_ip_;
         Segment current_segment_;
-        rudp::SysCh channel_count_;
+        core::SysCh channel_count_;
         TransferMode transfer_mode_;
 
         uint32_t unique_id_;

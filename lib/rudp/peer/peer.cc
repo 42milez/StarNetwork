@@ -35,7 +35,7 @@ namespace rudp
     }
 
     Error
-    Peer::Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
+    Peer::Setup(const NetworkConfig &address, core::SysCh channel_count, uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth, uint32_t data)
     {
         for (auto i = 0; i < static_cast<uint32_t>(channel_count); ++i)
@@ -335,7 +335,7 @@ namespace rudp
     }
 
     Error
-    Peer::Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
+    Peer::Send(core::SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED) || static_cast<uint32_t>(ch) >= channels_.size() ||
             segment->DataLength() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) {

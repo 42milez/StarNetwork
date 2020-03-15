@@ -2,9 +2,10 @@
 
 #include <arpa/inet.h>
 
-#include "enum.h"
 #include "lib/core/logger.h"
+#include "lib/core/network/system.h"
 #include "lib/core/singleton.h"
+#include "enum.h"
 #include "segment.h"
 
 namespace rudp
@@ -58,7 +59,7 @@ namespace rudp
     }
 
     void
-    Segment::AddSysMsg(SysMsg msg)
+    Segment::AddSysMsg(core::SysMsg msg)
     {
         auto msg_encoded = htonl(static_cast<uint32_t>(msg));
 

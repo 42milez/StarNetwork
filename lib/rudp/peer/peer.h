@@ -67,10 +67,10 @@ namespace rudp
         ResetPeerQueues();
 
         Error
-        Send(SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum);
+        Send(core::SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum);
 
         Error
-        Setup(const NetworkConfig &address, SysCh channel_count, uint32_t host_incoming_bandwidth,
+        Setup(const NetworkConfig &address, core::SysCh channel_count, uint32_t host_incoming_bandwidth,
               uint32_t host_outgoing_bandwidth, uint32_t data);
 
         void

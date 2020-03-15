@@ -3,6 +3,7 @@
 
 #include <catch2/catch.hpp>
 
+#include "lib/core/network/system.h"
 #include "lib/rudp/host.h"
 #include "lib/test/util.h"
 
@@ -19,19 +20,19 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
     // host
     rudp::NetworkConfig address;
     address.port(test::HOST_PORT);
-    auto host       = std::make_unique<rudp::Host>(address, rudp::SysCh::MAX, 32, 100, 100);
+    auto host       = std::make_unique<rudp::Host>(address, core::SysCh::MAX, 32, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
 
     // guest1
     rudp::NetworkConfig guest1_address;
     guest1_address.port(test::GUEST1_PORT);
-    auto guest1       = std::make_unique<rudp::Host>(guest1_address, rudp::SysCh::MAX, 1, 100, 100);
+    auto guest1       = std::make_unique<rudp::Host>(guest1_address, core::SysCh::MAX, 1, 100, 100);
     auto guest1_event = std::make_unique<rudp::Event>();
 
     // guest2
     rudp::NetworkConfig guest2_address;
     guest2_address.port(test::GUEST2_PORT);
-    auto guest2       = std::make_unique<rudp::Host>(guest2_address, rudp::SysCh::MAX, 1, 100, 100);
+    auto guest2       = std::make_unique<rudp::Host>(guest2_address, core::SysCh::MAX, 1, 100, 100);
     auto guest2_event = std::make_unique<rudp::Event>();
 
     SECTION("guest peer 1 and 2 can send reliable command to host peer")
@@ -39,7 +40,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         //  guest peer 1
         // --------------------------------------------------
 
-        guest1->Connect(host_address, rudp::SysCh::MAX, 0);
+        guest1->Connect(host_address, core::SysCh::MAX, 0);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -56,7 +57,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         auto flags1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
         auto segment1 = std::make_shared<rudp::Segment>(&data1, flags1);
 
-        guest1->Send(0, rudp::SysCh::RELIABLE, segment1);
+        guest1->Send(0, core::SysCh::RELIABLE, segment1);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -68,7 +69,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         //  guest peer 2
         // --------------------------------------------------
 
-        guest2->Connect(host_address, rudp::SysCh::MAX, 0);
+        guest2->Connect(host_address, core::SysCh::MAX, 0);
         guest2->Service(guest2_event, 0);
 
         test::wait(
@@ -85,7 +86,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
         auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
 
-        guest2->Send(0, rudp::SysCh::RELIABLE, segment2);
+        guest2->Send(0, core::SysCh::RELIABLE, segment2);
         guest2->Service(guest2_event, 0);
 
         test::wait(
@@ -100,7 +101,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         //  guest peer 1
         // --------------------------------------------------
 
-        guest1->Connect(host_address, rudp::SysCh::MAX, 0);
+        guest1->Connect(host_address, core::SysCh::MAX, 0);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -159,7 +160,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         auto flags1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
         auto segment1 = std::make_shared<rudp::Segment>(&payload1, flags1);
 
-        guest1->Send(0, rudp::SysCh::RELIABLE, segment1);
+        guest1->Send(0, core::SysCh::RELIABLE, segment1);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -171,7 +172,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         //  guest peer 2
         // --------------------------------------------------
 
-        guest2->Connect(host_address, rudp::SysCh::MAX, 0);
+        guest2->Connect(host_address, core::SysCh::MAX, 0);
         guest2->Service(guest2_event, 0);
 
         test::wait(
@@ -230,7 +231,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
         auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
 
-        guest2->Send(0, rudp::SysCh::RELIABLE, segment2);
+        guest2->Send(0, core::SysCh::RELIABLE, segment2);
         guest2->Service(guest2_event, 0);
 
         test::wait(

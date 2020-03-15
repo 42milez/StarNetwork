@@ -7,7 +7,7 @@
 
 namespace rudp
 {
-    Host::Host(const NetworkConfig &address, SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
+    Host::Host(const NetworkConfig &address, core::SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
                uint32_t out_bandwidth)
         : channel_count_(channel_count)
         , checksum_()
@@ -26,7 +26,7 @@ namespace rudp
     }
 
     void
-    Host::Broadcast(SysCh ch, std::shared_ptr<Segment> &segment)
+    Host::Broadcast(core::SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto &peers = peer_pod_->peers();
 
@@ -53,7 +53,7 @@ namespace rudp
                  notifies of an EventType::CONNECT event for the peer.
     */
     Error
-    Host::Connect(const NetworkConfig &address, SysCh channel_count, uint32_t data)
+    Host::Connect(const NetworkConfig &address, core::SysCh channel_count, uint32_t data)
     {
         auto peer = peer_pod_->AvailablePeer();
 
@@ -72,7 +72,7 @@ namespace rudp
     }
 
     Error
-    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment> &segment)
+    Host::Send(size_t peer_id, core::SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto peer = peer_pod_->GetPeer(peer_id);
         auto &net = peer->net();

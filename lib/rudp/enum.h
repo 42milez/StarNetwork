@@ -89,20 +89,6 @@ namespace rudp
         RECEIVE   = (1u << 1u),
         INTERRUPT = (1u << 2u)
     };
-
-    enum class SysCh : uint8_t
-    {
-        CONFIG,
-        RELIABLE,
-        UNRELIABLE,
-        MAX
-    };
-
-    enum class SysMsg : uint8_t
-    {
-        ADD_PEER,
-        REMOVE_PEER
-    };
 } // namespace rudp
 
 #endif // P2P_TECHDEMO_LIB_RUDP_ENUM_H_

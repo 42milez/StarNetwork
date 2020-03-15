@@ -27,10 +27,10 @@ namespace rudp
             return segment_->ExtractByte(4);
         }
 
-        inline SysMsg
+        inline core::SysMsg
         Message()
         {
-            return static_cast<SysMsg>(segment_->ExtractByte(0));
+            return static_cast<core::SysMsg>(segment_->ExtractByte(0));
         }
 
         inline size_t

@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #endif
 
+#include "lib/core/network/system.h"
 #include "lib/rudp/command/command_size.h"
 #include "lib/rudp/enum.h"
 #include "peer_net.h"
@@ -452,10 +453,10 @@ namespace rudp
         std::shared_ptr<Segment> segment =
             std::make_shared<Segment>(nullptr, static_cast<uint32_t>(SegmentFlag::RELIABLE));
 
-        segment->AddSysMsg(SysMsg::REMOVE_PEER);
+        segment->AddSysMsg(core::SysMsg::REMOVE_PEER);
         segment->AddPeerIdx(peer_idx);
 
-        peer->Send(SysCh::CONFIG, segment, checksum);
+        peer->Send(core::SysCh::CONFIG, segment, checksum);
     }
 
     EventStatus
