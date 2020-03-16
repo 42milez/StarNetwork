@@ -33,8 +33,8 @@ namespace core
     {
         uint32_t hash = 0;
 
+        // 0 and 1 are reserved ( 0: for broadcasting, 1: for server )
         while (hash == 0 || hash == 1) {
-
             hash = hash_djb2_one_32((uint32_t)core::Singleton<OS>::Instance().GetTicksMsec());
             hash = hash_djb2_one_32((uint32_t)OS::GetUnixTime(), hash);
             hash = hash_djb2_one_32((uint32_t)hash64(OS::GetUserDataDir()), hash);
