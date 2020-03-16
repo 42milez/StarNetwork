@@ -128,9 +128,9 @@ workflows:
       - sanitize_leak:
           requires:
             - test
-      - sanitize_memory:
-          requires:
-            - test
+      # - sanitize_memory:
+      #     requires:
+      #       - test
       - sanitize_thread:
           requires:
             - test
