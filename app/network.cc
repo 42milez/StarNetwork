@@ -221,7 +221,30 @@ app::Network::Poll()
             }
         }
         else if (event->TypeIs(rudp::EventType::DISCONNECT)) {
-            // ...
+            auto sender_id = event->peer()->data();
+
+            if (sender_id == core::BROADCAST_ID) {
+                if (!server_) {
+                    // do something...?
+                }
+                break;
+            }
+
+            if (!server_) {
+                CloseConnection();
+                return;
+            } else if (server_relay_) {
+                for (const auto &[id, peer] : peers_) {
+                    if (id == sender_id) {
+                        continue;
+                    }
+
+                    auto segment = std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
+                    auto msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
+                    auto receiver_id = core::EncodeUint32(id);
+                    peer->Send(core::SysCh::CONFIG, segment, nullptr);
+                }
+            }
         }
         else if (event->TypeIs(rudp::EventType::RECEIVE)) {
             if (event->channel_id() == static_cast<uint8_t>(core::SysCh::CONFIG)) {
