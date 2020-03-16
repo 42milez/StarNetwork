@@ -1,9 +1,10 @@
 #include <string>
 
+#include "lib/core/io/compression.h"
+#include "lib/core/network/constants.h"
 #include "lib/core/encode.h"
 #include "lib/core/error_macros.h"
 #include "lib/core/hash.h"
-#include "lib/core/io/compression.h"
 #include "lib/core/singleton.h"
 #include "lib/core/string.h"
 
@@ -183,8 +184,8 @@ app::Network::Poll()
 
             auto new_id = event->data();
 
-            if (new_id == 0) {
-                new_id = 1;
+            if (new_id == core::BROADCAST_ID) {
+                new_id = core::SERVER_ID;
             }
 
             event->peer()->data(new_id);
@@ -224,7 +225,7 @@ app::Network::Poll()
         }
         else if (event->TypeIs(rudp::EventType::RECEIVE)) {
             if (event->channel_id() == static_cast<uint8_t>(core::SysCh::CONFIG)) {
-                ERR_CONTINUE(event->PayloadLength() < 8)
+                ERR_CONTINUE(event->PayloadLength() < core::PAYLOAD_MINIMUM_LENGTH)
                 ERR_CONTINUE(server_)
 
                 auto msg = event->Message();
@@ -243,7 +244,7 @@ app::Network::Poll()
                 Payload payload;
                 payload.segment = event->segment();
 
-                ERR_CONTINUE(event->PayloadLength() < 8);
+                ERR_CONTINUE(event->PayloadLength() < core::PAYLOAD_MINIMUM_LENGTH);
 
                 auto id = event->Id();
                 auto sender_id = event->SenderId();
@@ -275,10 +276,17 @@ app::Network::Poll()
                         }
                     }
                     else if (receiver_id < 0) {
-                        // ...
-                    }
-                    else if (-receiver_id != 1) {
+                        for (const auto &[id, peer] : peers_) {
+                            if (id == sender_id || id == -receiver_id) {
+                                continue;
+                            }
 
+                            peer->Send(event->Channel(), payload.segment, nullptr);
+                        }
+
+                        if (-receiver_id != 1) {
+                            payloads_.push_back(payload);
+                        }
                     }
                     else {
                         ERR_CONTINUE(peers_.find(receiver_id) == peers_.end())
@@ -295,7 +303,7 @@ app::Network::Poll()
             }
         }
         else if (event->TypeIs(rudp::EventType::NONE)) {
-            // ...
+            // do nothing
         }
     }
 }
