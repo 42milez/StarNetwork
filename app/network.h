@@ -37,14 +37,11 @@ namespace app
         void
         CloseConnection(uint32_t wait_usec = 100);
 
-        void
-        Disconnect(int peer_idx, bool now);
+        Error
+        Receive(const uint8_t **buffer, int &buffer_size);
 
         Error
-        get_segment(const uint8_t **buffer, int &buffer_size);
-
-        Error
-        put_segment(const uint8_t *buffer, int buffer_size);
+        Send(const uint8_t *buffer, int buffer_size);
 
       private:
         enum class ConnectionStatus : uint8_t

@@ -45,6 +45,10 @@ namespace rudp
             return peer_pod_->DisconnectLater(peer, data, checksum_);
         }
 
+        inline void
+        Flush()
+        { peer_pod_->Flush(nullptr); }
+
         inline std::shared_ptr<Peer>
         PeerPtr(size_t idx)
         {

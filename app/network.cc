@@ -153,8 +153,6 @@ app::Network::Poll()
 {
     ERR_FAIL_COND(!active_)
 
-    payloads_.pop_front();
-
     std::unique_ptr<rudp::Event> event;
 
     while (true) {
@@ -331,28 +329,30 @@ app::Network::Poll()
     }
 }
 
-// TODO: add implementation
 void
 app::Network::CloseConnection(uint32_t wait_usec)
 {
-    // ...
-}
-
-void
-app::Network::Disconnect(int peer_idx, bool now)
-{
     ERR_FAIL_COND(!active_)
-    ERR_FAIL_COND(!server_)
 
-    auto peer = peers_.at(peer_idx);
+    auto peers_disconnected = false;
 
-    if (now) {
-        host_->DisconnectNow(peer, 0);
-        host_->RequestPeerRemoval(peer_idx, peer);
-
-        peers_.erase(peer_idx);
+    for (const auto &[id, peer] : peers_) {
+        host_->DisconnectNow(peer, unique_id_);
+        peers_disconnected = true;
     }
-    else {
-        host_->DisconnectLater(peer, 0);
+
+    if (peers_disconnected) {
+        host_->Flush();
+
+        if (wait_usec > 0) {
+            // TODO: wait for disconnection packets to send
+            // ...
+        }
     }
+
+    active_ = false;
+    payloads_.clear();
+    peers_.clear();
+    unique_id_ = 1;
+    connection_status_ = ConnectionStatus::DISCONNECTED;
 }
