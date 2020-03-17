@@ -8,6 +8,7 @@
 #include "lib/core/errors.h"
 #include "lib/core/io/ip_address.h"
 #include "lib/core/network/system.h"
+#include "lib/core/network/types.h"
 
 #include "lib/rudp/buffer.h"
 #include "lib/rudp/compress.h"
@@ -37,8 +38,8 @@ namespace app
         void
         CloseConnection(uint32_t wait_usec = 100);
 
-        Error
-        Receive(const uint8_t **buffer, int &buffer_size);
+        std::tuple<Error, std::shared_ptr<rudp::Segment>>
+        Receive();
 
         Error
         Send(const uint8_t *buffer, int buffer_size);
@@ -64,25 +65,14 @@ namespace app
             RELIABLE
         };
 
-        struct Payload
-        {
-          public:
-            Payload();
-
-          public:
-            std::shared_ptr<rudp::Segment> segment;
-            int channel;
-            int from;
-        };
-
-        std::list<Payload> payloads_;
+        std::list<core::Payload> payloads_;
         std::map<uint32_t, std::shared_ptr<rudp::Peer>> peers_;
 
         std::unique_ptr<rudp::Host> host_;
 
         ConnectionStatus connection_status_;
         IpAddress bind_ip_;
-        Payload current_segment_;
+        core::Payload current_payload_;
         core::SysCh channel_count_;
         TransferMode transfer_mode_;
 

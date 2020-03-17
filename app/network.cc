@@ -1,10 +1,10 @@
 #include <string>
 
-#include "lib/core/io/compression.h"
-#include "lib/core/network/constants.h"
 #include "lib/core/encode.h"
 #include "lib/core/error_macros.h"
 #include "lib/core/hash.h"
+#include "lib/core/io/compression.h"
+#include "lib/core/network/constants.h"
 #include "lib/core/singleton.h"
 #include "lib/core/string.h"
 
@@ -13,20 +13,13 @@
 
 #include "network.h"
 
-app::Network::Payload::Payload()
-    : segment(nullptr)
-    , from()
-    , channel()
-{
-}
-
 app::Network::Network()
     : active_()
     , always_ordered_()
     , bind_ip_("*")
     , channel_count_(core::SysCh::MAX)
     , connection_status_(ConnectionStatus::DISCONNECTED)
-    , current_segment_(Payload{})
+    , current_payload_()
     , refuse_connections_()
     , server_()
     , server_relay_()
@@ -40,6 +33,34 @@ app::Network::Network()
 app::Network::~Network()
 {
     CloseConnection();
+}
+
+void
+app::Network::CloseConnection(uint32_t wait_usec)
+{
+    ERR_FAIL_COND(!active_)
+
+    auto peers_disconnected = false;
+
+    for (const auto &[id, peer] : peers_) {
+        host_->DisconnectNow(peer, unique_id_);
+        peers_disconnected = true;
+    }
+
+    if (peers_disconnected) {
+        host_->Flush();
+
+        if (wait_usec > 0) {
+            // TODO: wait for disconnection packets to send
+            // ...
+        }
+    }
+
+    active_ = false;
+    payloads_.clear();
+    peers_.clear();
+    unique_id_         = 1;
+    connection_status_ = ConnectionStatus::DISCONNECTED;
 }
 
 Error
@@ -231,14 +252,16 @@ app::Network::Poll()
             if (!server_) {
                 CloseConnection();
                 return;
-            } else if (server_relay_) {
+            }
+            else if (server_relay_) {
                 for (const auto &[id, peer] : peers_) {
                     if (id == sender_id) {
                         continue;
                     }
 
-                    auto segment = std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
-                    auto msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
+                    auto segment =
+                        std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
+                    auto msg         = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
                     auto receiver_id = core::EncodeUint32(id);
                     peer->Send(core::SysCh::CONFIG, segment, nullptr);
                 }
@@ -262,16 +285,16 @@ app::Network::Poll()
                 }
             }
             else if (static_cast<core::SysCh>(event->channel_id()) < channel_count_) {
-                Payload payload;
+                core::Payload payload;
                 payload.segment = event->segment();
 
                 ERR_CONTINUE(event->PayloadLength() < core::PAYLOAD_MINIMUM_LENGTH);
 
-                auto id = event->Id();
-                auto sender_id = event->SenderId();
+                auto id          = event->Id();
+                auto sender_id   = event->SenderId();
                 auto receiver_id = event->ReceiverId();
 
-                payload.from = sender_id;
+                payload.from    = sender_id;
                 payload.channel = event->channel_id();
 
                 if (server_) {
@@ -329,30 +352,20 @@ app::Network::Poll()
     }
 }
 
-void
-app::Network::CloseConnection(uint32_t wait_usec)
+std::tuple<Error, std::shared_ptr<rudp::Segment>>
+app::Network::Receive()
 {
-    ERR_FAIL_COND(!active_)
+    ERR_FAIL_COND_V(payloads_.empty(), std::make_tuple(Error::ERR_UNAVAILABLE, nullptr))
 
-    auto peers_disconnected = false;
+    current_payload_ = payloads_.front();
 
-    for (const auto &[id, peer] : peers_) {
-        host_->DisconnectNow(peer, unique_id_);
-        peers_disconnected = true;
-    }
+    payloads_.pop_front();
 
-    if (peers_disconnected) {
-        host_->Flush();
+    return std::make_tuple(Error::OK, current_payload_.segment);
+}
 
-        if (wait_usec > 0) {
-            // TODO: wait for disconnection packets to send
-            // ...
-        }
-    }
-
-    active_ = false;
-    payloads_.clear();
-    peers_.clear();
-    unique_id_ = 1;
-    connection_status_ = ConnectionStatus::DISCONNECTED;
+Error
+app::Network::Send(const uint8_t *buffer, int buffer_size)
+{
+    // ...
 }
