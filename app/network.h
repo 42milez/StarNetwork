@@ -74,12 +74,12 @@ namespace app
         IpAddress bind_ip_;
         core::Payload current_payload_;
         core::SysCh channel_count_;
+        core::SysCh transfer_channel_;
         TransferMode transfer_mode_;
 
         uint32_t unique_id_;
 
-        int target_peer_;
-        int transfer_channel_;
+        int target_peer_id_;
 
         bool active_;
         bool always_ordered_;

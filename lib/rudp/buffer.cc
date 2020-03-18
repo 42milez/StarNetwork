@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "buffer.h"
 #include "const.h"
 #include "enum.h"
@@ -80,7 +82,7 @@ namespace rudp
             auto protocol = std::get<static_cast<int>(BufferVariant::ProtocolTypeSP)>(buffer_);
 
             if (protocol) {
-                memcpy(&(*it), &(*protocol), size_);
+                std::memcpy(&(*it), &(*protocol), size_);
                 core::Singleton<core::Logger>::Instance().Debug(
                     "command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(),
                     protocol->header.reliable_sequence_number, size_);
@@ -93,7 +95,7 @@ namespace rudp
         auto payload = std::get<static_cast<int>(BufferVariant::VecUInt8)>(buffer_);
 
         if (size_ > 0) {
-            memcpy(&(*it), &(payload.at(0)), size_);
+            std::memcpy(&(*it), &(payload.at(0)), size_);
             core::Singleton<core::Logger>::Instance().Debug("payload was copied to buffer (size: {0})", size_);
         }
 

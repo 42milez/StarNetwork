@@ -23,8 +23,8 @@ app::Network::Network()
     , refuse_connections_()
     , server_()
     , server_relay_()
-    , target_peer_()
-    , transfer_channel_(-1)
+    , target_peer_id_()
+    , transfer_channel_(core::SysCh::CONFIG)
     , transfer_mode_(TransferMode::RELIABLE)
     , unique_id_()
 {
@@ -263,6 +263,8 @@ app::Network::Poll()
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
                     auto msg         = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
                     auto receiver_id = core::EncodeUint32(id);
+                    segment->AppendData(msg);
+                    segment->AppendData(receiver_id);
                     peer->Send(core::SysCh::CONFIG, segment, nullptr);
                 }
             }
@@ -276,12 +278,12 @@ app::Network::Poll()
                 auto id  = event->Id();
 
                 switch (msg) {
-                case core::SysMsg::ADD_PEER:
-                    // ...
-                    break;
-                case core::SysMsg::REMOVE_PEER:
-                    peers_.erase(id);
-                    break;
+                    case core::SysMsg::ADD_PEER:
+                        // ...
+                        break;
+                    case core::SysMsg::REMOVE_PEER:
+                        peers_.erase(id);
+                        break;
                 }
             }
             else if (static_cast<core::SysCh>(event->channel_id()) < channel_count_) {
@@ -367,5 +369,51 @@ app::Network::Receive()
 Error
 app::Network::Send(const uint8_t *buffer, int buffer_size)
 {
-    // ...
+    ERR_FAIL_COND_V(!active_, Error::ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(connection_status_ != ConnectionStatus::CONNECTED, Error::ERR_UNCONFIGURED)
+
+    rudp::SegmentFlag segment_flag = rudp::SegmentFlag::RELIABLE;
+    core::SysCh channel            = core::SysCh::RELIABLE;
+
+    switch (transfer_mode_) {
+        case TransferMode::UNRELIABLE: {
+            // ...
+        } break;
+        case TransferMode::UNRELIABLE_ORDERED: {
+            // ...
+        } break;
+        case TransferMode::RELIABLE: {
+            // do nothing (use defaults)
+        } break;
+    }
+
+    if (transfer_channel_ > core::SysCh::CONFIG) {
+        channel = transfer_channel_;
+    }
+
+    auto peer = peers_.end();
+
+    if (target_peer_id_ != 0) {
+        peer = peers_.find(target_peer_id_);
+
+        ERR_FAIL_COND_V(peer == peers_.end(), Error::ERR_INVALID_PARAMETER)
+    }
+
+    auto segment     = std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(segment_flag));
+    auto msg         = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
+    auto receiver_id = core::EncodeUint32(target_peer_id_);
+
+    segment->AppendData(msg);
+    segment->AppendData(receiver_id);
+
+    if (server_) {
+        // ...
+    }
+    else {
+        peer->second->Send(channel, segment, nullptr);
+    }
+
+    host_->Flush();
+
+    return Error::OK;
 }
