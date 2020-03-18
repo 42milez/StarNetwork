@@ -6,5 +6,6 @@ AlignConsecutiveAssignments: true
 AlwaysBreakAfterReturnType: All
 BraceWrapping:
   AfterControlStatement: false
-NamespaceIndentation: All
 BreakConstructorInitializers: BeforeComma
+IndentCaseLabels: true
+NamespaceIndentation: All
