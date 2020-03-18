@@ -1,3 +1,4 @@
+#include <complex>
 #include <string>
 
 #include "lib/core/encode.h"
@@ -394,7 +395,7 @@ app::Network::Send(const uint8_t *buffer, int buffer_size)
     auto peer = peers_.end();
 
     if (target_peer_id_ != 0) {
-        peer = peers_.find(target_peer_id_);
+        peer = peers_.find(std::abs(target_peer_id_));
 
         ERR_FAIL_COND_V(peer == peers_.end(), Error::ERR_INVALID_PARAMETER)
     }
@@ -407,10 +408,26 @@ app::Network::Send(const uint8_t *buffer, int buffer_size)
     segment->AppendData(receiver_id);
 
     if (server_) {
-        // ...
+        if (target_peer_id_ == core::BROADCAST_ID) {
+            host_->Broadcast(channel, segment);
+        }
+        else if (target_peer_id_ < core::BROADCAST_ID) {
+            auto exclude = std::abs(target_peer_id_);
+
+            for (const auto &[id, peer] : peers_) {
+                if (id == exclude) {
+                    continue;
+                }
+
+                peer->Send(channel, segment, nullptr);
+            }
+        }
+        else {
+            peer->second->Send(channel, segment, nullptr);
+        }
     }
     else {
-        peer->second->Send(channel, segment, nullptr);
+        peers_[core::SERVER_ID]->Send(channel, segment, nullptr);
     }
 
     host_->Flush();
