@@ -324,6 +324,7 @@ app::Network::Poll()
                     }
                     else if (receiver_id < 0) {
                         for (const auto &[id, peer] : peers_) {
+                            // do not resend to self, also do not send to excluded
                             if (id == sender_id || id == -receiver_id) {
                                 continue;
                             }
