@@ -11,18 +11,8 @@ namespace core
     Logger::Logger()
         : debug_()
     {
-    }
-
-    bool
-    Logger::Init(const std::string &logger_name)
-    {
-        try {
-            spdlog::stdout_color_mt("stdout");
-            spdlog::stderr_color_mt("stderr");
-        }
-        catch (const spdlog::spdlog_ex &ex) {
-            return false;
-        }
+        spdlog::stdout_color_mt("stdout");
+        spdlog::stderr_color_mt("stderr");
 
 #ifdef DEBUG
         spdlog::set_level(spdlog::level::debug);
@@ -32,8 +22,6 @@ namespace core
         spdlog::set_level(spdlog::level::info);
         spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
 #endif
-
-        return true;
     }
 
     // bool

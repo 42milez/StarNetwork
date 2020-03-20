@@ -8,8 +8,6 @@
 int
 main(int argc, char *argv[])
 {
-    core::Singleton<core::Logger>::Instance().Init("");
-
     // There must be exactly one instance
     Catch::Session session;
 

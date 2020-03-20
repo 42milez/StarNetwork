@@ -10,12 +10,6 @@ namespace core
       public:
         Logger();
 
-        bool
-        Init(const std::string &logger_name);
-
-        //    bool
-        //    Init(const std::string &logger_name, const std::string &path);
-
         template <class... Args>
         inline void
         Debug(Args... args)

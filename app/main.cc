@@ -4,6 +4,8 @@
 #include <lyra/lyra.hpp>
 
 #include "p2p_techdemo/buildinfo.h"
+#include "lib/core/logger.h"
+#include "lib/core/singleton.h"
 
 #include "network.h"
 
@@ -69,11 +71,12 @@ main(int argc, const char **argv)
     auto network = std::make_shared<app::Network>();
 
     if (mode == "server") {
+        core::Singleton<core::Logger>::Instance().Info("running as server");
         network->CreateServer(port);
         network->Poll();
     }
     else {
-
+        core::Singleton<core::Logger>::Instance().Info("running as client");
         network->CreateClient(host_address, host_port, port);
     }
 
