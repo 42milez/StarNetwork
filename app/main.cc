@@ -71,7 +71,7 @@ main(int argc, const char **argv)
 
     auto network = std::make_shared<app::Network>();
 
-    auto worker = std::thread([&network]{
+    auto dispatcher = std::thread([&network]{
       while (true) {
           std::string message;
           std::cin >> message;
@@ -95,8 +95,8 @@ main(int argc, const char **argv)
 
     network->Poll();
 
-    if (worker.joinable()) {
-        worker.join();
+    if (dispatcher.joinable()) {
+        dispatcher.join();
     }
 
     return 0;
