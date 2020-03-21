@@ -38,6 +38,7 @@ namespace rudp
         inline void
         AppendData(std::vector<uint8_t> &fragment)
         {
+            data_.resize(data_.size() + fragment.size());
             std::copy(fragment.begin(), fragment.end(), data_.begin() + buffer_pos_);
             buffer_pos_ += fragment.size();
         }

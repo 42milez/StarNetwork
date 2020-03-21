@@ -369,7 +369,7 @@ app::Network::Receive()
 }
 
 Error
-app::Network::Send(const uint8_t *buffer, int buffer_size)
+app::Network::Send(const std::string &str)
 {
     ERR_FAIL_COND_V(!active_, Error::ERR_UNCONFIGURED)
     ERR_FAIL_COND_V(connection_status_ != ConnectionStatus::CONNECTED, Error::ERR_UNCONFIGURED)
@@ -407,6 +407,10 @@ app::Network::Send(const uint8_t *buffer, int buffer_size)
 
     segment->AppendData(msg);
     segment->AppendData(receiver_id);
+
+    auto data = std::vector<uint8_t>{str.begin(), str.end()};
+
+    segment->AppendData(data);
 
     if (server_) {
         if (target_peer_id_ == core::BROADCAST_ID) {

@@ -42,7 +42,7 @@ namespace app
         Receive();
 
         Error
-        Send(const uint8_t *buffer, int buffer_size);
+        Send(const std::string &str);
 
       private:
         enum class ConnectionStatus : uint8_t

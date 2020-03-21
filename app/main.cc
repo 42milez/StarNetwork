@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <thread>
 
 #include <lyra/lyra.hpp>
 
@@ -70,14 +71,32 @@ main(int argc, const char **argv)
 
     auto network = std::make_shared<app::Network>();
 
+    auto worker = std::thread([&network]{
+      while (true) {
+          std::string message;
+          std::cin >> message;
+
+          if (message == "exit") {
+              break;
+          }
+
+          network->Send(message);
+      }
+    });
+
     if (mode == "server") {
         core::Singleton<core::Logger>::Instance().Info("running as server");
         network->CreateServer(port);
-        network->Poll();
     }
     else {
         core::Singleton<core::Logger>::Instance().Info("running as client");
         network->CreateClient(host_address, host_port, port);
+    }
+
+    network->Poll();
+
+    if (worker.joinable()) {
+        worker.join();
     }
 
     return 0;
