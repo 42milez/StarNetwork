@@ -4,9 +4,10 @@
 
 #include <lyra/lyra.hpp>
 
-#include "p2p_techdemo/buildinfo.h"
+#include "lib/core/async_worker.h"
 #include "lib/core/logger.h"
 #include "lib/core/singleton.h"
+#include "p2p_techdemo/buildinfo.h"
 
 #include "network.h"
 
@@ -81,6 +82,15 @@ main(int argc, const char **argv)
           }
 
           network->Send(message);
+      }
+    });
+
+    auto receiver = std::thread([&network]{
+      while (true) {
+          if (network->Peek() > 0) {
+              // emit message to stdout
+              // ...
+          }
       }
     });
 

@@ -32,6 +32,10 @@ namespace app
         Error
         CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
+        inline size_t
+        Peek()
+        { return payloads_.size(); }
+
         void
         Poll();
 
