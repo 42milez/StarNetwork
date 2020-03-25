@@ -87,6 +87,10 @@ main(int argc, const char **argv)
       std::string message;
       std::cin >> message;
 
+      if (message == "exit") {
+          core::Singleton<core::ExitHandler>::Instance().Exit();
+      }
+
       network->Send(message);
     }};
 

@@ -21,6 +21,13 @@ namespace core
         Init();
 
         inline void
+        Exit()
+        {
+            should_exit_ = true;
+            core::Singleton<core::Logger>::Instance().Info("gracefully shutting down...");
+        }
+
+        inline void
         Exit(int signum)
         {
             should_exit_ = true;

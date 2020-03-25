@@ -15,7 +15,7 @@ namespace core
     class AsyncWorker
     {
       public:
-        AsyncWorker(std::function<void()> &&task);
+        explicit AsyncWorker(std::function<void()> &&task);
 
         inline void
         Run()
@@ -38,7 +38,15 @@ namespace core
             stopped_ = true;
 
             if (thread_.joinable()) {
-                thread_.join();
+                try {
+                    thread_.join();
+                }
+                catch (std::system_error& e) {
+                    const std::error_code& ec = e.code();
+                    core::Singleton<core::Logger>::Instance().Debug("join failed");
+                    core::Singleton<core::Logger>::Instance().Debug("code: {0}", e.code().value());
+                    core::Singleton<core::Logger>::Instance().Debug("reason: {0}", e.what());
+                }
             }
         }
 
