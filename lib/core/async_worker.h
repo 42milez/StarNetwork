@@ -3,32 +3,48 @@
 
 #include <atomic>
 #include <functional>
-#include <mutex>
+#include <sstream>
+#include <string>
 #include <thread>
+
+#include "logger.h"
+#include "singleton.h"
 
 namespace core
 {
     class AsyncWorker
     {
       public:
-        AsyncWorker();
+        AsyncWorker(std::function<void()> &&task);
 
         inline void
-        Run(std::function<void()> &&task)
+        Run()
         {
-            thread_ = std::thread(task);
+            thread_ = std::thread([this]{
+              auto id = std::this_thread::get_id();
+              std::stringstream ss;
+              ss << id;
+              core::Singleton<core::Logger>::Instance().Debug("worker started (thread {0})", ss.str());
+              while (!stopped_) {
+                task_();
+              }
+              core::Singleton<core::Logger>::Instance().Debug("worker stopped (thread {0})", ss.str());
+            });
         };
 
         inline void
         Stop()
         {
-            canceled_ = true;
-            thread_.join();
+            stopped_ = true;
+
+            if (thread_.joinable()) {
+                thread_.join();
+            }
         }
 
       private:
-        std::atomic<bool> canceled_;
-        std::mutex mutex_;
+        std::atomic<bool> stopped_;
+        std::function<void()> task_;
         std::thread thread_;
     };
 } // namespace core

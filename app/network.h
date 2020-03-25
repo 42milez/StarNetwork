@@ -32,21 +32,21 @@ namespace app
         Error
         CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
-        inline size_t
-        Peek()
-        { return payloads_.size(); }
+        void
+        CloseConnection(uint32_t wait_usec = 100);
 
         void
         Poll();
-
-        void
-        CloseConnection(uint32_t wait_usec = 100);
 
         std::tuple<Error, std::shared_ptr<rudp::Segment>>
         Receive();
 
         Error
         Send(const std::string &str);
+
+        inline size_t
+        Peek()
+        { return payloads_.size(); }
 
       private:
         enum class ConnectionStatus : uint8_t

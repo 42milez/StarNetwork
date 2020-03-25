@@ -2,8 +2,9 @@
 
 namespace core
 {
-    AsyncWorker::AsyncWorker()
-        : canceled_()
+    AsyncWorker::AsyncWorker(std::function<void()> &&task)
+        : stopped_()
+        , task_(task)
     {
     }
 } // namespace core

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <memory>
-#include <thread>
 
 #include <lyra/lyra.hpp>
 
 #include "lib/core/async_worker.h"
+#include "lib/core/exit_handler.h"
 #include "lib/core/logger.h"
 #include "lib/core/singleton.h"
 #include "p2p_techdemo/buildinfo.h"
@@ -32,6 +32,8 @@ namespace
 int
 main(int argc, const char **argv)
 {
+    core::Singleton<core::ExitHandler>::Instance().Init();
+
     std::string mode         = DEFAULT_MODE;
     int port                 = DEFAULT_PORT;
     std::string host_address = DEFAULT_SERVER_ADDRESS;
@@ -72,27 +74,22 @@ main(int argc, const char **argv)
 
     auto network = std::make_shared<app::Network>();
 
-    auto sender = std::thread([&network]{
-      while (true) {
-          std::string message;
-          std::cin >> message;
-
-          if (message == "exit") {
-              break;
-          }
-
-          network->Send(message);
+    core::AsyncWorker receiver{[&network]{
+      if (network->Peek() > 0) {
+          auto ret = network->Receive();
       }
-    });
+    }};
 
-    auto receiver = std::thread([&network]{
-      while (true) {
-          if (network->Peek() > 0) {
-              // emit message to stdout
-              // ...
-          }
-      }
-    });
+    receiver.Run();
+
+    core::AsyncWorker sender{[&network]{
+      std::string message;
+      std::cin >> message;
+
+      network->Send(message);
+    }};
+
+    sender.Run();
 
     if (mode == "server") {
         core::Singleton<core::Logger>::Instance().Info("running as server");
@@ -105,9 +102,8 @@ main(int argc, const char **argv)
 
     network->Poll();
 
-    if (sender.joinable()) {
-        sender.join();
-    }
+    receiver.Stop();
+    sender.Stop();
 
     return 0;
 }

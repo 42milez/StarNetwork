@@ -1,6 +1,7 @@
 #ifndef P2P_TECHDEMO_LIB_CORE_EXIT_HANDLER_H_
 #define P2P_TECHDEMO_LIB_CORE_EXIT_HANDLER_H_
 
+#include <atomic>
 #include <csignal>
 
 namespace core
@@ -17,20 +18,18 @@ namespace core
         ExitHandler();
 
         bool
-        init();
+        Init();
 
-        void
-        exit();
+        inline void
+        Exit()
+        { should_exit_ = true; }
 
-        bool
-        should_exit() const;
+        inline bool
+        ShouldExit() const
+        { return should_exit_; }
 
       private:
-        template <typename Func>
-        REGISTER_HANDLER_STATUS
-        register_handler(int signum, Func handler);
-
-        bool should_exit_;
+        std::atomic<bool> should_exit_;
     };
 } // namespace core
 

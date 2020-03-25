@@ -3,6 +3,7 @@
 
 #include "lib/core/encode.h"
 #include "lib/core/error_macros.h"
+#include "lib/core/exit_handler.h"
 #include "lib/core/hash.h"
 #include "lib/core/io/compression.h"
 #include "lib/core/network/constants.h"
@@ -177,7 +178,7 @@ app::Network::Poll()
 
     std::unique_ptr<rudp::Event> event;
 
-    while (true) {
+    while (!core::Singleton<core::ExitHandler>::Instance().ShouldExit()) {
         if (!host_ || !active_)
             return;
 
