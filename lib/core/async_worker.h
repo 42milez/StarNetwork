@@ -25,7 +25,7 @@ namespace core
               std::stringstream ss;
               ss << id;
               core::Singleton<core::Logger>::Instance().Debug("worker started (thread {0})", ss.str());
-              while (!stopped_) {
+              while (!deactivate_) {
                 task_();
               }
               core::Singleton<core::Logger>::Instance().Debug("worker stopped (thread {0})", ss.str());
@@ -35,11 +35,12 @@ namespace core
         inline void
         Stop()
         {
-            stopped_ = true;
+            deactivate_ = true;
 
             if (thread_.joinable()) {
                 try {
                     thread_.join();
+                    core::Singleton<core::Logger>::Instance().Debug("worker joined");
                 }
                 catch (std::system_error& e) {
                     const std::error_code& ec = e.code();
@@ -51,7 +52,7 @@ namespace core
         }
 
       private:
-        std::atomic<bool> stopped_;
+        std::atomic<bool> deactivate_;
         std::function<void()> task_;
         std::thread thread_;
     };

@@ -3,7 +3,7 @@
 namespace core
 {
     AsyncWorker::AsyncWorker(std::function<void()> &&task)
-        : stopped_()
+        : deactivate_()
         , task_(task)
     {
     }

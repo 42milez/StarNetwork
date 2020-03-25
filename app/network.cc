@@ -126,7 +126,9 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
 #endif
     dst_address.port(server_port);
 
-    unique_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
+    active_            = true;
+    connection_status_ = ConnectionStatus::CONNECTING;
+    unique_id_         = core::Singleton<core::Hash>::Instance().uniqueID();
 
     return host_->Connect(dst_address, channel_count_, unique_id_);
 }
@@ -163,10 +165,9 @@ app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwid
     ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
 
     active_            = true;
-    server_            = true;
     connection_status_ = ConnectionStatus::CONNECTED;
-
-    unique_id_ = core::Singleton<core::Hash>::Instance().uniqueID();
+    server_            = true;
+    unique_id_         = 1;
 
     return Error::OK;
 }
