@@ -4,7 +4,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: 42milez/cpp-dev-base:latest
+      - image: 42milez/cpp-dev-base:2020.3.11
     working_directory: /var/app
     environment:
       BUILD_DIR: &build_dir /var/app/cmake-build-test
@@ -60,7 +60,7 @@ jobs:
             - *build_dir_tsan
   test:
     docker:
-      - image: 42milez/cpp-dev-base:latest
+      - image: 42milez/cpp-dev-base:2020.3.11
     working_directory: /var/app
     environment:
       BUILD_DIR: *build_dir
@@ -89,7 +89,7 @@ jobs:
           path: /var/app/test-results
   sanitize_base: &sanitize_base
     docker:
-      - image: 42milez/cpp-dev-base:latest
+      - image: 42milez/cpp-dev-base:2020.3.11
     working_directory: /var/app
     steps:
       - checkout
