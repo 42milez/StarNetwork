@@ -6,24 +6,52 @@ namespace core
 {
     namespace
     {
-        template <typename Func>
+        using SignalHandler = void (*)(int sig, siginfo_t *info, void *ctx);
+
         REGISTER_HANDLER_STATUS
-        register_handler(int signum, Func handler)
+        IgnoreSignal(int signum)
         {
-            struct sigaction act
-            {
-                nullptr
-            };
-            act.sa_handler = handler;
-            act.sa_flags   = 0;
+            struct sigaction act{};
 
-            sigset_t set;
-            sigemptyset(&set);
-            sigaddset(&set, signum);
+            act.sa_handler = SIG_IGN;
+            act.sa_flags = SA_NODEFER;
 
-            act.sa_mask = set;
+            return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
+        }
 
-            return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, nullptr, &act));
+        REGISTER_HANDLER_STATUS
+        RegisterHandler(int signum, SignalHandler handler)
+        {
+            struct sigaction act{};
+
+            act.sa_sigaction = handler;
+            act.sa_flags = SA_SIGINFO;
+
+            return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
+        }
+
+        void
+        AbnormalTerminationHandler(int signum, siginfo_t *info, void *ctx) {
+            core::Singleton<core::Logger>::Instance().Debug("[SIGABRT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code, (int)info->si_pid, (int)info->si_uid);
+            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+        }
+
+        void
+        InteractiveAttentionHandler(int signum, siginfo_t *info, void *ctx) {
+            core::Singleton<core::Logger>::Instance().Debug("[SIGINT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code, (int)info->si_pid, (int)info->si_uid);
+            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+        }
+
+        void
+        HungupHandler(int signum, siginfo_t *info, void *ctx) {
+            core::Singleton<core::Logger>::Instance().Debug("[SIGHUP] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code, (int)info->si_pid, (int)info->si_uid);
+            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+        }
+
+        void
+        TerminationHandler(int signum, siginfo_t *info, void *ctx) {
+            core::Singleton<core::Logger>::Instance().Debug("[SIGTERM] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code, (int)info->si_pid, (int)info->si_uid);
+            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
         }
     } // namespace
 
@@ -35,26 +63,39 @@ namespace core
     bool
     ExitHandler::Init()
     {
-        // Handle Exit Signal
-        auto sig_handler = [](int signum) {
-            core::Singleton<core::Logger>::Instance().Info("gracefully shutting down...");
-            core::Singleton<core::ExitHandler>::Instance().Exit();
-        };
-
-        if (register_handler(SIGABRT, sig_handler) == REGISTER_HANDLER_STATUS::FAIL) {
+        if (IgnoreSignal(SIGPIPE) == REGISTER_HANDLER_STATUS::FAIL) {
             return false;
         }
 
-        if (register_handler(SIGINT, sig_handler) == REGISTER_HANDLER_STATUS::FAIL) {
+        if (IgnoreSignal(SIGUSR1) == REGISTER_HANDLER_STATUS::FAIL) {
             return false;
         }
 
-        if (register_handler(SIGTERM, sig_handler) == REGISTER_HANDLER_STATUS::FAIL) {
+        if (IgnoreSignal(SIGUSR2) == REGISTER_HANDLER_STATUS::FAIL) {
             return false;
         }
 
-        // handle pipe signal
-        if (register_handler(SIGPIPE, SIG_IGN) == REGISTER_HANDLER_STATUS::FAIL) {
+        if (IgnoreSignal(SIGTTIN) == REGISTER_HANDLER_STATUS::FAIL) {
+            return false;
+        }
+
+        if (IgnoreSignal(SIGTTOU) == REGISTER_HANDLER_STATUS::FAIL) {
+            return false;
+        }
+
+        if (RegisterHandler(SIGABRT, AbnormalTerminationHandler) == REGISTER_HANDLER_STATUS::FAIL) {
+            return false;
+        }
+
+        if (RegisterHandler(SIGINT, InteractiveAttentionHandler) == REGISTER_HANDLER_STATUS::FAIL) {
+            return false;
+        }
+
+        if (RegisterHandler(SIGHUP, HungupHandler) == REGISTER_HANDLER_STATUS::FAIL) {
+            return false;
+        }
+
+        if (RegisterHandler(SIGTERM, TerminationHandler) == REGISTER_HANDLER_STATUS::FAIL) {
             return false;
         }
 

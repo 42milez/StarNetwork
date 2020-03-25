@@ -21,18 +21,19 @@ namespace
         std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
     }
 
-    const std::string LOGGER_NAME = "PEER";
-    const std::string PATH_LOG    = "/var/log/p2p_techdemo/peer.log";
-
     const std::string DEFAULT_MODE           = "server";
     const std::string DEFAULT_SERVER_ADDRESS = "127.0.0.1";
     const uint16_t DEFAULT_PORT              = 49152;
+    const std::string LOG_FILE_PATH          = "/var/log/p2p_techdemo/app.log";
 } // namespace
 
 int
 main(int argc, const char **argv)
 {
-    core::Singleton<core::ExitHandler>::Instance().Init();
+    if (!core::Singleton<core::ExitHandler>::Instance().Init()) {
+        core::Singleton<core::Logger>::Instance().Critical("register signal handler failed");
+        return -1;
+    }
 
     std::string mode         = DEFAULT_MODE;
     int port                 = DEFAULT_PORT;

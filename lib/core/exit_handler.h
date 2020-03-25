@@ -21,12 +21,17 @@ namespace core
         Init();
 
         inline void
-        Exit()
-        { should_exit_ = true; }
+        Exit(int signum)
+        {
+            should_exit_ = true;
+            core::Singleton<core::Logger>::Instance().Info("gracefully shutting down... ({0})", signum);
+        }
 
-        inline bool
+        [[nodiscard]] inline bool
         ShouldExit() const
-        { return should_exit_; }
+        {
+            return should_exit_;
+        }
 
       private:
         std::atomic<bool> should_exit_;
