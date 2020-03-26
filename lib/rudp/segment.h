@@ -6,9 +6,9 @@
 #include <functional>
 #include <vector>
 
-#include "lib/core/network/system.h"
-#include "lib/core/encode.h"
 #include "enum.h"
+#include "lib/core/encode.h"
+#include "lib/core/network/system.h"
 #include "type.h"
 
 namespace rudp
@@ -69,6 +69,12 @@ namespace rudp
         ExtractByte(size_t offset)
         {
             return core::DecodeUint32(data_, offset);
+        }
+
+        inline std::string
+        ToString()
+        {
+            return std::string{data_.begin(), data_.end()};
         }
 
       public:

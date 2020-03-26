@@ -21,8 +21,7 @@ namespace rudp
         inline std::string
         DataAsString()
         {
-            auto data = segment_->Data();
-            return std::string{data.begin(), data.end()};
+            return segment_->ToString();
         }
 
         inline uint32_t
