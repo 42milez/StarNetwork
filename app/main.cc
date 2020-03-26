@@ -73,42 +73,48 @@ main(int argc, const char **argv)
         return 0;
     }
 
-    auto network = std::make_shared<app::Network>();
+    auto node = std::make_shared<app::Network>();
 
-    core::AsyncWorker receiver{[&network]{
-      if (network->Peek() > 0) {
-          auto ret = network->Receive();
+    core::AsyncWorker node_runner{[&node]{
+      node->Poll();
+    }};
+
+    node_runner.Run();
+
+    core::AsyncWorker message_dispatcher{[&node]{
+      if (node->Peek() > 0) {
+          auto ret = node->Receive();
+
+          // process message
+          // ...
       }
     }};
 
-    receiver.Run();
-
-    core::AsyncWorker sender{[&network]{
-      std::string message;
-      std::cin >> message;
-
-      if (message == "exit") {
-          core::Singleton<core::ExitHandler>::Instance().Exit();
-      }
-
-      network->Send(message);
-    }};
-
-    sender.Run();
+    message_dispatcher.Run();
 
     if (mode == "server") {
         core::Singleton<core::Logger>::Instance().Info("running as server");
-        network->CreateServer(port);
+        node->CreateServer(port);
     }
     else {
         core::Singleton<core::Logger>::Instance().Info("running as client");
-        network->CreateClient(host_address, host_port, port);
+        node->CreateClient(host_address, host_port, port);
     }
 
-    network->Poll();
+    while (!core::Singleton<core::ExitHandler>::Instance().ShouldExit()) {
+        std::string message;
+        std::cin >> message;
 
-    receiver.Stop();
-    sender.Stop();
+        if (message == "exit") {
+            core::Singleton<core::ExitHandler>::Instance().Exit();
+        }
+
+        node->Send(message);
+    }
+
+    message_dispatcher.Stop();
+
+    node_runner.Stop();
 
     return 0;
 }
