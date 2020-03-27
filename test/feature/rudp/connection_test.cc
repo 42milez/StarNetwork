@@ -20,18 +20,18 @@ TEST_CASE("guest peer can establish connection with host peer", "[feature][conne
     // host
     rudp::NetworkConfig address;
     address.port(test::HOST_PORT);
-    auto host       = std::make_unique<rudp::Host>(address, core::SysCh::RELIABLE, 32, 100, 100);
+    auto host       = std::make_unique<rudp::Host>(address, core::SysCh::MAX, 32, 100, 100);
     auto host_event = std::make_unique<rudp::Event>();
 
     // guest
     rudp::NetworkConfig guest_address;
     guest_address.port(test::GUEST1_PORT);
-    auto guest       = std::make_unique<rudp::Host>(guest_address, core::SysCh::RELIABLE, 32, 100, 100);
+    auto guest       = std::make_unique<rudp::Host>(guest_address, core::SysCh::MAX, 32, 100, 100);
     auto guest_event = std::make_unique<rudp::Event>();
 
     SECTION("guest peer can immediately disconnect from host peer")
     {
-        guest->Connect(host_address, core::SysCh::RELIABLE, 0);
+        guest->Connect(host_address, core::SysCh::MAX, 0);
         guest->Service(guest_event, 0);
 
         REQUIRE(test::wait(
@@ -58,7 +58,7 @@ TEST_CASE("guest peer can establish connection with host peer", "[feature][conne
 
     SECTION("guest peer can gracefully disconnect from host peer")
     {
-        guest->Connect(host_address, core::SysCh::RELIABLE, 0);
+        guest->Connect(host_address, core::SysCh::MAX, 0);
         guest->Service(guest_event, 0);
 
         REQUIRE(test::wait(
