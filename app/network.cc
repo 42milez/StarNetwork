@@ -75,30 +75,16 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    if (client_port != 0) {
-        rudp::NetworkConfig client_address;
+    rudp::NetworkConfig config;
 
-#ifdef P2P_TECHDEMO_IPV6
-        if (bind_ip_.is_wildcard()) {
-            client->wildcard = true;
-        }
-        else {
-            server_address.SetIP(client, bind_ip_.get_ipv6(), 16);
-        }
-#else
-        if (!bind_ip_.is_wildcard()) {
-            ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-            client_address.SetIP(bind_ip_.GetIPv4(), 8);
-        }
-#endif
-        client_address.port(client_port);
+    if (!bind_ip_.is_wildcard()) {
+        ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+        config.SetIP(bind_ip_.GetIPv6(), 16);
+    }
 
-        host_ = std::make_unique<rudp::Host>(client_address, channel_count_, 1, in_bandwidth, out_bandwidth);
-    }
-    else {
-        // create a host with randomly assigned port
-        // ...
-    }
+    config.port(client_port);
+
+    host_ = std::make_unique<rudp::Host>(config, channel_count_, 32, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(!host_, Error::CANT_CREATE)
 
@@ -108,59 +94,47 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
         ip = IpAddress(server_address);
     }
     else {
-#ifdef P2P_TECHDEMO_IPV6
-        ip = Singleton<IP>::Instance().resolve_hostname(server_address);
-#else
         ip = core::Singleton<IP>::Instance().resolve_hostname(server_address, IP::Type::V4);
-#endif
+
         ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
     }
 
-    rudp::NetworkConfig dst_address;
-
-#ifdef P2P_TECHDEMO_IPV6
-    dst_address.SetIP(ip.get_ipv6(), 16);
-#else
     ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-    dst_address.host_v4(ip.GetIPv4());
-#endif
-    dst_address.port(server_port);
+
+    rudp::NetworkConfig server_config;
+
+    server_config.host_v6(ip.GetIPv6());
+    server_config.port(server_port);
 
     active_            = true;
     connection_status_ = ConnectionStatus::CONNECTING;
     unique_id_         = core::Singleton<core::Hash>::Instance().uniqueID();
 
-    return host_->Connect(dst_address, channel_count_, unique_id_);
+    return host_->Connect(server_config, channel_count_, unique_id_);
 }
 
 Error
 app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
     ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(port < 0 || port > 65535, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(port < 49152 || port > 65535, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(peer_count < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
     ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
 
-    rudp::NetworkConfig address;
+    rudp::NetworkConfig config;
 
-#ifdef P2P_TECHDEMO_IPV6
-    if (bind_ip_.is_wildcard()) {
-        address->wildcard = 1;
-    }
-    else {
-        address.SetIP(bind_ip_.get_ipv6(), 16);
-    }
-#else
     if (!bind_ip_.is_wildcard()) {
         ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
-        address.SetIP(bind_ip_.GetIPv4(), 8);
+        config.SetIP(bind_ip_.GetIPv6(), 16);
     }
-#endif
 
-    address.port(port);
+    IpAddress host_ip{"::FFFF:127.0.0.1"};
 
-    host_ = std::make_unique<rudp::Host>(address, channel_count_, peer_count, in_bandwidth, out_bandwidth);
+    config.host_v6(host_ip.GetIPv6());
+    config.port(port);
+
+    host_ = std::make_unique<rudp::Host>(config, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
     ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
 

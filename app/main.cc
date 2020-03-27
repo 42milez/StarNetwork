@@ -22,7 +22,7 @@ namespace
     }
 
     const std::string DEFAULT_MODE           = "server";
-    const std::string DEFAULT_SERVER_ADDRESS = "127.0.0.1";
+    const std::string DEFAULT_SERVER_ADDRESS = "::FFFF:127.0.0.1";
     const uint16_t DEFAULT_PORT              = 49152;
     const std::string LOG_FILE_PATH          = "/var/log/p2p_techdemo/app.log";
 } // namespace
@@ -94,11 +94,11 @@ main(int argc, const char **argv)
 
     if (mode == "server") {
         core::Singleton<core::Logger>::Instance().Info("running as server");
-        node->CreateServer(port);
+        node->CreateServer(port, 32, 100, 100);
     }
     else {
         core::Singleton<core::Logger>::Instance().Info("running as client");
-        node->CreateClient(host_address, host_port, port);
+        node->CreateClient(host_address, host_port, port, 100, 100);
     }
 
     while (!core::Singleton<core::ExitHandler>::Instance().ShouldExit()) {
