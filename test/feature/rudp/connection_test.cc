@@ -4,6 +4,7 @@
 #include <catch2/catch.hpp>
 
 #include "lib/core/network/system.h"
+#include "lib/core/hash.h"
 #include "lib/rudp/host.h"
 #include "lib/test/util.h"
 
@@ -26,12 +27,13 @@ TEST_CASE("guest peer can establish connection with host peer", "[feature][conne
     // guest
     rudp::NetworkConfig guest_address;
     guest_address.port(test::GUEST1_PORT);
-    auto guest       = std::make_unique<rudp::Host>(guest_address, core::SysCh::MAX, 32, 100, 100);
-    auto guest_event = std::make_unique<rudp::Event>();
+    auto guest           = std::make_unique<rudp::Host>(guest_address, core::SysCh::MAX, 32, 100, 100);
+    auto guest_event     = std::make_unique<rudp::Event>();
+    auto guest_unique_id = core::Singleton<core::Hash>::Instance().uniqueID();
 
     SECTION("guest peer can immediately disconnect from host peer")
     {
-        guest->Connect(host_address, core::SysCh::MAX, 0);
+        guest->Connect(host_address, core::SysCh::MAX, guest_unique_id);
         guest->Service(guest_event, 0);
 
         REQUIRE(test::wait(
@@ -58,7 +60,7 @@ TEST_CASE("guest peer can establish connection with host peer", "[feature][conne
 
     SECTION("guest peer can gracefully disconnect from host peer")
     {
-        guest->Connect(host_address, core::SysCh::MAX, 0);
+        guest->Connect(host_address, core::SysCh::MAX, guest_unique_id);
         guest->Service(guest_event, 0);
 
         REQUIRE(test::wait(
