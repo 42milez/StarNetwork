@@ -151,7 +151,7 @@ app::Network::Poll()
 {
     ERR_FAIL_COND(!active_)
 
-    std::unique_ptr<rudp::Event> event;
+    auto event = std::make_unique<rudp::Event>();
 
     while (!core::Singleton<core::ExitHandler>::Instance().ShouldExit()) {
         if (!host_ || !active_)
