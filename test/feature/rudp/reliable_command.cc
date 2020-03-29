@@ -61,10 +61,11 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         guest1->Service(guest1_event, 0);
 
         test::wait(
-            [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+            [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                                            host_event->TypeIs(rudp::EventType::RECEIVE); },
             test::DEFAULT_TIMEOUT);
 
-        REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && host_event->DataAsString() == msg1));
+        REQUIRE((host_event->DataAsString() == msg1));
 
         //  guest peer 2
         // --------------------------------------------------
@@ -90,10 +91,13 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         guest2->Service(guest2_event, 0);
 
         test::wait(
-            [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+            [&host, &host_event]() {
+                return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                       host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
             test::DEFAULT_TIMEOUT);
 
-        REQUIRE((host_event->TypeIs(rudp::EventType::RECEIVE) && (host_event->DataAsString() == msg2)));
+        REQUIRE((host_event->DataAsString() == msg2));
     }
 
     SECTION("guest peer 1 and 2 can send fragmented reliable command to host peer")

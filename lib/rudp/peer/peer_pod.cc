@@ -442,6 +442,9 @@ namespace rudp
                     }
                 }
             }
+
+            if (event != nullptr && event->TypeIsNot(EventType::NONE))                                                         \
+                return EventStatus::AN_EVENT_OCCURRED;
         }
 
         return EventStatus::NO_EVENT_OCCURRED;
