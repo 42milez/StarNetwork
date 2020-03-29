@@ -444,7 +444,7 @@ namespace rudp
             }
         }
 
-        return EventStatus::ERROR;
+        return EventStatus::NO_EVENT_OCCURRED;
     }
 
     void
