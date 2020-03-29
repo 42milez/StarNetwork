@@ -59,9 +59,6 @@ namespace rudp
         }
     }
 
-    // MEMO:
-    //  ピアが接続したことをEventインスタンスを介して呼び出し元に通知する
-    //  接続済みのピア群に対して新しいピアが接続してきたことを通知するものではない
     void
     DispatchHub::NotifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer)
     {
