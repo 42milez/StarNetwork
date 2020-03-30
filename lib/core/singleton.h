@@ -29,6 +29,15 @@ namespace core
             return *instance_;
         }
 
+        template <typename... Args>
+        static T &
+        Instance(Args const &... args)
+        {
+            std::call_once(init_flag, Init, args...);
+            assert(instance_);
+            return *instance_;
+        }
+
       private:
         static void
         Init()
