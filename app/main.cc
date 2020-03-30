@@ -41,6 +41,7 @@ main(int argc, const char **argv)
     int host_port            = DEFAULT_PORT;
     bool show_version        = false;
     bool show_help           = false;
+    std::string log_file_path{};
 
     auto cli = lyra::cli_parser();
     cli.add_argument(
@@ -54,6 +55,7 @@ main(int argc, const char **argv)
     cli.add_argument(
         lyra::opt(host_address, "host_address").name("-ha").name("--host-address").help("host address").optional());
     cli.add_argument(lyra::opt(host_port, "host_port").name("-hp").name("--host-port").help("host port").optional());
+    cli.add_argument(lyra::opt(log_file_path, "log_file_path").name("-l").name("--log").help("log file path").optional());
     cli.add_argument(lyra::opt(show_version).name("-v").name("--version").help("Show application version").optional());
     cli.add_argument(lyra::help(show_help));
 
@@ -71,6 +73,10 @@ main(int argc, const char **argv)
     if (show_help) {
         std::cout << cli;
         return 0;
+    }
+
+    if (!log_file_path.empty()) {
+        core::Singleton<core::Logger>::Instance().EnableFileLogger(log_file_path);
     }
 
     auto node = std::make_shared<app::Network>();

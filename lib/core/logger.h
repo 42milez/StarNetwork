@@ -10,40 +10,71 @@ namespace core
       public:
         Logger();
 
+        void
+        EnableFileLogger(const std::string &log_file_path);
+
         template <class... Args>
         inline void
         Debug(Args... args)
         {
-            spdlog::get("stdout")->debug(args...);
+            if (file_logger_) {
+                file_logger_->debug(args...);
+            }
+            else {
+                spdlog::get("stdout")->debug(args...);
+            }
         };
 
         template <class... Args>
         inline void
         Info(Args... args)
         {
-            spdlog::get("stdout")->info(args...);
+            if (file_logger_) {
+                file_logger_->info(args...);
+            }
+            else {
+                spdlog::get("stdout")->info(args...);
+            }
         };
 
         template <class... Args>
         inline void
         Warn(Args... args)
         {
-            spdlog::get("stderr")->warn(args...);
+            if (file_logger_) {
+                file_logger_->warn(args...);
+            }
+            else {
+                spdlog::get("stderr")->warn(args...);
+            }
         };
 
         template <class... Args>
         inline void
         Error(Args... args)
         {
-            spdlog::get("stderr")->error(args...);
+            if (file_logger_) {
+                file_logger_->error(args...);
+            }
+            else {
+                spdlog::get("stderr")->error(args...);
+            }
         };
 
         template <class... Args>
         inline void
         Critical(Args... args)
         {
-            spdlog::get("stderr")->critical(args...);
+            if (file_logger_) {
+                file_logger_->critical(args...);
+            }
+            else {
+                spdlog::get("stderr")->critical(args...);
+            }
         };
+
+      private:
+        std::unique_ptr<spdlog::logger> file_logger_;
     };
 } // namespace core
 
