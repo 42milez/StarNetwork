@@ -50,7 +50,7 @@ main(int argc, const char **argv)
                          .name("-p")
                          .name("--port")
                          .help("Port to bind")
-                         .choices([](int value) { return 0 <= value && value <= 65535; })
+                         .choices([](int value) { return 49152 <= value && value <= 65535; })
                          .optional());
     cli.add_argument(
         lyra::opt(host_address, "host_address").name("-ha").name("--host-address").help("host address").optional());

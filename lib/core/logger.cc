@@ -10,7 +10,7 @@ namespace core
     {
         spdlog::stdout_color_mt("stdout");
         spdlog::stderr_color_mt("stderr");
-        spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
+        spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%^---%L---%$][thread %t] %v");
 
 #ifdef DEBUG
         spdlog::set_level(spdlog::level::debug);
@@ -24,17 +24,11 @@ namespace core
     {
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console_sink->set_level(spdlog::level::warn);
-        console_sink->set_pattern("[%Y/%m/%d %H:%M:%S %z][%^---%L---%$][thread %t] %v");
 
-        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path);
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path, true);
         file_sink->set_level(spdlog::level::trace);
 
-        this->file_logger_ = std::make_unique<spdlog::logger>(spdlog::logger("p2p_techdemo", {console_sink, file_sink}));
-
-#ifdef DEBUG
-        spdlog::set_level(spdlog::level::debug);
-#else
-        spdlog::set_level(spdlog::level::info);
-#endif
+        file_logger_ = std::make_unique<spdlog::logger>(spdlog::logger("p2p_techdemo", {console_sink, file_sink}));
+        file_logger_->flush_on(spdlog::level::trace);
     }
 } // namespace core
