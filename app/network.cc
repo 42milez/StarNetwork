@@ -283,13 +283,13 @@ app::Network::Poll()
 
                     payload.from = id;
 
-                    if (receiver_id == 1) {
+                    if (receiver_id == core::SERVER_ID) {
                         payloads_.push_back(payload);
                     }
                     else if (!server_relay_) {
                         continue;
                     }
-                    else if (receiver_id == 0) {
+                    else if (receiver_id == core::BROADCAST_ID) {
                         payloads_.push_back(payload);
 
                         for (const auto &[id, peer] : peers_) {
@@ -300,7 +300,7 @@ app::Network::Poll()
                             peer->Send(event->Channel(), payload.segment, nullptr);
                         }
                     }
-                    else if (receiver_id < 0) {
+                    else if (receiver_id < core::BROADCAST_ID) {
                         for (const auto &[id, peer] : peers_) {
                             // do not resend to self, also do not send to excluded
                             if (id == sender_id || id == -receiver_id) {
@@ -310,7 +310,7 @@ app::Network::Poll()
                             peer->Send(event->Channel(), payload.segment, nullptr);
                         }
 
-                        if (-receiver_id != 1) {
+                        if (-receiver_id != core::SERVER_ID) {
                             payloads_.push_back(payload);
                         }
                     }
