@@ -74,7 +74,7 @@ namespace core
         };
 
       private:
-        std::unique_ptr<spdlog::logger> file_logger_;
+        std::shared_ptr<spdlog::logger> file_logger_;
     };
 } // namespace core
 
