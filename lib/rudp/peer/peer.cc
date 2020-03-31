@@ -419,6 +419,8 @@ namespace rudp
 
         auto cmd = std::make_shared<ProtocolType>();
 
+        cmd->header.channel_id = static_cast<uint32_t>(ch);
+
         if ((segment->flags() &
              (static_cast<uint16_t>(SegmentFlag::RELIABLE) | static_cast<uint16_t>(SegmentFlag::UNSEQUENCED))) ==
             static_cast<uint16_t>(SegmentFlag::UNSEQUENCED)) {
