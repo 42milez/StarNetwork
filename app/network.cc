@@ -271,7 +271,7 @@ app::Network::Poll()
 
                 ERR_CONTINUE(event->PayloadLength() < core::PAYLOAD_MINIMUM_LENGTH);
 
-                auto id          = event->Id();
+                auto id          = event->peer()->data();
                 auto sender_id   = event->SenderId();
                 auto receiver_id = event->ReceiverId();
 
@@ -380,10 +380,10 @@ app::Network::Send(const std::string &str)
     }
 
     auto segment     = std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(segment_flag));
-    auto msg         = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::REMOVE_PEER));
+    auto sender_id   = core::EncodeUint32(unique_id_);
     auto receiver_id = core::EncodeUint32(target_peer_id_);
 
-    segment->AppendData(msg);
+    segment->AppendData(sender_id);
     segment->AppendData(receiver_id);
 
     auto data = std::vector<uint8_t>{str.begin(), str.end()};
