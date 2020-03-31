@@ -17,8 +17,8 @@ namespace core
         inline void
         Debug(Args... args)
         {
-            if (file_logger_) {
-                file_logger_->debug(args...);
+            if (sinks_) {
+                sinks_->debug(args...);
             }
             else {
                 spdlog::get("stdout")->debug(args...);
@@ -29,8 +29,8 @@ namespace core
         inline void
         Info(Args... args)
         {
-            if (file_logger_) {
-                file_logger_->info(args...);
+            if (sinks_) {
+                sinks_->info(args...);
             }
             else {
                 spdlog::get("stdout")->info(args...);
@@ -41,8 +41,8 @@ namespace core
         inline void
         Warn(Args... args)
         {
-            if (file_logger_) {
-                file_logger_->warn(args...);
+            if (sinks_) {
+                sinks_->warn(args...);
             }
             else {
                 spdlog::get("stderr")->warn(args...);
@@ -53,8 +53,8 @@ namespace core
         inline void
         Error(Args... args)
         {
-            if (file_logger_) {
-                file_logger_->error(args...);
+            if (sinks_) {
+                sinks_->error(args...);
             }
             else {
                 spdlog::get("stderr")->error(args...);
@@ -65,8 +65,8 @@ namespace core
         inline void
         Critical(Args... args)
         {
-            if (file_logger_) {
-                file_logger_->critical(args...);
+            if (sinks_) {
+                sinks_->critical(args...);
             }
             else {
                 spdlog::get("stderr")->critical(args...);
@@ -74,7 +74,7 @@ namespace core
         };
 
       private:
-        std::shared_ptr<spdlog::logger> file_logger_;
+        std::shared_ptr<spdlog::logger> sinks_;
     };
 } // namespace core
 
