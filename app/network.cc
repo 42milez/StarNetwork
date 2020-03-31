@@ -249,6 +249,8 @@ app::Network::Poll()
         else if (event->TypeIs(rudp::EventType::RECEIVE)) {
             if (event->channel_id() == static_cast<uint8_t>(core::SysCh::CONFIG)) {
                 ERR_CONTINUE(event->PayloadLength() < core::PAYLOAD_MINIMUM_LENGTH)
+
+                // only server can send message on config channel
                 ERR_CONTINUE(server_)
 
                 auto msg = event->Message();
