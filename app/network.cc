@@ -141,6 +141,7 @@ app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwid
     active_            = true;
     connection_status_ = ConnectionStatus::CONNECTED;
     server_            = true;
+    server_relay_      = true;
     unique_id_         = 1;
 
     return Error::OK;
