@@ -49,7 +49,7 @@ namespace rudp
     constexpr int PEER_DEFAULT_ROUND_TRIP_TIME       = 500;
     constexpr int PEER_DEFAULT_SEGMENT_THROTTLE      = 32;
     constexpr int PEER_FREE_RELIABLE_WINDOWS         = 8;
-    constexpr int PEER_PING_INTERVAL                 = 500;
+    constexpr int PEER_PING_INTERVAL                 = 60000; // 1 min
     constexpr int PEER_RELIABLE_WINDOWS              = 16;
     constexpr int PEER_RELIABLE_WINDOW_SIZE          = 0x1000;
     constexpr int PEER_SEGMENT_LOSS_INTERVAL         = 10000;

@@ -89,10 +89,8 @@ main(int argc, const char **argv)
 
     core::AsyncWorker message_dispatcher{[&node]{
       if (node->Peek() > 0) {
-          auto ret = node->Receive();
-
-          // process message
-          // ...
+          auto [error, segment] = node->Receive();
+          core::Singleton<core::Logger>::Instance().Info("message: {0}", segment->ToString());
       }
     }};
 

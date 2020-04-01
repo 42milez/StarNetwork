@@ -327,7 +327,11 @@ namespace rudp
         auto incoming_command = dispatched_commands_.front();
         auto segment          = incoming_command->segment();
 
-        total_waiting_data_ -= segment->DataLength();
+        // FIXME: this is temporary fix
+        //        segment->DataLength() may bigger than total_waiting_data_. why...?
+        if (total_waiting_data_ >= segment->DataLength()) {
+            total_waiting_data_ -= segment->DataLength();
+        }
 
         dispatched_commands_.pop();
 

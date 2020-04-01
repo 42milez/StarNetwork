@@ -65,7 +65,7 @@ namespace rudp
         inline size_t
         DataLength()
         {
-            return data_.size() * sizeof(uint8_t);
+            return buffer_pos_ * sizeof(uint8_t);
         }
 
         inline uint32_t
