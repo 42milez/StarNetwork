@@ -37,7 +37,7 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
 
     SECTION("guest peer 1 and 2 can send fragmented reliable command to host peer")
     {
-        //  guest peer 1
+        //  from guest peer 1 [1/2]
         // --------------------------------------------------
 
         guest1->Connect(host_address, core::SysCh::MAX, 0);
@@ -52,65 +52,33 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
             },
             test::DEFAULT_TIMEOUT);
 
-        std::string msg1{
-            "Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my "
-            "unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul."};
-        auto payload1 = std::vector<uint8_t>{msg1.begin(), msg1.end()};
-        auto flags1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment1 = std::make_shared<rudp::Segment>(&payload1, flags1);
+        std::string msg_1_1{test::LARGE_PAYLOAD_1};
+        auto payload_1_1 = std::vector<uint8_t>{msg_1_1.begin(), msg_1_1.end()};
+        auto flags_1_1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_1_1 = std::make_shared<rudp::Segment>(&payload_1_1, flags_1_1);
 
-        guest1->Send(0, core::SysCh::RELIABLE, segment1);
+        guest1->Send(0, core::SysCh::RELIABLE, segment_1_1);
         guest1->Service(guest1_event, 0);
 
         test::wait(
-            [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+            [&host, &host_event]() {
+              return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                     host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
             test::DEFAULT_TIMEOUT);
 
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
-        REQUIRE(host_event->DataAsString() == msg1);
+        REQUIRE(host_event->DataAsString() == msg_1_1);
 
-        //  guest peer 2
+        test::wait(
+            [&guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
+              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        //  from guest peer 2 [1/2]
         // --------------------------------------------------
 
         guest2->Connect(host_address, core::SysCh::MAX, 0);
@@ -125,62 +93,88 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
             },
             test::DEFAULT_TIMEOUT);
 
-        std::string msg2{
-            "Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be For my "
-            "unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul. Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be "
-            "For "
-            "my unconquerable soul. In the fell clutch of circumstance I have not winced nor cried aloud. Under the "
-            "bludgeonings of chance My head is bloody, but unbowed. Beyond this place of wrath and tears Looms but the "
-            "Horror of the shade, And yet the menace of the years Finds and shall find me unafraid. It matters not how "
-            "strait the gate, How charged with punishments the scroll, I am the master of my fate, I am the captain of "
-            "my "
-            "soul."};
-        auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
-        auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
+        std::string msg_2_1{test::LARGE_PAYLOAD_1};
+        auto payload_2_1 = std::vector<uint8_t>{msg_2_1.begin(), msg_2_1.end()};
+        auto flags_2_1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_2_1 = std::make_shared<rudp::Segment>(&payload_2_1, flags_2_1);
 
-        guest2->Send(0, core::SysCh::RELIABLE, segment2);
+        guest2->Send(0, core::SysCh::RELIABLE, segment_2_1);
         guest2->Service(guest2_event, 0);
 
         test::wait(
-            [&host, &host_event]() { return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED; },
+            [&host, &host_event]() {
+              return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                     host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
             test::DEFAULT_TIMEOUT);
 
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
-        REQUIRE(host_event->DataAsString() == msg2);
+        REQUIRE(host_event->DataAsString() == msg_2_1);
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        //  from guest peer 1 [2/2]
+        // --------------------------------------------------
+
+        std::string msg_1_2{test::LARGE_PAYLOAD_2};
+        auto payload_1_2 = std::vector<uint8_t>{msg_1_2.begin(), msg_1_2.end()};
+        auto flags_1_2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_1_2 = std::make_shared<rudp::Segment>(&payload_1_2, flags_1_2);
+
+        guest1->Send(0, core::SysCh::RELIABLE, segment_1_2);
+        guest1->Service(guest1_event, 0);
+
+        test::wait(
+            [&host, &host_event]() {
+              return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                     host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
+        REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
+        REQUIRE(host_event->DataAsString() == msg_1_2);
+
+        test::wait(
+            [&guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
+              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        //  from guest peer 2 [2/2]
+        // --------------------------------------------------
+
+        std::string msg_2_2{test::LARGE_PAYLOAD_2};
+        auto payload_2_2 = std::vector<uint8_t>{msg_2_2.begin(), msg_2_2.end()};
+        auto flags_2_2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_2_2 = std::make_shared<rudp::Segment>(&payload_2_2, flags_2_2);
+
+        guest2->Send(0, core::SysCh::RELIABLE, segment_2_2);
+        guest2->Service(guest2_event, 0);
+
+        test::wait(
+            [&host, &host_event]() {
+              return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                     host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
+        REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
+        REQUIRE(host_event->DataAsString() == msg_2_2);
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
     }
 }

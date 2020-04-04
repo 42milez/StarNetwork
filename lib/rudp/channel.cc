@@ -20,7 +20,9 @@ namespace rudp
         std::vector<std::shared_ptr<IncomingCommand>> commands;
         auto is_new_command_detected = false;
 
-        for (auto &cmd : incoming_reliable_commands_) {
+        while (!incoming_reliable_commands_.empty()) {
+            auto &cmd = incoming_reliable_commands_.front();
+
             auto reliable_sequence_number = cmd->reliable_sequence_number();
 
             if (cmd->fragments_remaining() > 0 || reliable_sequence_number != incoming_reliable_sequence_number_ + 1)
@@ -34,6 +36,8 @@ namespace rudp
                 incoming_reliable_sequence_number_ += cmd->fragment_count() - 1;
 
             commands.push_back(cmd);
+
+            incoming_reliable_commands_.pop_front();
         }
 
         if (is_new_command_detected)

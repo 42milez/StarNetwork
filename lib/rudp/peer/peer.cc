@@ -1,7 +1,6 @@
-#ifdef __linux__
 #include <arpa/inet.h>
-#endif
 
+#include <deque>
 #include <utility>
 
 #include "lib/core/hash.h"
@@ -333,7 +332,7 @@ namespace rudp
             total_waiting_data_ -= segment->DataLength();
         }
 
-        dispatched_commands_.pop();
+        dispatched_commands_.pop_front();
 
         return {segment, incoming_command->header_channel_id()};
     }
@@ -461,7 +460,7 @@ namespace rudp
     void
     Peer::ClearDispatchedCommandQueue()
     {
-        std::queue<std::shared_ptr<IncomingCommand>> empty;
+        std::deque<std::shared_ptr<IncomingCommand>> empty;
         std::swap(dispatched_commands_, empty);
     }
 
@@ -507,7 +506,7 @@ namespace rudp
         command_pod_->Reset();
         net_->Reset();
 
-        std::queue<std::shared_ptr<IncomingCommand>> empty;
+        std::deque<std::shared_ptr<IncomingCommand>> empty;
         dispatched_commands_.swap(empty);
 
         address_.Reset();
@@ -547,7 +546,7 @@ namespace rudp
         command_pod_->ClearOutgoingUnreliableCommand();
 
         if (!dispatched_commands_.empty()) {
-            std::queue<std::shared_ptr<IncomingCommand>> empty;
+            std::deque<std::shared_ptr<IncomingCommand>> empty;
             std::swap(dispatched_commands_, empty);
         }
 

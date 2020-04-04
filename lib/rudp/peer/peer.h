@@ -3,7 +3,7 @@
 
 #include <list>
 #include <memory>
-#include <queue>
+#include <deque>
 #include <tuple>
 
 #include "lib/core/errors.h"
@@ -131,8 +131,9 @@ namespace rudp
         void
         PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<IncomingCommand>> &commands)
         {
-            for (auto &cmd : commands)
-                dispatched_commands_.push(cmd);
+            for (auto it = commands.rbegin(); it != commands.rend(); ++it ) {
+                dispatched_commands_.push_front((*it));
+            }
         }
 
         inline bool
@@ -272,7 +273,7 @@ namespace rudp
         std::list<std::shared_ptr<Acknowledgement>> acknowledgements_;
         std::vector<std::shared_ptr<Channel>> channels_;
         std::unique_ptr<CommandPod> command_pod_;
-        std::queue<std::shared_ptr<IncomingCommand>> dispatched_commands_;
+        std::deque<std::shared_ptr<IncomingCommand>> dispatched_commands_;
         std::unique_ptr<PeerNet> net_;
         std::array<uint32_t, PEER_UNSEQUENCED_WINDOW_SIZE / 32> unsequenced_windows_;
 

@@ -52,12 +52,12 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
             },
             test::DEFAULT_TIMEOUT);
 
-        std::string msg11{"command from guest1 (1/2)"};
-        auto data11    = std::vector<uint8_t>{msg11.begin(), msg11.end()};
-        auto flags11   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment11 = std::make_shared<rudp::Segment>(&data11, flags11);
+        std::string msg_1_1{"command from guest1 (1/2)"};
+        auto data_1_1    = std::vector<uint8_t>{msg_1_1.begin(), msg_1_1.end()};
+        auto flags_1_1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_1_1 = std::make_shared<rudp::Segment>(&data_1_1, flags_1_1);
 
-        guest1->Send(0, core::SysCh::RELIABLE, segment11);
+        guest1->Send(0, core::SysCh::RELIABLE, segment_1_1);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -69,7 +69,7 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
 
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
-        REQUIRE(host_event->DataAsString() == msg11);
+        REQUIRE(host_event->DataAsString() == msg_1_1);
 
         test::wait(
             [&guest1, &guest1_event]() {
@@ -81,12 +81,12 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
         //  guest peer 1 [2/2]
         // --------------------------------------------------
 
-        std::string msg12{"command from guest1 (2/2)"};
-        auto data12    = std::vector<uint8_t>{msg12.begin(), msg12.end()};
-        auto flags12   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment12 = std::make_shared<rudp::Segment>(&data12, flags12);
+        std::string msg_1_2{"command from guest1 (2/2)"};
+        auto data_1_2    = std::vector<uint8_t>{msg_1_2.begin(), msg_1_2.end()};
+        auto flags_1_2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_1_2 = std::make_shared<rudp::Segment>(&data_1_2, flags_1_2);
 
-        guest1->Send(0, core::SysCh::RELIABLE, segment12);
+        guest1->Send(0, core::SysCh::RELIABLE, segment_1_2);
         guest1->Service(guest1_event, 0);
 
         test::wait(
@@ -98,9 +98,16 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
 
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
-        REQUIRE(host_event->DataAsString() == msg12);
+        REQUIRE(host_event->DataAsString() == msg_1_2);
 
-        //  guest peer 2
+        test::wait(
+            [&guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
+              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        //  guest peer 2 [1/2]
         // --------------------------------------------------
 
         guest2->Connect(host_address, core::SysCh::MAX, 0);
@@ -115,12 +122,12 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
             },
             test::DEFAULT_TIMEOUT);
 
-        std::string msg2{"command from guest2"};
-        auto payload2 = std::vector<uint8_t>{msg2.begin(), msg2.end()};
-        auto flags2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
-        auto segment2 = std::make_shared<rudp::Segment>(&payload2, flags2);
+        std::string msg_2_1{"command from guest2 (1/2)"};
+        auto payload_2_1 = std::vector<uint8_t>{msg_2_1.begin(), msg_2_1.end()};
+        auto flags_2_1   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_2_1 = std::make_shared<rudp::Segment>(&payload_2_1, flags_2_1);
 
-        guest2->Send(0, core::SysCh::RELIABLE, segment2);
+        guest2->Send(0, core::SysCh::RELIABLE, segment_2_1);
         guest2->Service(guest2_event, 0);
 
         test::wait(
@@ -132,6 +139,42 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
 
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
-        REQUIRE(host_event->DataAsString() == msg2);
+        REQUIRE(host_event->DataAsString() == msg_2_1);
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        //  guest peer 2 [2/2]
+        // --------------------------------------------------
+
+        std::string msg_2_2{"command from guest2 (2/2)"};
+        auto data_2_2    = std::vector<uint8_t>{msg_2_2.begin(), msg_2_2.end()};
+        auto flags_2_2   = static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE);
+        auto segment_2_2 = std::make_shared<rudp::Segment>(&data_2_2, flags_2_2);
+
+        guest2->Send(0, core::SysCh::RELIABLE, segment_2_2);
+        guest2->Service(guest2_event, 0);
+
+        test::wait(
+            [&host, &host_event]() {
+              return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
+                     host_event->TypeIs(rudp::EventType::RECEIVE);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
+        REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
+        REQUIRE(host_event->DataAsString() == msg_2_2);
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
     }
 }
