@@ -17,7 +17,8 @@ namespace rudp
         NONE,
         CONNECT,
         DISCONNECT,
-        RECEIVE
+        RECEIVE,
+        RECEIVE_ACK
     };
 
     enum class RUdpPeerState : uint8_t

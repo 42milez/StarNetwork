@@ -325,6 +325,8 @@ namespace rudp
                                     const std::shared_ptr<ProtocolType> &cmd, uint32_t service_time,
                                     std::function<void(std::shared_ptr<Peer> &peer)> disconnect)
     {
+        event->type(EventType::RECEIVE_ACK);
+
         auto &net     = peer->net();
         auto &cmd_pod = peer->command_pod();
 
