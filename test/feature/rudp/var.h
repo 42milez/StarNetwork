@@ -7,7 +7,7 @@ namespace test
     const uint16_t GUEST1_PORT = 49153;
     const uint16_t GUEST2_PORT = 49154;
 
-    const uint32_t DEFAULT_TIMEOUT = 1000; // msec
+    const uint32_t DEFAULT_TIMEOUT = 5000; // msec
 
     const std::string LARGE_PAYLOAD_1 =
         "Out of the night that covers me, Black as the pit from pole to pole, I thank whatever gods may be"
@@ -54,6 +54,18 @@ namespace test
         "I am the captain of my soul.";
 
     const std::string LARGE_PAYLOAD_2 =
+        ".luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH"
+        ",etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA"
+        ",edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM"
+        "ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI"
+        ".luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc"
+        "taht thgin eht fo tuO"
+        ".luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH"
+        ",etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA"
+        ",edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM"
+        "ecnahc fo sgninoegdulb eht rednU .duola deirc ron decniw ton evah I ecnatsmucric fo hctulc llef eht nI"
+        ".luos elbareuqnocnu ym roF eb yam sdog revetahw knaht I ,elop ot elop morf tip eht sa kcalB ,em srevoc"
+        "taht thgin eht fo tuO"
         ".luos ym fo niatpac eht ma I ,etaf ym fo retsam eht ma I ,llorcs eht stnemhsinup htiw degrahc woH"
         ",etag eht tiarts woh ton srettam tI .diarfanu em dnif llahs dna sdniF sraey eht fo ecanem eht tey dnA"
         ",edahs eht fo rorroH eht tub smooL sraet dna htarw fo ecalp siht dnoyeB .dewobnu tub ,ydoolb si daeh yM"

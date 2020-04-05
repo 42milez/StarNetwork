@@ -78,6 +78,17 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
             },
             test::DEFAULT_TIMEOUT);
 
+        REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
+        test::wait(
+            [&guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
+              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
         //  from guest peer 2 [1/2]
         // --------------------------------------------------
 
@@ -119,6 +130,17 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
             },
             test::DEFAULT_TIMEOUT);
 
+        REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
         //  from guest peer 1 [2/2]
         // --------------------------------------------------
 
@@ -148,6 +170,17 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
             },
             test::DEFAULT_TIMEOUT);
 
+        REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
+        test::wait(
+            [&guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
+              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
         //  from guest peer 2 [2/2]
         // --------------------------------------------------
 
@@ -176,5 +209,16 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
               return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
             },
             test::DEFAULT_TIMEOUT);
+
+        REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK));
+
+        test::wait(
+            [&guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
+              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
+            },
+            test::DEFAULT_TIMEOUT);
+
+        REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK));
     }
 }
