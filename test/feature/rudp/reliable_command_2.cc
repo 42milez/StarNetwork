@@ -58,10 +58,13 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         auto segment_1_1 = std::make_shared<rudp::Segment>(&payload_1_1, flags_1_1);
 
         guest1->Send(0, core::SysCh::RELIABLE, segment_1_1);
-        guest1->Service(guest1_event, 0);
 
         test::wait(
-            [&host, &host_event]() {
+            [&host, &host_event, &guest1, &guest1_event]() {
+              // MEMO: As is doing in CommandPod::LoadReliableCommandsIntoChamber(), if a segment exceeds the window
+              //       size, a part of fragmented segment be sent in next sending process. So to call Host::Service()
+              //       is needed until the host receives all fragments.
+              guest1->Service(guest1_event, 0);
               return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
                      host_event->TypeIs(rudp::EventType::RECEIVE);
             },
@@ -110,10 +113,10 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         auto segment_2_1 = std::make_shared<rudp::Segment>(&payload_2_1, flags_2_1);
 
         guest2->Send(0, core::SysCh::RELIABLE, segment_2_1);
-        guest2->Service(guest2_event, 0);
 
         test::wait(
-            [&host, &host_event]() {
+            [&host, &host_event, &guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
               return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
                      host_event->TypeIs(rudp::EventType::RECEIVE);
             },
@@ -150,10 +153,10 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         auto segment_1_2 = std::make_shared<rudp::Segment>(&payload_1_2, flags_1_2);
 
         guest1->Send(0, core::SysCh::RELIABLE, segment_1_2);
-        guest1->Service(guest1_event, 0);
 
         test::wait(
-            [&host, &host_event]() {
+            [&host, &host_event, &guest1, &guest1_event]() {
+              guest1->Service(guest1_event, 0);
               return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
                      host_event->TypeIs(rudp::EventType::RECEIVE);
             },
@@ -162,15 +165,6 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
         REQUIRE(host_event->DataAsString() == msg_1_2);
-
-        test::wait(
-            [&guest1, &guest1_event]() {
-              guest1->Service(guest1_event, 0);
-              return guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK);
-            },
-            test::DEFAULT_TIMEOUT);
-
-        REQUIRE(guest1_event->TypeIs(rudp::EventType::RECEIVE_ACK));
 
         test::wait(
             [&guest1, &guest1_event]() {
@@ -190,10 +184,10 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         auto segment_2_2 = std::make_shared<rudp::Segment>(&payload_2_2, flags_2_2);
 
         guest2->Send(0, core::SysCh::RELIABLE, segment_2_2);
-        guest2->Service(guest2_event, 0);
 
         test::wait(
-            [&host, &host_event]() {
+            [&host, &host_event, &guest2, &guest2_event]() {
+              guest2->Service(guest2_event, 0);
               return host->Service(host_event, 0) == rudp::EventStatus::AN_EVENT_OCCURRED &&
                      host_event->TypeIs(rudp::EventType::RECEIVE);
             },
@@ -202,15 +196,6 @@ TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feat
         REQUIRE(host_event->channel_id() == static_cast<uint8_t>(core::SysCh::RELIABLE));
         REQUIRE(host_event->TypeIs(rudp::EventType::RECEIVE));
         REQUIRE(host_event->DataAsString() == msg_2_2);
-
-        test::wait(
-            [&guest2, &guest2_event]() {
-              guest2->Service(guest2_event, 0);
-              return guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK);
-            },
-            test::DEFAULT_TIMEOUT);
-
-        REQUIRE(guest2_event->TypeIs(rudp::EventType::RECEIVE_ACK));
 
         test::wait(
             [&guest2, &guest2_event]() {

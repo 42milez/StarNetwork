@@ -82,9 +82,13 @@ namespace rudp
 
         auto size = chamber->Write(out);
 
+        core::Singleton<core::Logger>::Instance().Debug("data wrote: {0}", std::string{out.begin(), out.end()});
+
         ssize_t sent = 0;
 
         auto err = socket_->sendto(&(out.at(0)), size, sent, dest, address.port());
+
+        core::Singleton<core::Logger>::Instance().Debug("bytes sent: {0}", sent);
 
         if (err != Error::OK) {
             if (err == Error::ERR_BUSY)
