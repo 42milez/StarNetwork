@@ -4,7 +4,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: 42milez/cpp-dev-base:2020.3.11
+      - image: 42milez/cpp-dev-base:2020.4.6
     working_directory: /var/app
     environment:
       BUILD_DIR: &build_dir /var/app/cmake-build-test
