@@ -24,7 +24,6 @@ conan_cmake_run(
         ENV CC=/usr/bin/clang-9
         ENV CXX=/usr/bin/clang++-9
         SETTINGS arch=x86_64
-        SETTINGS build_type=Debug
         SETTINGS compiler=clang
         SETTINGS compiler.libcxx=libstdc++11
         SETTINGS compiler.version=9
