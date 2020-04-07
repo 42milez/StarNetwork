@@ -55,7 +55,8 @@ main(int argc, const char **argv)
     cli.add_argument(
         lyra::opt(host_address, "host_address").name("-ha").name("--host-address").help("host address").optional());
     cli.add_argument(lyra::opt(host_port, "host_port").name("-hp").name("--host-port").help("host port").optional());
-    cli.add_argument(lyra::opt(log_file_path, "log_file_path").name("-l").name("--log").help("log file path").optional());
+    cli.add_argument(
+        lyra::opt(log_file_path, "log_file_path").name("-l").name("--log").help("log file path").optional());
     cli.add_argument(lyra::opt(show_version).name("-v").name("--version").help("Show application version").optional());
     cli.add_argument(lyra::help(show_help));
 
@@ -81,17 +82,15 @@ main(int argc, const char **argv)
 
     auto node = std::make_shared<app::Network>();
 
-    core::AsyncWorker node_runner{[&node]{
-      node->Poll();
-    }};
+    core::AsyncWorker node_runner{[&node] { node->Poll(); }};
 
     node_runner.Run();
 
-    core::AsyncWorker message_dispatcher{[&node]{
-      if (node->Peek() > 0) {
-          auto [error, segment] = node->Receive();
-          core::Singleton<core::Logger>::Instance().Info("message: {0}", segment->ToString());
-      }
+    core::AsyncWorker message_dispatcher{[&node] {
+        if (node->Peek() > 0) {
+            auto [error, segment] = node->Receive();
+            core::Singleton<core::Logger>::Instance().Info("message: {0}", segment->ToString());
+        }
     }};
 
     message_dispatcher.Run();

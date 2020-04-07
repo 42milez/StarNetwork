@@ -46,7 +46,9 @@ namespace app
 
         inline size_t
         Peek()
-        { return payloads_.size(); }
+        {
+            return payloads_.size();
+        }
 
       private:
         enum class ConnectionStatus : uint8_t
