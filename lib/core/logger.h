@@ -78,14 +78,14 @@ namespace core
     };
 
 #ifdef DEBUG
-#   define LOG_DEBUG(fmt) core::Singleton<core::Logger>::Instance().Debug(fmt);
-#   define LOG_DEBUG_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Debug(fmt, __VA_ARGS__);
+#define LOG_DEBUG(fmt) core::Singleton<core::Logger>::Instance().Debug(fmt);
+#define LOG_DEBUG_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Debug(fmt, __VA_ARGS__);
 #else
-#   define DEBUG_LOG(fmt, ...)
+#define LOG_DEBUG(fmt)
+#define LOG_DEBUG_VA(fmt, ...)
 #endif
-
+#define LOG_INFO(fmt) core::Singleton<core::Logger>::Instance().Info(fmt);
 #define LOG_INFO_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Info(fmt, __VA_ARGS__);
-
 #define LOG_CRITICAL(fmt) core::Singleton<core::Logger>::Instance().Critical(fmt);
 } // namespace core
 

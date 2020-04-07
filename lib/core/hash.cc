@@ -1,7 +1,7 @@
 #include <string>
 
-#include "network/constants.h"
 #include "hash.h"
+#include "network/constants.h"
 #include "os.h"
 #include "singleton.h"
 

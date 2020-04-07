@@ -215,15 +215,15 @@ Socket::connect(const IpAddress &ip, uint16_t port)
         SocketError err = _get_socket_error();
 
         switch (err) {
-        case SocketError::ERR_NET_IS_CONNECTED:
-            return Error::OK;
-        case SocketError::ERR_NET_WOULD_BLOCK:
-        case SocketError::ERR_NET_IN_PROGRESS:
-            return Error::ERR_BUSY;
-        default:
-            ERR_PRINT("Connection to remote host failed")
-            close();
-            return Error::FAILED;
+            case SocketError::ERR_NET_IS_CONNECTED:
+                return Error::OK;
+            case SocketError::ERR_NET_WOULD_BLOCK:
+            case SocketError::ERR_NET_IN_PROGRESS:
+                return Error::ERR_BUSY;
+            default:
+                ERR_PRINT("Connection to remote host failed")
+                close();
+                return Error::FAILED;
         }
     }
 

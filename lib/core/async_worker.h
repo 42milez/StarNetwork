@@ -20,15 +20,15 @@ namespace core
         inline void
         Run()
         {
-            thread_ = std::thread([this]{
-              auto id = std::this_thread::get_id();
-              std::stringstream ss;
-              ss << id;
-              core::Singleton<core::Logger>::Instance().Debug("worker started (thread {0})", ss.str());
-              while (!deactivate_) {
-                task_();
-              }
-              core::Singleton<core::Logger>::Instance().Debug("worker stopped (thread {0})", ss.str());
+            thread_ = std::thread([this] {
+                auto id = std::this_thread::get_id();
+                std::stringstream ss;
+                ss << id;
+                LOG_DEBUG_VA("worker started (thread {0})", ss.str())
+                while (!deactivate_) {
+                    task_();
+                }
+                LOG_DEBUG_VA("worker stopped (thread {0})", ss.str())
             });
         };
 
@@ -40,13 +40,13 @@ namespace core
             if (thread_.joinable()) {
                 try {
                     thread_.join();
-                    core::Singleton<core::Logger>::Instance().Debug("worker joined");
+                    LOG_DEBUG("worker joined")
                 }
-                catch (std::system_error& e) {
-                    const std::error_code& ec = e.code();
-                    core::Singleton<core::Logger>::Instance().Debug("join failed");
-                    core::Singleton<core::Logger>::Instance().Debug("code: {0}", e.code().value());
-                    core::Singleton<core::Logger>::Instance().Debug("reason: {0}", e.what());
+                catch (std::system_error &e) {
+                    const std::error_code &ec = e.code();
+                    LOG_DEBUG("join failed")
+                    LOG_DEBUG_VA("code: {0}", e.code().value())
+                    LOG_DEBUG_VA("reason: {0}", e.what())
                 }
             }
         }

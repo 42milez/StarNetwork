@@ -16,6 +16,6 @@ namespace core
         ADD_PEER,
         REMOVE_PEER
     };
-} // core
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_NETWORK_SYSTEM_H_

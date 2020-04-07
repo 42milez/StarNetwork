@@ -24,14 +24,14 @@ namespace core
         Exit()
         {
             should_exit_ = true;
-            core::Singleton<core::Logger>::Instance().Info("gracefully shutting down...");
+            LOG_INFO("gracefully shutting down...")
         }
 
         inline void
         Exit(int signum)
         {
             should_exit_ = true;
-            core::Singleton<core::Logger>::Instance().Info("gracefully shutting down... ({0})", signum);
+            LOG_INFO_VA("gracefully shutting down... ({0})", signum)
         }
 
         [[nodiscard]] inline bool
