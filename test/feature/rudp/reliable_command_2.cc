@@ -7,6 +7,7 @@
 #include "lib/rudp/host.h"
 #include "lib/test/util.h"
 
+#include "payload.h"
 #include "var.h"
 
 TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feature][reliable_command][fragment]")

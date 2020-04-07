@@ -4,6 +4,8 @@
 #include <atomic>
 #include <csignal>
 
+#include "lib/core/logger.h"
+
 namespace core
 {
     enum class REGISTER_HANDLER_STATUS
@@ -17,22 +19,14 @@ namespace core
       public:
         ExitHandler();
 
+        void
+        Exit();
+
+        void
+        Exit(int signum);
+
         bool
         Init();
-
-        inline void
-        Exit()
-        {
-            should_exit_ = true;
-            LOG_INFO("gracefully shutting down...")
-        }
-
-        inline void
-        Exit(int signum)
-        {
-            should_exit_ = true;
-            LOG_INFO_VA("gracefully shutting down... ({0})", signum)
-        }
 
         [[nodiscard]] inline bool
         ShouldExit() const

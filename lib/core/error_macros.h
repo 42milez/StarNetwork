@@ -7,7 +7,7 @@
 
 #define ERR_CONTINUE(cond)                                                                                             \
     if (unlikely(cond)) {                                                                                              \
-        LOG_CRITICAL_VA("{0} {1} {2}", __FUNCTION__, __FILE__, __LINE__);                                              \
+        core::Singleton<core::Logger>::Instance().Critical("{0} {1} {2}", __FUNCTION__, __FILE__, __LINE__);                                              \
         continue;                                                                                                      \
     }
 

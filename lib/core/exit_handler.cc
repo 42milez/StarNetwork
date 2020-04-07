@@ -113,4 +113,18 @@ namespace core
 
         return true;
     }
+
+    void
+    ExitHandler::Exit()
+    {
+        should_exit_ = true;
+        LOG_INFO("gracefully shutting down...")
+    }
+
+    void
+    ExitHandler::Exit(int signum)
+    {
+        should_exit_ = true;
+        LOG_INFO_VA("gracefully shutting down... ({0})", signum)
+    }
 } // namespace core
