@@ -352,7 +352,7 @@ namespace rudp
 
         auto received_reliable_sequence_number = cmd->acknowledge.received_reliable_sequence_number;
 
-        core::Singleton<core::Logger>::Instance().Debug("acknowledge was received ({0})",
+        LOG_DEBUG_VA("acknowledge was received ({0})",
                                                         received_reliable_sequence_number);
 
         auto command_number =

@@ -32,7 +32,7 @@ namespace rudp
         inline void
         IncrementOutgoingReliableSequenceNumber()
         {
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "outgoing reliable sequence number was incremented (Channel): {0} -> {1}",
                 outgoing_reliable_sequence_number_, outgoing_reliable_sequence_number_ + 1);
             ++outgoing_reliable_sequence_number_;

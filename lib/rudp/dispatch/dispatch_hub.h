@@ -70,7 +70,7 @@ namespace rudp
         inline void
         recalculate_bandwidth_limits(bool val)
         {
-            core::Singleton<core::Logger>::Instance().Debug("recalculate bandwidth limit: {0}", val);
+            LOG_DEBUG_VA("recalculate bandwidth limit: {0}", val)
             recalculate_bandwidth_limits_ = val;
         }
 

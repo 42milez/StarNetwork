@@ -66,7 +66,7 @@ namespace rudp
 
         received_address.SetIP(ip.GetIPv6(), 16);
 
-        core::Singleton<core::Logger>::Instance().Debug("received length: {0}", read_count);
+        LOG_DEBUG_VA("received length: {0}", read_count)
 
         return read_count;
     }
@@ -82,13 +82,13 @@ namespace rudp
 
         auto size = chamber->Write(out);
 
-        core::Singleton<core::Logger>::Instance().Debug("data wrote: {0}", std::string{out.begin(), out.end()});
+        LOG_DEBUG_VA("data wrote: {0}", std::string{out.begin(), out.end()})
 
         ssize_t sent = 0;
 
         auto err = socket_->sendto(&(out.at(0)), size, sent, dest, address.port());
 
-        core::Singleton<core::Logger>::Instance().Debug("bytes sent: {0}", sent);
+        LOG_DEBUG_VA("bytes sent: {0}", sent)
 
         if (err != Error::OK) {
             if (err == Error::ERR_BUSY)

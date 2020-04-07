@@ -86,7 +86,7 @@ namespace rudp
                 // TODO: call NotifyDisconnect()
                 // ...
 
-                core::Singleton<core::Logger>::Instance().Debug("peer is going to be disconnected (timeout)");
+                LOG_DEBUG("peer is going to be disconnected (timeout)")
 
                 return true;
             }
@@ -100,7 +100,7 @@ namespace rudp
 
             outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *out_cmd);
 
-            core::Singleton<core::Logger>::Instance().Debug("command is going to send next time (timeout): {0}",
+            LOG_DEBUG_VA("command is going to send next time (timeout): {0}",
                                                             COMMANDS_AS_STRING.at((*out_cmd)->CommandNumber()));
 
             if (cur_cmd == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
@@ -118,7 +118,7 @@ namespace rudp
                                                 const std::vector<std::shared_ptr<Channel>> &channels,
                                                 uint32_t service_time)
     {
-        core::Singleton<core::Logger>::Instance().Debug("outgoing reliable command count: {0}",
+        LOG_DEBUG_VA("outgoing reliable command count: {0}",
                                                         outgoing_reliable_commands_.size());
 
         auto window_exceeded = 0;
@@ -222,13 +222,13 @@ namespace rudp
 
             sent_reliable_commands_.push_back(*outgoing_command);
 
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "outgoing reliable command was removed (on send): {0} (ch: {1}, sn: {2})",
                 COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()),
                 (*outgoing_command)->command()->header.channel_id,
                 (*outgoing_command)->command()->header.reliable_sequence_number);
 
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "outgoing reliable command count: {0} ({1})", outgoing_reliable_commands_.size(),
                 (*outgoing_command)->command()->header.reliable_sequence_number);
 
@@ -386,13 +386,13 @@ namespace rudp
 
         if (no_sent_reliable_command_matched) {
             outgoing_reliable_commands_.erase(it);
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "outgoing reliable command was removed (on receive): {0} ({1})",
                 COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()), reliable_sequence_number);
         }
         else {
             sent_reliable_commands_.erase(it);
-            core::Singleton<core::Logger>::Instance().Debug("sent reliable command was removed (on receive): {0} ({1})",
+            LOG_DEBUG_VA("sent reliable command was removed (on receive): {0} ({1})",
                                                             COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
                                                             reliable_sequence_number);
         }
@@ -487,14 +487,14 @@ namespace rudp
 
         if (outgoing_command->IsAcknowledge()) {
             outgoing_reliable_commands_.push_back(outgoing_command);
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "outgoing reliable command was added: {0} ({1})",
                 COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
                 outgoing_command->command()->header.reliable_sequence_number);
         }
         else {
             outgoing_unreliable_commands_.push_back(outgoing_command);
-            core::Singleton<core::Logger>::Instance().Debug("outgoing unreliable command was added: {0} (-)",
+            LOG_DEBUG_VA("outgoing unreliable command was added: {0} (-)",
                                                             COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()));
         }
     }

@@ -254,7 +254,7 @@ namespace rudp
                 auto cmd_body = std::vector<uint8_t>{current_data, end};
 
                 if (cmd_type == RUdpProtocolCommand::ACKNOWLEDGE) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: ACKNOWLEDGE ({0})",
+                    LOG_DEBUG_VA("command was received: ACKNOWLEDGE ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     auto disconnect = [this, checksum](std::shared_ptr<Peer> &peer) {
@@ -266,7 +266,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::CONNECT) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: CONNECT ({0})",
+                    LOG_DEBUG_VA("command was received: CONNECT ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     if (peer) {
@@ -300,7 +300,7 @@ namespace rudp
                                              host_outgoing_bandwidth_);
                 }
                 else if (cmd_type == RUdpProtocolCommand::VERIFY_CONNECT) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: VERIFY_CONNECT ({0})",
+                    LOG_DEBUG_VA("command was received: VERIFY_CONNECT ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR) {
@@ -308,7 +308,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::DISCONNECT) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: DISCONNECT ({0})",
+                    LOG_DEBUG_VA("command was received: DISCONNECT ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR) {
@@ -316,7 +316,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::PING) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: PING ({0})",
+                    LOG_DEBUG_VA("command was received: PING ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandlePing(peer) == Error::ERROR) {
@@ -324,9 +324,9 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_RELIABLE) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_RELIABLE ({0})",
+                    LOG_DEBUG_VA("command was received: SEND_RELIABLE ({0})",
                                                                     cmd->header.reliable_sequence_number);
-                    core::Singleton<core::Logger>::Instance().Debug("received data: {0}",
+                    LOG_DEBUG_VA("received data: {0}",
                                                                     std::string{cmd_body.begin(), cmd_body.end()});
 
                     auto &net = peer->net();
@@ -352,7 +352,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNRELIABLE ({0})",
+                    LOG_DEBUG_VA("command was received: SEND_UNRELIABLE ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
@@ -360,7 +360,7 @@ namespace rudp
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_UNSEQUENCED ({0})",
+                    LOG_DEBUG_VA("command was received: SEND_UNSEQUENCED ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
@@ -368,7 +368,7 @@ namespace rudp
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: SEND_FRAGMENT ({0})",
+                    LOG_DEBUG_VA("command was received: SEND_FRAGMENT ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     auto &net = peer->net();
@@ -393,7 +393,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: BANDWIDTH_LIMIT ({0})",
+                    LOG_DEBUG_VA("command was received: BANDWIDTH_LIMIT ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR) {
@@ -401,7 +401,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::THROTTLE_CONFIGURE) {
-                    core::Singleton<core::Logger>::Instance().Debug("command was received: THROTTLE_CONFIGURE ({0})",
+                    LOG_DEBUG_VA("command was received: THROTTLE_CONFIGURE ({0})",
                                                                     cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
@@ -409,7 +409,7 @@ namespace rudp
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT) {
-                    core::Singleton<core::Logger>::Instance().Debug(
+                    LOG_DEBUG_VA(
                         "command was received: SEND_UNRELIABLE_FRAGMENT ({0})", cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation

@@ -74,8 +74,7 @@ namespace rudp
         {
             prev_service_time_ = service_time_;
             service_time_      = Time::Get();
-            // core::Singleton<core::Logger>::Instance().Debug("service time was updated: {0} ({1})", service_time_,
-            //                                                 service_time_ - prev_service_time_);
+            LOG_DEBUG_VA("service time was updated: {0} ({1})", service_time_, service_time_ - prev_service_time_)
         }
 
       public:

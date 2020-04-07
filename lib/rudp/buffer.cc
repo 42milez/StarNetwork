@@ -83,9 +83,7 @@ namespace rudp
 
             if (protocol) {
                 std::memcpy(&(*it), &(*protocol), size_);
-                core::Singleton<core::Logger>::Instance().Debug(
-                    "command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(),
-                    protocol->header.reliable_sequence_number, size_);
+                LOG_DEBUG_VA("command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(), protocol->header.reliable_sequence_number, size_)
             }
 
             return it + size_;
@@ -96,7 +94,7 @@ namespace rudp
 
         if (size_ > 0) {
             std::memcpy(&(*it), &(payload.at(0)), size_);
-            core::Singleton<core::Logger>::Instance().Debug("payload was copied to buffer (size: {0})", size_);
+            LOG_DEBUG_VA("payload was copied to buffer (size: {0})", size_)
         }
 
         return it + size_;

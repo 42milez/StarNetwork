@@ -237,8 +237,7 @@ namespace rudp
 
         acknowledgements_.push_back(ack);
 
-        core::Singleton<core::Logger>::Instance().Debug("command was queued: ACKNOWLEDGE ({0})",
-                                                        cmd->header.reliable_sequence_number);
+        LOG_DEBUG_VA("command was queued: ACKNOWLEDGE ({0})", cmd->header.reliable_sequence_number)
     }
 
     namespace
@@ -306,13 +305,13 @@ namespace rudp
         if (cmd_type == RUdpProtocolCommand::PING) {
             auto host = address_.host();
             auto port = address_.port();
-            core::Singleton<core::Logger>::Instance().Debug(
+            LOG_DEBUG_VA(
                 "command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
                 outgoing_command->command()->header.reliable_sequence_number, host.at(12), host.at(13), host.at(14),
                 host.at(15), port);
         }
         else {
-            core::Singleton<core::Logger>::Instance().Debug("command was queued: {0}",
+            LOG_DEBUG_VA("command was queued: {0}",
                                                             COMMANDS_AS_STRING.at(static_cast<uint8_t>(cmd_type)));
         }
     }
@@ -355,8 +354,8 @@ namespace rudp
         uint8_t command_number;
         uint16_t start_sequence_number;
 
-        core::Singleton<core::Logger>::Instance().Debug("data length: {0}", data_length);
-        core::Singleton<core::Logger>::Instance().Debug("fragment length: {0}", fragment_length);
+        LOG_DEBUG_VA("data length: {0}", data_length)
+        LOG_DEBUG_VA("fragment length: {0}", fragment_length)
 
         if (data_length > fragment_length) {
             auto fragment_count = (data_length + fragment_length - 1) / fragment_length;
@@ -371,13 +370,11 @@ namespace rudp
                 channel->outgoing_unreliable_sequence_number() < 0xFFFF) {
                 command_number        = static_cast<uint8_t>(RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT);
                 start_sequence_number = channel->outgoing_unreliable_sequence_number() + 1;
-                core::Singleton<core::Logger>::Instance().Debug("**********");
             }
             else {
                 command_number = static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) |
                                  static_cast<uint16_t>(RUdpProtocolFlag::COMMAND_ACKNOWLEDGE);
                 start_sequence_number = channel->outgoing_reliable_sequence_number() + 1;
-                core::Singleton<core::Logger>::Instance().Debug("**********");
             }
 
             std::list<std::shared_ptr<OutgoingCommand>> fragments;

@@ -76,6 +76,17 @@ namespace core
       private:
         std::shared_ptr<spdlog::logger> sinks_;
     };
+
+#ifdef DEBUG
+#   define LOG_DEBUG(fmt) core::Singleton<core::Logger>::Instance().Debug(fmt);
+#   define LOG_DEBUG_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Debug(fmt, __VA_ARGS__);
+#else
+#   define DEBUG_LOG(fmt, ...)
+#endif
+
+#define LOG_INFO_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Info(fmt, __VA_ARGS__);
+
+#define LOG_CRITICAL(fmt) core::Singleton<core::Logger>::Instance().Critical(fmt);
 } // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_LOGGER_H_
