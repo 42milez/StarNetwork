@@ -1,9 +1,9 @@
 #ifndef P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
 #define P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
 
+#include <deque>
 #include <list>
 #include <memory>
-#include <deque>
 #include <tuple>
 
 #include "lib/core/errors.h"
@@ -131,7 +131,7 @@ namespace rudp
         void
         PushIncomingCommandsToDispatchQueue(const std::vector<std::shared_ptr<IncomingCommand>> &commands)
         {
-            for (auto it = commands.rbegin(); it != commands.rend(); ++it ) {
+            for (auto it = commands.rbegin(); it != commands.rend(); ++it) {
                 dispatched_commands_.push_front((*it));
             }
         }

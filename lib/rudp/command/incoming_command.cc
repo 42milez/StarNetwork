@@ -22,7 +22,7 @@ namespace rudp
             fragments_.resize(val);
         }
         catch (std::bad_alloc &e) {
-            LOG_CRITICAL("BAD ALLOCATION");
+            LOG_CRITICAL("BAD ALLOCATION")
 
             return Error::CANT_ALLOCATE;
         }

@@ -16,7 +16,9 @@ namespace rudp
 
         inline core::SysCh
         Channel()
-        { return static_cast<core::SysCh>(channel_id_); }
+        {
+            return static_cast<core::SysCh>(channel_id_);
+        }
 
         inline std::string
         DataAsString()
@@ -44,11 +46,15 @@ namespace rudp
 
         inline uint32_t
         ReceiverId()
-        { return segment_->ExtractByte(4); }
+        {
+            return segment_->ExtractByte(4);
+        }
 
         inline uint32_t
         SenderId()
-        { return segment_->ExtractByte(0); }
+        {
+            return segment_->ExtractByte(0);
+        }
 
         inline bool
         TypeIs(EventType val)
@@ -101,7 +107,9 @@ namespace rudp
 
         inline std::shared_ptr<Segment>
         segment()
-        { return segment_; }
+        {
+            return segment_;
+        }
 
         inline void
         segment(std::shared_ptr<Segment> &val)

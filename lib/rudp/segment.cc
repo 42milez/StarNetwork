@@ -2,10 +2,10 @@
 
 #include <arpa/inet.h>
 
+#include "enum.h"
 #include "lib/core/logger.h"
 #include "lib/core/network/system.h"
 #include "lib/core/singleton.h"
-#include "enum.h"
 #include "segment.h"
 
 namespace rudp
@@ -23,7 +23,7 @@ namespace rudp
                 buffer_pos_ = data->size();
             }
             catch (std::bad_alloc &e) {
-                LOG_CRITICAL("BAD ALLOCATION");
+                LOG_CRITICAL("BAD ALLOCATION")
                 throw e;
             }
         }
@@ -42,7 +42,7 @@ namespace rudp
                 buffer_pos_ = data->size();
             }
             catch (std::bad_alloc &e) {
-                LOG_CRITICAL("BAD ALLOCATION");
+                LOG_CRITICAL("BAD ALLOCATION")
                 throw e;
             }
         }

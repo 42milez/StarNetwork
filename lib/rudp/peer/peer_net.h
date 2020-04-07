@@ -107,8 +107,7 @@ namespace rudp
         inline void
         state(const RUdpPeerState &val)
         {
-            LOG_DEBUG_VA("peer state was changed: {0} -> {1}",
-                                                            PeerStateAsString(state_), PeerStateAsString(val));
+            LOG_DEBUG_VA("peer state was changed: {0} -> {1}", PeerStateAsString(state_), PeerStateAsString(val))
             state_ = val;
         }
 

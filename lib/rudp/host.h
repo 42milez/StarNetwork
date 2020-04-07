@@ -4,9 +4,9 @@
 #include <functional>
 #include <vector>
 
+#include "connection.h"
 #include "lib/core/network/system.h"
 #include "lib/rudp/peer/peer_pod.h"
-#include "connection.h"
 #include "network_config.h"
 
 namespace rudp
@@ -47,7 +47,9 @@ namespace rudp
 
         inline void
         Flush()
-        { peer_pod_->Flush(nullptr); }
+        {
+            peer_pod_->Flush(nullptr);
+        }
 
         inline std::shared_ptr<Peer>
         PeerPtr(size_t idx)

@@ -305,14 +305,12 @@ namespace rudp
         if (cmd_type == RUdpProtocolCommand::PING) {
             auto host = address_.host();
             auto port = address_.port();
-            LOG_DEBUG_VA(
-                "command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
-                outgoing_command->command()->header.reliable_sequence_number, host.at(12), host.at(13), host.at(14),
-                host.at(15), port);
+            LOG_DEBUG_VA("command was queued: PING ({0}) to {1}.{2}.{3}.{4}:{5}",
+                         outgoing_command->command()->header.reliable_sequence_number, host.at(12), host.at(13),
+                         host.at(14), host.at(15), port)
         }
         else {
-            LOG_DEBUG_VA("command was queued: {0}",
-                                                            COMMANDS_AS_STRING.at(static_cast<uint8_t>(cmd_type)));
+            LOG_DEBUG_VA("command was queued: {0}", COMMANDS_AS_STRING.at(static_cast<uint8_t>(cmd_type)))
         }
     }
 

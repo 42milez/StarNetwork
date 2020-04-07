@@ -83,7 +83,8 @@ namespace rudp
 
             if (protocol) {
                 std::memcpy(&(*it), &(*protocol), size_);
-                LOG_DEBUG_VA("command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(), protocol->header.reliable_sequence_number, size_)
+                LOG_DEBUG_VA("command was copied to buffer: {0} (sn: {1}, size: {2})", ProtocolCommandAsString(),
+                             protocol->header.reliable_sequence_number, size_)
             }
 
             return it + size_;
