@@ -1,17 +1,17 @@
 #ifdef __APPLE__
 #include <sys/event.h>
 #endif
-#include <unistd.h>
 #include <ctime>
+#include <unistd.h>
 
 #include "event_poll.h"
 
 namespace
 {
     const int CANNOT_CREATE_EVENT_QUEUE = -1;
-    const int CANNOT_REGISTER_EVENT = -1;
-    const int CANNOT_READ_EVENT = -1;
-    const int READ_EVENT_TIMEOUT = 0;
+    const int CANNOT_REGISTER_EVENT     = -1;
+    const int CANNOT_READ_EVENT         = -1;
+    const int READ_EVENT_TIMEOUT        = 0;
 
     const int N_EVENT = 10;
 
@@ -19,10 +19,8 @@ namespace
     bool
     is_socket_read(int sock, struct kevent events[], int nfds)
     {
-        for (auto i = 0; i < nfds; i++)
-        {
-            if (events[i].ident == sock)
-            {
+        for (auto i = 0; i < nfds; i++) {
+            if (events[i].ident == sock) {
                 return true;
             }
         }
@@ -32,23 +30,18 @@ namespace
 #else
     /* Linux */
 #endif
-}
+} // namespace
 
 Error
 EventPoll::register_event(const SOCKET_PTR &sock)
 {
 #ifdef __APPLE__
-    struct kevent event{
-        static_cast<uintptr_t>(sock->_sock),
-        EVFILT_READ,
-        EV_ADD | EV_CLEAR,
-        0,
-        0,
-        nullptr
+    struct kevent event
+    {
+        static_cast<uintptr_t>(sock->_sock), EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, nullptr
     };
 
-    if (kevent(_fd, &event, 1, nullptr, 0, nullptr) == CANNOT_REGISTER_EVENT)
-    {
+    if (kevent(_fd, &event, 1, nullptr, 0, nullptr) == CANNOT_REGISTER_EVENT) {
         return Error::FAILED;
     }
 #else
@@ -69,27 +62,21 @@ EventPoll::wait_for_receiving(const std::vector<SOCKET_PTR> &in_sockets, std::ve
 
     auto nfds = kevent(_fd, nullptr, 0, events, N_EVENT, nullptr);
 
-    if (nfds == CANNOT_READ_EVENT)
-    {
+    if (nfds == CANNOT_READ_EVENT) {
         return Error::FAILED;
     }
-    else if (nfds == READ_EVENT_TIMEOUT)
-    {
+    else if (nfds == READ_EVENT_TIMEOUT) {
         // TODO: handle timeout
         // ...
 
         return Error::FAILED;
     }
-    else
-    {
-        for (auto i = 0; i < nfds; i++)
-        {
+    else {
+        for (auto i = 0; i < nfds; i++) {
             auto s = events[i].ident;
 
-            for (const auto &sock : in_sockets)
-            {
-                if (s == sock->_sock)
-                {
+            for (const auto &sock : in_sockets) {
+                if (s == sock->_sock) {
                     out_sockets.push_back(sock);
                 }
             }
@@ -107,8 +94,7 @@ EventPoll::EventPoll()
 #ifdef __APPLE__
     _fd = kqueue();
 
-    if (_fd == CANNOT_CREATE_EVENT_QUEUE)
-    {
+    if (_fd == CANNOT_CREATE_EVENT_QUEUE) {
         // TODO: logging
         // ...
     }

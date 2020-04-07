@@ -4,8 +4,7 @@ COLOR_ERROR="\033[0;31m[ERROR]\033[0;39m"
 COLOR_INFO="\033[0;32m[INFO]\033[0;39m"
 COLOR_WARN="\033[0;33m[WARN]\033[0;39m"
 
-CONSOLE()
-{
+CONSOLE() {
   CALLER=${FUNCNAME[1]}
 
   if [[ ${#} -ne 2 ]]; then
@@ -20,67 +19,59 @@ CONSOLE()
     WITHOUT_LINE_BREAK=false
   fi
 
-  if "${WITHOUT_LINE_BREAK}" ; then
+  if "${WITHOUT_LINE_BREAK}"; then
     echo -e -n "${MESSAGE}"
   else
     echo -e "${MESSAGE}"
   fi
 }
 
-CONSOLE_ERROR()
-{
+CONSOLE_ERROR() {
   MESSAGE=${1}
   CONSOLE "${COLOR_ERROR} ${MESSAGE}" false
 }
 
-CONSOLE_ERROR_NOBR()
-{
+CONSOLE_ERROR_NOBR() {
   MESSAGE=${1}
   CONSOLE "${COLOR_ERROR} ${MESSAGE}" true
 }
 
-CONSOLE_INFO()
-{
+CONSOLE_INFO() {
   MESSAGE=${1}
   CONSOLE "${COLOR_INFO} ${MESSAGE}" false
 }
 
-CONSOLE_INFO_NOBR()
-{
+CONSOLE_INFO_NOBR() {
   MESSAGE=${1}
   CONSOLE "${COLOR_INFO} ${MESSAGE}" true
 }
 
-CONSOLE_PLAIN()
-{
+CONSOLE_PLAIN() {
   MESSAGE=${1}
   CONSOLE "${MESSAGE}" false
 }
 
-CONSOLE_PLAIN_NOBR()
-{
+CONSOLE_PLAIN_NOBR() {
   MESSAGE=${1}
   CONSOLE "${MESSAGE}" true
 }
 
-CONSOLE_WARN()
-{
+CONSOLE_WARN() {
   MESSAGE=${1}
   CONSOLE "${COLOR_WARN} ${MESSAGE}" false
 }
 
-CONSOLE_WARN_NOBR()
-{
+CONSOLE_WARN_NOBR() {
   MESSAGE=${1}
   CONSOLE "${COLOR_WARN} ${MESSAGE}" true
 }
 
 # https://stackoverflow.com/questions/2575037/how-to-get-the-cursor-position-in-bash
 CURSOR_HORIZONTAL_POSITION() {
-  exec < /dev/tty
+  exec </dev/tty
   oldstty=$(stty -g)
   stty raw -echo min 0
-  echo -en "\033[6n" > /dev/tty
+  echo -en "\033[6n" >/dev/tty
   IFS=';' read -r -d R -a pos
   stty $oldstty
   row=$((${pos[0]:2} - 1)) # strip off the esc-[
@@ -89,19 +80,17 @@ CURSOR_HORIZONTAL_POSITION() {
   echo "${row}"
 }
 
-LINE_BREAK_IF_CURSOR_MOVED()
-{
+LINE_BREAK_IF_CURSOR_MOVED() {
   if [[ $(CURSOR_HORIZONTAL_POSITION) -ne 0 ]]; then
-  {
-    echo ''
-  }
+    {
+      echo ''
+    }
   fi
 }
 
-LOG()
-{
+LOG() {
   MESSAGE=${1}
   LOG_FILE_PATH=${2}
 
-  echo "[$(date)] ${MESSAGE}" >> "${LOG_FILE_PATH}"
+  echo "[$(date)] ${MESSAGE}" >>"${LOG_FILE_PATH}"
 }

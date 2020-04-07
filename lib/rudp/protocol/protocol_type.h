@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
-#define P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_
+#define P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_
 
 #include <cstdint>
 #include <memory>
@@ -118,8 +118,7 @@ namespace rudp
         uint32_t segment_throttle_deceleration;
     };
 
-    using ProtocolType = union ProtocolType
-    {
+    using ProtocolType = union ProtocolType {
         ProtocolCommandHeader header;
         ProtocolAcknowledge acknowledge;
         ProtocolConnect connect;
@@ -136,11 +135,11 @@ namespace rudp
 
     using ProtocolTypeSP = std::shared_ptr<ProtocolType>;
 
-    ProtocolHeader*
-    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader* header);
+    ProtocolHeader *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolHeader *header);
 
-    ProtocolType*
-    ConvertNetworkByteOrderToHostByteOrder(ProtocolType* cmd);
+    ProtocolType *
+    ConvertNetworkByteOrderToHostByteOrder(ProtocolType *cmd);
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPPROTOCOLTYPE_H
+#endif // P2P_TECHDEMO_LIB_RUDP_PROTOCOL_PROTOCOL_TYPE_H_

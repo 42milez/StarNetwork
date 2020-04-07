@@ -1,6 +1,3 @@
-#include <fstream>
-#include <iostream>
-
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
@@ -8,58 +5,32 @@
 
 namespace core
 {
-Logger::Logger() : debug_() {}
-
-bool
-Logger::Init(const std::string &logger_name)
-{
-    try
+    Logger::Logger()
+        : sinks_()
     {
         spdlog::stdout_color_mt("stdout");
         spdlog::stderr_color_mt("stderr");
-    }
-    catch (const spdlog::spdlog_ex &ex)
-    {
-        return false;
-    }
+        spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%^---%L---%$][thread %t] %v");
 
 #ifdef DEBUG
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
-    debug_ = true;
+        spdlog::set_level(spdlog::level::debug);
 #else
-    spdlog::set_level(spdlog::level::info);
-    spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%n][%^---%L---%$][thread %t] %v");
+        spdlog::set_level(spdlog::level::info);
 #endif
+    }
 
-    return true;
-}
+    void
+    Logger::EnableFileLogger(const std::string &log_file_path)
+    {
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(spdlog::level::warn);
 
-//bool
-//Logger::Init(const std::string &logger_name, const std::string &path)
-//{
-//    std::ofstream{path};
-//
-//    std::filesystem::file_status status = std::filesystem::status(path);
-//
-//    if (status.type() != std::filesystem::file_type::regular)
-//        return false;
-//
-//    try
-//    {
-//        file_ = spdlog::basic_logger_mt(logger_name, path);
-//    }
-//    catch (const spdlog::spdlog_ex &ex)
-//    {
-//        return false;
-//    }
-//
-//#ifdef DEBUG
-//    file_->set_level(spdlog::level::debug);
-//#else
-//    file_->set_level(spdlog::level::info);
-//#endif
-//
-//    return true;
-//}
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path, true);
+        file_sink->set_level(spdlog::level::trace);
+
+        sinks_ = std::make_shared<spdlog::logger>(spdlog::logger("p2p_techdemo", {console_sink, file_sink}));
+
+        sinks_->flush_on(spdlog::level::trace);
+        sinks_->set_level(spdlog::level::trace);
+    }
 } // namespace core

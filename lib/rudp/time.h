@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPTIME_H
-#define P2P_TECHDEMO_RUDPTIME_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_TIME_H_
+#define P2P_TECHDEMO_LIB_RUDP_TIME_H_
 
 #include <cstdint>
 
@@ -10,27 +10,31 @@ namespace rudp
 {
     class Time
     {
-    public:
+      public:
         Time() = delete;
 
         ~Time() = delete;
 
-        Time(const Time&) = delete;
+        Time(const Time &) = delete;
 
-        Time(Time&&) = delete;
+        Time(Time &&) = delete;
 
-        Time& operator=(const Time&) = delete;
+        Time &
+        operator=(const Time &) = delete;
 
-        Time& operator=(Time&&) = delete;
+        Time &
+        operator=(Time &&) = delete;
 
-    public:
-        static uint32_t Get();
+      public:
+        static uint32_t
+        Get();
 
-        static void Set(uint32_t new_time_base);
+        static void
+        Set(uint32_t new_time_base);
 
-    private:
+      private:
         static uint32_t time_base_;
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPTIME_H
+#endif // P2P_TECHDEMO_LIB_RUDP_TIME_H_

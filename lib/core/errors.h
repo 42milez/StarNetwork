@@ -1,7 +1,8 @@
-#ifndef P2P_TECHDEMO_CORE_ERRORS_H
-#define P2P_TECHDEMO_CORE_ERRORS_H
+#ifndef P2P_TECHDEMO_LIB_CORE_ERRORS_H_
+#define P2P_TECHDEMO_LIB_CORE_ERRORS_H_
 
-enum class Error : int {
+enum class Error : int
+{
     ERR_ALREADY_IN_USE,
     ERR_BUSY,
     CANT_ALLOCATE,
@@ -15,4 +16,4 @@ enum class Error : int {
     OK
 };
 
-#endif // P2P_TECHDEMO_CORE_ERRORS_H
+#endif // P2P_TECHDEMO_LIB_CORE_ERRORS_H_

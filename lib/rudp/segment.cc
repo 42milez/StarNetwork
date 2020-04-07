@@ -1,53 +1,48 @@
-#ifdef __linux__
-#include <arpa/inet.h>
-#endif
+#include <cstring>
 
-#include "lib/core/logger.h"
-#include "lib/core/singleton.h"
+#include <arpa/inet.h>
+
 #include "enum.h"
+#include "lib/core/logger.h"
+#include "lib/core/network/system.h"
+#include "lib/core/singleton.h"
 #include "segment.h"
 
 namespace rudp
 {
-    Segment::Segment(VecUInt8& data, uint32_t flags)
-            : buffer_pos_(),
-              flags_(flags),
-              free_callback_(),
-              user_data_()
+    Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags)
+        : buffer_pos_()
+        , flags_(flags)
+        , free_callback_()
+        , user_data_()
     {
-        if (!data.empty())
-        {
-            try
-            {
-                data_.resize(data.size());
-                std::copy(data.begin(), data.end(), data_.begin());
-                buffer_pos_ = data.size();
+        if (data && !data->empty()) {
+            try {
+                data_.resize(data->size());
+                std::copy(data->begin(), data->end(), data_.begin());
+                buffer_pos_ = data->size();
             }
-            catch (std::bad_alloc& e)
-            {
-                core::Singleton<core::Logger>::Instance().Critical("BAD ALLOCATION");
+            catch (std::bad_alloc &e) {
+                LOG_CRITICAL("BAD ALLOCATION")
                 throw e;
             }
         }
     }
 
-    Segment::Segment(VecUInt8& data, uint32_t flags, uint32_t buffer_size)
-            : buffer_pos_(),
-              flags_(flags),
-              free_callback_(),
-              user_data_()
+    Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags, uint32_t buffer_size)
+        : buffer_pos_()
+        , flags_(flags)
+        , free_callback_()
+        , user_data_()
     {
-        if (!data.empty())
-        {
-            try
-            {
+        if (data && !data->empty()) {
+            try {
                 data_.resize(buffer_size);
-                std::copy(data.begin(), data.end(), data_.begin() + buffer_pos_);
-                buffer_pos_ = data.size();
+                std::copy(data->begin(), data->end(), data_.begin() + buffer_pos_);
+                buffer_pos_ = data->size();
             }
-            catch (std::bad_alloc& e)
-            {
-                core::Singleton<core::Logger>::Instance().Critical("BAD ALLOCATION");
+            catch (std::bad_alloc &e) {
+                LOG_CRITICAL("BAD ALLOCATION")
                 throw e;
             }
         }
@@ -64,7 +59,7 @@ namespace rudp
     }
 
     void
-    Segment::AddSysMsg(SysMsg msg)
+    Segment::AddSysMsg(core::SysMsg msg)
     {
         auto msg_encoded = htonl(static_cast<uint32_t>(msg));
 

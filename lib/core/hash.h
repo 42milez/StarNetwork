@@ -1,14 +1,16 @@
-#ifndef P2P_TECHDEMO_CORE_HASH_H
-#define P2P_TECHDEMO_CORE_HASH_H
+#ifndef P2P_TECHDEMO_LIB_CORE_HASH_H_
+#define P2P_TECHDEMO_LIB_CORE_HASH_H_
 
 #include <cstdint>
 
 namespace core
 {
-class Hash {
- public:
-  uint32_t uniqueID();
-};
-}
+    class Hash
+    {
+      public:
+        uint32_t
+        uniqueID();
+    };
+} // namespace core
 
-#endif // P2P_TECHDEMO_CORE_HASH_H
+#endif // P2P_TECHDEMO_LIB_CORE_HASH_H_

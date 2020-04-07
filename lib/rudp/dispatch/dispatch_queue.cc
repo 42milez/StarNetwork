@@ -13,7 +13,7 @@ namespace rudp
     }
 
     void
-    DispatchQueue::Enqueue(std::shared_ptr<Peer>& peer)
+    DispatchQueue::Enqueue(std::shared_ptr<Peer> &peer)
     {
         queue_.push(peer);
     }

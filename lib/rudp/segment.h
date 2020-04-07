@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPSEGMENT_H
-#define P2P_TECHDEMO_RUDPSEGMENT_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_
+#define P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -7,67 +7,93 @@
 #include <vector>
 
 #include "enum.h"
+#include "lib/core/encode.h"
+#include "lib/core/network/system.h"
 #include "type.h"
 
 namespace rudp
 {
     class Segment
     {
-    public:
-        Segment(VecUInt8& data, uint32_t flags);
+      public:
+        Segment(const std::vector<uint8_t> *data, uint32_t flags);
 
-        Segment(VecUInt8& data, uint32_t flags, uint32_t buffer_size);
+        Segment(const std::vector<uint8_t> *data, uint32_t flags, uint32_t buffer_size);
 
         void
         AddPeerIdx(uint32_t peer_idx);
 
         void
-        AddSysMsg(SysMsg msg);
+        AddSysMsg(core::SysMsg msg);
 
         void
         Destroy();
 
         inline uint32_t
         AddFlag(uint32_t flag)
-        { return flags_ |= flag; }
+        {
+            return flags_ |= flag;
+        }
 
         inline void
-        AppendData(std::vector<uint8_t>& fragment)
+        AppendData(std::vector<uint8_t> &fragment)
         {
+            if (buffer_pos_ + fragment.size() > data_.capacity()) {
+                data_.resize(data_.size() + fragment.size());
+            }
+
             std::copy(fragment.begin(), fragment.end(), data_.begin() + buffer_pos_);
             buffer_pos_ += fragment.size();
         }
 
-        inline VecUInt8
+        inline std::vector<uint8_t>
         Data()
-        { return data_; }
+        {
+            return data_;
+        }
 
-        inline VecUInt8
+        inline std::vector<uint8_t>
         Data(size_t offset, size_t size)
         {
-            VecUInt8 ret(size);
+            std::vector<uint8_t> ret(size);
             auto begin = data_.begin() + offset;
-            auto end = begin + size;
+            auto end   = begin + size;
             std::copy(begin, end, ret.begin());
             return ret;
         }
 
         inline size_t
         DataLength()
-        { return data_.size() * sizeof(uint8_t); }
+        {
+            return buffer_pos_ * sizeof(uint8_t);
+        }
 
-    public:
+        inline uint32_t
+        ExtractByte(size_t offset)
+        {
+            return core::DecodeUint32(data_, offset);
+        }
+
+        inline std::string
+        ToString()
+        {
+            return std::string{data_.begin(), data_.end()};
+        }
+
+      public:
         inline uint32_t
         flags()
-        { return flags_; }
+        {
+            return flags_;
+        }
 
-    private:
-        VecUInt8 data_;
-        VecUInt8 user_data_;
+      private:
+        std::vector<uint8_t> data_;
+        std::vector<uint8_t> user_data_;
 
         size_t buffer_pos_;
 
-        std::function<void(Segment*)> free_callback_;
+        std::function<void(Segment *)> free_callback_;
 
         uint32_t flags_;
     };
@@ -75,4 +101,4 @@ namespace rudp
     using SegmentSP = std::shared_ptr<Segment>;
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPSEGMENT_H
+#endif // P2P_TECHDEMO_LIB_RUDP_SEGMENT_H_

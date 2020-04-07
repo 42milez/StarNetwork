@@ -1,36 +1,33 @@
-#ifndef P2P_TECHDEMO_RUDPCOMMANDPOD_H
-#define P2P_TECHDEMO_RUDPCOMMANDPOD_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_
+#define P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_
 
 #include <array>
 #include <list>
 #include <map>
 #include <memory>
 
-#include "lib/rudp/peer/peer_net.h"
+#include "command.h"
 #include "lib/rudp/chamber.h"
 #include "lib/rudp/channel.h"
-#include "command.h"
+#include "lib/rudp/peer/peer_net.h"
 
 namespace rudp
 {
     class CommandPod
     {
-    public:
+      public:
         CommandPod();
 
         bool
-        LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber,
-                std::unique_ptr<PeerNet>& net,
-                const std::vector<std::shared_ptr<Channel>>& channels,
-                uint32_t service_time);
+        LoadReliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<PeerNet> &net,
+                                        const std::vector<std::shared_ptr<Channel>> &channels, uint32_t service_time);
 
         bool
-        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber>& chamber, std::unique_ptr<PeerNet>& net);
+        LoadUnreliableCommandsIntoChamber(std::unique_ptr<Chamber> &chamber, std::unique_ptr<PeerNet> &net);
 
         RUdpProtocolCommand
-        RemoveSentReliableCommand(uint16_t reliable_sequence_number,
-                uint8_t channel_id,
-                std::shared_ptr<Channel>& channel);
+        RemoveSentReliableCommand(uint16_t reliable_sequence_number, uint8_t channel_id,
+                                  std::shared_ptr<Channel> &channel);
 
         void
         RemoveSentUnreliableCommands();
@@ -39,115 +36,151 @@ namespace rudp
         Reset();
 
         void
-        SetupOutgoingCommand(std::shared_ptr<OutgoingCommand>& outgoing_command,
-                const std::shared_ptr<Channel>& channel);
+        SetupOutgoingCommand(std::shared_ptr<OutgoingCommand> &outgoing_command,
+                             const std::shared_ptr<Channel> &channel);
 
         bool
-        Timeout(const std::unique_ptr<PeerNet>& net, uint32_t service_time);
+        Timeout(const std::unique_ptr<PeerNet> &net, uint32_t service_time);
 
         inline void
         ClearOutgoingReliableCommand()
-        { outgoing_reliable_commands_.clear(); };
+        {
+            outgoing_reliable_commands_.clear();
+        };
 
         inline void
         ClearOutgoingUnreliableCommand()
-        { outgoing_unreliable_commands_.clear(); };
+        {
+            outgoing_unreliable_commands_.clear();
+        };
 
         inline void
         ClearSentReliableCommand()
-        { sent_reliable_commands_.clear(); };
+        {
+            sent_reliable_commands_.clear();
+        };
 
         inline void
         ClearSentUnreliableCommand()
-        { sent_unreliable_commands_.clear(); };
+        {
+            sent_unreliable_commands_.clear();
+        };
 
         inline void
         IncrementIncomingDataTotal(uint32_t val)
-        { incoming_data_total_ += val; }
+        {
+            incoming_data_total_ += val;
+        }
 
         inline void
         IncrementOutgoingDataTotal(uint32_t val)
-        { outgoing_data_total_ += val; }
+        {
+            outgoing_data_total_ += val;
+        }
 
         inline void
         IncrementOutgoingReliableSequenceNumber()
         {
-            core::Singleton<core::Logger>::Instance().Debug(
-                    "outgoing reliable sequence number was incremented (CommandPod): {0} -> {1}",
-                    outgoing_reliable_sequence_number_,
-                    outgoing_reliable_sequence_number_ + 1);
+            LOG_DEBUG_VA("outgoing reliable sequence number was incremented (CommandPod): {0} -> {1}",
+                         outgoing_reliable_sequence_number_, outgoing_reliable_sequence_number_ + 1)
             ++outgoing_reliable_sequence_number_;
         }
 
         inline void
         IncrementReliableDataInTransit(uint32_t val)
-        { reliable_data_in_transit_ += val; };
+        {
+            reliable_data_in_transit_ += val;
+        };
 
-        inline
-        std::map<std::string, std::list<std::shared_ptr<OutgoingCommand>>>
+        inline std::map<std::string, std::list<std::shared_ptr<OutgoingCommand>>>
         Inspect()
         {
             std::map<std::string, std::list<std::shared_ptr<OutgoingCommand>>> ret{
-                    { "sent_reliable_commands",     sent_reliable_commands_ },
-                    { "outgoing_reliable_commands", outgoing_reliable_commands_ }
-            };
+                {"sent_reliable_commands", sent_reliable_commands_},
+                {"outgoing_reliable_commands", outgoing_reliable_commands_}};
             return ret;
         }
 
         inline uint32_t
         NextTimeout()
-        { return next_timeout_; };
+        {
+            return next_timeout_;
+        };
 
         inline bool
         OutgoingReliableCommandExists()
-        { return !outgoing_reliable_commands_.empty(); };
+        {
+            return !outgoing_reliable_commands_.empty();
+        };
 
         inline bool
         OutgoingReliableCommandNotExists()
-        { return outgoing_reliable_commands_.empty(); };
+        {
+            return outgoing_reliable_commands_.empty();
+        };
 
         inline bool
         OutgoingUnreliableCommandExists()
-        { return !outgoing_unreliable_commands_.empty(); };
+        {
+            return !outgoing_unreliable_commands_.empty();
+        };
 
         inline bool
         OutgoingUnreliableCommandNotExists()
-        { return outgoing_unreliable_commands_.empty(); };
+        {
+            return outgoing_unreliable_commands_.empty();
+        };
 
         inline bool
         SentReliableCommandExists()
-        { return !sent_reliable_commands_.empty(); };
+        {
+            return !sent_reliable_commands_.empty();
+        };
 
         inline bool
         SentReliableCommandNotExists()
-        { return sent_reliable_commands_.empty(); };
+        {
+            return sent_reliable_commands_.empty();
+        };
 
-    public:
+      public:
         inline void
         earliest_timeout(uint32_t val)
-        { earliest_timeout_ = val; }
+        {
+            earliest_timeout_ = val;
+        }
 
         inline uint32_t
         outgoing_data_total()
-        { return outgoing_data_total_; };
+        {
+            return outgoing_data_total_;
+        };
 
         inline uint32_t
         round_trip_time()
-        { return round_trip_time_; }
+        {
+            return round_trip_time_;
+        }
 
         inline void
         round_trip_time(uint32_t val)
-        { round_trip_time_ = val; }
+        {
+            round_trip_time_ = val;
+        }
 
         inline uint32_t
         round_trip_time_variance()
-        { return round_trip_time_variance_; }
+        {
+            return round_trip_time_variance_;
+        }
 
         inline void
         round_trip_time_variance(uint32_t val)
-        { round_trip_time_variance_ = val; }
+        {
+            round_trip_time_variance_ = val;
+        }
 
-    private:
+      private:
         std::list<std::shared_ptr<OutgoingCommand>> outgoing_reliable_commands_;
         std::list<std::shared_ptr<OutgoingCommand>> outgoing_unreliable_commands_;
         std::list<std::shared_ptr<OutgoingCommand>> sent_reliable_commands_;
@@ -164,7 +197,7 @@ namespace rudp
         uint32_t earliest_timeout_;
         uint32_t next_timeout_;
         uint32_t reliable_data_in_transit_;
-        uint32_t round_trip_time_;          // mean round trip time (RTT), in milliseconds, between sending a reliable
+        uint32_t round_trip_time_; // mean round trip time (RTT), in milliseconds, between sending a reliable
         // packet and receiving its acknowledgement
         uint32_t round_trip_time_variance_;
         uint32_t timeout_limit_;
@@ -173,4 +206,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPCOMMANDPOD_H
+#endif // P2P_TECHDEMO_LIB_RUDP_COMMAND_COMMAND_POD_H_

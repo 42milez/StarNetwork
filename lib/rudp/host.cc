@@ -1,27 +1,23 @@
 #include "lib/core/hash.h"
 
-#include "lib/rudp/peer/peer_pod.h"
-#include "macro.h"
 #include "event.h"
 #include "host.h"
+#include "lib/rudp/peer/peer_pod.h"
+#include "macro.h"
 
 namespace rudp
 {
-    Host::Host(const NetworkConfig& address,
-            SysCh channel_count,
-            size_t peer_count,
-            uint32_t in_bandwidth,
-            uint32_t out_bandwidth)
-            : channel_count_(channel_count),
-              checksum_(),
-              conn_(std::make_shared<Connection>(address)),
-              incoming_bandwidth_(in_bandwidth),
-              maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE),
-              mtu_(HOST_DEFAULT_MTU),
-              outgoing_bandwidth_(out_bandwidth)
+    Host::Host(const NetworkConfig &address, core::SysCh channel_count, size_t peer_count, uint32_t in_bandwidth,
+               uint32_t out_bandwidth)
+        : channel_count_(channel_count)
+        , checksum_()
+        , conn_(std::make_shared<Connection>(address))
+        , incoming_bandwidth_(in_bandwidth)
+        , maximum_segment_size_(HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE)
+        , mtu_(HOST_DEFAULT_MTU)
+        , outgoing_bandwidth_(out_bandwidth)
     {
-        if (peer_count > PROTOCOL_MAXIMUM_PEER_ID)
-        {
+        if (peer_count > PROTOCOL_MAXIMUM_PEER_ID) {
             // TODO: throw exception
             // ...
         }
@@ -30,13 +26,12 @@ namespace rudp
     }
 
     void
-    Host::Broadcast(SysCh ch, std::shared_ptr<Segment>& segment)
+    Host::Broadcast(core::SysCh ch, std::shared_ptr<Segment> &segment)
     {
-        auto& peers = peer_pod_->peers();
+        auto &peers = peer_pod_->peers();
 
-        for (auto& peer : peers)
-        {
-            auto& net = peer->net();
+        for (auto &peer : peers) {
+            auto &net = peer->net();
 
             if (net->StateIsNot(RUdpPeerState::CONNECTED))
                 continue;
@@ -45,20 +40,20 @@ namespace rudp
         }
     }
 
-/** Initiates a connection to a foreign host.
- *
-    @param address             destination for the connection
-    @param channel_count       number of channels to allocate
-    @param data                user data supplied to the receiving host
+    /** Initiates a connection to a foreign host.
+     *
+        @param address             destination for the connection
+        @param channel_count       number of channels to allocate
+        @param data                user data supplied to the receiving host
 
-    @retval Error::CANT_CREATE Nothing available peer
-    @retval Error::OK          A peer was successfully configured
+        @retval Error::CANT_CREATE Nothing available peer
+        @retval Error::OK          A peer was successfully configured
 
-    @remarks The peer configured will have not completed the connection until UdpHost::Service()
-             notifies of an EventType::CONNECT event for the peer.
-*/
+        @remarks The peer configured will have not completed the connection until UdpHost::Service()
+                 notifies of an EventType::CONNECT event for the peer.
+    */
     Error
-    Host::Connect(const NetworkConfig& address, SysCh channel_count, uint32_t data)
+    Host::Connect(const NetworkConfig &address, core::SysCh channel_count, uint32_t data)
     {
         auto peer = peer_pod_->AvailablePeer();
 
@@ -71,16 +66,16 @@ namespace rudp
     }
 
     void
-    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer>& peer)
+    Host::RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer> &peer)
     {
         peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
     }
 
     Error
-    Host::Send(size_t peer_id, SysCh ch, std::shared_ptr<Segment>& segment)
+    Host::Send(size_t peer_id, core::SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto peer = peer_pod_->GetPeer(peer_id);
-        auto& net = peer->net();
+        auto &net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTED))
             return Error::ERROR;
@@ -90,34 +85,33 @@ namespace rudp
         return Error::OK;
     }
 
-#define RETURN_ON_EVENT_OCCURRED(val)       \
-    if (val == EventStatus::AN_EVENT_OCCURRED) \
+#define RETURN_ON_EVENT_OCCURRED(val)                                                                                  \
+    if (val == EventStatus::AN_EVENT_OCCURRED)                                                                         \
         return EventStatus::AN_EVENT_OCCURRED;
 
-#define RETURN_ON_ERROR(val)       \
-    if (val == EventStatus::ERROR) \
+#define RETURN_ON_ERROR(val)                                                                                           \
+    if (val == EventStatus::ERROR)                                                                                     \
         return EventStatus::ERROR;
 
-/** Waits for events on the host specified and shuttles packets between
-    the host and its peers.
+    /** Waits for events on the host specified and shuttles packets between
+        the host and its peers.
 
-    @param event                           an event structure where event details will be placed if one occurs
-                                           if event == nullptr then no events will be delivered
-    @param timeout                         number of milliseconds that RUDP should wait for events
+        @param event                           an event structure where event details will be placed if one occurs
+                                               if event == nullptr then no events will be delivered
+        @param timeout                         number of milliseconds that RUDP should wait for events
 
-    @retval EventStatus::AN_EVENT_OCCURRED if an event occurred within the specified time limit
-    @retval EventStatus::NO_EVENT_OCCURRED if no event occurred
-    @retval EventStatus::ERROR             on failure
+        @retval EventStatus::AN_EVENT_OCCURRED if an event occurred within the specified time limit
+        @retval EventStatus::NO_EVENT_OCCURRED if no event occurred
+        @retval EventStatus::ERROR             on failure
 
-    @remarks Host::Service should be called fairly regularly for adequate performance
-*/
+        @remarks Host::Service should be called fairly regularly for adequate performance
+    */
     EventStatus
-    Host::Service(std::unique_ptr<Event>& event, uint32_t timeout)
+    Host::Service(std::unique_ptr<Event> &event, uint32_t timeout)
     {
         EventStatus ret;
 
-        if (event != nullptr)
-        {
+        if (event != nullptr) {
             event->Reset();
 
             // - キューから取り出されたパケットは event に格納される
@@ -144,8 +138,7 @@ namespace rudp
 
         uint8_t wait_condition;
 
-        do
-        {
+        do {
             peer_pod_->BandwidthThrottle(peer_pod_->service_time(), incoming_bandwidth_, outgoing_bandwidth_);
 
             ret = peer_pod_->SendOutgoingCommands(event, peer_pod_->service_time(), true, checksum_);
@@ -171,15 +164,14 @@ namespace rudp
             if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
                 return EventStatus::NO_EVENT_OCCURRED;
 
-            do
-            {
+            do {
                 peer_pod_->UpdateServiceTime();
 
                 if (UDP_TIME_GREATER_EQUAL(peer_pod_->service_time(), timeout))
                     return EventStatus::NO_EVENT_OCCURRED;
 
                 wait_condition =
-                        static_cast<uint8_t>(SocketWait::RECEIVE) | static_cast<uint8_t>(SocketWait::INTERRUPT);
+                    static_cast<uint8_t>(SocketWait::RECEIVE) | static_cast<uint8_t>(SocketWait::INTERRUPT);
 
                 if (SocketWait(wait_condition, UDP_TIME_DIFFERENCE(timeout, peer_pod_->service_time())) != 0)
                     return EventStatus::ERROR;

@@ -52,8 +52,7 @@ TEST_CASE("IpAddress can be set IPv6 address", "[unit][ip_address]")
         {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF});
     auto ret = ip_address.GetIPv6();
 
-    REQUIRE(
-        (ret[0] == 255 && ret[1] == 255 && ret[2] == 255 && ret[3] == 255 && ret[4] == 255 && ret[5] == 255 &&
-         ret[6] == 255 && ret[7] == 255 && ret[8] == 255 && ret[9] == 255 && ret[10] == 255 && ret[11] == 255 &&
-         ret[12] == 255 && ret[13] == 255 && ret[14] == 255 && ret[15] == 255));
+    REQUIRE((ret[0] == 255 && ret[1] == 255 && ret[2] == 255 && ret[3] == 255 && ret[4] == 255 && ret[5] == 255 &&
+             ret[6] == 255 && ret[7] == 255 && ret[8] == 255 && ret[9] == 255 && ret[10] == 255 && ret[11] == 255 &&
+             ret[12] == 255 && ret[13] == 255 && ret[14] == 255 && ret[15] == 255));
 }

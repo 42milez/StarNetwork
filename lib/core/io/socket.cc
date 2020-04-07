@@ -1,7 +1,7 @@
 #include <arpa/inet.h>
 #include <cstring>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -24,25 +24,22 @@ namespace
     const int MSG_NOSIGNAL = SO_NOSIGPIPE;
 #endif
     const int SOCK_EMPTY = -1;
-}
+} // namespace
 
 namespace
 {
     SocketError
     _get_socket_error()
     {
-        if (errno == EISCONN)
-        {
+        if (errno == EISCONN) {
             return SocketError::ERR_NET_IS_CONNECTED;
         }
 
-        if (errno == EINPROGRESS || errno == EALREADY)
-        {
+        if (errno == EINPROGRESS || errno == EALREADY) {
             return SocketError::ERR_NET_IN_PROGRESS;
         }
 
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-        {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
             return SocketError::ERR_NET_WOULD_BLOCK;
         }
 
@@ -51,25 +48,22 @@ namespace
 
         return SocketError::ERR_NET_OTHER;
     }
-}
+} // namespace
 
 bool
 Socket::_can_use_ip(const IpAddress &ip_addr, const bool for_bind) const
 {
-    if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard()))
-    {
+    if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard())) {
         return false;
     }
-    else if (!for_bind && !ip_addr.is_valid())
-    {
+    else if (!for_bind && !ip_addr.is_valid()) {
         return false;
     }
 
     // Check if socket support this IP type.
     IP::Type ip_type = ip_addr.is_ipv4() ? IP::Type::V4 : IP::Type::V6;
 
-    if (_ip_type != IP::Type::ANY && !ip_addr.is_wildcard() && _ip_type != ip_type)
-    {
+    if (_ip_type != IP::Type::ANY && !ip_addr.is_wildcard() && _ip_type != ip_type) {
         return false;
     }
 
@@ -89,14 +83,12 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
         auto &addr6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
 
         addr6.sin6_family = AF_INET6;
-        addr6.sin6_port = htons(port);
+        addr6.sin6_port   = htons(port);
 
-        if (ip.is_valid())
-        {
+        if (ip.is_valid()) {
             memcpy(&addr6.sin6_addr.s6_addr, ip.GetIPv6(), 16); // copy 16 bytes
         }
-        else
-        {
+        else {
             addr6.sin6_addr = in6addr_any;
         }
 
@@ -110,14 +102,12 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
         auto &addr4 = reinterpret_cast<struct sockaddr_in &>(addr);
 
         addr4.sin_family = AF_INET;
-        addr4.sin_port = htons(port);
+        addr4.sin_port   = htons(port);
 
-        if (ip.is_valid())
-        {
+        if (ip.is_valid()) {
             memcpy(&addr4.sin_addr.s_addr, ip.GetIPv4(), 4);
         }
-        else
-        {
+        else {
             addr4.sin_addr.s_addr = INADDR_ANY;
         }
 
@@ -128,8 +118,7 @@ Socket::_set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, ui
 void
 Socket::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port)
 {
-    if (addr.ss_family == AF_INET)
-    {
+    if (addr.ss_family == AF_INET) {
         auto &addr4 = reinterpret_cast<struct sockaddr_in &>(addr);
 
         auto octet1 = static_cast<uint8_t>(addr4.sin_addr.s_addr >> 24);
@@ -141,8 +130,7 @@ Socket::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &por
 
         port = ntohs(addr4.sin_port);
     }
-    else if (addr.ss_family == AF_INET6)
-    {
+    else if (addr.ss_family == AF_INET6) {
         auto &addr6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
 
         ip.set_ipv6(addr6.sin6_addr.s6_addr);
@@ -154,8 +142,8 @@ Socket::_set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &por
 void
 Socket::_set_socket(SOCKET sock, IP::Type ip_type, bool is_stream)
 {
-    _sock = sock;
-    _ip_type = ip_type;
+    _sock      = sock;
+    _ip_type   = ip_type;
     _is_stream = is_stream;
 }
 
@@ -170,7 +158,7 @@ Socket::accept(IpAddress &ip, uint16_t &port)
     memset(&addr, 0, sizeof(addr));
     socklen_t size = sizeof(addr);
 
-    auto fd = ::accept(_sock, (struct sockaddr *) &addr, &size);
+    auto fd = ::accept(_sock, (struct sockaddr *)&addr, &size);
 
     ERR_FAIL_COND_V(fd == SOCK_EMPTY, empty);
 
@@ -193,8 +181,7 @@ Socket::bind(const IpAddress &ip, uint16_t port)
     memset(&addr, 0, sizeof(addr));
     auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
 
-    if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
-    {
+    if (::bind(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
         close();
 
         ERR_FAIL_V(Error::ERR_UNAVAILABLE)
@@ -206,13 +193,12 @@ Socket::bind(const IpAddress &ip, uint16_t port)
 void
 Socket::close()
 {
-    if (_sock != SOCK_EMPTY)
-    {
+    if (_sock != SOCK_EMPTY) {
         ::close(_sock);
     }
 
-    _sock = SOCK_EMPTY;
-    _ip_type = IP::Type::NONE;
+    _sock      = SOCK_EMPTY;
+    _ip_type   = IP::Type::NONE;
     _is_stream = false;
 }
 
@@ -225,19 +211,17 @@ Socket::connect(const IpAddress &ip, uint16_t port)
     struct sockaddr_storage addr;
     auto addr_size = _set_addr_storage(addr, ip, port, _ip_type);
 
-    if (::connect(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY)
-    {
+    if (::connect(_sock, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
         SocketError err = _get_socket_error();
 
-        switch (err)
-        {
+        switch (err) {
             case SocketError::ERR_NET_IS_CONNECTED:
                 return Error::OK;
             case SocketError::ERR_NET_WOULD_BLOCK:
             case SocketError::ERR_NET_IN_PROGRESS:
                 return Error::ERR_BUSY;
             default:
-            ERR_PRINT("Connection to remote host failed")
+                ERR_PRINT("Connection to remote host failed")
                 close();
                 return Error::FAILED;
         }
@@ -251,8 +235,7 @@ Socket::listen(int max_pending)
 {
     ERR_FAIL_COND_V(!is_open(), Error::ERR_UNCONFIGURED);
 
-    if (::listen(_sock, max_pending) == SOCK_EMPTY)
-    {
+    if (::listen(_sock, max_pending) == SOCK_EMPTY) {
         close();
 
         ERR_FAIL_V(Error::FAILED);
@@ -267,30 +250,27 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
     ERR_FAIL_COND_V(is_open(), Error::ERR_ALREADY_IN_USE);
     ERR_FAIL_COND_V(ip_type > IP::Type::ANY || ip_type < IP::Type::NONE, Error::ERR_INVALID_PARAMETER);
 
-    auto family = ip_type == IP::Type::V4 ? AF_INET : AF_INET6;
+    auto family   = ip_type == IP::Type::V4 ? AF_INET : AF_INET6;
     auto protocol = sock_type == Type::TCP ? IPPROTO_TCP : IPPROTO_UDP;
-    auto type = sock_type == Type::TCP ? SOCK_STREAM : SOCK_DGRAM;
+    auto type     = sock_type == Type::TCP ? SOCK_STREAM : SOCK_DGRAM;
 
     _sock = socket(family, type, protocol);
 
-    if (_sock == SOCK_EMPTY && ip_type == IP::Type::ANY)
-    {
+    if (_sock == SOCK_EMPTY && ip_type == IP::Type::ANY) {
         ip_type = IP::Type::V4;
-        family = AF_INET;
-        _sock = socket(family, type, protocol);
+        family  = AF_INET;
+        _sock   = socket(family, type, protocol);
     }
 
     ERR_FAIL_COND_V(_sock == SOCK_EMPTY, Error::FAILED);
 
     _ip_type = ip_type;
 
-    if (family == AF_INET6)
-    {
+    if (family == AF_INET6) {
         set_ipv6_only_enabled(ip_type != IP::Type::ANY);
     }
 
-    if (protocol == IPPROTO_UDP && ip_type != IP::Type::V6)
-    {
+    if (protocol == IPPROTO_UDP && ip_type != IP::Type::V6) {
         set_broadcasting_enabled(true);
     }
 
@@ -318,12 +298,10 @@ Socket::recv(uint8_t &buffer, size_t len, ssize_t &bytes_read)
 
     bytes_read = ::recv(_sock, &buffer, len, 0);
 
-    if (bytes_read < 0)
-    {
+    if (bytes_read < 0) {
         SocketError err = _get_socket_error();
 
-        if (err == SocketError::ERR_NET_WOULD_BLOCK)
-        {
+        if (err == SocketError::ERR_NET_WOULD_BLOCK) {
             return Error::ERR_BUSY;
         }
 
@@ -344,32 +322,27 @@ Socket::recvfrom(std::vector<uint8_t> &buffer, ssize_t &bytes_read, IpAddress &i
 
     bytes_read = ::recvfrom(_sock, &(buffer.at(0)), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
 
-    if (bytes_read < 0)
-    {
+    if (bytes_read < 0) {
         SocketError err = _get_socket_error();
 
-        if (err == SocketError::ERR_NET_WOULD_BLOCK)
-        {
+        if (err == SocketError::ERR_NET_WOULD_BLOCK) {
             return Error::ERR_BUSY;
         }
 
         return Error::FAILED;
     }
 
-    if (addr.ss_family == AF_INET)
-    {
+    if (addr.ss_family == AF_INET) {
         auto sin = reinterpret_cast<struct sockaddr_in *>(&addr);
         ip.set_ipv4(SPLIT_IPV4_TO_OCTET_INIT_LIST(sin->sin_addr));
         port = ntohs(sin->sin_port);
     }
-    else if (addr.ss_family == AF_INET6)
-    {
+    else if (addr.ss_family == AF_INET6) {
         auto sin6 = reinterpret_cast<struct sockaddr_in6 *>(&addr);
         ip.set_ipv6(sin6->sin6_addr.s6_addr);
         port = ntohs(sin6->sin6_port);
     }
-    else
-    {
+    else {
         return Error::FAILED;
     }
 
@@ -383,19 +356,16 @@ Socket::send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent)
 
     auto flags = 0;
 
-    if (_is_stream)
-    {
+    if (_is_stream) {
         flags = MSG_NOSIGNAL;
     }
 
     bytes_sent = ::send(_sock, &buffer, len, flags);
 
-    if (bytes_sent < 0)
-    {
+    if (bytes_sent < 0) {
         SocketError err = _get_socket_error();
 
-        if (err == SocketError::ERR_NET_WOULD_BLOCK)
-        {
+        if (err == SocketError::ERR_NET_WOULD_BLOCK) {
             return Error::ERR_BUSY;
         }
 
@@ -413,15 +383,12 @@ Socket::sendto(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddr
     struct sockaddr_storage addr;
     size_t addr_size = _set_addr_storage(addr, ip, port, _ip_type);
 
-
     bytes_sent = ::sendto(_sock, buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
 
-    if (bytes_sent < 0)
-    {
+    if (bytes_sent < 0) {
         SocketError err = _get_socket_error();
 
-        if (err == SocketError::ERR_NET_WOULD_BLOCK)
-        {
+        if (err == SocketError::ERR_NET_WOULD_BLOCK) {
             return Error::ERR_BUSY;
         }
 
@@ -437,7 +404,8 @@ Socket::is_open() const
     return _sock != SOCK_EMPTY;
 }
 
-int Socket::get_available_bytes() const
+int
+Socket::get_available_bytes() const
 {
     ERR_FAIL_COND_V(_sock == SOCK_EMPTY, -1);
 
@@ -454,20 +422,17 @@ Socket::set_blocking_enabled(bool enabled)
 {
     ERR_FAIL_COND(!is_open());
 
-    int ret = 0;
+    int ret  = 0;
     int opts = ::fcntl(_sock, F_GETFL);
 
-    if (enabled)
-    {
+    if (enabled) {
         ret = ::fcntl(_sock, F_SETFL, opts & ~O_NONBLOCK);
     }
-    else
-    {
+    else {
         ret = ::fcntl(_sock, F_SETFL, opts | O_NONBLOCK);
     }
 
-    if (ret != 0)
-    {
+    if (ret != 0) {
         WARN_PRINT("Unable to change non-block mode");
     }
 }
@@ -480,8 +445,7 @@ Socket::set_broadcasting_enabled(bool enabled)
 
     int par = enabled ? 1 : 0;
 
-    if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0)
-    {
+    if (setsockopt(_sock, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0) {
         WARN_PRINT("Unable to change broadcast setting");
     }
 }
@@ -494,8 +458,7 @@ Socket::set_ipv6_only_enabled(bool enabled)
 
     auto par = enabled ? 1 : 0;
 
-    if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0)
-    {
+    if (setsockopt(_sock, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0) {
         WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
     }
 }
@@ -507,8 +470,7 @@ Socket::set_reuse_address_enabled(bool enabled)
 
     auto par = enabled ? 1 : 0;
 
-    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0)
-    {
+    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0) {
         WARN_PRINT("Unable to socket REUSEADDR option")
     }
 }
@@ -520,8 +482,7 @@ Socket::set_reuse_port_enabled(bool enabled)
 
     auto par = enabled ? 1 : 0;
 
-    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0)
-    {
+    if (setsockopt(_sock, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0) {
         WARN_PRINT("Unable to set socket REUSEPORT option");
     }
 }
@@ -534,13 +495,17 @@ Socket::set_tcp_no_delay_enabled(bool enabled)
 
     auto par = enabled ? 1 : 0;
 
-    if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0)
-    {
+    if (setsockopt(_sock, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0) {
         ERR_PRINT("Unable to set TCP no delay option");
     }
 }
 
-Socket::Socket() : _sock(SOCK_EMPTY), _ip_type(IP::Type::NONE), _is_stream(false) {}
+Socket::Socket()
+    : _sock(SOCK_EMPTY)
+    , _ip_type(IP::Type::NONE)
+    , _is_stream(false)
+{
+}
 
 Socket::~Socket()
 {

@@ -1,13 +1,12 @@
-#ifndef P2P_TECHDEMO_CORE_IP_ADDRESS_H
-#define P2P_TECHDEMO_CORE_IP_ADDRESS_H
+#ifndef P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_
+#define P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_
 
 #include <array>
 
 struct IpAddress
 {
-private:
-    union
-    {
+  private:
+    union {
         uint8_t _field8[16];
         uint16_t _field16[8];
         uint32_t _field32[4];
@@ -17,34 +16,47 @@ private:
 
     bool _wildcard;
 
-private:
-    void _parse_ipv4(const std::string &str, int start, uint8_t *ret);
+  private:
+    void
+    _parse_ipv4(const std::string &str, int start, uint8_t *ret);
 
-    void _parse_ipv6(const std::string &str);
+    void
+    _parse_ipv6(const std::string &str);
 
-public:
-    bool operator!=(const IpAddress &ip_address) const;
+  public:
+    bool
+    operator!=(const IpAddress &ip_address) const;
 
-    bool operator==(const IpAddress &ip_address) const;
+    bool
+    operator==(const IpAddress &ip_address) const;
 
-    void clear();
+    void
+    clear();
 
     explicit operator std::string() const;
 
-    bool is_ipv4() const;
+    bool
+    is_ipv4() const;
 
-    bool is_valid() const;
+    bool
+    is_valid() const;
 
-    bool is_wildcard() const;
+    bool
+    is_wildcard() const;
 
-    const uint8_t *GetIPv4() const;
+    const uint8_t *
+    GetIPv4() const;
 
-    const uint8_t *GetIPv6() const;
+    const uint8_t *
+    GetIPv6() const;
 
-    void set_ipv4(const uint8_t (&ip)[4]);
+    void
+    set_ipv4(const uint8_t (&ip)[4]);
 
-    void set_ipv6(const uint8_t (&ip)[16]);
-    void set_ipv6(const std::array<uint8_t, 16> &host);
+    void
+    set_ipv6(const uint8_t (&ip)[16]);
+    void
+    set_ipv6(const std::array<uint8_t, 16> &host);
 
     explicit IpAddress(const std::string &str);
 
@@ -53,4 +65,4 @@ public:
     IpAddress();
 };
 
-#endif // P2P_TECHDEMO_CORE_IP_ADDRESS_H
+#endif // P2P_TECHDEMO_LIB_CORE_IO_IP_ADDRESS_H_

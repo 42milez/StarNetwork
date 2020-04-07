@@ -1,8 +1,10 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.5
 jobs:
   build:
     docker:
-      - image: 42milez/cpp-dev-base:latest
+      - image: 42milez/cpp-dev-base:2020.4.6
     working_directory: /var/app
     environment:
       BUILD_DIR: &build_dir /var/app/cmake-build-test
@@ -15,7 +17,7 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: 'Create Build Directory'
+          name: 'Create Directories'
           command: |
             mkdir -p "${BUILD_DIR}"
             mkdir -p "${BUILD_DIR_ASAN}"
@@ -37,11 +39,11 @@ jobs:
           command: /bin/bash ./docker/script/build/build_all_lsan.bash
           environment:
             BUILD_DIR: *build_dir_lsan
-#      - run:
-#          name: "Build All with Memory Sanitizer"
-#          command: /bin/bash ./docker/script/build/build_all_msan.bash
-#          environment:
-#            BUILD_DIR: *build_dir_msan
+      - run:
+          name: "Build All with Memory Sanitizer"
+          command: /bin/bash ./docker/script/build/build_all_msan.bash
+          environment:
+            BUILD_DIR: *build_dir_msan
       - run:
           name: "Build All with Thread Sanitizer"
           command: /bin/bash ./docker/script/build/build_all_tsan.bash
@@ -56,44 +58,60 @@ jobs:
             - *build_dir_lsan
             - *build_dir_msan
             - *build_dir_tsan
-  test_base: &test_base
+  test:
     docker:
-      - image: 42milez/cpp-dev-base:latest
+      - image: 42milez/cpp-dev-base:2020.3.11
+    working_directory: /var/app
+    environment:
+      BUILD_DIR: *build_dir
+      COVERAGE_FILE_PATH: &coverage_file_path /var/app/covarage.txt
+      TEST_RESULT_DIR: /var/app/test-results
+    steps:
+      - checkout
+      - restore_cache:
+          key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
+      - run:
+          name: "Create Test Result Directory"
+          command: mkdir -p "${TEST_RESULT_DIR}"
+      - run:
+          name: "Enable JUnit Reporter"
+          command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
+      - run:
+          name: "Run All Tests"
+          command: /bin/bash ./docker/script/test/run_all_tests.bash
+      - run:
+          name: "Export Coverage"
+          command: /bin/bash ./docker/script/test/report_coverage.sh
+      - codecov/upload:
+          file: *coverage_file_path
+          flags: all
+      - store_test_results:
+          path: /var/app/test-results
+  sanitize_base: &sanitize_base
+    docker:
+      - image: 42milez/cpp-dev-base:2020.3.11
     working_directory: /var/app
     steps:
       - checkout
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Create Test Results Directory"
-          command: |
-            mkdir ./test-results
-      - run:
-          name: "Enable JUnit Reporter"
-          command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
-      - run:
-          name: "Run All Test"
+          name: "Run All Tests"
           command: /bin/bash ./docker/script/test/run_all_tests.bash
-      - store_test_results:
-          path: /var/app/test-results
-  test:
-    <<: *test_base
-    environment:
-      BUILD_DIR: *build_dir
-  test_asan:
-    <<: *test_base
+  sanitize_address:
+    <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_asan
-  test_lsan:
-    <<: *test_base
+  sanitize_leak:
+    <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_lsan
-  test_msan:
-    <<: *test_base
+  sanitize_memory:
+    <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_msan
-  test_tsan:
-    <<: *test_base
+  sanitize_thread:
+    <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_tsan
 workflows:
@@ -104,19 +122,15 @@ workflows:
       - test:
           requires:
             - build
-      - test_asan:
+      - sanitize_address:
           requires:
-            - build
             - test
-      - test_lsan:
+      - sanitize_leak:
           requires:
-            - build
             - test
-#      - test_msan:
-#          requires:
-#            - build
-#            - test
-      - test_tsan:
+      # - sanitize_memory:
+      #     requires:
+      #       - test
+      - sanitize_thread:
           requires:
-            - build
             - test

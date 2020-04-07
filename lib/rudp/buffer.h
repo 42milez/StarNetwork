@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_RUDPBUFFER_H
-#define P2P_TECHDEMO_RUDPBUFFER_H
+#ifndef P2P_TECHDEMO_LIB_RUDP_BUFFER_H_
+#define P2P_TECHDEMO_LIB_RUDP_BUFFER_H_
 
 #include <cstddef>
 #include <memory>
@@ -14,34 +14,38 @@ namespace rudp
 {
     class Buffer
     {
-    public:
+      public:
         Buffer();
 
         void
-        Add(const ProtocolTypeSP& data);
+        Add(const ProtocolTypeSP &data);
 
         void
-        CopyHeaderFrom(const VecUInt8& data, size_t offset, size_t size);
+        CopyHeaderFrom(const std::vector<uint8_t> &data, size_t offset, size_t size);
 
         void
-        CopySegmentFrom(const std::shared_ptr<Segment>& segment, size_t offset, size_t size = 0);
+        CopySegmentFrom(const std::shared_ptr<Segment> &segment, size_t offset, size_t size = 0);
 
         std::string
         ProtocolCommandAsString();
 
-        VecUInt8It
-        CopyTo(VecUInt8It it);
+        std::vector<uint8_t>::iterator
+        CopyTo(std::vector<uint8_t>::iterator it);
 
         inline size_t
         Size()
-        { return size_; };
+        {
+            return size_;
+        };
 
         inline void
         Size(size_t val)
-        { size_ = val; }
+        {
+            size_ = val;
+        }
 
-    private:
-        using VariantBuffer = std::variant<ProtocolTypeSP, VecUInt8>;
+      private:
+        using VariantBuffer = std::variant<ProtocolTypeSP, std::vector<uint8_t>>;
 
         VariantBuffer buffer_;
         size_t offset_;
@@ -49,4 +53,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_RUDPBUFFER_H
+#endif // P2P_TECHDEMO_LIB_RUDP_BUFFER_H_
