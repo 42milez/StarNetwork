@@ -74,7 +74,6 @@ namespace rudp
         {
             prev_service_time_ = service_time_;
             service_time_      = Time::Get();
-            LOG_DEBUG_VA("service time was updated: {0} ({1})", service_time_, service_time_ - prev_service_time_)
         }
 
       public:
