@@ -7,7 +7,6 @@
 #include "lib/rudp/host.h"
 #include "lib/test/util.h"
 
-#include "payload.h"
 #include "var.h"
 
 TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliable_command]")
@@ -27,13 +26,13 @@ TEST_CASE("guest peer can send reliable command to host peer", "[feature][reliab
     // guest1
     rudp::NetworkConfig guest1_address;
     guest1_address.port(test::GUEST1_PORT);
-    auto guest1       = std::make_unique<rudp::Host>(guest1_address, core::SysCh::MAX, 1, 100, 100);
+    auto guest1       = std::make_unique<rudp::Host>(guest1_address, core::SysCh::MAX, 2, 100, 100);
     auto guest1_event = std::make_unique<rudp::Event>();
 
     // guest2
     rudp::NetworkConfig guest2_address;
     guest2_address.port(test::GUEST2_PORT);
-    auto guest2       = std::make_unique<rudp::Host>(guest2_address, core::SysCh::MAX, 1, 100, 100);
+    auto guest2       = std::make_unique<rudp::Host>(guest2_address, core::SysCh::MAX, 2, 100, 100);
     auto guest2_event = std::make_unique<rudp::Event>();
 
     SECTION("guest peer 1 and 2 can send reliable command to host peer")
