@@ -52,7 +52,7 @@ namespace rudp
 
         // unsent command exists
         // if (command >= &commands_.at(sizeof(commands_) / sizeof(RUdpProtocol)))
-        if (*cmd_it == nullptr)
+        if (cmd_it == nullptr)
             return true;
 
         // unsent buffer_ exists
