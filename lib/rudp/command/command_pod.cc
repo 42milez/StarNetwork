@@ -21,7 +21,7 @@ namespace rudp
 
             auto all_available_windows_are_in_use =
                 channel->ReliableWindow((reliable_window + PEER_RELIABLE_WINDOWS - 1) % PEER_RELIABLE_WINDOWS) >=
-                PEER_RELIABLE_WINDOW_SIZE;
+                PEER_RELIABLE_WINDOW_SIZE - 1;
 
             auto existing_commands_are_in_flight =
                 channel->used_reliable_windows() &

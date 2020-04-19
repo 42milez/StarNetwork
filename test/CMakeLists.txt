@@ -4,7 +4,7 @@ file(GLOB sources
         feature/rudp/*.cc
         unit/app/*.cc
         unit/core/io/*.cc
-        unit/lib/rudp/command/*.cc)
+        unit/lib/rudp/*.cc)
 
 file(GLOB headers
         ${CMAKE_SOURCE_DIR}/app/*.h
