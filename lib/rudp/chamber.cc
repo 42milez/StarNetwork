@@ -57,7 +57,7 @@ namespace rudp
 
         // unsent buffer_ exists
         // if (buffer + 1 >= &buffers_.at(sizeof(buffers_) / sizeof(Buffer)))
-        // If the next is the end of the iterator, no more data cannot be pushed into buffer.
+        // If the next is the end of the iterator, no more data can be pushed into buffer.
         if (*buf_it == nullptr || (std::next(buf_it, 1) == buffers_.end()))
             return true;
 
