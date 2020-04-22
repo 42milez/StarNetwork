@@ -25,3 +25,8 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 # Demo
 
 ...
+
+# References
+
+- [godotengine/godot](https://github.com/godotengine/godot) : Godot Engine – Multi-platform 2D and 3D game engine
+- [lsalzman/enet](https://github.com/lsalzman/enet) : ENet reliable UDP networking library
