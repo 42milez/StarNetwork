@@ -20,9 +20,6 @@ namespace
         ERR_NET_OTHER
     };
 
-#if defined(__APPLE__)
-    const int MSG_NOSIGNAL = SO_NOSIGPIPE;
-#endif
     const int SOCK_EMPTY = -1;
 } // namespace
 
@@ -283,11 +280,9 @@ Socket::open(Socket::Type sock_type, IP::Type ip_type)
 Error
 Socket::poll(Socket::PollType type, int timeout)
 {
-#ifdef __APPLE__
+    // TODO:
     // ...
-#else /* linux */
-    // ...
-#endif
+
     return Error::OK;
 }
 
