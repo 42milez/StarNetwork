@@ -20,7 +20,7 @@ namespace rudp
         Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber);
 
       private:
-        std::unique_ptr<Socket> socket_;
+        std::unique_ptr<core::Socket> socket_;
     };
 } // namespace rudp
 

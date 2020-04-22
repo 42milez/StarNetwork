@@ -4,21 +4,25 @@
 #include "lib/core/errors.h"
 #include "socket.h"
 
-class EventPoll
+namespace core
 {
-  private:
-    int _fd;
+    class EventPoll
+    {
+      private:
+        int _fd;
 
-  public:
-    Error
-    register_event(const SOCKET_PTR &sock);
+      public:
+        Error
+        register_event(const std::shared_ptr<Socket> &sock);
 
-    Error
-    wait_for_receiving(const SOCKET_PTRS &in_sockets, SOCKET_PTRS &out_sockets);
+        Error
+        wait_for_receiving(const std::vector<std::shared_ptr<Socket>> &in_sockets,
+                           std::vector<std::shared_ptr<Socket>> &out_sockets);
 
-    EventPoll();
+        EventPoll();
 
-    ~EventPoll();
-};
+        ~EventPoll();
+    };
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_IO_EVENT_POLL_H_

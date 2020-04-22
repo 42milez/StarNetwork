@@ -9,17 +9,17 @@ namespace rudp
 {
     Connection::Connection(const NetworkConfig &address)
     {
-        socket_ = std::make_unique<Socket>();
+        socket_ = std::make_unique<core::Socket>();
 
         if (socket_ == nullptr) {
             // throw exception
             // ...
         }
 
-        socket_->open(Socket::Type::UDP, IP::Type::ANY);
+        socket_->Open(core::SocketType::UDP, IP::Type::ANY);
 
-        socket_->set_blocking_enabled(false);
-        socket_->set_broadcasting_enabled(true);
+        socket_->DisableBlocking();
+        socket_->EnableBroadcasting();
 
         IpAddress ip{};
 
@@ -30,7 +30,7 @@ namespace rudp
             ip.set_ipv6(address.host());
         }
 
-        auto ret = socket_->bind(ip, address.port());
+        auto ret = socket_->Bind(ip, address.port());
 
         if (ret != Error::OK) {
             // throw exception
@@ -43,7 +43,7 @@ namespace rudp
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
-        Error err = socket_->poll(Socket::PollType::POLL_TYPE_IN, 0);
+        Error err = socket_->Poll(core::PollType::POLL_TYPE_IN, 0);
 
         if (err == Error::ERR_BUSY)
             return 0;
@@ -55,7 +55,7 @@ namespace rudp
         IpAddress ip;
 
         uint16_t port = 0;
-        err           = socket_->recvfrom(buffer, read_count, ip, port);
+        err           = socket_->RecvFrom(buffer, read_count, ip, port);
         received_address.port(port);
 
         if (err == Error::ERR_BUSY)
@@ -86,7 +86,7 @@ namespace rudp
 
         ssize_t sent = 0;
 
-        auto err = socket_->sendto(&(out.at(0)), size, sent, dest, address.port());
+        auto err = socket_->SendTo(&(out.at(0)), size, sent, dest, address.port());
 
         LOG_DEBUG_VA("bytes sent: {0}", sent)
 
