@@ -3,7 +3,7 @@
 #include "lib/rudp/command/command_pod.h"
 #include "lib/rudp/time.h"
 
-TEST_CASE("command should be buffered and rebuffered on timeout", "[unit][command]")
+TEST_CASE("command should be rebuffered on timeout", "[unit][rebuffering]")
 {
     auto protocol_type            = std::make_shared<rudp::ProtocolType>();
     protocol_type->header.command = static_cast<uint8_t>(rudp::RUdpProtocolCommand::PING) |
