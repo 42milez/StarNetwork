@@ -384,12 +384,6 @@ namespace core
         return Error::OK;
     }
 
-    bool
-    Socket::IsOpen() const
-    {
-        return sock_ != SOCK_EMPTY;
-    }
-
     int
     Socket::AvailableBytes() const
     {

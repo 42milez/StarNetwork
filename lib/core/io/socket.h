@@ -67,8 +67,11 @@ namespace core
         SendTo(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
       public:
-        bool
-        IsOpen() const;
+        inline bool
+        IsOpen() const
+        {
+            return sock_ != SOCK_EMPTY;
+        }
 
       public:
         void
