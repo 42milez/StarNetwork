@@ -23,7 +23,7 @@ namespace core
         };
 
         bool
-        can_use_ip(const IP::Type ip_type, const IpAddress &ip_addr, const bool for_bind)
+        _CanUseIp(const IP::Type ip_type, const IpAddress &ip_addr, const bool for_bind)
         {
             if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard())) {
                 return false;
@@ -43,7 +43,7 @@ namespace core
         }
 
         SocketError
-        get_socket_error_()
+        _GetSocketError()
         {
             if (errno == EISCONN) {
                 return SocketError::ERR_NET_IS_CONNECTED;
@@ -64,7 +64,7 @@ namespace core
         }
 
         socklen_t
-        set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type)
+        _SetAddrStorage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type)
         {
             memset(&addr, 0, sizeof(struct sockaddr_storage));
 
@@ -109,7 +109,7 @@ namespace core
         }
 
         void
-        set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port)
+        _SetIpPort(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port)
         {
             if (addr.ss_family == AF_INET) {
                 auto &addr4 = reinterpret_cast<struct sockaddr_in &>(addr);
@@ -162,7 +162,7 @@ namespace core
 
         ERR_FAIL_COND_V(fd == SOCK_EMPTY, empty);
 
-        set_ip_port(addr, ip, port);
+        _SetIpPort(addr, ip, port);
 
         std::shared_ptr<Socket> sock = std::make_shared<Socket>(fd, ip_type_, is_stream_);
         sock->SetBlockingEnabled(false);
@@ -174,11 +174,11 @@ namespace core
     Socket::Bind(const IpAddress &ip, uint16_t port)
     {
         ERR_FAIL_COND_V(!IsOpen(), Error::ERR_UNCONFIGURED)
-        ERR_FAIL_COND_V(!can_use_ip(ip_type_, ip, true), Error::ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(!_CanUseIp(ip_type_, ip, true), Error::ERR_INVALID_PARAMETER)
 
         struct sockaddr_storage addr;
         memset(&addr, 0, sizeof(addr));
-        auto addr_size = set_addr_storage(addr, ip, port, ip_type_);
+        auto addr_size = _SetAddrStorage(addr, ip, port, ip_type_);
 
         if (::bind(sock_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
             Close();
@@ -193,13 +193,13 @@ namespace core
     Socket::Connect(const IpAddress &ip, uint16_t port)
     {
         ERR_FAIL_COND_V(!IsOpen(), Error::ERR_UNCONFIGURED);
-        ERR_FAIL_COND_V(!can_use_ip(ip_type_, ip, false), Error::ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(!_CanUseIp(ip_type_, ip, false), Error::ERR_INVALID_PARAMETER);
 
         struct sockaddr_storage addr;
-        auto addr_size = set_addr_storage(addr, ip, port, ip_type_);
+        auto addr_size = _SetAddrStorage(addr, ip, port, ip_type_);
 
         if (::connect(sock_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
-            SocketError err = get_socket_error_();
+            SocketError err = _GetSocketError();
 
             switch (err) {
                 case SocketError::ERR_NET_IS_CONNECTED:
@@ -284,7 +284,7 @@ namespace core
         bytes_read = ::recv(sock_, &buffer, len, 0);
 
         if (bytes_read < 0) {
-            SocketError err = get_socket_error_();
+            SocketError err = _GetSocketError();
 
             if (err == SocketError::ERR_NET_WOULD_BLOCK) {
                 return Error::ERR_BUSY;
@@ -309,7 +309,7 @@ namespace core
             ::recvfrom(sock_, &(buffer.at(0)), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
 
         if (bytes_read < 0) {
-            SocketError err = get_socket_error_();
+            SocketError err = _GetSocketError();
 
             if (err == SocketError::ERR_NET_WOULD_BLOCK) {
                 return Error::ERR_BUSY;
@@ -349,7 +349,7 @@ namespace core
         bytes_sent = ::send(sock_, &buffer, len, flags);
 
         if (bytes_sent < 0) {
-            SocketError err = get_socket_error_();
+            SocketError err = _GetSocketError();
 
             if (err == SocketError::ERR_NET_WOULD_BLOCK) {
                 return Error::ERR_BUSY;
@@ -367,12 +367,12 @@ namespace core
         ERR_FAIL_COND_V(!IsOpen(), Error::ERR_UNCONFIGURED);
 
         struct sockaddr_storage addr;
-        size_t addr_size = set_addr_storage(addr, ip, port, ip_type_);
+        size_t addr_size = _SetAddrStorage(addr, ip, port, ip_type_);
 
         bytes_sent = ::sendto(sock_, buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
 
         if (bytes_sent < 0) {
-            SocketError err = get_socket_error_();
+            SocketError err = _GetSocketError();
 
             if (err == SocketError::ERR_NET_WOULD_BLOCK) {
                 return Error::ERR_BUSY;
