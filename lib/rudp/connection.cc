@@ -18,8 +18,8 @@ namespace rudp
 
         socket_->Open(core::SocketType::UDP, IP::Type::ANY);
 
-        socket_->DisableBlocking();
-        socket_->EnableBroadcasting();
+        socket_->SetBlockingEnabled(false);
+        socket_->SetBroadcastingEnabled(true);
 
         IpAddress ip{};
 

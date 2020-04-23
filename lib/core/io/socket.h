@@ -45,12 +45,6 @@ namespace core
         Error
         Connect(const IpAddress &ip, uint16_t port);
 
-        void
-        DisableBlocking();
-
-        void
-        EnableBroadcasting();
-
         Error
         Listen(int max_pending);
 
@@ -78,16 +72,22 @@ namespace core
 
       public:
         void
-        set_ipv6_only_enabled(bool enabled);
+        SetBlockingEnabled(bool enabled);
 
         void
-        set_reuse_address_enabled(bool enabled);
+        SetBroadcastingEnabled(bool enabled);
 
         void
-        set_reuse_port_enabled(bool enabled);
+        SetIpv6OnlyEnabled(bool enabled);
 
         void
-        set_tcp_no_delay_enabled(bool enabled);
+        SetReuseAddressEnabled(bool enabled);
+
+        void
+        SetReusePortEnabled(bool enabled);
+
+        void
+        SetTcpNoDelayEnabled(bool enabled);
 
         inline ~Socket()
         {

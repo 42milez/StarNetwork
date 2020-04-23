@@ -165,7 +165,7 @@ namespace core
         set_ip_port(addr, ip, port);
 
         std::shared_ptr<Socket> sock = std::make_shared<Socket>(fd, ip_type_, is_stream_);
-        sock->DisableBlocking();
+        sock->SetBlockingEnabled(false);
 
         return sock;
     }
@@ -254,11 +254,11 @@ namespace core
         ip_type_ = ip_type;
 
         if (family == AF_INET6) {
-            set_ipv6_only_enabled(ip_type != IP::Type::ANY);
+            SetIpv6OnlyEnabled(ip_type != IP::Type::ANY);
         }
 
         if (protocol == IPPROTO_UDP && ip_type != IP::Type::V6) {
-            EnableBroadcasting();
+            SetBroadcastingEnabled(true);
         }
 
         is_stream_ = sock_type == SocketType::TCP;
@@ -404,14 +404,19 @@ namespace core
     }
 
     void
-    Socket::DisableBlocking()
+    Socket::SetBlockingEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
 
         int ret  = 0;
         int opts = ::fcntl(sock_, F_GETFL);
 
-        ret = ::fcntl(sock_, F_SETFL, opts | O_NONBLOCK);
+        if (enabled) {
+            ret = ::fcntl(sock_, F_SETFL, opts & ~O_NONBLOCK);
+        }
+        else {
+            ret = ::fcntl(sock_, F_SETFL, opts | O_NONBLOCK);
+        }
 
         if (ret != 0) {
             WARN_PRINT("Unable to change non-block mode");
@@ -419,12 +424,12 @@ namespace core
     }
 
     void
-    Socket::EnableBroadcasting()
+    Socket::SetBroadcastingEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
         ERR_FAIL_COND(ip_type_ == IP::Type::V6); // IPv6 has no broadcast support.
 
-        int par = 1;
+        int par = enabled ? 1 : 0;
 
         if (setsockopt(sock_, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0) {
             WARN_PRINT("Unable to change broadcast setting");
@@ -432,7 +437,7 @@ namespace core
     }
 
     void
-    Socket::set_ipv6_only_enabled(bool enabled)
+    Socket::SetIpv6OnlyEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
         ERR_FAIL_COND(ip_type_ == IP::Type::V4);
@@ -445,7 +450,7 @@ namespace core
     }
 
     void
-    Socket::set_reuse_address_enabled(bool enabled)
+    Socket::SetReuseAddressEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
 
@@ -457,7 +462,7 @@ namespace core
     }
 
     void
-    Socket::set_reuse_port_enabled(bool enabled)
+    Socket::SetReusePortEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
 
@@ -469,7 +474,7 @@ namespace core
     }
 
     void
-    Socket::set_tcp_no_delay_enabled(bool enabled)
+    Socket::SetTcpNoDelayEnabled(bool enabled)
     {
         ERR_FAIL_COND(!IsOpen());
         ERR_FAIL_COND(!is_stream_);
