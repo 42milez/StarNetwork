@@ -25,17 +25,17 @@ namespace core
         bool
         _CanUseIp(const IP::Type ip_type, const IpAddress &ip_addr, const bool for_bind)
         {
-            if (for_bind && !(ip_addr.is_valid() || ip_addr.is_wildcard())) {
+            if (for_bind && !(ip_addr.IsValid() || ip_addr.IsWildcard())) {
                 return false;
             }
-            else if (!for_bind && !ip_addr.is_valid()) {
+            else if (!for_bind && !ip_addr.IsValid()) {
                 return false;
             }
 
             // Check if socket support this IP type.
-            IP::Type t = ip_addr.is_ipv4() ? IP::Type::V4 : IP::Type::V6;
+            IP::Type t = ip_addr.IsValid() ? IP::Type::V4 : IP::Type::V6;
 
-            if (ip_type != IP::Type::ANY && !ip_addr.is_wildcard() && ip_type != t) {
+            if (ip_type != IP::Type::ANY && !ip_addr.IsWildcard() && ip_type != t) {
                 return false;
             }
 
@@ -78,7 +78,7 @@ namespace core
                 addr6.sin6_family = AF_INET6;
                 addr6.sin6_port   = htons(port);
 
-                if (ip.is_valid()) {
+                if (ip.IsValid()) {
                     memcpy(&addr6.sin6_addr.s6_addr, ip.GetIPv6(), 16); // copy 16 bytes
                 }
                 else {
@@ -97,7 +97,7 @@ namespace core
                 addr4.sin_family = AF_INET;
                 addr4.sin_port   = htons(port);
 
-                if (ip.is_valid()) {
+                if (ip.IsValid()) {
                     memcpy(&addr4.sin_addr.s_addr, ip.GetIPv4(), 4);
                 }
                 else {
@@ -119,14 +119,14 @@ namespace core
                 auto octet3 = static_cast<uint8_t>(addr4.sin_addr.s_addr >> 8);
                 auto octet4 = static_cast<uint8_t>(addr4.sin_addr.s_addr);
 
-                ip.set_ipv4({octet1, octet2, octet3, octet4});
+                ip.SetIpv4({octet1, octet2, octet3, octet4});
 
                 port = ntohs(addr4.sin_port);
             }
             else if (addr.ss_family == AF_INET6) {
                 auto &addr6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
 
-                ip.set_ipv6(addr6.sin6_addr.s6_addr);
+                ip.SetIpv6(addr6.sin6_addr.s6_addr);
 
                 port = ntohs(addr6.sin6_port);
             }
@@ -320,12 +320,12 @@ namespace core
 
         if (addr.ss_family == AF_INET) {
             auto sin = reinterpret_cast<struct sockaddr_in *>(&addr);
-            ip.set_ipv4(SPLIT_IPV4_TO_OCTET_INIT_LIST(sin->sin_addr));
+            ip.SetIpv4(SPLIT_IPV4_TO_OCTET_INIT_LIST(sin->sin_addr));
             port = ntohs(sin->sin_port);
         }
         else if (addr.ss_family == AF_INET6) {
             auto sin6 = reinterpret_cast<struct sockaddr_in6 *>(&addr);
-            ip.set_ipv6(sin6->sin6_addr.s6_addr);
+            ip.SetIpv6(sin6->sin6_addr.s6_addr);
             port = ntohs(sin6->sin6_port);
         }
         else {

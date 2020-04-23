@@ -27,7 +27,7 @@ namespace rudp
             ip = IpAddress("*");
         }
         else {
-            ip.set_ipv6(address.host());
+            ip.SetIpv6(address.host());
         }
 
         auto ret = socket_->Bind(ip, address.port());
@@ -76,7 +76,7 @@ namespace rudp
     {
         IpAddress dest;
 
-        dest.set_ipv6(address.host());
+        dest.SetIpv6(address.host());
 
         std::vector<uint8_t> out;
 
