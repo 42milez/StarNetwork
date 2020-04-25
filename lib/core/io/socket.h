@@ -2,7 +2,7 @@
 #define P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_
 
 #include <memory>
-
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -42,6 +42,9 @@ namespace core
         Error
         Bind(const IpAddress &ip, uint16_t port);
 
+        void
+        Close();
+
         Error
         Connect(const IpAddress &ip, uint16_t port);
 
@@ -50,9 +53,6 @@ namespace core
 
         Error
         Open(SocketType p_type, IP::Type ip_type);
-
-        Error
-        Poll(PollType type, int timeout);
 
         Error
         Recv(uint8_t &buffer, size_t len, ssize_t &bytes_read);
@@ -66,11 +66,14 @@ namespace core
         Error
         SendTo(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
+        Error
+        Wait(PollType type, int timeout);
+
       public:
         inline bool
         IsOpen() const
         {
-            return sock_ != SOCK_EMPTY;
+            return sfd_ != SOCK_EMPTY;
         }
 
       public:
@@ -97,22 +100,14 @@ namespace core
             Close();
         }
 
-        inline void
-        Close()
-        {
-            if (sock_ != SOCK_EMPTY) {
-                ::close(sock_);
-            }
-
-            sock_      = SOCK_EMPTY;
-            ip_type_   = IP::Type::NONE;
-            is_stream_ = false;
-        }
-
       private:
-        int sock_;
         IP::Type ip_type_;
+        struct epoll_event event_;
+        struct epoll_event *events_;
         bool is_stream_;
+        int ctl_;
+        int efd_;
+        int sfd_;
     };
 } // namespace core
 

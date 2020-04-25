@@ -43,7 +43,7 @@ namespace rudp
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
-        Error err = socket_->Poll(core::PollType::POLL_TYPE_IN, 0);
+        Error err = socket_->Wait(core::PollType::POLL_TYPE_IN, 0);
 
         if (err == Error::ERR_BUSY)
             return 0;

@@ -1,9 +1,9 @@
 #include <arpa/inet.h>
+#include <netinet/tcp.h>
+#include <sys/ioctl.h>
 #include <cstring>
 #include <errno.h>
 #include <fcntl.h>
-#include <netinet/tcp.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include "lib/core/error_macros.h"
@@ -14,6 +14,12 @@ namespace core
 {
     namespace
     {
+        const size_t EPOLL_MAX_EVENTS = 64;
+        const int EPOLL_NON_BLOCKING = 0;
+        const int EPOLL_ERROR_ON_CREATE = -1;
+        const int EPOLL_ERROR_ON_CTL = -1;
+        const int EPOLL_ERROR_ON_WAIT = -1;
+
         enum class SocketError : int
         {
             ERR_NET_WOULD_BLOCK,
@@ -134,14 +140,14 @@ namespace core
     } // namespace
 
     Socket::Socket()
-        : sock_(SOCK_EMPTY)
+        : sfd_(SOCK_EMPTY)
         , ip_type_(IP::Type::NONE)
         , is_stream_(false)
     {
     }
 
     Socket::Socket(int sock, IP::Type ip_type, bool is_stream)
-        : sock_(sock)
+        : sfd_(sock)
         , ip_type_(ip_type)
         , is_stream_(is_stream)
     {
@@ -158,7 +164,7 @@ namespace core
         memset(&addr, 0, sizeof(addr));
         socklen_t size = sizeof(addr);
 
-        auto fd = ::accept(sock_, (struct sockaddr *)&addr, &size);
+        auto fd = ::accept(sfd_, (struct sockaddr *)&addr, &size);
 
         ERR_FAIL_COND_V(fd == SOCK_EMPTY, empty);
 
@@ -180,13 +186,30 @@ namespace core
         memset(&addr, 0, sizeof(addr));
         auto addr_size = SetAddrStorage(addr, ip, port, ip_type_);
 
-        if (::bind(sock_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
+        if (::bind(sfd_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
             Close();
 
             ERR_FAIL_V(Error::ERR_UNAVAILABLE)
         }
 
         return Error::OK;
+    }
+
+    void
+    Socket::Close()
+    {
+        if (sfd_ != SOCK_EMPTY) {
+            ::close(sfd_);
+        }
+
+        if (efd_ != SOCK_EMPTY) {
+            ::close(efd_);
+        }
+
+        efd_       = SOCK_EMPTY;
+        sfd_       = SOCK_EMPTY;
+        ip_type_   = IP::Type::NONE;
+        is_stream_ = false;
     }
 
     Error
@@ -198,7 +221,7 @@ namespace core
         struct sockaddr_storage addr;
         auto addr_size = SetAddrStorage(addr, ip, port, ip_type_);
 
-        if (::connect(sock_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
+        if (::connect(sfd_, reinterpret_cast<struct sockaddr *>(&addr), addr_size) == SOCK_EMPTY) {
             SocketError err = GetSocketError();
 
             switch (err) {
@@ -222,7 +245,7 @@ namespace core
     {
         ERR_FAIL_COND_V(!IsOpen(), Error::ERR_UNCONFIGURED);
 
-        if (::listen(sock_, max_pending) == SOCK_EMPTY) {
+        if (::listen(sfd_, max_pending) == SOCK_EMPTY) {
             Close();
 
             ERR_FAIL_V(Error::FAILED);
@@ -241,15 +264,15 @@ namespace core
         auto protocol = sock_type == SocketType::TCP ? IPPROTO_TCP : IPPROTO_UDP;
         auto type     = sock_type == SocketType::TCP ? SOCK_STREAM : SOCK_DGRAM;
 
-        sock_ = socket(family, type, protocol);
+        sfd_ = socket(family, type, protocol);
 
-        if (sock_ == SOCK_EMPTY && ip_type == IP::Type::ANY) {
+        if (sfd_ == SOCK_EMPTY && ip_type == IP::Type::ANY) {
             ip_type = IP::Type::V4;
             family  = AF_INET;
-            sock_   = socket(family, type, protocol);
+            sfd_   = socket(family, type, protocol);
         }
 
-        ERR_FAIL_COND_V(sock_ == SOCK_EMPTY, Error::FAILED);
+        ERR_FAIL_COND_V(sfd_ == SOCK_EMPTY, Error::FAILED);
 
         ip_type_ = ip_type;
 
@@ -263,15 +286,46 @@ namespace core
 
         is_stream_ = sock_type == SocketType::TCP;
 
+        efd_ = epoll_create1(0);
+
+        if (efd_ == EPOLL_ERROR_ON_CREATE)
+        {
+            return Error::CANT_CREATE;
+        }
+
+        event_.data.fd = sfd_;
+        event_.events = EPOLLIN | EPOLLET;
+
+        ctl_ = epoll_ctl(efd_, EPOLL_CTL_ADD, sfd_, &event_);
+
+        if (ctl_ == EPOLL_ERROR_ON_CTL)
+        {
+            return Error::CANT_CREATE;
+        }
+
+        events_ = reinterpret_cast<struct epoll_event *>(::calloc(EPOLL_MAX_EVENTS, sizeof(event_)));
+
         return Error::OK;
     }
 
-    // TODO: add implemenration
     Error
-    Socket::Poll(PollType type, int timeout)
+    Socket::Wait(PollType type, int timeout)
     {
-        // TODO:
-        // ...
+        auto n = epoll_wait(efd_, events_, EPOLL_MAX_EVENTS, EPOLL_NON_BLOCKING);
+
+        if (n == EPOLL_ERROR_ON_WAIT) {
+            return Error::ERROR;
+        }
+
+        for (auto i = 0; i < n; ++i) {
+            if(events_[i].events & (EPOLLERR | EPOLLHUP | EPOLLIN)) {
+                return Error::ERROR;
+            }
+
+            if (events_[i].data.fd == sfd_) {
+                return Error::OK;
+            }
+        }
 
         return Error::OK;
     }
@@ -281,7 +335,7 @@ namespace core
     {
         ERR_FAIL_COND_V(!IsOpen(), Error::ERR_UNCONFIGURED)
 
-        bytes_read = ::recv(sock_, &buffer, len, 0);
+        bytes_read = ::recv(sfd_, &buffer, len, 0);
 
         if (bytes_read < 0) {
             SocketError err = GetSocketError();
@@ -306,7 +360,7 @@ namespace core
         memset(&addr, 0, len);
 
         bytes_read =
-            ::recvfrom(sock_, &(buffer.at(0)), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
+            ::recvfrom(sfd_, &(buffer.at(0)), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&addr), &len);
 
         if (bytes_read < 0) {
             SocketError err = GetSocketError();
@@ -346,7 +400,7 @@ namespace core
             flags = MSG_NOSIGNAL;
         }
 
-        bytes_sent = ::send(sock_, &buffer, len, flags);
+        bytes_sent = ::send(sfd_, &buffer, len, flags);
 
         if (bytes_sent < 0) {
             SocketError err = GetSocketError();
@@ -369,7 +423,7 @@ namespace core
         struct sockaddr_storage addr;
         size_t addr_size = SetAddrStorage(addr, ip, port, ip_type_);
 
-        bytes_sent = ::sendto(sock_, buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
+        bytes_sent = ::sendto(sfd_, buffer, len, 0, reinterpret_cast<struct sockaddr *>(&addr), addr_size);
 
         if (bytes_sent < 0) {
             SocketError err = GetSocketError();
@@ -387,10 +441,10 @@ namespace core
     int
     Socket::AvailableBytes() const
     {
-        ERR_FAIL_COND_V(sock_ == SOCK_EMPTY, -1);
+        ERR_FAIL_COND_V(sfd_ == SOCK_EMPTY, -1);
 
         int len;
-        auto ret = ::ioctl(sock_, FIONREAD, &len);
+        auto ret = ::ioctl(sfd_, FIONREAD, &len);
 
         ERR_FAIL_COND_V(ret == -1, 0)
 
@@ -403,13 +457,13 @@ namespace core
         ERR_FAIL_COND(!IsOpen());
 
         int ret  = 0;
-        int opts = ::fcntl(sock_, F_GETFL);
+        int opts = ::fcntl(sfd_, F_GETFL);
 
         if (enabled) {
-            ret = ::fcntl(sock_, F_SETFL, opts & ~O_NONBLOCK);
+            ret = ::fcntl(sfd_, F_SETFL, opts & ~O_NONBLOCK);
         }
         else {
-            ret = ::fcntl(sock_, F_SETFL, opts | O_NONBLOCK);
+            ret = ::fcntl(sfd_, F_SETFL, opts | O_NONBLOCK);
         }
 
         if (ret != 0) {
@@ -425,7 +479,7 @@ namespace core
 
         int par = enabled ? 1 : 0;
 
-        if (setsockopt(sock_, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0) {
+        if (setsockopt(sfd_, SOL_SOCKET, SO_BROADCAST, &par, sizeof(par)) != 0) {
             WARN_PRINT("Unable to change broadcast setting");
         }
     }
@@ -438,7 +492,7 @@ namespace core
 
         auto par = enabled ? 1 : 0;
 
-        if (setsockopt(sock_, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0) {
+        if (setsockopt(sfd_, IPPROTO_IPV6, IPV6_V6ONLY, &par, sizeof(int)) != 0) {
             WARN_PRINT("Unable to change IPv4 address mapping over IPv6 option");
         }
     }
@@ -450,7 +504,7 @@ namespace core
 
         auto par = enabled ? 1 : 0;
 
-        if (setsockopt(sock_, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0) {
+        if (setsockopt(sfd_, SOL_SOCKET, SO_REUSEADDR, &par, sizeof(int)) < 0) {
             WARN_PRINT("Unable to socket REUSEADDR option")
         }
     }
@@ -462,7 +516,7 @@ namespace core
 
         auto par = enabled ? 1 : 0;
 
-        if (setsockopt(sock_, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0) {
+        if (setsockopt(sfd_, SOL_SOCKET, SO_REUSEPORT, &par, sizeof(int)) < 0) {
             WARN_PRINT("Unable to set socket REUSEPORT option");
         }
     }
@@ -475,7 +529,7 @@ namespace core
 
         auto par = enabled ? 1 : 0;
 
-        if (setsockopt(sock_, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0) {
+        if (setsockopt(sfd_, IPPROTO_TCP, TCP_NODELAY, &par, sizeof(int)) < 0) {
             ERR_PRINT("Unable to set TCP no delay option");
         }
     }
