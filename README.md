@@ -12,19 +12,19 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 # Quick Start
 
-## Start dev server
+Start dev server:
 
 ```
 docker-compose -f docker-compose.dev.yml up -d dev_server
 ```
 
-## Run all tests
+Run all tests:
 
 ```
 docker-compose -f docker-compose.test.yml run --rm all_tests
 ```
 
-## Build for release
+Build for release:
 
 ```
 docker-compose -f docker-compose.release.yml run --rm build
