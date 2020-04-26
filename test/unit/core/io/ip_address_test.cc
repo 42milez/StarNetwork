@@ -38,7 +38,7 @@ TEST_CASE("IpAddress can be set IPv4 address", "[unit][ip_address]")
 {
     IpAddress ip_address;
 
-    ip_address.set_ipv4({129, 144, 52, 38});
+    ip_address.SetIpv4({129, 144, 52, 38});
     auto ret = ip_address.GetIPv4();
 
     REQUIRE((ret[0] == 129 && ret[1] == 144 && ret[2] == 52 && ret[3] == 38));
@@ -48,7 +48,7 @@ TEST_CASE("IpAddress can be set IPv6 address", "[unit][ip_address]")
 {
     IpAddress ip_address;
 
-    ip_address.set_ipv6(
+    ip_address.SetIpv6(
         {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF});
     auto ret = ip_address.GetIPv6();
 

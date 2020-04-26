@@ -2,44 +2,15 @@
 #define P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_
 
 #include <memory>
-
+#include <sys/epoll.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "ip.h"
 #include "lib/core/errors.h"
 
-class EventPoll;
-class Socket;
-
-using SOCKET      = int;
-using SOCKET_PTR  = std::shared_ptr<Socket>;
-using SOCKET_PTRS = std::vector<SOCKET_PTR>;
-
-class Socket
+namespace core
 {
-  private:
-    SOCKET _sock;
-
-    IP::Type _ip_type;
-
-    bool _is_stream;
-
-  private:
-    bool
-    _can_use_ip(const IpAddress &ip_addr, bool for_bind) const;
-
-    socklen_t
-    _set_addr_storage(struct sockaddr_storage &addr, const IpAddress &ip, uint16_t port, IP::Type ip_type);
-
-    void
-    _set_ip_port(struct sockaddr_storage &addr, IpAddress &ip, uint16_t &port);
-
-    void
-    _set_socket(SOCKET sock, IP::Type ip_type, bool is_stream);
-
-  public:
-    friend class EventPoll;
-
     enum class PollType
     {
         POLL_TYPE_IN,
@@ -47,73 +18,97 @@ class Socket
         POLL_TYPE_IN_OUT
     };
 
-    enum class Type
+    enum class SocketType
     {
         NONE,
         TCP,
         UDP
     };
 
-    SOCKET_PTR
-    accept(IpAddress &ip, uint16_t &port);
+    constexpr int SOCK_EMPTY = -1;
 
-    Error
-    bind(const IpAddress &ip, uint16_t port);
+    class Socket
+    {
+      public:
+        Socket();
+        Socket(int sock, IP::Type ip_type, bool is_stream);
 
-    void
-    close();
+        std::shared_ptr<Socket>
+        Accept(IpAddress &ip, uint16_t &port);
 
-    Error
-    connect(const IpAddress &ip, uint16_t port);
+        int
+        AvailableBytes() const;
 
-    Error
-    listen(int max_pending);
+        Error
+        Bind(const IpAddress &ip, uint16_t port);
 
-    Error
-    open(Type p_type, IP::Type ip_type);
+        void
+        Close();
 
-    Error
-    poll(PollType type, int timeout);
+        Error
+        Connect(const IpAddress &ip, uint16_t port);
 
-    Error
-    recv(uint8_t &buffer, size_t len, ssize_t &bytes_read);
+        Error
+        Listen(int max_pending);
 
-    Error
-    recvfrom(std::vector<uint8_t> &buffer, ssize_t &bytes_read, IpAddress &ip, uint16_t &port);
+        Error
+        Open(SocketType p_type, IP::Type ip_type);
 
-    Error
-    send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent);
+        Error
+        Recv(uint8_t &buffer, size_t len, ssize_t &bytes_read);
 
-    Error
-    sendto(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
+        Error
+        RecvFrom(std::vector<uint8_t> &buffer, ssize_t &bytes_read, IpAddress &ip, uint16_t &port);
 
-    bool
-    is_open() const;
+        Error
+        Send(const uint8_t &buffer, size_t len, ssize_t &bytes_sent);
 
-    int
-    get_available_bytes() const;
+        Error
+        SendTo(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
-    void
-    set_blocking_enabled(bool enabled);
+        Error
+        Wait(PollType type, int timeout);
 
-    void
-    set_broadcasting_enabled(bool enabled);
+      public:
+        inline bool
+        IsOpen() const
+        {
+            return sfd_ != SOCK_EMPTY;
+        }
 
-    void
-    set_ipv6_only_enabled(bool enabled);
+      public:
+        void
+        SetBlockingEnabled(bool enabled);
 
-    void
-    set_reuse_address_enabled(bool enabled);
+        void
+        SetBroadcastingEnabled(bool enabled);
 
-    void
-    set_reuse_port_enabled(bool enabled);
+        void
+        SetIpv6OnlyEnabled(bool enabled);
 
-    void
-    set_tcp_no_delay_enabled(bool enabled);
+        void
+        SetReuseAddressEnabled(bool enabled);
 
-    Socket();
+        void
+        SetReusePortEnabled(bool enabled);
 
-    ~Socket();
-};
+        void
+        SetTcpNoDelayEnabled(bool enabled);
+
+        inline ~Socket()
+        {
+            Close();
+        }
+
+      private:
+        IP::Type ip_type_;
+        struct epoll_event event_;
+        struct epoll_event *events_;
+        bool is_stream_;
+        int ctl_;
+        int efd_;
+        int sfd_;
+    };
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_IO_SOCKET_H_

@@ -36,12 +36,12 @@ namespace
             auto octet3 = static_cast<uint8_t>(addr_in.sin_addr.s_addr >> 8);
             auto octet4 = static_cast<uint8_t>(addr_in.sin_addr.s_addr);
 
-            ip.set_ipv4({octet1, octet2, octet3, octet4});
+            ip.SetIpv4({octet1, octet2, octet3, octet4});
         }
         else if (addr.sa_family == AF_INET6) {
             auto &addr_in6 = reinterpret_cast<struct sockaddr_in6 &>(addr);
 
-            ip.set_ipv6(addr_in6.sin6_addr.s6_addr);
+            ip.SetIpv6(addr_in6.sin6_addr.s6_addr);
         }
 
         return ip;
@@ -152,7 +152,7 @@ struct IpResolver
 
             q.response = core::Singleton<IP>::Instance().resolve_hostname(q.hostname, q.type);
 
-            if (!q.response.is_valid()) {
+            if (!q.response.IsValid()) {
                 q.status = IP::ResolverStatus::ERROR;
             }
             else {
@@ -185,7 +185,7 @@ IP::resolve_hostname(const std::string &hostname, IP::Type type)
 
     std::string key = IpResolver::get_cache_key(hostname, type);
 
-    if (_resolver->cache.count(key) && _resolver->cache[key].is_valid()) {
+    if (_resolver->cache.count(key) && _resolver->cache[key].IsValid()) {
         IpAddress ip_addr = _resolver->cache[key];
 
         return ip_addr;
@@ -216,7 +216,7 @@ IP::resolve_hostname_queue_item(const std::string &hostname, IP::Type type)
     _resolver->queue[id].hostname = hostname;
     _resolver->queue[id].type     = type;
 
-    if (_resolver->cache.count(key) && _resolver->cache[key].is_valid()) {
+    if (_resolver->cache.count(key) && _resolver->cache[key].IsValid()) {
         _resolver->queue[id].response = _resolver->cache[key];
         _resolver->queue[id].status   = IP::ResolverStatus::NONE;
     }

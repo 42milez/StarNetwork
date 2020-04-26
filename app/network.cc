@@ -77,8 +77,8 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
 
     rudp::NetworkConfig config;
 
-    if (!bind_ip_.is_wildcard()) {
-        ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+    if (!bind_ip_.IsWildcard()) {
+        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), Error::ERR_INVALID_PARAMETER)
         config.SetIP(bind_ip_.GetIPv6(), 16);
     }
 
@@ -96,10 +96,10 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
     else {
         ip = core::Singleton<IP>::Instance().resolve_hostname(server_address, IP::Type::V4);
 
-        ERR_FAIL_COND_V(!ip.is_valid(), Error::CANT_CREATE)
+        ERR_FAIL_COND_V(!ip.IsValid(), Error::CANT_CREATE)
     }
 
-    ERR_FAIL_COND_V(!ip.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!ip.IsIpv4(), Error::ERR_INVALID_PARAMETER)
 
     rudp::NetworkConfig server_config;
 
@@ -124,8 +124,8 @@ app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwid
 
     rudp::NetworkConfig config;
 
-    if (!bind_ip_.is_wildcard()) {
-        ERR_FAIL_COND_V(!bind_ip_.is_ipv4(), Error::ERR_INVALID_PARAMETER)
+    if (!bind_ip_.IsWildcard()) {
+        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), Error::ERR_INVALID_PARAMETER)
         config.SetIP(bind_ip_.GetIPv6(), 16);
     }
 

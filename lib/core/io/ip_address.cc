@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cstdlib>
 #include <sstream>
 
 #include <boost/algorithm/string/classification.hpp>
@@ -11,16 +10,7 @@
 namespace
 {
     void
-    _32_to_buf(uint8_t *dst, uint32_t n)
-    {
-        dst[0] = (n >> 24) & 0xff;
-        dst[1] = (n >> 16) & 0xff;
-        dst[2] = (n >> 8) & 0xff;
-        dst[3] = (n >> 0) & 0xff;
-    }
-
-    void
-    _parse_hex(const std::string &str, int start, uint8_t *dst)
+    ParseHex(const std::string &str, int start, uint8_t *dst)
     {
         uint16_t ret = 0;
 
@@ -59,17 +49,128 @@ namespace
         dst[0] = ret >> 8;
         dst[1] = ret & 0xff;
     }
+
+    void
+    ParseIpv4(const std::string &str, int start, uint8_t *ret)
+    {
+        std::string ip;
+
+        if (start != 0) {
+            ip = str.substr(start, str.length() - start);
+        }
+        else {
+            ip = str;
+        }
+
+        auto slices = std::count(ip.begin(), ip.end(), '.');
+
+        if (slices != 3) {
+            // TODO: logging
+            // ...
+
+            // TODO: handle error
+            // ...
+        }
+
+        std::vector<std::string> octets;
+        boost::algorithm::split(octets, ip, boost::is_any_of("."));
+
+        for (auto i = 0; i < 4; i++) {
+            ret[i] = std::stoi(octets[i]);
+        }
+    }
+
+    void
+    ParseIpv6(const std::string &str, uint16_t (&field16)[8])
+    {
+        static const int parts_total = 8;
+        int parts[parts_total]       = {0};
+        int parts_count              = 0;
+        bool part_found              = false;
+        bool part_skip               = false;
+        bool part_ipv4               = false;
+        int parts_idx                = 0;
+
+        for (auto i = 0; i < str.length(); i++) {
+            auto c = str[i];
+
+            if (c == ':') {
+                if (i == 0) {
+                    continue; // next must be a ':'
+                }
+
+                if (!part_found) {
+                    part_skip          = true;
+                    parts[parts_idx++] = -1;
+                }
+
+                part_found = false;
+            }
+            else if (c == '.') {
+                part_ipv4 = true;
+            }
+            else if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+                if (!part_found) {
+                    parts[parts_idx++] = i;
+                    part_found         = true;
+                    ++parts_count;
+                }
+            }
+            else {
+                // TODO: logging
+                // ...
+
+                // TODO: handle error
+                // ...
+
+                return;
+            }
+        }
+
+        int parts_extra = 0;
+
+        if (part_skip) {
+            parts_extra = parts_total - parts_count;
+        }
+
+        int idx = 0;
+
+        for (auto i = 0; i < parts_idx; i++) {
+            if (parts[i] == -1) {
+                for (auto j = 1; j < parts_extra; j++) {
+                    field16[idx++] = 0;
+                }
+                continue;
+            }
+
+            if (part_ipv4 && i == parts_idx - 1) {
+                ParseIpv4(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx])); // should be the last one
+            }
+            else {
+                ParseHex(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx++]));
+            }
+        }
+    }
+
+    void
+    SplitUint32IntoUint8(uint8_t *dst, uint32_t n)
+    {
+        dst[0] = (n >> 24) & 0xff;
+        dst[1] = (n >> 16) & 0xff;
+        dst[2] = (n >> 8) & 0xff;
+        dst[3] = (n >> 0) & 0xff;
+    }
 } // namespace
 
 IpAddress::operator std::string() const
 {
-    if (!_valid) {
+    if (!valid_) {
         return "";
     }
 
-    if (is_ipv4()) {
-        return std::to_string(_field8[12]) + "." + std::to_string(_field8[13]) + "." + std::to_string(_field8[14]) +
-               "." + std::to_string(_field8[15]);
+    if (IsIpv4()) {
+        return std::to_string(field8_[12]) + "." + std::to_string(field8_[13]) + "." + std::to_string(field8_[14]) +
+               "." + std::to_string(field8_[15]);
     }
 
     std::stringstream ret;
@@ -79,8 +180,8 @@ IpAddress::operator std::string() const
             ret << ":";
         }
 
-        // TODO: try to use _field16
-        uint16_t num = (_field8[i * 2] << 8) + _field8[i * 2 + 1];
+        // TODO: try to use field16_
+        uint16_t num = (field8_[i * 2] << 8) + field8_[i * 2 + 1];
 
         ret << std::hex << num;
     }
@@ -88,121 +189,19 @@ IpAddress::operator std::string() const
     return ret.str();
 }
 
-void
-IpAddress::_parse_ipv4(const std::string &str, int start, uint8_t *ret)
-{
-    std::string ip;
-
-    if (start != 0) {
-        ip = str.substr(start, str.length() - start);
-    }
-    else {
-        ip = str;
-    }
-
-    auto slices = std::count(ip.begin(), ip.end(), '.');
-
-    if (slices != 3) {
-        // TODO: logging
-        // ...
-
-        // TODO: handle error
-        // ...
-    }
-
-    std::vector<std::string> octets;
-    boost::algorithm::split(octets, ip, boost::is_any_of("."));
-
-    for (auto i = 0; i < 4; i++) {
-        ret[i] = std::stoi(octets[i]);
-    }
-}
-
-void
-IpAddress::_parse_ipv6(const std::string &str)
-{
-    static const int parts_total = 8;
-    int parts[parts_total]       = {0};
-    int parts_count              = 0;
-    bool part_found              = false;
-    bool part_skip               = false;
-    bool part_ipv4               = false;
-    int parts_idx                = 0;
-
-    for (auto i = 0; i < str.length(); i++) {
-        auto c = str[i];
-
-        if (c == ':') {
-            if (i == 0) {
-                continue; // next must be a ':'
-            }
-
-            if (!part_found) {
-                part_skip          = true;
-                parts[parts_idx++] = -1;
-            }
-
-            part_found = false;
-        }
-        else if (c == '.') {
-            part_ipv4 = true;
-        }
-        else if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
-            if (!part_found) {
-                parts[parts_idx++] = i;
-                part_found         = true;
-                ++parts_count;
-            }
-        }
-        else {
-            // TODO: logging
-            // ...
-
-            // TODO: handle error
-            // ...
-
-            return;
-        }
-    }
-
-    int parts_extra = 0;
-
-    if (part_skip) {
-        parts_extra = parts_total - parts_count;
-    }
-
-    int idx = 0;
-
-    for (auto i = 0; i < parts_idx; i++) {
-        if (parts[i] == -1) {
-            for (auto j = 1; j < parts_extra; j++) {
-                _field16[idx++] = 0;
-            }
-            continue;
-        }
-
-        if (part_ipv4 && i == parts_idx - 1) {
-            _parse_ipv4(str, parts[i], reinterpret_cast<uint8_t *>(&_field16[idx])); // should be the last one
-        }
-        else {
-            _parse_hex(str, parts[i], reinterpret_cast<uint8_t *>(&_field16[idx++]));
-        }
-    }
-}
-
 bool
 IpAddress::operator!=(const IpAddress &ip_address) const
 {
-    if (_valid != ip_address._valid) {
+    if (valid_ != ip_address.valid_) {
         return true;
     }
 
-    if (!_valid) {
+    if (!valid_) {
         return true;
     }
 
     for (auto i = 0; i < 4; i++) {
-        if (ip_address._field32[i] != _field32[i]) {
+        if (ip_address.field32_[i] != field32_[i]) {
             return true;
         }
     }
@@ -213,16 +212,16 @@ IpAddress::operator!=(const IpAddress &ip_address) const
 bool
 IpAddress::operator==(const IpAddress &ip_address) const
 {
-    if (_valid != ip_address._valid) {
+    if (valid_ != ip_address.valid_) {
         return false;
     }
 
-    if (!_valid) {
+    if (!valid_) {
         return false;
     }
 
     for (auto i = 0; i < 4; i++) {
-        if (ip_address._field32[i] != _field32[i]) {
+        if (ip_address.field32_[i] != field32_[i]) {
             return false;
         }
     }
@@ -231,29 +230,11 @@ IpAddress::operator==(const IpAddress &ip_address) const
 }
 
 void
-IpAddress::clear()
+IpAddress::Clear()
 {
-    memset(&_field8[0], 0, sizeof(_field8));
-    _valid    = false;
-    _wildcard = false;
-}
-
-bool
-IpAddress::is_ipv4() const
-{
-    return (_field32[0] == 0 && _field32[1] == 0 && _field16[4] == 0 && _field16[5] == 0xffff);
-}
-
-bool
-IpAddress::is_valid() const
-{
-    return _valid;
-}
-
-bool
-IpAddress::is_wildcard() const
-{
-    return _wildcard;
+    memset(&field8_[0], 0, sizeof(field8_));
+    valid_    = false;
+    wildcard_ = false;
 }
 
 const uint8_t *
@@ -262,7 +243,7 @@ IpAddress::GetIPv4() const
     // TODO: bounds checking
     // ...
 
-    return &(_field8[12]);
+    return &(field8_[12]);
 }
 
 const uint8_t *
@@ -271,61 +252,26 @@ IpAddress::GetIPv6() const
     // TODO: bounds checking
     // ...
 
-    return _field8;
-}
-
-void
-IpAddress::set_ipv4(const uint8_t (&ip)[4])
-{
-    clear();
-
-    _valid = true;
-
-    _field16[5] = 0xffff;
-    _field32[3] = reinterpret_cast<const uint32_t &>(ip);
-}
-
-void
-IpAddress::set_ipv6(const uint8_t (&ip)[16])
-{
-    clear();
-
-    _valid = true;
-
-    for (auto i = 0; i < 16; ++i) {
-        _field8[i] = ip[i];
-    }
-}
-
-void
-IpAddress::set_ipv6(const std::array<uint8_t, 16> &host)
-{
-    clear();
-
-    _valid = true;
-
-    for (auto i = 0; i < 16; ++i) {
-        _field8[i] = host.at(i);
-    }
+    return field8_;
 }
 
 IpAddress::IpAddress(const std::string &str)
 {
-    clear();
+    Clear();
 
     if (str == "*") {
-        _wildcard = true;
+        wildcard_ = true;
     }
     else if (str.find(':') != std::string::npos) {
         // IPv6
-        _parse_ipv6(str);
-        _valid = true;
+        ParseIpv6(str, field16_);
+        valid_ = true;
     }
     else if (std::count(str.begin(), str.end(), '.') == 3) {
         // IPv4 (mapped to IPv6 internally)
-        _field16[5] = 0xffff;
-        _parse_ipv4(str, 0, &_field8[12]);
-        _valid = true;
+        field16_[5] = 0xffff;
+        ParseIpv4(str, 0, &field8_[12]);
+        valid_ = true;
     }
     else {
         // TODO: logging
@@ -335,26 +281,21 @@ IpAddress::IpAddress(const std::string &str)
 
 IpAddress::IpAddress(uint32_t a, uint32_t b, uint32_t c, uint32_t d, bool is_v6)
 {
-    clear();
+    Clear();
 
-    _valid = true;
+    valid_ = true;
 
     if (!is_v6) {
-        _field16[5] = 0xffff;
-        _field8[12] = a;
-        _field8[13] = b;
-        _field8[14] = c;
-        _field8[15] = d;
+        field16_[5] = 0xffff;
+        field8_[12] = a;
+        field8_[13] = b;
+        field8_[14] = c;
+        field8_[15] = d;
     }
     else {
-        _32_to_buf(&_field8[0], a);
-        _32_to_buf(&_field8[4], b);
-        _32_to_buf(&_field8[8], c);
-        _32_to_buf(&_field8[12], d);
+        SplitUint32IntoUint8(&field8_[0], a);
+        SplitUint32IntoUint8(&field8_[4], b);
+        SplitUint32IntoUint8(&field8_[8], c);
+        SplitUint32IntoUint8(&field8_[12], d);
     }
-}
-
-IpAddress::IpAddress()
-{
-    clear();
 }
