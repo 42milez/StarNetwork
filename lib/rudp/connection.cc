@@ -66,7 +66,7 @@ namespace rudp
 
         received_address.SetIP(ip.GetIPv6(), 16);
 
-        LOG_DEBUG_VA("received length: {0}", read_count)
+        core::LOG_DEBUG_VA("received length: {0}", read_count);
 
         return read_count;
     }
@@ -82,13 +82,13 @@ namespace rudp
 
         auto size = chamber->Write(out);
 
-        LOG_DEBUG_VA("data wrote: {0}", std::string{out.begin(), out.end()})
+        core::LOG_DEBUG_VA("data wrote: {0}", std::string{out.begin(), out.end()});
 
         ssize_t sent = 0;
 
         auto err = socket_->SendTo(&(out.at(0)), size, sent, dest, address.port());
 
-        LOG_DEBUG_VA("bytes sent: {0}", sent)
+        core::LOG_DEBUG_VA("bytes sent: {0}", sent);
 
         if (err != Error::OK) {
             if (err == Error::ERR_BUSY)

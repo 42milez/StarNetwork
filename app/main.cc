@@ -25,6 +25,10 @@ namespace
     const std::string DEFAULT_SERVER_ADDRESS = "::FFFF:127.0.0.1";
     const uint16_t DEFAULT_PORT              = 49152;
     const std::string LOG_FILE_PATH          = "/var/log/p2p_techdemo/app.log";
+
+    const size_t MAX_PEERS       = 32;
+    const uint32_t BANDWIDTH_IN  = 100;
+    const uint32_t BANDWIDTH_OUT = 100;
 } // namespace
 
 int
@@ -89,19 +93,20 @@ main(int argc, const char **argv)
     core::AsyncWorker message_dispatcher{[&node] {
         if (node->Peek() > 0) {
             auto [error, segment] = node->Receive();
-            core::Singleton<core::Logger>::Instance().Info("message: {0}", segment->ToString());
+            auto payload = segment->ToString();
+            core::LOG_INFO_VA("message: {0}", std::string{payload.begin() + 5, payload.end()});
         }
     }};
 
     message_dispatcher.Run();
 
     if (mode == "server") {
-        core::Singleton<core::Logger>::Instance().Info("running as server");
-        node->CreateServer(port, 32, 100, 100);
+        core::LOG_INFO("running as server");
+        node->CreateServer(port, MAX_PEERS, BANDWIDTH_IN, BANDWIDTH_OUT);
     }
     else {
-        core::Singleton<core::Logger>::Instance().Info("running as client");
-        node->CreateClient(host_address, host_port, port, 100, 100);
+        core::LOG_INFO("running as client");
+        node->CreateClient(host_address, host_port, port, BANDWIDTH_IN, BANDWIDTH_OUT);
     }
 
     while (!core::Singleton<core::ExitHandler>::Instance().ShouldExit()) {

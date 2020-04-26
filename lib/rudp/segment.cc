@@ -23,7 +23,7 @@ namespace rudp
                 buffer_pos_ = data->size();
             }
             catch (std::bad_alloc &e) {
-                LOG_CRITICAL("BAD ALLOCATION")
+                core::LOG_CRITICAL("BAD ALLOCATION");
                 throw e;
             }
         }
@@ -42,7 +42,7 @@ namespace rudp
                 buffer_pos_ = data->size();
             }
             catch (std::bad_alloc &e) {
-                LOG_CRITICAL("BAD ALLOCATION")
+                core::LOG_CRITICAL("BAD ALLOCATION");
                 throw e;
             }
         }

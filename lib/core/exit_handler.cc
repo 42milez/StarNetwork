@@ -38,7 +38,7 @@ namespace core
         AbnormalTerminationHandler(int signum, siginfo_t *info, void *ctx)
         {
             LOG_DEBUG_VA("[SIGABRT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid)
+                         (int)info->si_pid, (int)info->si_uid);
             core::Singleton<core::ExitHandler>::Instance().Exit(signum);
         }
 
@@ -46,7 +46,7 @@ namespace core
         InteractiveAttentionHandler(int signum, siginfo_t *info, void *ctx)
         {
             LOG_DEBUG_VA("[SIGINT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid)
+                         (int)info->si_pid, (int)info->si_uid);
             core::Singleton<core::ExitHandler>::Instance().Exit(signum);
         }
 
@@ -54,7 +54,7 @@ namespace core
         HungupHandler(int signum, siginfo_t *info, void *ctx)
         {
             LOG_DEBUG_VA("[SIGHUP] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid)
+                         (int)info->si_pid, (int)info->si_uid);
             core::Singleton<core::ExitHandler>::Instance().Exit(signum);
         }
 
@@ -62,7 +62,7 @@ namespace core
         TerminationHandler(int signum, siginfo_t *info, void *ctx)
         {
             LOG_DEBUG_VA("[SIGTERM] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid)
+                         (int)info->si_pid, (int)info->si_uid);
             core::Singleton<core::ExitHandler>::Instance().Exit(signum);
         }
     } // namespace
@@ -118,13 +118,13 @@ namespace core
     ExitHandler::Exit()
     {
         should_exit_ = true;
-        LOG_INFO("gracefully shutting down...")
+        LOG_INFO("gracefully shutting down...");
     }
 
     void
     ExitHandler::Exit(int signum)
     {
         should_exit_ = true;
-        LOG_INFO_VA("gracefully shutting down... ({0})", signum)
+        LOG_INFO_VA("gracefully shutting down... ({0})", signum);
     }
 } // namespace core

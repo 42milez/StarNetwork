@@ -86,7 +86,7 @@ namespace rudp
                 // TODO: call NotifyDisconnect()
                 // ...
 
-                LOG_DEBUG("peer is going to be disconnected (timeout)")
+                core::LOG_DEBUG("peer is going to be disconnected (timeout)");
 
                 return true;
             }
@@ -100,8 +100,8 @@ namespace rudp
 
             outgoing_reliable_commands_.insert(outgoing_reliable_commands_.begin(), *out_cmd);
 
-            LOG_DEBUG_VA("command is going to send next time (timeout): {0}",
-                         COMMANDS_AS_STRING.at((*out_cmd)->CommandNumber()))
+            core::LOG_DEBUG_VA("command is going to send next time (timeout): {0}",
+                         COMMANDS_AS_STRING.at((*out_cmd)->CommandNumber()));
 
             if (cur_cmd == sent_reliable_commands_.begin() && !sent_reliable_commands_.empty())
                 next_timeout_ = (*cur_cmd)->sent_time() + (*cur_cmd)->round_trip_timeout();
@@ -118,7 +118,7 @@ namespace rudp
                                                 const std::vector<std::shared_ptr<Channel>> &channels,
                                                 uint32_t service_time)
     {
-        LOG_DEBUG_VA("outgoing reliable command count: {0}", outgoing_reliable_commands_.size())
+        core::LOG_DEBUG_VA("outgoing reliable command count: {0}", outgoing_reliable_commands_.size());
 
         auto window_exceeded = 0;
         auto window_wrap     = false;
@@ -221,13 +221,13 @@ namespace rudp
 
             sent_reliable_commands_.push_back(*outgoing_command);
 
-            LOG_DEBUG_VA("outgoing reliable command was removed (on send): {0} (ch: {1}, sn: {2})",
+            core::LOG_DEBUG_VA("outgoing reliable command was removed (on send): {0} (ch: {1}, sn: {2})",
                          COMMANDS_AS_STRING.at((*outgoing_command)->CommandNumber()),
                          (*outgoing_command)->command()->header.channel_id,
-                         (*outgoing_command)->command()->header.reliable_sequence_number)
+                         (*outgoing_command)->command()->header.reliable_sequence_number);
 
-            LOG_DEBUG_VA("outgoing reliable command count: {0} ({1})", outgoing_reliable_commands_.size(),
-                         (*outgoing_command)->command()->header.reliable_sequence_number)
+            core::LOG_DEBUG_VA("outgoing reliable command count: {0} ({1})", outgoing_reliable_commands_.size(),
+                         (*outgoing_command)->command()->header.reliable_sequence_number);
 
             outgoing_reliable_commands_.erase(outgoing_command);
         }
@@ -383,13 +383,13 @@ namespace rudp
 
         if (no_sent_reliable_command_matched) {
             outgoing_reliable_commands_.erase(it);
-            LOG_DEBUG_VA("outgoing reliable command was removed (on receive): {0} ({1})",
-                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()), reliable_sequence_number)
+            core::LOG_DEBUG_VA("outgoing reliable command was removed (on receive): {0} ({1})",
+                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()), reliable_sequence_number);
         }
         else {
             sent_reliable_commands_.erase(it);
-            LOG_DEBUG_VA("sent reliable command was removed (on receive): {0} ({1})",
-                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()), reliable_sequence_number)
+            core::LOG_DEBUG_VA("sent reliable command was removed (on receive): {0} ({1})",
+                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()), reliable_sequence_number);
         }
 
         return static_cast<RUdpProtocolCommand>(command_number);
@@ -482,14 +482,14 @@ namespace rudp
 
         if (outgoing_command->IsAcknowledge()) {
             outgoing_reliable_commands_.push_back(outgoing_command);
-            LOG_DEBUG_VA("outgoing reliable command was added: {0} ({1})",
+            core::LOG_DEBUG_VA("outgoing reliable command was added: {0} ({1})",
                          COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()),
-                         outgoing_command->command()->header.reliable_sequence_number)
+                         outgoing_command->command()->header.reliable_sequence_number);
         }
         else {
             outgoing_unreliable_commands_.push_back(outgoing_command);
-            LOG_DEBUG_VA("outgoing unreliable command was added: {0} (-)",
-                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()))
+            core::LOG_DEBUG_VA("outgoing unreliable command was added: {0} (-)",
+                         COMMANDS_AS_STRING.at(outgoing_command->CommandNumber()));
         }
     }
 } // namespace rudp

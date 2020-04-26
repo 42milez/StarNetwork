@@ -352,7 +352,7 @@ namespace rudp
 
         auto received_reliable_sequence_number = cmd->acknowledge.received_reliable_sequence_number;
 
-        LOG_DEBUG_VA("acknowledge was received ({0})", received_reliable_sequence_number)
+        core::LOG_DEBUG_VA("acknowledge was received ({0})", received_reliable_sequence_number);
 
         auto command_number =
             peer->RemoveSentReliableCommand(received_reliable_sequence_number, cmd->header.channel_id);

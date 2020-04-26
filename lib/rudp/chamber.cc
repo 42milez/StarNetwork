@@ -83,7 +83,7 @@ namespace rudp
     int
     Chamber::Write(std::vector<uint8_t> &out)
     {
-        LOG_DEBUG_VA("buffer count: {0}", buffer_count_)
+        core::LOG_DEBUG_VA("buffer count: {0}", buffer_count_);
 
         auto size = 0;
         for (size_t i = 0; i < buffer_count_; ++i)

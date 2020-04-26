@@ -254,7 +254,7 @@ namespace rudp
                 auto cmd_body = std::vector<uint8_t>{current_data, end};
 
                 if (cmd_type == RUdpProtocolCommand::ACKNOWLEDGE) {
-                    LOG_DEBUG_VA("command was received: ACKNOWLEDGE ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: ACKNOWLEDGE ({0})", cmd->header.reliable_sequence_number);
 
                     auto disconnect = [this, checksum](std::shared_ptr<Peer> &peer) {
                         Disconnect(peer, peer->event_data(), checksum);
@@ -265,7 +265,7 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::CONNECT) {
-                    LOG_DEBUG_VA("command was received: CONNECT ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: CONNECT ({0})", cmd->header.reliable_sequence_number);
 
                     if (peer) {
                         IS_EVENT_AVAILABLE()
@@ -298,29 +298,29 @@ namespace rudp
                                              host_outgoing_bandwidth_);
                 }
                 else if (cmd_type == RUdpProtocolCommand::VERIFY_CONNECT) {
-                    LOG_DEBUG_VA("command was received: VERIFY_CONNECT ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: VERIFY_CONNECT ({0})", cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::DISCONNECT) {
-                    LOG_DEBUG_VA("command was received: DISCONNECT ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: DISCONNECT ({0})", cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::PING) {
-                    LOG_DEBUG_VA("command was received: PING ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: PING ({0})", cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandlePing(peer) == Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_RELIABLE) {
-                    LOG_DEBUG_VA("command was received: SEND_RELIABLE ({0})", cmd->header.reliable_sequence_number)
-                    LOG_DEBUG_VA("received data: {0}", std::string{cmd_body.begin(), cmd_body.end()})
+                    core::LOG_DEBUG_VA("command was received: SEND_RELIABLE ({0})", cmd->header.reliable_sequence_number);
+                    core::LOG_DEBUG_VA("received data: {0}", std::string{cmd_body.begin(), cmd_body.end()});
 
                     auto &net = peer->net();
 
@@ -345,21 +345,21 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE) {
-                    LOG_DEBUG_VA("command was received: SEND_UNRELIABLE ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: SEND_UNRELIABLE ({0})", cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
                     // if (protocol_->HandleSendUnreliable(peer, cmd, current_data))
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNSEQUENCED) {
-                    LOG_DEBUG_VA("command was received: SEND_UNSEQUENCED ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: SEND_UNSEQUENCED ({0})", cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
                     // if (protocol_->HandleSendUnsequenced(peer, cmd, current_data))
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT) {
-                    LOG_DEBUG_VA("command was received: SEND_FRAGMENT ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: SEND_FRAGMENT ({0})", cmd->header.reliable_sequence_number);
 
                     auto &net = peer->net();
 
@@ -383,22 +383,22 @@ namespace rudp
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT) {
-                    LOG_DEBUG_VA("command was received: BANDWIDTH_LIMIT ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: BANDWIDTH_LIMIT ({0})", cmd->header.reliable_sequence_number);
 
                     if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::THROTTLE_CONFIGURE) {
-                    LOG_DEBUG_VA("command was received: THROTTLE_CONFIGURE ({0})", cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: THROTTLE_CONFIGURE ({0})", cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
                     // if (protocol_->HandleThrottleConfigure(peer, cmd))
                     //     IS_EVENT_AVAILABLE()
                 }
                 else if (cmd_type == RUdpProtocolCommand::SEND_UNRELIABLE_FRAGMENT) {
-                    LOG_DEBUG_VA("command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
-                                 cmd->header.reliable_sequence_number)
+                    core::LOG_DEBUG_VA("command was received: SEND_UNRELIABLE_FRAGMENT ({0})",
+                                 cmd->header.reliable_sequence_number);
 
                     // TODO: add implementation
                     // if (protocol_->HandleSendUnreliableFragment(peer, cmd, current_data))

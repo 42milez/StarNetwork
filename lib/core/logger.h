@@ -3,6 +3,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include "lib/core/singleton.h"
+
 namespace core
 {
     class Logger
@@ -78,15 +80,43 @@ namespace core
     };
 
 #ifdef DEBUG
-#define LOG_DEBUG(fmt) core::Singleton<core::Logger>::Instance().Debug(fmt);
-#define LOG_DEBUG_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Debug(fmt, __VA_ARGS__);
+    template <typename T>
+    void LOG_DEBUG(T fmt)
+    {
+        core::Singleton<core::Logger>::Instance().Debug(fmt);
+    }
+
+    template <typename T, class... Args>
+    void LOG_DEBUG_VA(T fmt, Args... args)
+    {
+        core::Singleton<core::Logger>::Instance().Debug(fmt, args...);
+    }
 #else
-#define LOG_DEBUG(fmt)
-#define LOG_DEBUG_VA(fmt, ...)
+    template <typename T>
+    void LOG_DEBUG(T fmt)
+    {}
+
+    template <typename T, class... Args>
+    void LOG_DEBUG_VA(T fmt, Args... args)
+    {}
 #endif
-#define LOG_INFO(fmt) core::Singleton<core::Logger>::Instance().Info(fmt);
-#define LOG_INFO_VA(fmt, ...) core::Singleton<core::Logger>::Instance().Info(fmt, __VA_ARGS__);
-#define LOG_CRITICAL(fmt) core::Singleton<core::Logger>::Instance().Critical(fmt);
+    template <typename T>
+    void LOG_INFO(T fmt)
+    {
+        core::Singleton<core::Logger>::Instance().Info(fmt);
+    }
+
+    template <typename T, class... Args>
+    void LOG_INFO_VA(T fmt, Args... args)
+    {
+        core::Singleton<core::Logger>::Instance().Info(fmt, args...);
+    }
+
+    template <typename T>
+    void LOG_CRITICAL(T fmt)
+    {
+        core::Singleton<core::Logger>::Instance().Critical(fmt);
+    }
 } // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_LOGGER_H_
