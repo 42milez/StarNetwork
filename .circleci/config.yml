@@ -29,26 +29,31 @@ jobs:
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
             BUILD_DIR: *build_dir
+            CMAKE_BUILD_TYPE: Debug
       - run:
           name: "Build All with Address Sanitizer"
           command: /bin/bash ./docker/script/build/build_all_asan.bash
           environment:
             BUILD_DIR: *build_dir_asan
+            CMAKE_BUILD_TYPE: Debug
       - run:
           name: "Build All with Leak Sanitizer"
           command: /bin/bash ./docker/script/build/build_all_lsan.bash
           environment:
             BUILD_DIR: *build_dir_lsan
+            CMAKE_BUILD_TYPE: Debug
       - run:
           name: "Build All with Memory Sanitizer"
           command: /bin/bash ./docker/script/build/build_all_msan.bash
           environment:
             BUILD_DIR: *build_dir_msan
+            CMAKE_BUILD_TYPE: Debug
       - run:
           name: "Build All with Thread Sanitizer"
           command: /bin/bash ./docker/script/build/build_all_tsan.bash
           environment:
             BUILD_DIR: *build_dir_tsan
+            CMAKE_BUILD_TYPE: Debug
       - save_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}-{{ checksum "./cmake-build-test/CMakeCache.txt" }}
           paths:

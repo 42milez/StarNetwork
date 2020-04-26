@@ -27,6 +27,7 @@ services:
     container_name: p2p-techdemo-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
+      - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
@@ -35,6 +36,7 @@ services:
     container_name: p2p-techdemo-all-test-with-asan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-asan
+      - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
@@ -43,6 +45,7 @@ services:
     container_name: p2p-techdemo-all-test-with-lsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-lsan
+      - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
@@ -51,6 +54,7 @@ services:
 #    container_name: p2p-techdemo-all-test-with-msan
 #    environment:
 #      - BUILD_DIR=/var/app/cmake-build-test-msan
+#      - CMAKE_BUILD_TYPE=Debug
 #    command: >
 #      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
 #               /bin/bash ./docker/script/test/run_all_tests.bash"
@@ -59,9 +63,11 @@ services:
     container_name: p2p-techdemo-all-test-with-tsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-tsan
+      - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_tsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
+
 volumes:
   cmake_build_test:
     driver: local

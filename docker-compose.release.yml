@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+
+  build_base: &build_base
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: p2p-techdemo-build-base
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./.git:/var/app/.git
+      - ./app:/var/app/app
+      - ./cmake:/var/app/cmake
+      - ./docker:/var/app/docker
+      - ./lib:/var/app/lib
+      - ./test:/var/app/test
+      - ./CMakeLists.txt:/var/app/CMakeLists.txt
+      - ./conanfile.txt:/var/app/conanfile.txt
+      - cmake_build_release:/var/app/cmake-build-release
+      - conan:/root/.conan
+
+  build:
+    <<: *build_base
+    container_name: p2p-techdemo-release
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-release
+      - CMAKE_BUILD_TYPE=Release
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all.bash &&
+               /bin/bash ./docker/script/test/run_all_tests.bash"
+
+volumes:
+  cmake_build_release:
+    driver: local
+  conan:
+    driver: local

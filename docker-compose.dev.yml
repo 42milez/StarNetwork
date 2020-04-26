@@ -14,6 +14,8 @@ services:
     ports:
       - "2222:22"
       - "7777:7777"
+    environment:
+      - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
                /usr/sbin/sshd -D"
