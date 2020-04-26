@@ -28,7 +28,7 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 # References
 
-- [Godot Engine](https://github.com/godotengine/godot) : Multi-platform 2D and 3D game engine
 - [ENet](https://github.com/lsalzman/enet) : Reliable UDP networking library
+- [Godot Engine](https://github.com/godotengine/godot) : Multi-platform 2D and 3D game engine
 - [Mozc](https://github.com/google/mozc) : Japanese Input Method Editor designed for multi-platform
 - [quiche](https://quiche.googlesource.com/quiche/) : Google's implementation of QUIC and related protocols
