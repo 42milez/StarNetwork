@@ -81,39 +81,39 @@ namespace core
 
 #ifdef DEBUG
     template <typename T>
-    void LOG_DEBUG(T fmt)
+    inline void LOG_DEBUG(T fmt)
     {
         core::Singleton<core::Logger>::Instance().Debug(fmt);
     }
 
     template <typename T, class... Args>
-    void LOG_DEBUG_VA(T fmt, Args... args)
+    inline void LOG_DEBUG_VA(T fmt, Args... args)
     {
         core::Singleton<core::Logger>::Instance().Debug(fmt, args...);
     }
 #else
     template <typename T>
-    void LOG_DEBUG(T fmt)
+    inline void LOG_DEBUG(T fmt)
     {}
 
-    template <typename T, class... Args>
+    inline template <typename T, class... Args>
     void LOG_DEBUG_VA(T fmt, Args... args)
     {}
 #endif
     template <typename T>
-    void LOG_INFO(T fmt)
+    inline void LOG_INFO(T fmt)
     {
         core::Singleton<core::Logger>::Instance().Info(fmt);
     }
 
     template <typename T, class... Args>
-    void LOG_INFO_VA(T fmt, Args... args)
+    inline void LOG_INFO_VA(T fmt, Args... args)
     {
         core::Singleton<core::Logger>::Instance().Info(fmt, args...);
     }
 
     template <typename T>
-    void LOG_CRITICAL(T fmt)
+    inline void LOG_CRITICAL(T fmt)
     {
         core::Singleton<core::Logger>::Instance().Critical(fmt);
     }
