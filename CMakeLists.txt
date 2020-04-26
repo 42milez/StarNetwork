@@ -30,7 +30,7 @@ conan_cmake_run(
         SETTINGS os=Linux)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0 -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 
 #  Directories
 # --------------------------------------------------
