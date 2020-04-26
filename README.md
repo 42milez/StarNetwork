@@ -8,7 +8,7 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 # Supported OS
 
-- Linux (x86_64)
+- Linux
 
 # Technologies used
 
