@@ -30,6 +30,10 @@ Build for release:
 docker-compose -f docker-compose.release.yml run --rm build
 ```
 
+# Development
+
+If you use CLion, remote debugging is available: [Remote Debugging with CLion](https://github.com/42milez/p2p-techdemo/wiki/Remote-Debugging-with-CLion)
+
 # Supported OS
 
 - Linux
