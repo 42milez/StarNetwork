@@ -1,26 +1,5 @@
 version: "3.7"
 services:
-  dev_server:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    image: p2p-techdemo-dev-server
-    stdin_open: true
-    tty: true
-    container_name: p2p-techdemo-dev-server
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    ports:
-      - "2222:22"
-      - "7777:7777"
-    command: >
-      bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
-               /usr/sbin/sshd -D"
-    volumes:
-      - ./.git:/var/app/.git
-      - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
-      - conan:/root/.conan
   test_base: &test_base
     build:
       context: .
@@ -84,8 +63,6 @@ services:
       bash -c "/bin/bash ./docker/script/build/build_all_tsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
 volumes:
-  cmake_build_debug_remote:
-    driver: local
   cmake_build_test:
     driver: local
   cmake_build_test_asan:
