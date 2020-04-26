@@ -6,6 +6,30 @@
 
 P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and other peers can send data through the host (broadcast/unicast).
 
+# Demo
+
+...
+
+# Quick Start
+
+## Start Dev Server
+
+```
+docker-compose -f docker-compose.dev.yml up -d dev_server
+```
+
+## Run All Tests
+
+```
+docker-compose -f docker-compose.test.yml run --rm all_tests
+```
+
+## Build for Release
+
+```
+docker-compose -f docker-compose.release.yml run --rm build
+```
+
 # Supported OS
 
 - Linux
@@ -21,10 +45,6 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 - Traffic Encryption
 - Data Compression
 - IPv6 support
-
-# Demo
-
-...
 
 # References
 
