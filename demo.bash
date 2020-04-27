@@ -12,40 +12,62 @@ CLIENT1_PAIN=0.0
 CLIENT2_PAIN=0.1
 SERVER_PAIN=0.2
 
+long_sleep()
+{
+  sleep ${LONG_SLEEP_SEC}
+}
+
+short_sleep()
+{
+  sleep ${SHORT_SLEEP_SEC}
+}
+
+tmux_move_pain()
+{
+  PAIN=${1}
+  tmux select-pane -t "${TMUX_SESSION_NAME}:${PAIN}"
+}
+
+tmux_run_command()
+{
+  COMMAND="${1}"
+  tmux send-keys -t "${TMUX_SESSION_NAME}" "${COMMAND}" Enter
+}
+
 : 'SPLIT WINDOW INTO 3 PAINS' &&
 {
-    tmux split-window -v -t "${TMUX_SESSION_NAME}"             ; sleep ${SHORT_SLEEP_SEC}
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT1_PAIN}" ; sleep ${SHORT_SLEEP_SEC}
-    tmux split-window -h                                       ; sleep ${SHORT_SLEEP_SEC}
+    tmux split-window -v -t "${TMUX_SESSION_NAME}" ; short_sleep
+    tmux_move_pain "${CLIENT1_PAIN}"               ; short_sleep
+    tmux split-window -h                           ; short_sleep
 }
 
 : 'RUN DOCKER CONTAINERS' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT1_PAIN}"                                              ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${LOCAL_WORK_DIR}" Enter                                   ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' Enter ; sleep ${LONG_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${REMOTE_WORK_DIR}" Enter                                  ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'clear' Enter                                                  ; sleep ${SHORT_SLEEP_SEC}
+    tmux_move_pain "${CLIENT1_PAIN}"                                          ; short_sleep
+    tmux_run_command "cd ${LOCAL_WORK_DIR}"                                   ; short_sleep
+    tmux_run_command 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' ; long_sleep
+    tmux_run_command "cd ${REMOTE_WORK_DIR}"                                  ; short_sleep
+    tmux_run_command 'clear'                                                  ; short_sleep
 
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT2_PAIN}"                                              ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${LOCAL_WORK_DIR}" Enter                                   ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' Enter ; sleep ${LONG_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${REMOTE_WORK_DIR}" Enter                                  ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'clear' Enter                                                  ; sleep ${SHORT_SLEEP_SEC}
+    tmux_move_pain "${CLIENT2_PAIN}"                                          ; short_sleep
+    tmux_run_command "cd ${LOCAL_WORK_DIR}"                                   ; short_sleep
+    tmux_run_command 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' ; long_sleep
+    tmux_run_command "cd ${REMOTE_WORK_DIR}"                                  ; short_sleep
+    tmux_run_command 'clear'                                                  ; short_sleep
 
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${SERVER_PAIN}"                                               ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${LOCAL_WORK_DIR}" Enter                                   ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' Enter ; sleep ${LONG_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "cd ${REMOTE_WORK_DIR}" Enter                                  ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" 'clear' Enter                                                  ; sleep ${SHORT_SLEEP_SEC}
+    tmux_move_pain "${SERVER_PAIN}"                                           ; short_sleep
+    tmux_run_command "cd ${LOCAL_WORK_DIR}"                                   ; short_sleep
+    tmux_run_command 'dc -f docker-compose.dev.yml exec dev_server /bin/bash' ; long_sleep
+    tmux_run_command "cd ${REMOTE_WORK_DIR}"                                  ; short_sleep
+    tmux_run_command 'clear'                                                  ; short_sleep
 }
 
 BINARY_NAME='p2p_techdemo'
 
 : 'RUN SERVER' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${SERVER_PAIN}"                       ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "./${BINARY_NAME} --mode server" Enter ; sleep 2
+    tmux_move_pain "${SERVER_PAIN}"                   ; short_sleep
+    tmux_run_command "./${BINARY_NAME} --mode server" ; long_sleep
 }
 
 CLIENT1_PORT=49153
@@ -53,33 +75,33 @@ CLIENT2_PORT=49154
 
 : 'RUN CLIENTS' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT1_PAIN}"                                             ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "./${BINARY_NAME} --mode client --port ${CLIENT1_PORT}" Enter ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT1_PAIN}"                                         ; short_sleep
+    tmux_run_command "./${BINARY_NAME} --mode client --port ${CLIENT1_PORT}" ; long_sleep
 
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT2_PAIN}"                                             ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "./${BINARY_NAME} --mode client --port ${CLIENT2_PORT}" Enter ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT2_PAIN}"                                         ; short_sleep
+    tmux_run_command "./${BINARY_NAME} --mode client --port ${CLIENT2_PORT}" ; long_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT1 (1/2)' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT1_PAIN}" ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "hello1" Enter    ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT1_PAIN}" ; short_sleep
+    tmux_run_command "hello1"        ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (1/2)' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT2_PAIN}" ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "hello2" Enter    ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT2_PAIN}" ; short_sleep
+    tmux_run_command "hello2"        ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT1 (2/2)' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT1_PAIN}" ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "hello3" Enter    ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT1_PAIN}" ; short_sleep
+    tmux_run_command "hello3"        ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (2/2)' &&
 {
-    tmux select-pane -t "${TMUX_SESSION_NAME}:${CLIENT2_PAIN}" ; sleep ${SHORT_SLEEP_SEC}
-    tmux send-keys -t "${TMUX_SESSION_NAME}" "hello4" Enter    ; sleep ${LONG_SLEEP_SEC}
+    tmux_move_pain "${CLIENT2_PAIN}" ; short_sleep
+    tmux_run_command "hello4"        ; short_sleep
 }
