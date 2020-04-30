@@ -18,14 +18,17 @@ services:
       - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
+               chmod -R 777 /var/app/cmake-build-release-remote &&
                /usr/sbin/sshd -D"
     volumes:
       - ./.git:/var/app/.git
       - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
+      - cmake_build_release_remote:/var/app/cmake-build-release-remote
       - conan:/root/.conan
-
 volumes:
   cmake_build_debug_remote:
+    driver: local
+  cmake_build_release_remote:
     driver: local
   conan:
     driver: local

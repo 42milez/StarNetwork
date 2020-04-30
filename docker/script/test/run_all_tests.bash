@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 DOCKER_SCRIPT_DIR=$(dirname $(dirname "${BASH_SOURCE}"))
 

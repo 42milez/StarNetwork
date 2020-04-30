@@ -1,7 +1,5 @@
 version: "3.7"
-
 services:
-
   build_base: &build_base
     build:
       context: .
@@ -20,7 +18,6 @@ services:
       - ./conanfile.txt:/var/app/conanfile.txt
       - cmake_build_release:/var/app/cmake-build-release
       - conan:/root/.conan
-
   build: &build
     <<: *build_base
     container_name: p2p-techdemo-release
@@ -30,11 +27,10 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
-
   demo:
     <<: *build
-    command: bash -c "/bin/bash ./docker/script/build/build_all.bash"
-
+    container_name: p2p-techdemo-release
+    command: ''
 volumes:
   cmake_build_release:
     driver: local

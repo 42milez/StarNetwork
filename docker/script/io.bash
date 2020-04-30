@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 COLOR_ERROR="\033[0;31m[ERROR]\033[0;39m"
 COLOR_INFO="\033[0;32m[INFO]\033[0;39m"
