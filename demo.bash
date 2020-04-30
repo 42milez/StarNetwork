@@ -28,7 +28,7 @@ short_sleep()
   sleep ${SHORT_SLEEP_SEC}
 }
 
-tmux_move_pain()
+tmux_switch_pain()
 {
   PAIN=${1}
   tmux select-pane -t "${TMUX_SESSION_NAME}:${PAIN}"
@@ -43,7 +43,7 @@ tmux_run_command()
 : 'SPLIT WINDOW INTO 3 PAINS' &&
 {
   tmux split-window -v -t "${TMUX_SESSION_NAME}" ; short_sleep
-  tmux_move_pain "${TMUX_CLIENT1_PAIN}"          ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"        ; short_sleep
   tmux split-window -h                           ; short_sleep
 }
 
@@ -58,7 +58,7 @@ tmux_run_command()
 
 : 'START SERVER' &&
 {
-  tmux_move_pain "${TMUX_SERVER_PAIN}"                                                              ; short_sleep
+  tmux_switch_pain "${TMUX_SERVER_PAIN}"                                                            ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
@@ -69,7 +69,7 @@ tmux_run_command()
 : 'START CLIENTS' &&
 {
   # CLIENT 1
-  tmux_move_pain "${TMUX_CLIENT1_PAIN}"                                                             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"                                                           ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
@@ -77,7 +77,7 @@ tmux_run_command()
   tmux_run_command "${BINARY} --mode client --port ${CLIENT1_PORT}"                                 ; long_sleep
 
   # CLIENT 2
-  tmux_move_pain "${TMUX_CLIENT2_PAIN}"                                                             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT2_PAIN}"                                                           ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
@@ -87,26 +87,26 @@ tmux_run_command()
 
 : 'SEND A MESSAGE FROM CLIENT1 (1/2)' &&
 {
-  tmux_move_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello1"             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
+  tmux_run_command "hello1"               ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (1/2)' &&
 {
-  tmux_move_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello2"             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
+  tmux_run_command "hello2"               ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT1 (2/2)' &&
 {
-  tmux_move_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello3"             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
+  tmux_run_command "hello3"               ; short_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (2/2)' &&
 {
-  tmux_move_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello4"             ; short_sleep
+  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
+  tmux_run_command "hello4"               ; short_sleep
 }
 
 : 'STOP CONTAINER' &&
