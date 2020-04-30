@@ -109,6 +109,21 @@ tmux_run_command()
   tmux_run_command "hello4"               ; short_sleep
 }
 
+: 'STOP PROCESSES' &&
+{
+  # CLIENT 1
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
+  tmux_run_command "exit"                 ; short_sleep
+
+  # CLIENT 2
+  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
+  tmux_run_command "exit"                 ; short_sleep
+
+  # SERVER
+  tmux_switch_pain "${TMUX_SERVER_PAIN}"  ; short_sleep
+  tmux_run_command "exit"                 ; short_sleep
+}
+
 : 'STOP CONTAINER' &&
 {
   docker-compose -f "${DOCKER_COMPOSE_FILE}" down
