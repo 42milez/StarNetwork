@@ -27,6 +27,7 @@ services:
     container_name: p2p-techdemo-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
+      - CATCH_REPORTER=console
       - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
@@ -36,6 +37,7 @@ services:
     container_name: p2p-techdemo-all-test-with-asan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-asan
+      - CATCH_REPORTER=console
       - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
@@ -45,6 +47,7 @@ services:
     container_name: p2p-techdemo-all-test-with-lsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-lsan
+      - CATCH_REPORTER=console
       - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
@@ -54,6 +57,7 @@ services:
 #    container_name: p2p-techdemo-all-test-with-msan
 #    environment:
 #      - BUILD_DIR=/var/app/cmake-build-test-msan
+#      - CATCH_REPORTER=console
 #      - CMAKE_BUILD_TYPE=Debug
 #    command: >
 #      bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
@@ -63,6 +67,7 @@ services:
     container_name: p2p-techdemo-all-test-with-tsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-tsan
+      - CATCH_REPORTER=console
       - CMAKE_BUILD_TYPE=Debug
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all_tsan.bash &&
