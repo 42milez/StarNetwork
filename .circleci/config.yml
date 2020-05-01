@@ -25,31 +25,31 @@ jobs:
             mkdir -p "${BUILD_DIR_MSAN}"
             mkdir -p "${BUILD_DIR_TSAN}"
       - run:
-          name: "Build All"
+          name: 'Build All'
           command: /bin/bash ./docker/script/build/build_all.bash
           environment:
             BUILD_DIR: *build_dir
             CMAKE_BUILD_TYPE: Debug
       - run:
-          name: "Build All with Address Sanitizer"
+          name: 'Build All with Address Sanitizer'
           command: /bin/bash ./docker/script/build/build_all_asan.bash
           environment:
             BUILD_DIR: *build_dir_asan
             CMAKE_BUILD_TYPE: Debug
       - run:
-          name: "Build All with Leak Sanitizer"
+          name: 'Build All with Leak Sanitizer'
           command: /bin/bash ./docker/script/build/build_all_lsan.bash
           environment:
             BUILD_DIR: *build_dir_lsan
             CMAKE_BUILD_TYPE: Debug
       - run:
-          name: "Build All with Memory Sanitizer"
+          name: 'Build All with Memory Sanitizer'
           command: /bin/bash ./docker/script/build/build_all_msan.bash
           environment:
             BUILD_DIR: *build_dir_msan
             CMAKE_BUILD_TYPE: Debug
       - run:
-          name: "Build All with Thread Sanitizer"
+          name: 'Build All with Thread Sanitizer'
           command: /bin/bash ./docker/script/build/build_all_tsan.bash
           environment:
             BUILD_DIR: *build_dir_tsan
@@ -76,16 +76,16 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Create Test Result Directory"
+          name: 'Create Test Result Directory'
           command: mkdir -p "${TEST_RESULT_DIR}"
       - run:
-          name: "Enable JUnit Reporter"
+          name: 'Enable JUnit Reporter'
           command: echo "export CATCH_REPORTER=junit" >> $BASH_ENV
       - run:
-          name: "Run All Tests"
+          name: 'Run All Tests'
           command: /bin/bash ./docker/script/test/run_all_tests.bash
       - run:
-          name: "Export Coverage"
+          name: 'Export Coverage'
           command: /bin/bash ./docker/script/test/report_coverage.sh
       - codecov/upload:
           file: *coverage_file_path
@@ -101,24 +101,28 @@ jobs:
       - restore_cache:
           key: build-{{ .Branch }}-{{ .Environment.CacheUUID }}
       - run:
-          name: "Run All Tests"
+          name: 'Run All Tests'
           command: /bin/bash ./docker/script/test/run_all_tests.bash
   sanitize_address:
     <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_asan
+      CATCH_REPORTER: 'console'
   sanitize_leak:
     <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_lsan
+      CATCH_REPORTER: 'console'
   sanitize_memory:
     <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_msan
+      CATCH_REPORTER: 'console'
   sanitize_thread:
     <<: *sanitize_base
     environment:
       BUILD_DIR: *build_dir_tsan
+      CATCH_REPORTER: 'console'
 workflows:
   version: 2
   build_and_test:
