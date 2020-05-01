@@ -97,6 +97,7 @@ namespace core
 
         inline ~Socket()
         {
+            ::free(events_);
             Close();
         }
 
