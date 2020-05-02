@@ -98,40 +98,40 @@ tmux_run_command()
 : 'SEND A MESSAGE FROM CLIENT1 (1/2)' &&
 {
   tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello1"               ; short_sleep
+  tmux_run_command "hello1"               ; long_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (1/2)' &&
 {
   tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello2"               ; short_sleep
+  tmux_run_command "hello2"               ; long_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT1 (2/2)' &&
 {
   tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello3"               ; short_sleep
+  tmux_run_command "hello3"               ; long_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT2 (2/2)' &&
 {
   tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello4"               ; short_sleep
+  tmux_run_command "hello4"               ; long_sleep
 }
 
 : 'STOP PROCESSES' &&
 {
   # CLIENT 1
   tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "exit"                 ; short_sleep
+  tmux_run_command "exit"                 ; long_sleep
 
   # CLIENT 2
   tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "exit"                 ; short_sleep
+  tmux_run_command "exit"                 ; long_sleep
 
   # SERVER
   tmux_switch_pain "${TMUX_SERVER_PAIN}"  ; short_sleep
-  tmux_run_command "exit"                 ; short_sleep
+  tmux_run_command "exit"                 ; long_sleep
 }
 
 : 'STOP CONTAINER' &&
