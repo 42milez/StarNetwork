@@ -8,7 +8,7 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 # Demo
 
-...
+![demo](./docs/demo.gif)
 
 # Quick Start
 

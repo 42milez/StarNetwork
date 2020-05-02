@@ -56,25 +56,21 @@ tmux_run_command()
     exec "${DOCKER_SERVICE_NAME}" './docker/script/build/build_app.bash'
 }
 
-: 'START SERVER' &&
+: 'SETUP' &&
 {
+  # SERVER
   tmux_switch_pain "${TMUX_SERVER_PAIN}"                                                            ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
   tmux_run_command 'clear'                                                                          ; short_sleep
-  tmux_run_command "${BINARY} --mode server"                                                        ; long_sleep
-}
 
-: 'START CLIENTS' &&
-{
   # CLIENT 1
   tmux_switch_pain "${TMUX_CLIENT1_PAIN}"                                                           ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
   tmux_run_command 'clear'                                                                          ; short_sleep
-  tmux_run_command "${BINARY} --mode client --port ${CLIENT1_PORT}"                                 ; long_sleep
 
   # CLIENT 2
   tmux_switch_pain "${TMUX_CLIENT2_PAIN}"                                                           ; short_sleep
@@ -82,7 +78,21 @@ tmux_run_command()
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
   tmux_run_command 'clear'                                                                          ; short_sleep
-  tmux_run_command "${BINARY} --mode client --port ${CLIENT2_PORT}"                                 ; long_sleep
+}
+
+: 'START PROCESSES' &&
+{
+  # SERVER
+  tmux_switch_pain "${TMUX_SERVER_PAIN}"                            ; short_sleep
+  tmux_run_command "${BINARY} --mode server"                        ; long_sleep
+
+  # CLIENT 1
+  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"                           ; short_sleep
+  tmux_run_command "${BINARY} --mode client --port ${CLIENT1_PORT}" ; long_sleep
+
+  # CLIENT 2
+  tmux_switch_pain "${TMUX_CLIENT2_PAIN}"                           ; short_sleep
+  tmux_run_command "${BINARY} --mode client --port ${CLIENT2_PORT}" ; long_sleep
 }
 
 : 'SEND A MESSAGE FROM CLIENT1 (1/2)' &&
