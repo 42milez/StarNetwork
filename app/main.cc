@@ -116,8 +116,9 @@ main(int argc, const char **argv)
         if (message == "exit") {
             core::Singleton<core::ExitHandler>::Instance().Exit();
         }
-
-        node->Send(message);
+        else {
+            node->Send(message);
+        }
     }
 
     message_dispatcher.Stop();
