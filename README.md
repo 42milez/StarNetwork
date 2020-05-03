@@ -10,6 +10,13 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 ![demo](./docs/demo.gif)
 
+By following the instruction below, you can run the demo.
+
+```
+1. create a tmux session (tmux new -s demo)
+2. create a new terminal window, and run demo.sh in the window
+```
+
 # Quick Start
 
 Start dev server:
