@@ -16,19 +16,18 @@
 #include "network.h"
 
 app::Network::Network()
-    : active_()
-    , always_ordered_()
+    : connection_status_(ConnectionStatus::DISCONNECTED)
     , bind_ip_("*")
-    , channel_count_(core::SysCh::MAX)
-    , connection_status_(ConnectionStatus::DISCONNECTED)
     , current_payload_()
-    , refuse_connections_()
-    , server_()
-    , server_relay_()
-    , target_peer_id_()
+    , channel_count_(core::SysCh::MAX)
     , transfer_channel_(core::SysCh::CONFIG)
     , transfer_mode_(TransferMode::RELIABLE)
     , unique_id_()
+    , target_peer_id_()
+    , active_()
+    , refuse_connections_()
+    , server_()
+    , server_relay_()
 {
 }
 

@@ -88,7 +88,6 @@ namespace app
         int target_peer_id_;
 
         bool active_;
-        bool always_ordered_;
         bool refuse_connections_;
         bool server_;
         bool server_relay_;

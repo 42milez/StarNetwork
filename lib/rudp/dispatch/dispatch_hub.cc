@@ -3,9 +3,9 @@
 namespace rudp
 {
     DispatchHub::DispatchHub()
-        : bandwidth_limited_peers_()
+        : queue_(std::make_unique<DispatchQueue>())
+        , bandwidth_limited_peers_()
         , connected_peers_()
-        , queue_(std::make_unique<DispatchQueue>())
         , recalculate_bandwidth_limits_()
     {
     }

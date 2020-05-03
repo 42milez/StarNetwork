@@ -140,16 +140,16 @@ namespace core
     } // namespace
 
     Socket::Socket()
-        : sfd_(SOCK_EMPTY)
-        , ip_type_(IP::Type::NONE)
+        : ip_type_(IP::Type::NONE)
         , is_stream_(false)
+        , sfd_(SOCK_EMPTY)
     {
     }
 
     Socket::Socket(int sock, IP::Type ip_type, bool is_stream)
-        : sfd_(sock)
-        , ip_type_(ip_type)
+        : ip_type_(ip_type)
         , is_stream_(is_stream)
+        , sfd_(sock)
     {
     }
 

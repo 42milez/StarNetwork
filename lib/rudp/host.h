@@ -75,13 +75,9 @@ namespace rudp
         std::unique_ptr<PeerPod> peer_pod_;
 
         ChecksumCallback checksum_;
-        core::SysCh channel_count_;
-
-        size_t maximum_segment_size_;
 
         uint32_t incoming_bandwidth_;
         uint32_t outgoing_bandwidth_;
-        uint32_t mtu_;
     };
 } // namespace rudp
 

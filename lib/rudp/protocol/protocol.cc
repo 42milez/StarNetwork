@@ -11,10 +11,10 @@
 namespace rudp
 {
     RUdpProtocol::RUdpProtocol()
-        : bandwidth_throttle_epoch_()
-        , chamber_(std::make_unique<Chamber>())
+        : chamber_(std::make_unique<Chamber>())
         , dispatch_hub_(std::make_unique<DispatchHub>())
         , maximum_waiting_data_(HOST_DEFAULT_MAXIMUM_WAITING_DATA)
+        , bandwidth_throttle_epoch_()
     {
     }
 
@@ -490,7 +490,7 @@ namespace rudp
         auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
 
         if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE) {
-            auto commands_dispatched = DispatchIncomingReliableCommands(peer, cmd);
+            ret = DispatchIncomingReliableCommands(peer, cmd);
 
             if (ret != Error::OK)
                 return ret;

@@ -28,7 +28,6 @@ class OS
 
   private:
     uint64_t clock_start_;
-    double clock_scale_;
 };
 
 #endif // P2P_TECHDEMO_LIB_CORE_OS_H_

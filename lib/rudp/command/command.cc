@@ -4,9 +4,9 @@ namespace rudp
 {
     Command::Command()
         : command_()
-        , fragment_length_()
-        , fragment_offset_()
         , segment_()
+        , fragment_offset_()
+        , fragment_length_()
     {
     }
 

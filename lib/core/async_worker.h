@@ -43,7 +43,6 @@ namespace core
                     LOG_DEBUG("worker joined");
                 }
                 catch (std::system_error &e) {
-                    const std::error_code &ec = e.code();
                     LOG_DEBUG("join failed");
                     LOG_DEBUG_VA("code: {0}", e.code().value());
                     LOG_DEBUG_VA("reason: {0}", e.what());

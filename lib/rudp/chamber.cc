@@ -10,9 +10,9 @@ namespace rudp
     Chamber::Chamber()
         : buffer_count_()
         , command_count_()
-        , continue_sending_()
-        , header_flags_()
         , segment_size_()
+        , header_flags_()
+        , continue_sending_()
     {
         for (auto &buf : buffers_)
             buf = std::make_shared<Buffer>();

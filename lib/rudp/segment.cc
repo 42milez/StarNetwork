@@ -11,10 +11,10 @@
 namespace rudp
 {
     Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags)
-        : buffer_pos_()
-        , flags_(flags)
+        : user_data_()
+        , buffer_pos_()
         , free_callback_()
-        , user_data_()
+        , flags_(flags)
     {
         if (data && !data->empty()) {
             try {
@@ -30,10 +30,10 @@ namespace rudp
     }
 
     Segment::Segment(const std::vector<uint8_t> *data, uint32_t flags, uint32_t buffer_size)
-        : buffer_pos_()
-        , flags_(flags)
+        : user_data_()
+        , buffer_pos_()
         , free_callback_()
-        , user_data_()
+        , flags_(flags)
     {
         if (data && !data->empty()) {
             try {

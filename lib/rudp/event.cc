@@ -4,8 +4,8 @@ namespace rudp
 {
     Event::Event()
         : type_(EventType::NONE)
-        , channel_id_(-1)
         , data_()
+        , channel_id_(-1)
     {
     }
 

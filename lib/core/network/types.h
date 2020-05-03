@@ -10,8 +10,8 @@ namespace core
       public:
         Payload()
             : segment(nullptr)
-            , from()
-            , channel(){};
+            , channel()
+            , from(){}
 
       public:
         std::shared_ptr<rudp::Segment> segment;
