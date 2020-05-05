@@ -96,8 +96,8 @@ namespace core
     inline void LOG_DEBUG(T fmt)
     {}
 
-    inline template <typename T, class... Args>
-    void LOG_DEBUG_VA(T fmt, Args... args)
+    template <typename T, class... Args>
+    inline void LOG_DEBUG_VA(T fmt, Args... args)
     {}
 #endif
     template <typename T>

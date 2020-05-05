@@ -23,6 +23,7 @@ services:
     container_name: p2p-techdemo-release
     environment:
       - BUILD_DIR=/var/app/cmake-build-release
+      - CATCH_REPORTER=console
       - CMAKE_BUILD_TYPE=Release
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
