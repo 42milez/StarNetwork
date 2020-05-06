@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  test_base: &test_base
+  base: &base
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -23,7 +23,7 @@ services:
       - cmake_build_test_tsan:/var/app/cmake-build-test-tsan
       - conan:/root/.conan
   all_tests:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
@@ -33,7 +33,7 @@ services:
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_asan:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-all-test-with-asan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-asan
@@ -43,7 +43,7 @@ services:
       bash -c "/bin/bash ./docker/script/build/build_all_asan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_lsan:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-all-test-with-lsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-lsan
@@ -53,7 +53,7 @@ services:
       bash -c "/bin/bash ./docker/script/build/build_all_lsan.bash &&
                /bin/bash ./docker/script/test/run_all_tests.bash"
   # all_tests_msan:
-  #   <<: *test_base
+  #   <<: *base
   #   container_name: p2p-techdemo-all-test-with-msan
   #   environment:
   #     - BUILD_DIR=/var/app/cmake-build-test-msan
@@ -63,7 +63,7 @@ services:
   #     bash -c "/bin/bash ./docker/script/build/build_all_msan.bash &&
   #              /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_tsan:
-    <<: *test_base
+    <<: *base
     container_name: p2p-techdemo-all-test-with-tsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-tsan
