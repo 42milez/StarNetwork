@@ -1,4 +1,4 @@
-FROM 42milez/cpp-dev-base:2020.4.6
+FROM 42milez/cpp-dev-base:2020.5.6
 
 ENV DEV_USER dev
 ENV DEV_USER_GROUP dev
