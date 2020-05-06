@@ -1,7 +1,9 @@
 #!/bin/bash
 
-DOCKER_SCRIPT_DIR=$(dirname "${BASH_SOURCE}")
 
+DOCKER_SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+# shellcheck source=./lib.sh
 . "${DOCKER_SCRIPT_DIR}/io.bash"
 
 EXIT_ON_FAIL() {

@@ -1,10 +1,17 @@
 #!/bin/bash
 
-DOCKER_SCRIPT_DIR=$(dirname $(dirname "${BASH_SOURCE}"))
+DOCKER_SCRIPT_DIR=$(dirname "$(dirname "${BASH_SOURCE[0]}")")
 
+# shellcheck source=../config.bash
 . "${DOCKER_SCRIPT_DIR}/config.bash"
+
+# shellcheck source=../handler.bash
 . "${DOCKER_SCRIPT_DIR}/handler.bash"
+
+# shellcheck source=../io.bash
 . "${DOCKER_SCRIPT_DIR}/io.bash"
+
+# shellcheck source=../var.bash
 . "${DOCKER_SCRIPT_DIR}/var.bash"
 
 configure() {
