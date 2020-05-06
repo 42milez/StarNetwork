@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  build_base: &build_base
+  base: &base
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -19,7 +19,7 @@ services:
       - cmake_build_release:/var/app/cmake-build-release
       - conan:/root/.conan
   build: &build
-    <<: *build_base
+    <<: *base
     container_name: p2p-techdemo-release
     environment:
       - BUILD_DIR=/var/app/cmake-build-release

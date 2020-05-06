@@ -1,29 +1,54 @@
 version: "3.7"
 services:
-  dev_server:
+  base: &base
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: p2p-techdemo-dev-server
+    image: p2p-techdemo-base
     stdin_open: true
     tty: true
-    container_name: p2p-techdemo-dev-server
     security_opt:
-      - seccomp:unconfined
       - apparmor:unconfined
-    ports:
-      - "2222:22"
-      - "7777:7777"
+      - seccomp:unconfined
     environment:
       - CMAKE_BUILD_TYPE=Debug
+  dev_server:
+    <<: *base
     command: >
       bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
                chmod -R 777 /var/app/cmake-build-release-remote &&
                /usr/sbin/sshd -D"
+    container_name: p2p-techdemo-dev-server
+    ports:
+      - "2222:22"
+      - "7777:7777"
     volumes:
       - ./.git:/var/app/.git
       - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
       - cmake_build_release_remote:/var/app/cmake-build-release-remote
+      - conan:/root/.conan
+  analyze:
+    <<: *base
+    cap_add:
+      - SYS_ADMIN
+    command: >
+      bash -c "/bin/bash ./docker/script/build/build_all.bash &&
+               /bin/bash ./docker/script/analyze/perf.bash"
+    container_name: p2p-techdemo-analyze
+    environment:
+      - BUILD_DIR=/var/app/cmake-build-debug-remote
+      - CMAKE_BUILD_TYPE=Debug
+    volumes:
+      - ./.git:/var/app/.git
+      - ./app:/var/app/app
+      - ./cmake:/var/app/cmake
+      - ./docker:/var/app/docker
+      - ./lib:/var/app/lib
+      - ./test:/var/app/test
+      - ./tmp:/var/app/tmp
+      - ./CMakeLists.txt:/var/app/CMakeLists.txt
+      - ./conanfile.txt:/var/app/conanfile.txt
+      - cmake_build_debug_remote:/var/app/cmake-build-debug-remote
       - conan:/root/.conan
 volumes:
   cmake_build_debug_remote:

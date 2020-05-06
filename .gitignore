@@ -1,3 +1,6 @@
 cmake-build-debug
 cmake-build-debug-remote
 cmake-build-release-remote
+
+tmp/*
+!tmp/.gitkeep
