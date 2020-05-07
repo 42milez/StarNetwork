@@ -67,7 +67,7 @@ namespace core
         SendTo(const void *buffer, size_t len, ssize_t &bytes_sent, const IpAddress &ip, uint16_t port);
 
         Error
-        Wait(PollType type, int timeout);
+        Wait();
 
       public:
         inline bool

@@ -43,7 +43,7 @@ namespace rudp
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
-        Error err = socket_->Wait(core::PollType::POLL_TYPE_IN, 0);
+        Error err = socket_->Wait();
 
         if (err == Error::ERR_BUSY)
             return 0;
@@ -55,7 +55,8 @@ namespace rudp
         IpAddress ip;
 
         uint16_t port = 0;
-        err           = socket_->RecvFrom(buffer, read_count, ip, port);
+        err = socket_->RecvFrom(buffer, read_count, ip, port);
+
         received_address.port(port);
 
         if (err == Error::ERR_BUSY)

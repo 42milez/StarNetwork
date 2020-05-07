@@ -1,9 +1,9 @@
 #include <arpa/inet.h>
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
-#include <cstring>
-#include <errno.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 #include "lib/core/error_macros.h"
@@ -14,11 +14,13 @@ namespace core
 {
     namespace
     {
-        const size_t EPOLL_MAX_EVENTS = 64;
-        const int EPOLL_NON_BLOCKING = 0;
+        const size_t EPOLL_MAX_EVENTS   = 64;
         const int EPOLL_ERROR_ON_CREATE = -1;
-        const int EPOLL_ERROR_ON_CTL = -1;
-        const int EPOLL_ERROR_ON_WAIT = -1;
+        const int EPOLL_ERROR_ON_CTL    = -1;
+        const int EPOLL_ERROR_ON_WAIT   = -1;
+        const int EPOLL_BLOCKING        = -1;
+        const int EPOLL_NON_BLOCKING    = 0;
+        const int EPOLL_TIMEOUT         = 10; // msec
 
         enum class SocketError : int
         {
@@ -198,6 +200,8 @@ namespace core
     void
     Socket::Close()
     {
+        ::epoll_ctl(efd_, EPOLL_CTL_DEL, sfd_, NULL);
+
         if (sfd_ != SOCK_EMPTY) {
             ::close(sfd_);
         }
@@ -264,12 +268,12 @@ namespace core
         auto protocol = sock_type == SocketType::TCP ? IPPROTO_TCP : IPPROTO_UDP;
         auto type     = sock_type == SocketType::TCP ? SOCK_STREAM : SOCK_DGRAM;
 
-        sfd_ = socket(family, type, protocol);
+        sfd_ = ::socket(family, type, protocol);
 
         if (sfd_ == SOCK_EMPTY && ip_type == IP::Type::ANY) {
             ip_type = IP::Type::V4;
             family  = AF_INET;
-            sfd_   = socket(family, type, protocol);
+            sfd_    = ::socket(family, type, protocol);
         }
 
         ERR_FAIL_COND_V(sfd_ == SOCK_EMPTY, Error::FAILED);
@@ -286,20 +290,18 @@ namespace core
 
         is_stream_ = sock_type == SocketType::TCP;
 
-        efd_ = epoll_create1(0);
+        efd_ = ::epoll_create(EPOLL_MAX_EVENTS);
 
-        if (efd_ == EPOLL_ERROR_ON_CREATE)
-        {
+        if (efd_ == EPOLL_ERROR_ON_CREATE) {
             return Error::CANT_CREATE;
         }
 
         event_.data.fd = sfd_;
-        event_.events = EPOLLIN | EPOLLET;
+        event_.events  = EPOLLIN | EPOLLET;
 
-        ctl_ = epoll_ctl(efd_, EPOLL_CTL_ADD, sfd_, &event_);
+        ctl_ = ::epoll_ctl(efd_, EPOLL_CTL_ADD, sfd_, &event_);
 
-        if (ctl_ == EPOLL_ERROR_ON_CTL)
-        {
+        if (ctl_ == EPOLL_ERROR_ON_CTL) {
             return Error::CANT_CREATE;
         }
 
@@ -309,16 +311,16 @@ namespace core
     }
 
     Error
-    Socket::Wait(PollType type, int timeout)
+    Socket::Wait()
     {
-        auto n = epoll_wait(efd_, events_, EPOLL_MAX_EVENTS, EPOLL_NON_BLOCKING);
+        auto n = ::epoll_wait(efd_, events_, EPOLL_MAX_EVENTS, EPOLL_TIMEOUT);
 
         if (n == EPOLL_ERROR_ON_WAIT) {
             return Error::ERROR;
         }
 
         for (auto i = 0; i < n; ++i) {
-            if(events_[i].events & (EPOLLERR | EPOLLHUP | EPOLLIN)) {
+            if (events_[i].events & (EPOLLERR | EPOLLHUP | EPOLLIN)) {
                 return Error::ERROR;
             }
 
