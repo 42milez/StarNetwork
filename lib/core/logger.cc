@@ -12,7 +12,7 @@ namespace core
         spdlog::stderr_color_mt("stderr");
         spdlog::set_pattern("[%Y/%m/%d %H:%M:%S %z][%^---%L---%$][thread %t] %v");
 
-#ifdef DEBUG
+#ifdef VERBOSE_LOGGING
         spdlog::set_level(spdlog::level::debug);
 #else
         spdlog::set_level(spdlog::level::info);

@@ -32,6 +32,12 @@ conan_cmake_run(
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0 -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 
+option(VERBOSE_LOGGING "Enable verbose logging" OFF)
+
+if(VERBOSE_LOGGING)
+  add_definitions(-DVERBOSE_LOGGING)
+endif()
+
 #  Directories
 # --------------------------------------------------
 include_directories(${CMAKE_SOURCE_DIR})

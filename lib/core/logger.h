@@ -79,7 +79,7 @@ namespace core
         std::shared_ptr<spdlog::logger> sinks_;
     };
 
-#ifdef DEBUG
+#ifdef VERBOSE_LOGGING
     template <typename T>
     inline void LOG_DEBUG(T fmt)
     {
