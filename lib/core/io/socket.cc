@@ -18,8 +18,6 @@ namespace core
         const int EPOLL_ERROR_ON_CREATE = -1;
         const int EPOLL_ERROR_ON_CTL    = -1;
         const int EPOLL_ERROR_ON_WAIT   = -1;
-        const int EPOLL_BLOCKING        = -1;
-        const int EPOLL_NON_BLOCKING    = 0;
         const int EPOLL_TIMEOUT         = 10; // msec
 
         enum class SocketError : int
