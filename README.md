@@ -14,7 +14,7 @@ By following the instruction below, you can run the demo (tmux and docker-compos
 
 ```
 1. create a tmux session (tmux new -s demo)
-2. create a new terminal window, and run demo.sh in the window
+2. create a new terminal window, and run demo.bash in the window
 ```
 
 # Quick Start
