@@ -4,9 +4,9 @@ LOCAL_WORK_DIR="${HOME}/Workspace/p2p-techdemo"
 REMOTE_WORK_DIR="/root"
 
 TMUX_SESSION_NAME='demo'
-TMUX_CLIENT1_PAIN=0.0
-TMUX_CLIENT2_PAIN=0.1
-TMUX_SERVER_PAIN=0.2
+TMUX_GUEST1_PAIN=0.0
+TMUX_GUEST2_PAIN=0.1
+TMUX_HOST_PAIN=0.2
 
 LONG_SLEEP_SEC=2
 SHORT_SLEEP_SEC=0.5
@@ -15,8 +15,8 @@ DOCKER_COMPOSE_FILE='docker-compose.release.yml'
 DOCKER_SERVICE_NAME='demo'
 
 BINARY='/var/app/cmake-build-release/bin/p2p_techdemo'
-CLIENT1_PORT=49153
-CLIENT2_PORT=49154
+GUEST1_PORT=49153
+GUEST2_PORT=49154
 
 long_sleep()
 {
@@ -43,7 +43,7 @@ tmux_run_command()
 : 'SPLIT WINDOW INTO 3 PAINS' &&
 {
   tmux split-window -v -t "${TMUX_SESSION_NAME}" ; short_sleep
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"        ; short_sleep
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}"         ; short_sleep
   tmux split-window -h                           ; short_sleep
 }
 
@@ -58,22 +58,22 @@ tmux_run_command()
 
 : 'SETUP' &&
 {
-  # SERVER
-  tmux_switch_pain "${TMUX_SERVER_PAIN}"                                                            ; short_sleep
+  # HOST
+  tmux_switch_pain "${TMUX_HOST_PAIN}"                                                              ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
   tmux_run_command 'clear'                                                                          ; short_sleep
 
-  # CLIENT 1
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"                                                           ; short_sleep
+  # GUEST 1
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}"                                                            ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
   tmux_run_command 'clear'                                                                          ; short_sleep
 
-  # CLIENT 2
-  tmux_switch_pain "${TMUX_CLIENT2_PAIN}"                                                           ; short_sleep
+  # GUEST 2
+  tmux_switch_pain "${TMUX_GUEST2_PAIN}"                                                            ; short_sleep
   tmux_run_command "cd ${LOCAL_WORK_DIR}"                                                           ; short_sleep
   tmux_run_command "docker-compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_NAME} /bin/bash" ; long_sleep
   tmux_run_command "cd ${REMOTE_WORK_DIR}"                                                          ; short_sleep
@@ -82,56 +82,62 @@ tmux_run_command()
 
 : 'START PROCESSES' &&
 {
-  # SERVER
-  tmux_switch_pain "${TMUX_SERVER_PAIN}"                            ; short_sleep
-  tmux_run_command "${BINARY} --mode server"                        ; long_sleep
+  # HOST
+  tmux_switch_pain "${TMUX_HOST_PAIN}"                             ; short_sleep
+  tmux_run_command "${BINARY} --mode server"                       ; long_sleep
 
-  # CLIENT 1
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}"                           ; short_sleep
-  tmux_run_command "${BINARY} --mode client --port ${CLIENT1_PORT}" ; long_sleep
+  # GUEST 1
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}"                           ; short_sleep
+  tmux_run_command "${BINARY} --mode client --port ${GUEST1_PORT}" ; long_sleep
 
-  # CLIENT 2
-  tmux_switch_pain "${TMUX_CLIENT2_PAIN}"                           ; short_sleep
-  tmux_run_command "${BINARY} --mode client --port ${CLIENT2_PORT}" ; long_sleep
+  # GUEST 2
+  tmux_switch_pain "${TMUX_GUEST2_PAIN}"                           ; short_sleep
+  tmux_run_command "${BINARY} --mode client --port ${GUEST2_PORT}" ; long_sleep
 }
 
-: 'SEND A MESSAGE FROM CLIENT1 (1/2)' &&
+: 'SEND A MESSAGE FROM GUEST1 (1/2)' &&
 {
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello1"               ; long_sleep
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}" ; short_sleep
+  tmux_run_command "hello1"              ; long_sleep
 }
 
-: 'SEND A MESSAGE FROM CLIENT2 (1/2)' &&
+: 'SEND A MESSAGE FROM GUEST2 (1/2)' &&
 {
-  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello2"               ; long_sleep
+  tmux_switch_pain "${TMUX_GUEST2_PAIN}" ; short_sleep
+  tmux_run_command "hello2"              ; long_sleep
 }
 
-: 'SEND A MESSAGE FROM CLIENT1 (2/2)' &&
+: 'SEND A MESSAGE FROM GUEST1 (2/2)' &&
 {
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "hello3"               ; long_sleep
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}" ; short_sleep
+  tmux_run_command "hello3"              ; long_sleep
 }
 
-: 'SEND A MESSAGE FROM CLIENT2 (2/2)' &&
+: 'SEND A MESSAGE FROM GUEST2 (2/2)' &&
 {
-  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "hello4"               ; long_sleep
+  tmux_switch_pain "${TMUX_GUEST2_PAIN}" ; short_sleep
+  tmux_run_command "hello4"              ; long_sleep
+}
+
+: 'SEND A MESSAGE FROM HOST' &&
+{
+  tmux_switch_pain "${TMUX_HOST_PAIN}" ; short_sleep
+  tmux_run_command "hello5"            ; long_sleep
 }
 
 : 'STOP PROCESSES' &&
 {
-  # CLIENT 1
-  tmux_switch_pain "${TMUX_CLIENT1_PAIN}" ; short_sleep
-  tmux_run_command "exit"                 ; long_sleep
+  # GUEST 1
+  tmux_switch_pain "${TMUX_GUEST1_PAIN}" ; short_sleep
+  tmux_run_command "exit"                ; long_sleep
 
-  # CLIENT 2
-  tmux_switch_pain "${TMUX_CLIENT2_PAIN}" ; short_sleep
-  tmux_run_command "exit"                 ; long_sleep
+  # GUEST 2
+  tmux_switch_pain "${TMUX_GUEST2_PAIN}" ; short_sleep
+  tmux_run_command "exit"                ; long_sleep
 
-  # SERVER
-  tmux_switch_pain "${TMUX_SERVER_PAIN}"  ; short_sleep
-  tmux_run_command "exit"                 ; long_sleep
+  # HOST
+  tmux_switch_pain "${TMUX_HOST_PAIN}"  ; short_sleep
+  tmux_run_command "exit"               ; long_sleep
 }
 
 : 'STOP CONTAINER' &&
