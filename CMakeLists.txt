@@ -29,8 +29,8 @@ conan_cmake_run(
         SETTINGS compiler.version=9
         SETTINGS os=Linux)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g -O0 -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "-O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-O0 -DNDEBUG")
 
 option(VERBOSE_LOGGING "Enable verbose logging" OFF)
 
