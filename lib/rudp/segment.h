@@ -77,7 +77,7 @@ namespace rudp
         inline std::string
         ToString()
         {
-            return std::string{data_.begin(), data_.end()};
+            return std::string{data_.begin(), data_.begin() + buffer_pos_};
         }
 
       public:
