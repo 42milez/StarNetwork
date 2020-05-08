@@ -8,6 +8,8 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 # Demo
 
+Under pain is host. Left and right upper pains are guest.
+
 ![demo](./docs/demo.gif)
 
 By following the instruction below, you can run the demo (tmux and docker-compose are both required).
