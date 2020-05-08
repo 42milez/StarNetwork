@@ -10,7 +10,7 @@ P2P Tech Demo demonstrates peer-to-peer networking. One peer becomes host, and o
 
 ![demo](./docs/demo.gif)
 
-By following the instruction below, you can run the demo (tmux and docker-compose are both required.).
+By following the instruction below, you can run the demo (tmux and docker-compose are both required).
 
 ```
 1. create a tmux session (tmux new -s demo)
