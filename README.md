@@ -8,7 +8,7 @@ P2P Tech Demo demonstrates peer-to-peer networking (implemented as [star network
 
 # Demo
 
-Under pain is host. Left and right upper pains are guest.
+The under pain is host. The left and right upper pains are guest.
 
 ![demo](./docs/demo.gif)
 
