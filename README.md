@@ -61,7 +61,7 @@ If you use CLion, remote debugging is available: [Remote Debugging with CLion](h
 
 # Acknowledgments
 
-I've helped by the open source software below 🙂
+I've strongly influenced by the open source software below 🙂
 
 - [ENet](https://github.com/lsalzman/enet) : Reliable UDP networking library
 - [Godot Engine](https://github.com/godotengine/godot) : Multi-platform 2D and 3D game engine
