@@ -4,6 +4,8 @@ DOCKER_SCRIPT_DIR=$(dirname "$(dirname "${BASH_SOURCE}")")
 PERF='/usr/lib/linux-tools/4.15.0-99-generic/perf'
 TMP_DIR='/var/app/tmp'
 
+mkdir -p "${TMP_DIR}"
+
 # shellcheck source=../config.bash
 . "${DOCKER_SCRIPT_DIR}/config.bash"
 
