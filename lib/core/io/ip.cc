@@ -1,5 +1,3 @@
-#include <list>
-
 #include <condition_variable>
 #include <cstring>
 #include <map>
@@ -7,7 +5,6 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <thread>
 #include <vector>
 
@@ -18,15 +15,13 @@
 namespace
 {
     constexpr int GETADDRINFO_SUCCESS  = 0;
+    constexpr int RESOLVER_INVALID_ID  = -1;
     constexpr int RESOLVER_MAX_QUERIES = 32;
-} // namespace
 
-namespace
-{
-    IpAddress
+    core::IpAddress
     _sockaddr2ip(struct sockaddr &addr)
     {
-        IpAddress ip;
+        core::IpAddress ip;
 
         if (addr.sa_family == AF_INET) {
             auto &addr_in = reinterpret_cast<struct sockaddr_in &>(addr);
@@ -47,18 +42,18 @@ namespace
         return ip;
     }
 
-    IpAddress
-    _resolve_hostname(const std::string &hostname, IP::Type type)
+    core::IpAddress
+    _resolve_hostname(const std::string &hostname, core::IP::Type type)
     {
         struct addrinfo hints;
         struct addrinfo *results;
 
         memset(&hints, 0, sizeof(hints));
 
-        if (type == IP::Type::V4) {
+        if (type == core::IP::Type::V4) {
             hints.ai_family = AF_INET;
         }
-        else if (type == IP::Type::V6) {
+        else if (type == core::IP::Type::V6) {
             hints.ai_family = AF_INET6;
             hints.ai_flags  = 0;
         }
@@ -75,7 +70,7 @@ namespace
             // TODO: logging
             // ...
 
-            return IpAddress();
+            return core::IpAddress();
         }
 
         if (results == nullptr || results->ai_addr == nullptr) {
@@ -86,10 +81,10 @@ namespace
                 freeaddrinfo(results);
             }
 
-            return IpAddress();
+            return core::IpAddress();
         }
 
-        IpAddress ip = _sockaddr2ip(*(results->ai_addr));
+        auto ip = _sockaddr2ip(*(results->ai_addr));
 
         freeaddrinfo(results);
 
@@ -97,223 +92,226 @@ namespace
     }
 } // namespace
 
-struct IpResolver
+namespace core
 {
-    struct QueueItem
+    struct IpResolver
     {
-        volatile IP::ResolverStatus status;
+        struct QueueItem
+        {
+            volatile IP::ResolverStatus status;
 
-        IpAddress response;
+            IpAddress response;
 
-        std::string hostname;
+            std::string hostname;
 
-        IP::Type type;
+            IP::Type type;
+
+            void
+            clear()
+            {
+                status   = IP::ResolverStatus::DONE;
+                response = IpAddress();
+                type     = IP::Type::NONE;
+                hostname = "";
+            };
+
+            QueueItem()
+            {
+                clear();
+            };
+        }; // struct QueueItem
+
+        std::vector<QueueItem> queue;
+        bool is_queued;
+
+        IP::ResolverID
+        find_empty_id() const
+        {
+            for (int i = 0; i < RESOLVER_MAX_QUERIES; i++) {
+                if (queue[i].status == IP::ResolverStatus::DONE) {
+                    return i;
+                }
+            }
+            return RESOLVER_INVALID_ID;
+        }
+
+        std::condition_variable cv;
+        std::mutex mtx;
+        std::thread thread;
 
         void
-        clear()
+        resolve_queues()
         {
-            status   = IP::ResolverStatus::DONE;
-            response = IpAddress();
-            type     = IP::Type::NONE;
-            hostname = "";
-        };
+            for (auto &q : queue) {
+                if (q.status != IP::ResolverStatus::WAITING) {
+                    continue;
+                }
 
-        QueueItem()
-        {
-            clear();
-        };
-    }; // struct QueueItem
+                q.response = core::Singleton<IP>::Instance().ResolveHostname(q.hostname, q.type);
 
-    std::vector<QueueItem> queue;
-    bool is_queued;
-
-    IP::ResolverID
-    find_empty_id() const
-    {
-        for (int i = 0; i < RESOLVER_MAX_QUERIES; i++) {
-            if (queue[i].status == IP::ResolverStatus::DONE) {
-                return i;
-            }
-        }
-        return IP::RESOLVER_INVALID_ID;
-    }
-
-    std::condition_variable cv;
-    std::mutex mtx;
-    std::thread thread;
-
-    void
-    resolve_queues()
-    {
-        for (auto &q : queue) {
-            if (q.status != IP::ResolverStatus::WAITING) {
-                continue;
+                if (!q.response.IsValid()) {
+                    q.status = IP::ResolverStatus::ERROR;
+                }
+                else {
+                    q.status = IP::ResolverStatus::DONE;
+                }
             }
 
-            q.response = core::Singleton<IP>::Instance().resolve_hostname(q.hostname, q.type);
-
-            if (!q.response.IsValid()) {
-                q.status = IP::ResolverStatus::ERROR;
-            }
-            else {
-                q.status = IP::ResolverStatus::DONE;
-            }
+            is_queued = false;
         }
 
-        is_queued = false;
-    }
+        std::map<std::string, IpAddress> cache;
 
-    std::map<std::string, IpAddress> cache;
+        static std::string
+        get_cache_key(const std::string &hostname, IP::Type type)
+        {
+            return std::to_string(static_cast<int>(type)) + hostname;
+        }
 
-    static std::string
-    get_cache_key(const std::string &hostname, IP::Type type)
+        IpResolver()
+            : queue(RESOLVER_MAX_QUERIES)
+            , is_queued(false)
+        {
+        }
+    }; // struct IpResolver
+
+    IP::IP()
     {
-        return std::to_string(static_cast<int>(type)) + hostname;
+        resolver_ = std::make_shared<IpResolver>();
+
+        resolver_->thread = std::thread{[this] {
+            auto lk = std::unique_lock<std::mutex>(this->resolver_->mtx);
+            this->resolver_->cv.wait(lk, [this] { return this->resolver_->is_queued; });
+            this->resolver_->resolve_queues();
+            this->resolver_->is_queued = false;
+        }};
     }
 
-    IpResolver()
-        : queue(RESOLVER_MAX_QUERIES)
-        , is_queued(false)
+    IP::~IP()
     {
+        if (resolver_->thread.joinable()) {
+            resolver_->thread.join();
+        }
     }
-}; // struct IpResolver
 
-IpAddress
-IP::resolve_hostname(const std::string &hostname, IP::Type type)
-{
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
+    IpAddress
+    IP::ResolveHostname(const std::string &hostname, IP::Type type)
+    {
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
 
-    std::string key = IpResolver::get_cache_key(hostname, type);
+        std::string key = IpResolver::get_cache_key(hostname, type);
 
-    if (_resolver->cache.count(key) && _resolver->cache[key].IsValid()) {
-        IpAddress ip_addr = _resolver->cache[key];
+        if (resolver_->cache.count(key) && resolver_->cache[key].IsValid()) {
+            IpAddress ip_addr = resolver_->cache[key];
+
+            return ip_addr;
+        }
+
+        IpAddress ip_addr     = _resolve_hostname(hostname, type);
+        resolver_->cache[key] = ip_addr;
 
         return ip_addr;
     }
 
-    IpAddress ip_addr     = _resolve_hostname(hostname, type);
-    _resolver->cache[key] = ip_addr;
+    IP::ResolverID
+    IP::ResolveHostnameQueueItem(const std::string &hostname, IP::Type type)
+    {
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
 
-    return ip_addr;
-}
+        auto id = resolver_->find_empty_id();
 
-IP::ResolverID
-IP::resolve_hostname_queue_item(const std::string &hostname, IP::Type type)
-{
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
+        if (id == RESOLVER_INVALID_ID) {
+            // TODO: logging
+            // ...
 
-    auto id = _resolver->find_empty_id();
+            return id;
+        }
 
-    if (id == IP::RESOLVER_INVALID_ID) {
-        // TODO: logging
-        // ...
+        std::string key = IpResolver::get_cache_key(hostname, type);
+
+        resolver_->queue[id].hostname = hostname;
+        resolver_->queue[id].type     = type;
+
+        if (resolver_->cache.count(key) && resolver_->cache[key].IsValid()) {
+            resolver_->queue[id].response = resolver_->cache[key];
+            resolver_->queue[id].status   = IP::ResolverStatus::NONE;
+        }
+        else {
+            resolver_->queue[id].response = IpAddress();
+            resolver_->queue[id].status   = IP::ResolverStatus::WAITING;
+
+            resolver_->is_queued = true;
+
+            resolver_->cv.notify_all();
+        }
 
         return id;
     }
 
-    std::string key = IpResolver::get_cache_key(hostname, type);
-
-    _resolver->queue[id].hostname = hostname;
-    _resolver->queue[id].type     = type;
-
-    if (_resolver->cache.count(key) && _resolver->cache[key].IsValid()) {
-        _resolver->queue[id].response = _resolver->cache[key];
-        _resolver->queue[id].status   = IP::ResolverStatus::NONE;
-    }
-    else {
-        _resolver->queue[id].response = IpAddress();
-        _resolver->queue[id].status   = IP::ResolverStatus::WAITING;
-
-        _resolver->is_queued = true;
-
-        _resolver->cv.notify_all();
-    }
-
-    return id;
-}
-
-IP::ResolverStatus
-IP::get_resolve_item_status(IP::ResolverID id) const
-{
-    // TODO: bounds checking
-    // ...
-
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
-
-    if (_resolver->queue[id].status == IP::ResolverStatus::NONE) {
-        // TODO: logging
+    IP::ResolverStatus
+    IP::ResolveItemStatus(IP::ResolverID id) const
+    {
+        // TODO: bounds checking
         // ...
 
-        return IP::ResolverStatus::NONE;
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
+
+        if (resolver_->queue[id].status == IP::ResolverStatus::NONE) {
+            // TODO: logging
+            // ...
+
+            return IP::ResolverStatus::NONE;
+        }
+
+        IP::ResolverStatus ret = resolver_->queue[id].status;
+
+        return ret;
     }
 
-    IP::ResolverStatus ret = _resolver->queue[id].status;
-
-    return ret;
-}
-
-IpAddress
-IP::get_resolve_item_address(IP::ResolverID id) const
-{
-    // TODO: bounds checking
-    // ...
-
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
-
-    if (_resolver->queue[id].status != IP::ResolverStatus::DONE) {
-        // TODO: logging
+    IpAddress
+    IP::ResolveItemAddress(IP::ResolverID id) const
+    {
+        // TODO: bounds checking
         // ...
 
-        return IpAddress();
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
+
+        if (resolver_->queue[id].status != IP::ResolverStatus::DONE) {
+            // TODO: logging
+            // ...
+
+            return IpAddress();
+        }
+
+        IpAddress ret = resolver_->queue[id].response;
+
+        return ret;
     }
 
-    IpAddress ret = _resolver->queue[id].response;
+    void
+    IP::EraseResolveItem(IP::ResolverID id)
+    {
+        // TODO: bounds checking
+        // ...
 
-    return ret;
-}
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
 
-void
-IP::erase_resolve_item(IP::ResolverID id)
-{
-    // TODO: bounds checking
-    // ...
-
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
-
-    _resolver->queue[id].status = IP::ResolverStatus::NONE;
-}
-
-void
-IP::clear_cache(const std::string &hostname)
-{
-    auto lk = std::lock_guard<std::mutex>(_resolver->mtx);
-
-    if (hostname.empty()) {
-        _resolver->cache.clear();
+        resolver_->queue[id].status = IP::ResolverStatus::NONE;
     }
-    else {
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::NONE));
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::V4));
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::V6));
-        _resolver->cache.erase(IpResolver::get_cache_key(hostname, Type::ANY));
+
+    void
+    IP::ClearCache(const std::string &hostname)
+    {
+        auto lk = std::lock_guard<std::mutex>(resolver_->mtx);
+
+        if (hostname.empty()) {
+            resolver_->cache.clear();
+        }
+        else {
+            resolver_->cache.erase(IpResolver::get_cache_key(hostname, Type::NONE));
+            resolver_->cache.erase(IpResolver::get_cache_key(hostname, Type::V4));
+            resolver_->cache.erase(IpResolver::get_cache_key(hostname, Type::V6));
+            resolver_->cache.erase(IpResolver::get_cache_key(hostname, Type::ANY));
+        }
     }
-}
-
-IP::IP()
-{
-    _resolver = std::make_shared<IpResolver>();
-
-    _resolver->thread = std::thread{[this] {
-        auto lk = std::unique_lock<std::mutex>(this->_resolver->mtx);
-        this->_resolver->cv.wait(lk, [this] { return this->_resolver->is_queued; });
-        this->_resolver->resolve_queues();
-        this->_resolver->is_queued = false;
-    }};
-}
-
-IP::~IP()
-{
-    if (_resolver->thread.joinable()) {
-        _resolver->thread.join();
-    }
-}
+} // namespace core

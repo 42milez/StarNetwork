@@ -21,25 +21,25 @@ namespace rudp
         void
         Broadcast(core::SysCh ch, std::shared_ptr<Segment> &segment);
 
-        Error
+        core::Error
         Connect(const NetworkConfig &address, core::SysCh channel_count, uint32_t data);
 
         void
         RequestPeerRemoval(uint32_t peer_idx, const std::shared_ptr<Peer> &peer);
 
-        Error
+        core::Error
         Send(size_t peer_id, core::SysCh ch, std::shared_ptr<Segment> &segment);
 
         EventStatus
         Service(std::unique_ptr<Event> &event, uint32_t timeout);
 
-        inline Error
+        inline core::Error
         DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data)
         {
             return peer_pod_->DisconnectNow(peer, data, checksum_);
         }
 
-        inline Error
+        inline core::Error
         DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data)
         {
             return peer_pod_->DisconnectLater(peer, data, checksum_);

@@ -23,13 +23,13 @@ namespace rudp
         std::shared_ptr<Peer>
         AvailablePeer();
 
-        Error
+        core::Error
         Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
-        Error
+        core::Error
         DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
-        Error
+        core::Error
         DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum);
 
         void

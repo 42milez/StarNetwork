@@ -43,19 +43,19 @@ namespace rudp
         @param channel_count       number of channels to allocate
         @param data                user data supplied to the receiving host
 
-        @retval Error::CANT_CREATE Nothing available peer
-        @retval Error::OK          A peer was successfully configured
+        @retval core::Error::CANT_CREATE Nothing available peer
+        @retval core::Error::OK          A peer was successfully configured
 
         @remarks The peer configured will have not completed the connection until UdpHost::Service()
                  notifies of an EventType::CONNECT event for the peer.
     */
-    Error
+    core::Error
     Host::Connect(const NetworkConfig &address, core::SysCh channel_count, uint32_t data)
     {
         auto peer = peer_pod_->AvailablePeer();
 
         if (peer == nullptr)
-            return Error::CANT_CREATE;
+            return core::Error::CANT_CREATE;
 
         auto err = peer->Setup(address, channel_count, incoming_bandwidth_, outgoing_bandwidth_, data);
 
@@ -68,18 +68,18 @@ namespace rudp
         peer_pod_->RequestPeerRemoval(peer_idx, peer, checksum_);
     }
 
-    Error
+    core::Error
     Host::Send(size_t peer_id, core::SysCh ch, std::shared_ptr<Segment> &segment)
     {
         auto peer = peer_pod_->GetPeer(peer_id);
         auto &net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTED))
-            return Error::ERROR;
+            return core::Error::ERROR;
 
         peer->Send(ch, segment, checksum_);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
 #define RETURN_ON_EVENT_OCCURRED(val)                                                                                  \

@@ -10,7 +10,7 @@ namespace rudp
       public:
         IncomingCommand();
 
-        Error
+        core::Error
         ResizeFragmentBuffer(size_t val);
 
         inline bool

@@ -5,7 +5,6 @@
 #include "lib/core/error_macros.h"
 #include "lib/core/exit_handler.h"
 #include "lib/core/hash.h"
-#include "lib/core/io/compression.h"
 #include "lib/core/network/constants.h"
 #include "lib/core/singleton.h"
 #include "lib/core/string.h"
@@ -64,20 +63,20 @@ app::Network::CloseConnection(uint32_t wait_usec)
     connection_status_ = ConnectionStatus::DISCONNECTED;
 }
 
-Error
+core::Error
 app::Network::CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port,
                            int in_bandwidth, int out_bandwidth)
 {
-    ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(server_port < 49152 || server_port > 65535, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(client_port < 49152 || client_port > 65535, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(active_, core::Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(server_port < 49152 || server_port > 65535, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(client_port < 49152 || client_port > 65535, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(in_bandwidth < 0, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(out_bandwidth < 0, core::Error::ERR_INVALID_PARAMETER)
 
     rudp::NetworkConfig config;
 
     if (!bind_ip_.IsWildcard()) {
-        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), Error::ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), core::Error::ERR_INVALID_PARAMETER)
         config.SetIP(bind_ip_.GetIPv6(), 16);
     }
 
@@ -85,20 +84,20 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
 
     host_ = std::make_unique<rudp::Host>(config, channel_count_, 32, in_bandwidth, out_bandwidth);
 
-    ERR_FAIL_COND_V(!host_, Error::CANT_CREATE)
+    ERR_FAIL_COND_V(!host_, core::Error::CANT_CREATE)
 
-    IpAddress ip;
+    core::IpAddress ip;
 
-    if (is_valid_ip_address(server_address)) {
-        ip = IpAddress(server_address);
+    if (core::IsValidIpAddress(server_address)) {
+        ip = core::IpAddress(server_address);
     }
     else {
-        ip = core::Singleton<IP>::Instance().resolve_hostname(server_address, IP::Type::V4);
+        ip = core::Singleton<core::IP>::Instance().ResolveHostname(server_address, core::IP::Type::V4);
 
-        ERR_FAIL_COND_V(!ip.IsValid(), Error::CANT_CREATE)
+        ERR_FAIL_COND_V(!ip.IsValid(), core::Error::CANT_CREATE)
     }
 
-    ERR_FAIL_COND_V(!ip.IsIpv4(), Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(!ip.IsIpv4(), core::Error::ERR_INVALID_PARAMETER)
 
     rudp::NetworkConfig server_config;
 
@@ -112,30 +111,30 @@ app::Network::CreateClient(const std::string &server_address, uint16_t server_po
     return host_->Connect(server_config, channel_count_, unique_id_);
 }
 
-Error
+core::Error
 app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwidth, uint32_t out_bandwidth)
 {
-    ERR_FAIL_COND_V(active_, Error::ERR_ALREADY_IN_USE)
-    ERR_FAIL_COND_V(port < 49152 || port > 65535, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(peer_count < 0, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(in_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(out_bandwidth < 0, Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(active_, core::Error::ERR_ALREADY_IN_USE)
+    ERR_FAIL_COND_V(port < 49152 || port > 65535, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(peer_count < 0, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(in_bandwidth < 0, core::Error::ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(out_bandwidth < 0, core::Error::ERR_INVALID_PARAMETER)
 
     rudp::NetworkConfig config;
 
     if (!bind_ip_.IsWildcard()) {
-        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), Error::ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(!bind_ip_.IsIpv4(), core::Error::ERR_INVALID_PARAMETER)
         config.SetIP(bind_ip_.GetIPv6(), 16);
     }
 
-    IpAddress host_ip{"::FFFF:127.0.0.1"};
+    core::IpAddress host_ip{"::FFFF:127.0.0.1"};
 
     config.host_v6(host_ip.GetIPv6());
     config.port(port);
 
     host_ = std::make_unique<rudp::Host>(config, channel_count_, peer_count, in_bandwidth, out_bandwidth);
 
-    ERR_FAIL_COND_V(host_ == nullptr, Error::CANT_CREATE)
+    ERR_FAIL_COND_V(host_ == nullptr, core::Error::CANT_CREATE)
 
     active_            = true;
     connection_status_ = ConnectionStatus::CONNECTED;
@@ -143,7 +142,7 @@ app::Network::CreateServer(uint16_t port, size_t peer_count, uint32_t in_bandwid
     server_relay_      = true;
     unique_id_         = 1;
 
-    return Error::OK;
+    return core::Error::OK;
 }
 
 void
@@ -334,23 +333,23 @@ app::Network::Poll()
     }
 }
 
-std::tuple<Error, std::shared_ptr<rudp::Segment>>
+std::tuple<core::Error, std::shared_ptr<rudp::Segment>>
 app::Network::Receive()
 {
-    ERR_FAIL_COND_V(payloads_.empty(), std::make_tuple(Error::ERR_UNAVAILABLE, nullptr))
+    ERR_FAIL_COND_V(payloads_.empty(), std::make_tuple(core::Error::ERR_UNAVAILABLE, nullptr))
 
     current_payload_ = payloads_.front();
 
     payloads_.pop_front();
 
-    return std::make_tuple(Error::OK, current_payload_.segment);
+    return std::make_tuple(core::Error::OK, current_payload_.segment);
 }
 
-Error
+core::Error
 app::Network::Send(const std::string &str)
 {
-    ERR_FAIL_COND_V(!active_, Error::ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V(connection_status_ != ConnectionStatus::CONNECTED, Error::ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!active_, core::Error::ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(connection_status_ != ConnectionStatus::CONNECTED, core::Error::ERR_UNCONFIGURED)
 
     rudp::SegmentFlag segment_flag = rudp::SegmentFlag::RELIABLE;
     core::SysCh channel            = core::SysCh::RELIABLE;
@@ -376,7 +375,7 @@ app::Network::Send(const std::string &str)
     if (target_peer_id_ != 0) {
         peer = peers_.find(std::abs(target_peer_id_));
 
-        ERR_FAIL_COND_V(peer == peers_.end(), Error::ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(peer == peers_.end(), core::Error::ERR_INVALID_PARAMETER)
     }
 
     auto segment     = std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(segment_flag));
@@ -415,5 +414,5 @@ app::Network::Send(const std::string &str)
 
     host_->Flush();
 
-    return Error::OK;
+    return core::Error::OK;
 }

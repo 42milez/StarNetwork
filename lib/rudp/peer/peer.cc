@@ -33,7 +33,7 @@ namespace rudp
     {
     }
 
-    Error
+    core::Error
     Peer::Setup(const NetworkConfig &address, core::SysCh channel_count, uint32_t host_incoming_bandwidth,
                 uint32_t host_outgoing_bandwidth, uint32_t data)
     {
@@ -71,7 +71,7 @@ namespace rudp
 
         QueueOutgoingCommand(cmd, nullptr, 0);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     void
@@ -242,17 +242,17 @@ namespace rudp
 
     namespace
     {
-        Error
+        core::Error
         DiscardCommand(uint32_t fragment_count)
         {
             if (fragment_count > 0)
-                return Error::ERROR;
+                return core::Error::ERROR;
 
-            return Error::OK;
+            return core::Error::OK;
         }
     } // namespace
 
-    Error
+    core::Error
     Peer::QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, std::vector<uint8_t> &data,
                                uint16_t data_length, uint16_t flags, uint32_t fragment_count,
                                size_t maximum_waiting_data)
@@ -266,12 +266,12 @@ namespace rudp
         auto ch         = channels_.at(cmd->header.channel_id);
         auto [_, error] = ch->QueueIncomingCommand(cmd, data, flags, fragment_count);
 
-        if (error == Error::OK)
+        if (error == core::Error::OK)
             total_waiting_data_ += data_length;
         else
             return error;
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     // REVIEW: Is the segment necessary as an argument?
@@ -334,12 +334,12 @@ namespace rudp
         return {segment, incoming_command->header_channel_id()};
     }
 
-    Error
+    core::Error
     Peer::Send(core::SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum)
     {
         if (net_->StateIsNot(RUdpPeerState::CONNECTED) || static_cast<uint32_t>(ch) >= channels_.size() ||
             segment->DataLength() > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE) {
-            return Error::ERROR;
+            return core::Error::ERROR;
         }
 
         auto fragment_length = net_->mtu() - sizeof(ProtocolHeader) - sizeof(ProtocolSendFragment);
@@ -359,7 +359,7 @@ namespace rudp
             auto fragment_count = (data_length + fragment_length - 1) / fragment_length;
 
             if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
-                return Error::ERROR;
+                return core::Error::ERROR;
 
             // process a segment as unreliable fragment when the frag has RELIABLE and UNRELIABLE_FRAGMENT
             if ((segment->flags() & (static_cast<uint32_t>(SegmentFlag::RELIABLE) |
@@ -412,7 +412,7 @@ namespace rudp
                 command_pod_->SetupOutgoingCommand(f, channels_.at(f->header_channel_id()));
             }
 
-            return Error::OK;
+            return core::Error::OK;
         }
 
         auto cmd = std::make_shared<ProtocolType>();
@@ -439,7 +439,7 @@ namespace rudp
 
         QueueOutgoingCommand(cmd, segment, 0);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     std::shared_ptr<Acknowledgement>

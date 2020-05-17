@@ -72,10 +72,10 @@ namespace rudp
             used_reliable_windows_ |= 1u << position;
         }
 
-        std::tuple<std::shared_ptr<IncomingCommand>, Error>
+        std::tuple<std::shared_ptr<IncomingCommand>, core::Error>
         ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count);
 
-        std::tuple<std::shared_ptr<IncomingCommand>, Error>
+        std::tuple<std::shared_ptr<IncomingCommand>, core::Error>
         QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, std::vector<uint8_t> &data, uint16_t flags,
                              uint32_t fragment_count);
 

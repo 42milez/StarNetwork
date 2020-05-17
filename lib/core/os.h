@@ -4,30 +4,37 @@
 #include <cstdint>
 #include <string>
 
-class OS
+namespace core
 {
-  public:
-    OS();
-    [[nodiscard]] uint64_t
-    GetTicksUsec() const;
-    inline uint32_t
-    GetTicksMsec()
+    class OS
     {
-        return GetTicksUsec() / 1000;
-    };
-    static inline uint64_t
-    GetUnixTime()
-    {
-        return 0;
-    };
-    static inline std::string
-    GetUserDataDir()
-    {
-        return ".";
-    };
+      public:
+        OS();
 
-  private:
-    uint64_t clock_start_;
-};
+        [[nodiscard]] uint64_t
+        GetTicksUsec() const;
+
+        inline uint32_t
+        GetTicksMsec()
+        {
+            return GetTicksUsec() / 1000;
+        };
+
+        static inline uint64_t
+        GetUnixTime()
+        {
+            return 0;
+        };
+
+        static inline std::string
+        GetUserDataDir()
+        {
+            return ".";
+        };
+
+      private:
+        uint64_t clock_start_;
+    };
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_OS_H_

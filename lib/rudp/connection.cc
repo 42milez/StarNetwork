@@ -16,15 +16,15 @@ namespace rudp
             // ...
         }
 
-        socket_->Open(core::SocketType::UDP, IP::Type::ANY);
+        socket_->Open(core::SocketType::UDP, core::IP::Type::ANY);
 
         socket_->SetBlockingEnabled(false);
         socket_->SetBroadcastingEnabled(true);
 
-        IpAddress ip{};
+        core::IpAddress ip{};
 
         if (address.wildcard()) {
-            ip = IpAddress("*");
+            ip = core::IpAddress("*");
         }
         else {
             ip.SetIpv6(address.host());
@@ -32,7 +32,7 @@ namespace rudp
 
         auto ret = socket_->Bind(ip, address.port());
 
-        if (ret != Error::OK) {
+        if (ret != core::Error::OK) {
             // throw exception
             // ...
         }
@@ -43,26 +43,26 @@ namespace rudp
     {
         ERR_FAIL_COND_V(buffer_count != 1, -1)
 
-        Error err = socket_->Wait();
+        auto err = socket_->Wait();
 
-        if (err == Error::ERR_BUSY)
+        if (err == core::Error::ERR_BUSY)
             return 0;
 
-        if (err != Error::OK)
+        if (err != core::Error::OK)
             return -1;
 
         ssize_t read_count;
-        IpAddress ip;
+        core::IpAddress ip;
 
         uint16_t port = 0;
         err = socket_->RecvFrom(buffer, read_count, ip, port);
 
         received_address.port(port);
 
-        if (err == Error::ERR_BUSY)
+        if (err == core::Error::ERR_BUSY)
             return 0;
 
-        if (err != Error::OK)
+        if (err != core::Error::OK)
             return -1;
 
         received_address.SetIP(ip.GetIPv6(), 16);
@@ -75,7 +75,7 @@ namespace rudp
     ssize_t
     Connection::Send(const NetworkConfig &address, const std::unique_ptr<Chamber> &chamber)
     {
-        IpAddress dest;
+        core::IpAddress dest;
 
         dest.SetIpv6(address.host());
 
@@ -91,8 +91,8 @@ namespace rudp
 
         core::LOG_DEBUG_VA("bytes sent: {0}", sent);
 
-        if (err != Error::OK) {
-            if (err == Error::ERR_BUSY)
+        if (err != core::Error::OK) {
+            if (err == core::Error::ERR_BUSY)
                 return 0;
 
             return -1;

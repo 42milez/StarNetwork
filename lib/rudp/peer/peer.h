@@ -46,7 +46,7 @@ namespace rudp
         void
         QueueAcknowledgement(const std::shared_ptr<ProtocolType> &cmd, uint16_t sent_time);
 
-        Error
+        core::Error
         QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, std::vector<uint8_t> &data, uint16_t data_length,
                              uint16_t flags, uint32_t fragment_count, size_t maximum_waiting_data);
 
@@ -66,10 +66,10 @@ namespace rudp
         void
         ResetPeerQueues();
 
-        Error
+        core::Error
         Send(core::SysCh ch, const std::shared_ptr<Segment> &segment, ChecksumCallback checksum);
 
-        Error
+        core::Error
         Setup(const NetworkConfig &address, core::SysCh channel_count, uint32_t host_incoming_bandwidth,
               uint32_t host_outgoing_bandwidth, uint32_t data);
 

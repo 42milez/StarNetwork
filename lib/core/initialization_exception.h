@@ -1,16 +1,19 @@
 #ifndef P2P_TECHDEMO_LIB_CORE_INITIALIZATION_EXCEPTION_H_
 #define P2P_TECHDEMO_LIB_CORE_INITIALIZATION_EXCEPTION_H_
 
-class InitializationException
+namespace core
 {
-  public:
-    explicit InitializationException(std::string &&msg);
+    class InitializationException
+    {
+      public:
+        explicit InitializationException(std::string &&msg);
 
-    const char *
-    what() const noexcept;
+        const char *
+        what() const noexcept;
 
-  private:
-    std::string _msg;
-};
+      private:
+        std::string _msg;
+    };
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_INITIALIZATION_EXCEPTION_H_

@@ -67,14 +67,14 @@ namespace rudp
     else                                                                                                               \
         return EventStatus::NO_EVENT_OCCURRED;
 
-    Error
+    core::Error
     PeerPod::Disconnect(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTING) || net->StateIs(RUdpPeerState::DISCONNECTED) ||
             net->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT) || net->StateIs(RUdpPeerState::ZOMBIE)) {
-            return Error::ERROR;
+            return core::Error::ERROR;
         }
 
         peer->ResetPeerQueues();
@@ -100,10 +100,10 @@ namespace rudp
             peer->Reset();
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     PeerPod::DisconnectLater(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net     = peer->net();
@@ -119,16 +119,16 @@ namespace rudp
             Disconnect(peer, data, checksum);
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     PeerPod::DisconnectNow(const std::shared_ptr<Peer> &peer, uint32_t data, ChecksumCallback checksum)
     {
         auto &net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED))
-            return Error::ERROR;
+            return core::Error::ERROR;
 
         std::shared_ptr<ProtocolType> cmd = std::make_shared<ProtocolType>();
 
@@ -147,7 +147,7 @@ namespace rudp
 
         peer->Reset();
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     void
@@ -260,7 +260,7 @@ namespace rudp
                         Disconnect(peer, peer->event_data(), checksum);
                     };
 
-                    if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == Error::ERROR) {
+                    if (protocol_->HandleAcknowledge(event, peer, cmd, service_time_, disconnect) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
@@ -300,21 +300,21 @@ namespace rudp
                 else if (cmd_type == RUdpProtocolCommand::VERIFY_CONNECT) {
                     core::LOG_DEBUG_VA("command was received: VERIFY_CONNECT ({0})", cmd->header.reliable_sequence_number);
 
-                    if (protocol_->HandleVerifyConnect(event, peer, cmd) == Error::ERROR) {
+                    if (protocol_->HandleVerifyConnect(event, peer, cmd) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::DISCONNECT) {
                     core::LOG_DEBUG_VA("command was received: DISCONNECT ({0})", cmd->header.reliable_sequence_number);
 
-                    if (protocol_->HandleDisconnect(peer, cmd) == Error::ERROR) {
+                    if (protocol_->HandleDisconnect(peer, cmd) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::PING) {
                     core::LOG_DEBUG_VA("command was received: PING ({0})", cmd->header.reliable_sequence_number);
 
-                    if (protocol_->HandlePing(peer) == Error::ERROR) {
+                    if (protocol_->HandlePing(peer) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
@@ -340,7 +340,7 @@ namespace rudp
 
                     if (protocol_->HandleSendReliable(peer, cmd, cmd_body, data_length,
                                                       static_cast<uint16_t>(SegmentFlag::RELIABLE),
-                                                      0) == Error::ERROR) {
+                                                      0) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
@@ -378,14 +378,14 @@ namespace rudp
                     }
 
                     if (protocol_->HandleSendFragment(peer, cmd, cmd_body,
-                                                      static_cast<uint16_t>(SegmentFlag::RELIABLE)) == Error::ERROR) {
+                                                      static_cast<uint16_t>(SegmentFlag::RELIABLE)) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }
                 else if (cmd_type == RUdpProtocolCommand::BANDWIDTH_LIMIT) {
                     core::LOG_DEBUG_VA("command was received: BANDWIDTH_LIMIT ({0})", cmd->header.reliable_sequence_number);
 
-                    if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == Error::ERROR) {
+                    if (protocol_->HandleBandwidthLimit(peer, cmd, current_data) == core::Error::ERROR) {
                         IS_EVENT_AVAILABLE()
                     }
                 }

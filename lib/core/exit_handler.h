@@ -8,12 +8,6 @@
 
 namespace core
 {
-    enum class REGISTER_HANDLER_STATUS
-    {
-        SUCCESS = 0,
-        FAIL    = -1
-    };
-
     class ExitHandler
     {
       public:

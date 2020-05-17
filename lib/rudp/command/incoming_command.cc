@@ -15,7 +15,7 @@ namespace rudp
     {
     }
 
-    Error
+    core::Error
     IncomingCommand::ResizeFragmentBuffer(size_t val)
     {
         try {
@@ -24,9 +24,9 @@ namespace rudp
         catch (std::bad_alloc &e) {
             core::LOG_CRITICAL("BAD ALLOCATION");
 
-            return Error::CANT_ALLOCATE;
+            return core::Error::CANT_ALLOCATE;
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 } // namespace rudp

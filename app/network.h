@@ -25,11 +25,11 @@ namespace app
         Network();
         ~Network();
 
-        Error
+        core::Error
         CreateClient(const std::string &server_address, uint16_t server_port, uint16_t client_port,
                      int in_bandwidth = 0, int out_bandwidth = 0);
 
-        Error
+        core::Error
         CreateServer(uint16_t port, size_t peer_count = 32, uint32_t in_bandwidth = 0, uint32_t out_bandwidth = 0);
 
         void
@@ -38,10 +38,10 @@ namespace app
         void
         Poll();
 
-        std::tuple<Error, std::shared_ptr<rudp::Segment>>
+        std::tuple<core::Error, std::shared_ptr<rudp::Segment>>
         Receive();
 
-        Error
+        core::Error
         Send(const std::string &str);
 
         inline size_t
@@ -77,7 +77,7 @@ namespace app
         std::unique_ptr<rudp::Host> host_;
 
         ConnectionStatus connection_status_;
-        IpAddress bind_ip_;
+        core::IpAddress bind_ip_;
         core::Payload current_payload_;
         core::SysCh channel_count_;
         core::SysCh transfer_channel_;

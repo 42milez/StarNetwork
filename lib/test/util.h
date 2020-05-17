@@ -16,14 +16,14 @@ namespace test
     inline bool
     wait(std::function<bool()> &&f, uint16_t timeout)
     {
-        auto start_at = core::Singleton<OS>::Instance().GetTicksMsec();
+        auto start_at = core::Singleton<core::OS>::Instance().GetTicksMsec();
 
         while (true) {
             if (f()) {
                 return true;
             }
 
-            if (core::Singleton<OS>::Instance().GetTicksMsec() - start_at > timeout) {
+            if (core::Singleton<core::OS>::Instance().GetTicksMsec() - start_at > timeout) {
                 return false;
             }
         }

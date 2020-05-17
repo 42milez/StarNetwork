@@ -26,18 +26,18 @@ namespace rudp
         EventStatus
         DispatchIncomingCommands(std::unique_ptr<Event> &event);
 
-        Error
+        core::Error
         DispatchIncomingReliableCommands(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd);
 
-        Error
+        core::Error
         DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd);
 
-        Error
+        core::Error
         HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                           const std::shared_ptr<ProtocolType> &cmd, uint32_t service_time,
                           std::function<void(std::shared_ptr<Peer> &peer)> disconnect);
 
-        Error
+        core::Error
         HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                              std::vector<uint8_t>::iterator &data);
 
@@ -46,22 +46,22 @@ namespace rudp
                       const std::shared_ptr<ProtocolType> &cmd, const NetworkConfig &received_address,
                       uint32_t host_incoming_bandwidth, uint32_t host_outgoing_bandwidth);
 
-        static Error
+        static core::Error
         HandlePing(const std::shared_ptr<Peer> &peer);
 
-        Error
+        core::Error
         HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                            std::vector<uint8_t> &data, uint16_t flags);
 
-        Error
+        core::Error
         HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                            std::vector<uint8_t> &data, uint16_t data_length, uint16_t flags, uint32_t fragment_count);
 
-        Error
+        core::Error
         HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                             const std::shared_ptr<ProtocolType> &cmd);
 
-        Error
+        core::Error
         HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd);
 
         void

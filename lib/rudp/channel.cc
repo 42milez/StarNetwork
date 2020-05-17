@@ -61,21 +61,21 @@ namespace rudp
 
     namespace
     {
-        Error
+        core::Error
         DiscardCommand(uint32_t fragment_count)
         {
             if (fragment_count > 0)
-                return Error::ERROR;
+                return core::Error::ERROR;
 
-            return Error::OK;
+            return core::Error::OK;
         }
     } // namespace
 
-    std::tuple<std::shared_ptr<IncomingCommand>, Error>
+    std::tuple<std::shared_ptr<IncomingCommand>, core::Error>
     Channel::ExtractFirstCommand(uint16_t start_sequence_number, int total_length, uint32_t fragment_count)
     {
         if (incoming_reliable_commands_.empty()) {
-            return {nullptr, Error::DOES_NOT_EXIST};
+            return {nullptr, core::Error::DOES_NOT_EXIST};
         }
 
         auto cmd = --(incoming_reliable_commands_.end());
@@ -87,30 +87,30 @@ namespace rudp
                     continue;
                 }
                 else if ((*cmd)->reliable_sequence_number() >= incoming_reliable_sequence_number_) {
-                    return std::make_tuple(nullptr, Error::OK);
+                    return std::make_tuple(nullptr, core::Error::OK);
                 }
             }
 
             //
             if ((*cmd)->reliable_sequence_number() <= start_sequence_number) {
                 if ((*cmd)->reliable_sequence_number() < start_sequence_number) {
-                    return std::make_tuple(nullptr, Error::OK);
+                    return std::make_tuple(nullptr, core::Error::OK);
                 }
 
                 if (((*cmd)->command()->header.command & PROTOCOL_COMMAND_MASK) !=
                         static_cast<uint8_t>(RUdpProtocolCommand::SEND_FRAGMENT) ||
                     total_length != (*cmd)->segment()->DataLength() || fragment_count != (*cmd)->fragment_count()) {
-                    return std::make_tuple(nullptr, Error::ERROR);
+                    return std::make_tuple(nullptr, core::Error::ERROR);
                 }
 
                 break;
             }
         }
 
-        return std::make_tuple((*cmd), Error::OK);
+        return std::make_tuple((*cmd), core::Error::OK);
     }
 
-    std::tuple<std::shared_ptr<IncomingCommand>, Error>
+    std::tuple<std::shared_ptr<IncomingCommand>, core::Error>
     Channel::QueueIncomingCommand(const std::shared_ptr<ProtocolType> &cmd, std::vector<uint8_t> &data, uint16_t flags,
                                   uint32_t fragment_count)
     {
@@ -218,12 +218,12 @@ namespace rudp
         }
 
         if (segment == nullptr)
-            return std::tuple(nullptr, Error::CANT_ALLOCATE);
+            return std::tuple(nullptr, core::Error::CANT_ALLOCATE);
 
         auto in_cmd = std::make_shared<IncomingCommand>();
 
         if (in_cmd == nullptr)
-            return std::tuple(nullptr, Error::CANT_ALLOCATE);
+            return std::tuple(nullptr, core::Error::CANT_ALLOCATE);
 
         in_cmd->reliable_sequence_number(cmd->header.reliable_sequence_number);
         in_cmd->unreliable_sequence_number(unreliable_sequence_number & 0xFFFF);
@@ -233,14 +233,14 @@ namespace rudp
         in_cmd->segment(segment);
 
         if (fragment_count > 0) {
-            Error is_memory_allocated{};
+            core::Error is_memory_allocated{};
 
             if (fragment_count <= PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
                 // TODO: handle std::bad_alloc
                 is_memory_allocated = in_cmd->ResizeFragmentBuffer((fragment_count + 31) / 32 * sizeof(uint32_t));
 
-            if (is_memory_allocated == Error::CANT_ALLOCATE)
-                return {nullptr, Error::ERROR};
+            if (is_memory_allocated == core::Error::CANT_ALLOCATE)
+                return {nullptr, core::Error::ERROR};
         }
 
         if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE) {
@@ -256,6 +256,6 @@ namespace rudp
                 incoming_unreliable_commands_.insert(std::next(insert_pos), in_cmd);
         }
 
-        return {in_cmd, Error::OK};
+        return {in_cmd, core::Error::OK};
     }
 } // namespace rudp

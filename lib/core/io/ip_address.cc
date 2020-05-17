@@ -10,7 +10,7 @@
 namespace
 {
     void
-    ParseHex(const std::string &str, int start, uint8_t *dst)
+    _parse_hex(const std::string &str, int start, uint8_t *dst)
     {
         uint16_t ret = 0;
 
@@ -51,7 +51,7 @@ namespace
     }
 
     void
-    ParseIpv4(const std::string &str, int start, uint8_t *ret)
+    _parse_ipv4(const std::string &str, int start, uint8_t *ret)
     {
         std::string ip;
 
@@ -81,7 +81,7 @@ namespace
     }
 
     void
-    ParseIpv6(const std::string &str, uint16_t (&field16)[8])
+    _parse_ipv6(const std::string &str, uint16_t (&field16)[8])
     {
         static const int parts_total = 8;
         int parts[parts_total]       = {0};
@@ -144,16 +144,16 @@ namespace
             }
 
             if (part_ipv4 && i == parts_idx - 1) {
-                ParseIpv4(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx])); // should be the last one
+                _parse_ipv4(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx])); // should be the last one
             }
             else {
-                ParseHex(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx++]));
+                _parse_hex(str, parts[i], reinterpret_cast<uint8_t *>(&field16[idx++]));
             }
         }
     }
 
     void
-    SplitUint32IntoUint8(uint8_t *dst, uint32_t n)
+    _split_uint32_into_uint8(uint8_t *dst, uint32_t n)
     {
         dst[0] = (n >> 24) & 0xff;
         dst[1] = (n >> 16) & 0xff;
@@ -162,140 +162,150 @@ namespace
     }
 } // namespace
 
-IpAddress::operator std::string() const
+namespace core
 {
-    if (!valid_) {
-        return "";
-    }
-
-    if (IsIpv4()) {
-        return std::to_string(field8_[12]) + "." + std::to_string(field8_[13]) + "." + std::to_string(field8_[14]) +
-               "." + std::to_string(field8_[15]);
-    }
-
-    std::stringstream ret;
-
-    for (auto i = 0; i < 8; i++) {
-        if (i > 0) {
-            ret << ":";
+    IpAddress::operator std::string() const
+    {
+        if (!valid_) {
+            return "";
         }
 
-        // TODO: try to use field16_
-        uint16_t num = (field8_[i * 2] << 8) + field8_[i * 2 + 1];
+        if (IsIpv4()) {
+            return std::to_string(field8_[12]) + "." + std::to_string(field8_[13]) + "." + std::to_string(field8_[14]) +
+                   "." + std::to_string(field8_[15]);
+        }
 
-        ret << std::hex << num;
+        std::stringstream ret;
+
+        for (auto i = 0; i < 8; i++) {
+            if (i > 0) {
+                ret << ":";
+            }
+
+            // TODO: try to use field16_
+            uint16_t num = (field8_[i * 2] << 8) + field8_[i * 2 + 1];
+
+            ret << std::hex << num;
+        }
+
+        return ret.str();
     }
 
-    return ret.str();
-}
-
-bool
-IpAddress::operator!=(const IpAddress &ip_address) const
-{
-    if (valid_ != ip_address.valid_) {
-        return true;
-    }
-
-    if (!valid_) {
-        return true;
-    }
-
-    for (auto i = 0; i < 4; i++) {
-        if (ip_address.field32_[i] != field32_[i]) {
+    bool
+    IpAddress::operator!=(const IpAddress &ip_address) const
+    {
+        if (valid_ != ip_address.valid_) {
             return true;
         }
-    }
 
-    return false;
-}
+        if (!valid_) {
+            return true;
+        }
 
-bool
-IpAddress::operator==(const IpAddress &ip_address) const
-{
-    if (valid_ != ip_address.valid_) {
+        for (auto i = 0; i < 4; i++) {
+            if (ip_address.field32_[i] != field32_[i]) {
+                return true;
+            }
+        }
+
         return false;
     }
 
-    if (!valid_) {
-        return false;
-    }
-
-    for (auto i = 0; i < 4; i++) {
-        if (ip_address.field32_[i] != field32_[i]) {
+    bool
+    IpAddress::operator==(const IpAddress &ip_address) const
+    {
+        if (valid_ != ip_address.valid_) {
             return false;
+        }
+
+        if (!valid_) {
+            return false;
+        }
+
+        for (auto i = 0; i < 4; i++) {
+            if (ip_address.field32_[i] != field32_[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void
+    IpAddress::Clear()
+    {
+        memset(&field8_[0], 0, sizeof(field8_));
+        valid_    = false;
+        wildcard_ = false;
+    }
+
+    const uint8_t *
+    IpAddress::GetIPv4() const
+    {
+        // TODO: bounds checking
+        // ...
+
+        return &(field8_[12]);
+    }
+
+    const uint8_t *
+    IpAddress::GetIPv6() const
+    {
+        // TODO: bounds checking
+        // ...
+
+        return field8_;
+    }
+
+    IpAddress::IpAddress(const std::string &str)
+    {
+        Clear();
+
+        if (str == "*") {
+            wildcard_ = true;
+        }
+        else if (str.find(':') != std::string::npos) {
+            // IPv6
+            _parse_ipv6(str, field16_);
+            valid_ = true;
+        }
+        else if (std::count(str.begin(), str.end(), '.') == 3) {
+            // IPv4 (mapped to IPv6 internally)
+            field16_[5] = 0xffff;
+            _parse_ipv4(str, 0, &field8_[12]);
+            valid_ = true;
+        }
+        else {
+            // TODO: logging
+            // ...
         }
     }
 
-    return true;
-}
-
-void
-IpAddress::Clear()
-{
-    memset(&field8_[0], 0, sizeof(field8_));
-    valid_    = false;
-    wildcard_ = false;
-}
-
-const uint8_t *
-IpAddress::GetIPv4() const
-{
-    // TODO: bounds checking
-    // ...
-
-    return &(field8_[12]);
-}
-
-const uint8_t *
-IpAddress::GetIPv6() const
-{
-    // TODO: bounds checking
-    // ...
-
-    return field8_;
-}
-
-IpAddress::IpAddress(const std::string &str)
-{
-    Clear();
-
-    if (str == "*") {
-        wildcard_ = true;
+    IpAddress::IpAddress()
+        : field8_()
+        , valid_()
+        , wildcard_()
+    {
     }
-    else if (str.find(':') != std::string::npos) {
-        // IPv6
-        ParseIpv6(str, field16_);
+
+    IpAddress::IpAddress(uint32_t a, uint32_t b, uint32_t c, uint32_t d, bool is_v6)
+    {
+        Clear();
+
         valid_ = true;
-    }
-    else if (std::count(str.begin(), str.end(), '.') == 3) {
-        // IPv4 (mapped to IPv6 internally)
-        field16_[5] = 0xffff;
-        ParseIpv4(str, 0, &field8_[12]);
-        valid_ = true;
-    }
-    else {
-        // TODO: logging
-        // ...
-    }
-}
 
-IpAddress::IpAddress(uint32_t a, uint32_t b, uint32_t c, uint32_t d, bool is_v6)
-{
-    Clear();
-
-    valid_ = true;
-
-    if (!is_v6) {
-        field16_[5] = 0xffff;
-        field8_[12] = a;
-        field8_[13] = b;
-        field8_[14] = c;
-        field8_[15] = d;
+        if (!is_v6) {
+            field16_[5] = 0xffff;
+            field8_[12] = a;
+            field8_[13] = b;
+            field8_[14] = c;
+            field8_[15] = d;
+        }
+        else {
+            _split_uint32_into_uint8(&field8_[0], a);
+            _split_uint32_into_uint8(&field8_[4], b);
+            _split_uint32_into_uint8(&field8_[8], c);
+            _split_uint32_into_uint8(&field8_[12], d);
+        }
     }
-    else {
-        SplitUint32IntoUint8(&field8_[0], a);
-        SplitUint32IntoUint8(&field8_[4], b);
-        SplitUint32IntoUint8(&field8_[8], c);
-        SplitUint32IntoUint8(&field8_[12], d);
-    }
-}
+} // namespace core

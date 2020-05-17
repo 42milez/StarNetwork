@@ -286,7 +286,7 @@ namespace rudp
         return EventStatus::NO_EVENT_OCCURRED;
     }
 
-    Error
+    core::Error
     RUdpProtocol::DispatchIncomingReliableCommands(std::shared_ptr<Peer> &peer,
                                                    const std::shared_ptr<ProtocolType> &cmd)
     {
@@ -295,7 +295,7 @@ namespace rudp
         auto reliable_commands = ch->NewIncomingReliableCommands();
 
         if (reliable_commands.empty())
-            return Error::OK;
+            return core::Error::OK;
 
         peer->PushIncomingCommandsToDispatchQueue(reliable_commands);
 
@@ -307,20 +307,20 @@ namespace rudp
         if (ch->IncomingUnreliableCommandExists())
             DispatchIncomingUnreliableCommands(peer, cmd);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::DispatchIncomingUnreliableCommands(const std::shared_ptr<Peer> &peer,
                                                      const std::shared_ptr<ProtocolType> &cmd)
     {
         // TODO: add implementation
         // ...
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleAcknowledge(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                                     const std::shared_ptr<ProtocolType> &cmd, uint32_t service_time,
                                     std::function<void(std::shared_ptr<Peer> &peer)> disconnect)
@@ -331,7 +331,7 @@ namespace rudp
         auto &cmd_pod = peer->command_pod();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE))
-            return Error::OK;
+            return core::Error::OK;
 
         uint32_t received_sent_time = cmd->acknowledge.received_sent_time;
         received_sent_time |= service_time & 0xFFFF0000;
@@ -340,7 +340,7 @@ namespace rudp
             received_sent_time -= 0x10000;
 
         if (UDP_TIME_LESS(service_time, received_sent_time))
-            return Error::OK;
+            return core::Error::OK;
 
         peer->last_receive_time(service_time);
         cmd_pod->earliest_timeout(0);
@@ -360,13 +360,13 @@ namespace rudp
         auto state = net->state();
         if (state == RUdpPeerState::ACKNOWLEDGING_CONNECT) {
             if (command_number != RUdpProtocolCommand::VERIFY_CONNECT)
-                return Error::ERROR;
+                return core::Error::ERROR;
 
             dispatch_hub_->NotifyConnect(event, peer);
         }
         else if (state == RUdpPeerState::DISCONNECTING) {
             if (command_number != RUdpProtocolCommand::DISCONNECT)
-                return Error::ERROR;
+                return core::Error::ERROR;
 
             dispatch_hub_->NotifyDisconnect(event, peer);
         }
@@ -377,17 +377,17 @@ namespace rudp
             }
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleBandwidthLimit(const std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                                        std::vector<uint8_t>::iterator &data)
     {
         // TODO
         // ...
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     void
@@ -404,23 +404,23 @@ namespace rudp
                                  channel_count);
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandlePing(const std::shared_ptr<Peer> &peer)
     {
         auto &net = peer->net();
 
         if (net->StateIs(RUdpPeerState::CONNECTED) && net->StateIs(RUdpPeerState::DISCONNECT_LATER))
-            return Error::ERROR;
+            return core::Error::ERROR;
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleSendFragment(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                                      std::vector<uint8_t> &data, uint16_t flags)
     {
         if (!peer->StateIs(RUdpPeerState::CONNECTED) && !peer->StateIs(RUdpPeerState::DISCONNECT_LATER))
-            return Error::ERROR;
+            return core::Error::ERROR;
 
         auto ch                    = peer->GetChannel(cmd->header.channel_id);
         auto start_sequence_number = cmd->send_fragment.start_sequence_number;
@@ -431,7 +431,7 @@ namespace rudp
             start_window += PEER_RELIABLE_WINDOWS;
 
         if (start_window < current_window || start_window >= current_window + PEER_FREE_RELIABLE_WINDOWS - 1)
-            return Error::OK;
+            return core::Error::OK;
 
         auto fragment_length = cmd->send_fragment.data_length;
         auto fragment_number = cmd->send_fragment.fragment_number;
@@ -442,7 +442,7 @@ namespace rudp
         if (fragment_count > PROTOCOL_MAXIMUM_FRAGMENT_COUNT || fragment_number >= fragment_count ||
             total_length > HOST_DEFAULT_MAXIMUM_SEGMENT_SIZE || fragment_offset >= total_length ||
             fragment_length > total_length - fragment_offset) {
-            return Error::ERROR;
+            return core::Error::ERROR;
         }
 
         auto [firstCmd, err] = ch->ExtractFirstCommand(start_sequence_number, total_length, fragment_count);
@@ -453,8 +453,8 @@ namespace rudp
 
             in_cmd->MarkFragmentReceived(fragment_number);
 
-            if (error != Error::OK) {
-                return Error::ERROR;
+            if (error != core::Error::OK) {
+                return core::Error::ERROR;
             }
         }
         // copy a fragment into the buffer of the first command
@@ -474,17 +474,17 @@ namespace rudp
             }
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleSendReliable(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd,
                                      std::vector<uint8_t> &data, uint16_t data_length, uint16_t flags,
                                      uint32_t fragment_count)
     {
         auto ret = peer->QueueIncomingCommand(cmd, data, data_length, flags, fragment_count, maximum_waiting_data_);
 
-        if (ret != Error::OK)
+        if (ret != core::Error::OK)
             return ret;
 
         auto cmd_type = static_cast<RUdpProtocolCommand>(cmd->header.command & PROTOCOL_COMMAND_MASK);
@@ -492,27 +492,27 @@ namespace rudp
         if (cmd_type == RUdpProtocolCommand::SEND_FRAGMENT || cmd_type == RUdpProtocolCommand::SEND_RELIABLE) {
             ret = DispatchIncomingReliableCommands(peer, cmd);
 
-            if (ret != Error::OK)
+            if (ret != core::Error::OK)
                 return ret;
         }
         else {
             ret = DispatchIncomingUnreliableCommands(peer, cmd);
 
-            if (ret != Error::OK)
+            if (ret != core::Error::OK)
                 return ret;
         }
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleVerifyConnect(const std::unique_ptr<Event> &event, std::shared_ptr<Peer> &peer,
                                       const std::shared_ptr<ProtocolType> &cmd)
     {
         auto &net = peer->net();
 
         if (net->StateIsNot(RUdpPeerState::CONNECTING))
-            return Error::OK;
+            return core::Error::OK;
 
         auto channel_count = cmd->verify_connect.channel_count;
 
@@ -525,7 +525,7 @@ namespace rudp
 
             dispatch_hub_->DispatchState(peer, RUdpPeerState::ZOMBIE);
 
-            return Error::ERROR;
+            return core::Error::ERROR;
         }
 
         peer->RemoveSentReliableCommand(1, 0xFF);
@@ -559,17 +559,17 @@ namespace rudp
 
         dispatch_hub_->NotifyConnect(event, peer);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
-    Error
+    core::Error
     RUdpProtocol::HandleDisconnect(std::shared_ptr<Peer> &peer, const std::shared_ptr<ProtocolType> &cmd)
     {
         auto &net = peer->net();
 
         if (net->StateIs(RUdpPeerState::DISCONNECTED) || net->StateIs(RUdpPeerState::ZOMBIE) ||
             net->StateIs(RUdpPeerState::ACKNOWLEDGING_DISCONNECT)) {
-            return Error::OK;
+            return core::Error::OK;
         }
 
         peer->ResetPeerQueues();
@@ -594,7 +594,7 @@ namespace rudp
         if (net->StateIsNot(RUdpPeerState::DISCONNECTED))
             peer->event_data(cmd->disconnect.data);
 
-        return Error::OK;
+        return core::Error::OK;
     }
 
     // void enet_peer_reset (ENetPeer * peer)

@@ -2,71 +2,77 @@
 #include "lib/core/logger.h"
 #include "lib/core/singleton.h"
 
+namespace
+{
+    enum class REGISTER_HANDLER_STATUS
+    {
+        SUCCESS = 0,
+        FAIL    = -1
+    };
+
+    using SignalHandler = void (*)(int sig, siginfo_t *info, void *ctx);
+
+    REGISTER_HANDLER_STATUS
+    IgnoreSignal(int signum)
+    {
+        struct sigaction act
+        {
+        };
+
+        act.sa_handler = SIG_IGN;
+        act.sa_flags   = SA_NODEFER;
+
+        return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
+    }
+
+    REGISTER_HANDLER_STATUS
+    RegisterHandler(int signum, SignalHandler handler)
+    {
+        struct sigaction act
+        {
+        };
+
+        act.sa_sigaction = handler;
+        act.sa_flags     = SA_SIGINFO;
+
+        return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
+    }
+
+    void
+    AbnormalTerminationHandler(int signum, siginfo_t *info, void *ctx)
+    {
+        core::LOG_DEBUG_VA("[SIGABRT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
+                           (int)info->si_pid, (int)info->si_uid);
+        core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+    }
+
+    void
+    InteractiveAttentionHandler(int signum, siginfo_t *info, void *ctx)
+    {
+        core::LOG_DEBUG_VA("[SIGINT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
+                           (int)info->si_pid, (int)info->si_uid);
+        core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+    }
+
+    void
+    HungupHandler(int signum, siginfo_t *info, void *ctx)
+    {
+        core::LOG_DEBUG_VA("[SIGHUP] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
+                           (int)info->si_pid, (int)info->si_uid);
+        core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+    }
+
+    void
+    TerminationHandler(int signum, siginfo_t *info, void *ctx)
+    {
+        core::LOG_DEBUG_VA("[SIGTERM] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
+                           (int)info->si_pid, (int)info->si_uid);
+        core::Singleton<core::ExitHandler>::Instance().Exit(signum);
+    }
+} // namespace
+
 namespace core
 {
-    namespace
-    {
-        using SignalHandler = void (*)(int sig, siginfo_t *info, void *ctx);
-
-        REGISTER_HANDLER_STATUS
-        IgnoreSignal(int signum)
-        {
-            struct sigaction act
-            {
-            };
-
-            act.sa_handler = SIG_IGN;
-            act.sa_flags   = SA_NODEFER;
-
-            return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
-        }
-
-        REGISTER_HANDLER_STATUS
-        RegisterHandler(int signum, SignalHandler handler)
-        {
-            struct sigaction act
-            {
-            };
-
-            act.sa_sigaction = handler;
-            act.sa_flags     = SA_SIGINFO;
-
-            return static_cast<REGISTER_HANDLER_STATUS>(sigaction(signum, &act, nullptr));
-        }
-
-        void
-        AbnormalTerminationHandler(int signum, siginfo_t *info, void *ctx)
-        {
-            LOG_DEBUG_VA("[SIGABRT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid);
-            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
-        }
-
-        void
-        InteractiveAttentionHandler(int signum, siginfo_t *info, void *ctx)
-        {
-            LOG_DEBUG_VA("[SIGINT] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid);
-            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
-        }
-
-        void
-        HungupHandler(int signum, siginfo_t *info, void *ctx)
-        {
-            LOG_DEBUG_VA("[SIGHUP] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid);
-            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
-        }
-
-        void
-        TerminationHandler(int signum, siginfo_t *info, void *ctx)
-        {
-            LOG_DEBUG_VA("[SIGTERM] si_signo:{0}, si_code:{1}, si_pid:{2}, si_uid:{3}", info->si_signo, info->si_code,
-                         (int)info->si_pid, (int)info->si_uid);
-            core::Singleton<core::ExitHandler>::Instance().Exit(signum);
-        }
-    } // namespace
-
     ExitHandler::ExitHandler()
         : should_exit_()
     {

@@ -374,7 +374,9 @@ namespace core
 
         if (addr.ss_family == AF_INET) {
             auto sin = reinterpret_cast<struct sockaddr_in *>(&addr);
-            ip.SetIpv4(SPLIT_IPV4_TO_OCTET_INIT_LIST(sin->sin_addr));
+            ip.SetIpv4({static_cast<uint8_t>(sin->sin_addr.s_addr >> 24u),
+                        static_cast<uint8_t>(sin->sin_addr.s_addr >> 16u),
+                        static_cast<uint8_t>(sin->sin_addr.s_addr >> 8u), static_cast<uint8_t>(sin->sin_addr.s_addr)});
             port = ntohs(sin->sin_port);
         }
         else if (addr.ss_family == AF_INET6) {

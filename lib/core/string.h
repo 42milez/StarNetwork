@@ -3,11 +3,16 @@
 
 #include <string>
 
-bool
-is_valid_hex_number(const std::string &str, bool with_prefix);
-bool
-is_valid_integer(const std::string &str);
-bool
-is_valid_ip_address(const std::string &str);
+namespace core
+{
+    bool
+    IsValidHexNumber(const std::string &str, bool with_prefix);
+
+    bool
+    IsValidInteger(const std::string &str);
+
+    bool
+    IsValidIpAddress(const std::string &str);
+} // namespace core
 
 #endif // P2P_TECHDEMO_LIB_CORE_STRING_H_

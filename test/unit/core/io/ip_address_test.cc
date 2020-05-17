@@ -10,33 +10,33 @@ TEST_CASE("IpAddress can be initialized with IPv4 address", "[unit][ip_address]"
 
     SECTION("initializing with IPv4 address")
     {
-        REQUIRE(ipv4 == std::string{IpAddress{"129.144.52.38"}});
+        REQUIRE(ipv4 == std::string{core::IpAddress{"129.144.52.38"}});
     }
 
     SECTION("initializing with IPv4-mapped address in short representation with small letters")
     {
-        REQUIRE(ipv4 == std::string{IpAddress{"::ffff:129.144.52.38"}});
+        REQUIRE(ipv4 == std::string{core::IpAddress{"::ffff:129.144.52.38"}});
     }
 
     SECTION("initializing with IPv4-mapped address in long representation with small letters")
     {
-        REQUIRE(ipv4 == std::string{IpAddress{"0:0:0:0:0:ffff:129.144.52.38"}});
+        REQUIRE(ipv4 == std::string{core::IpAddress{"0:0:0:0:0:ffff:129.144.52.38"}});
     }
 
     SECTION("initializing with IPv4-mapped address in short representation with capital letters")
     {
-        REQUIRE(ipv4 == std::string{IpAddress{"::FFFF:129.144.52.38"}});
+        REQUIRE(ipv4 == std::string{core::IpAddress{"::FFFF:129.144.52.38"}});
     }
 
     SECTION("initializing with IPv4-mapped address in long representation with capital letters")
     {
-        REQUIRE(ipv4 == std::string{IpAddress{"0:0:0:0:0:FFFF:129.144.52.38"}});
+        REQUIRE(ipv4 == std::string{core::IpAddress{"0:0:0:0:0:FFFF:129.144.52.38"}});
     }
 }
 
 TEST_CASE("IpAddress can be set IPv4 address", "[unit][ip_address]")
 {
-    IpAddress ip_address;
+    core::IpAddress ip_address;
 
     ip_address.SetIpv4({129, 144, 52, 38});
     auto ret = ip_address.GetIPv4();
@@ -46,7 +46,7 @@ TEST_CASE("IpAddress can be set IPv4 address", "[unit][ip_address]")
 
 TEST_CASE("IpAddress can be set IPv6 address", "[unit][ip_address]")
 {
-    IpAddress ip_address;
+    core::IpAddress ip_address;
 
     ip_address.SetIpv6(
         {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF});

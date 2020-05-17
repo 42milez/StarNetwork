@@ -13,7 +13,7 @@
 TEST_CASE("guest peer can send fragmented reliable command to host peer", "[feature][reliable_command][fragment]")
 {
     // host address
-    IpAddress host_ip{"::FFFF:127.0.0.1"};
+    core::IpAddress host_ip{"::FFFF:127.0.0.1"};
     rudp::NetworkConfig host_address;
     host_address.host_v6(host_ip.GetIPv6());
     host_address.port(test::HOST_PORT);
