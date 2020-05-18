@@ -4,7 +4,7 @@
 
 # Overview
 
-P2P Tech Demo demonstrates peer-to-peer networking (implemented as [star network](https://en.wikipedia.org/wiki/Star_network)). One peer becomes host, and other peers can send data through the host (broadcast/unicast).
+P2P Tech Demo demonstrates peer-to-peer networking (implemented as [star network](https://en.wikipedia.org/wiki/Star_network)). One peer becomes host, and other peers can send data through the host (broadcast).
 
 # Demo
 
