@@ -57,7 +57,6 @@ If you use CLion, remote debugging is available: [Remote Debugging with CLion](h
 
 - Traffic Encryption
 - Data Compression
-- IPv6 support
 
 # Acknowledgments
 
