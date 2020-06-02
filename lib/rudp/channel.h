@@ -27,8 +27,6 @@ namespace rudp
         DecrementReliableWindow(size_t idx)
         {
             --reliable_windows_.at(idx);
-
-            core::Singleton<core::Logger>::Instance().Debug("reliable_windows: {0} in {1}", reliable_windows_.at(idx), idx);
         }
 
         inline void
@@ -56,8 +54,6 @@ namespace rudp
         IncrementReliableWindow(size_t idx)
         {
             ++reliable_windows_.at(idx);
-
-            core::Singleton<core::Logger>::Instance().Debug("reliable_windows: {0} in {1}", reliable_windows_.at(idx), idx);
         }
 
         inline void

@@ -82,9 +82,6 @@ namespace rudp
         std::vector<uint8_t> out;
 
         auto size = chamber->Write(out);
-
-        core::LOG_DEBUG_VA("data wrote: {0}", std::string{out.begin(), out.end()});
-
         ssize_t sent = 0;
 
         auto err = socket_->SendTo(&(out.at(0)), size, sent, dest, address.port());

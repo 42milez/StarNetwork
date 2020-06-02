@@ -43,7 +43,7 @@ namespace rudp
             if (peers_remaining == 0)
                 return;
 
-            //  Throttle outgoing bandwidth
+            //  calculate outgoing bandwidth and total data size
             // --------------------------------------------------
 
             if (outgoing_bandwidth != 0) {
@@ -58,7 +58,8 @@ namespace rudp
                 }
             }
 
-            //  Throttle peer bandwidth : Case A ( adjustment is needed )
+            //  Calculate windows size scale (segment throttle) of the peers
+            //  which have LIMITED bandwidth.
             // --------------------------------------------------
 
             while (peers_remaining > 0 && needs_adjustment) {
@@ -105,7 +106,8 @@ namespace rudp
                 }
             }
 
-            //  Throttle peer bandwidth : Case B ( adjustment is NOT needed )
+            //  Calculate windows size scale (segment throttle) of the peers
+            //  which have UNLIMITED bandwidth.
             // --------------------------------------------------
 
             if (peers_remaining > 0) {
@@ -131,7 +133,7 @@ namespace rudp
                 }
             }
 
-            //  Recalculate Bandwidth Limits
+            //  Recalculate host bandwidth and notify guests
             // --------------------------------------------------
 
             if (dispatch_hub_->recalculate_bandwidth_limits()) {
@@ -199,19 +201,14 @@ namespace rudp
         auto &net = peer->net();
 
         if (net->StateIsGreaterThanOrEqual(RUdpPeerState::CONNECTION_PENDING))
-            // ピアを切断するのでバンド幅を再計算する
+            // re-calculate bandwidth as disconnecting peer
             dispatch_hub_->recalculate_bandwidth_limits(true);
 
-        // ピアのステートが以下の３つの内のいずれかである場合
-        // 1. DISCONNECTED,
-        // 2. ACKNOWLEDGING_CONNECT,
-        // 3. CONNECTION_PENDING
-        // if (peer->state != RUdpPeerState::CONNECTING && peer->state < RUdpPeerState::CONNECTION_SUCCEEDED)
         if (net->StateIsNot(RUdpPeerState::CONNECTING) &&
             net->StateIsLessThanOrEqual(RUdpPeerState::CONNECTION_SUCCEEDED)) {
             ResetPeer(peer);
         }
-        // ピアが接続済みである場合
+        // peer is connected
         else if (event != nullptr) {
             event->type(EventType::DISCONNECT);
             event->peer(peer);
@@ -236,7 +233,7 @@ namespace rudp
             peer->needs_dispatch(false);
 
             if (net->StateIs(RUdpPeerState::CONNECTION_PENDING) || net->StateIs(RUdpPeerState::CONNECTION_SUCCEEDED)) {
-                // ピアが接続したら接続中ピアのカウンタを増やし、切断したら減らす
+                // increment peer counter if peer connects
                 dispatch_hub_->ChangeState(peer, RUdpPeerState::CONNECTED);
 
                 event->type(EventType::CONNECT);
@@ -252,7 +249,7 @@ namespace rudp
                 event->peer(peer);
                 event->data(peer->event_data());
 
-                // ゾンビ状態になったピアはリセットする
+                // reset zombie peer
                 ResetPeer(peer);
 
                 return EventStatus::AN_EVENT_OCCURRED;
@@ -261,7 +258,7 @@ namespace rudp
                 if (!peer->DispatchedCommandExists())
                     continue;
 
-                // 接続済みのピアからセグメントを取得
+                // receive segment from connected peer
                 auto [segment, channel_id] = peer->Receive();
 
                 if (segment == nullptr)
@@ -272,7 +269,7 @@ namespace rudp
                 event->type(EventType::RECEIVE);
                 event->peer(peer);
 
-                // ディスパッチすべきピアが残っている場合は、ディスパッチ待ちキューにピアを投入する
+                // enqueue peer if commands remain
                 if (peer->DispatchedCommandExists()) {
                     peer->needs_dispatch(true);
 
@@ -615,10 +612,10 @@ namespace rudp
             auto buffer  = chamber_->EmptyDataBuffer();
             auto ack     = peer->PopAcknowledgement();
 
-            // 送信継続
-            // - コマンドバッファに空きがない
-            // - データバッファに空きがない
-            // - ピアの MTU とパケットサイズの差が ProtocolAcknowledge のサイズ未満
+            // Continue sending:
+            //   - if command buffer is full
+            //   - if data buffer is full
+            //   - if the difference of peer's MTU and segment size is less than the size of ProtocolAcknowledge
             if (command == nullptr || buffer == nullptr ||
                 peer->net()->mtu() - chamber_->segment_size() < sizeof(ProtocolAcknowledge)) {
                 chamber_->continue_sending(true);

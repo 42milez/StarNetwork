@@ -195,7 +195,7 @@ app::Network::Poll()
                         continue;
                     }
 
-                    // send existing peers to new peer
+                    // send existing peers info to new peer
                     auto segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
                     auto msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::ADD_PEER));
@@ -204,7 +204,7 @@ app::Network::Poll()
                     segment->AppendData(id);
                     event->peer()->Send(core::SysCh::CONFIG, segment, nullptr);
 
-                    // send the new peer to existing peers
+                    // send new peer info to existing peers
                     segment =
                         std::make_shared<rudp::Segment>(nullptr, static_cast<uint32_t>(rudp::SegmentFlag::RELIABLE));
                     msg = core::EncodeUint32(static_cast<uint32_t>(core::SysMsg::ADD_PEER));

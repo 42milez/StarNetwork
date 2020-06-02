@@ -473,13 +473,13 @@ namespace rudp
                 protocol_->chamber()->buffer_count(1);
                 protocol_->chamber()->segment_size(sizeof(ProtocolHeader));
 
-                //  ACKを返す
+                //  Response Ack
                 // --------------------------------------------------
 
                 if (peer->AcknowledgementExists())
                     protocol_->SendAcknowledgements(peer);
 
-                //  タイムアウト処理
+                //  Timeout
                 // --------------------------------------------------
 
                 auto &cmd_pod = peer->command_pod();
@@ -490,7 +490,7 @@ namespace rudp
                     IS_EVENT_TYPE_NONE()
                 }
 
-                //  送信バッファに Reliable Command を転送する
+                //  Send reliable command into buffer
                 // --------------------------------------------------
 
                 if ((cmd_pod->OutgoingReliableCommandNotExists() ||
@@ -499,11 +499,11 @@ namespace rudp
                     peer->HasEnoughSpace(protocol_->chamber()->segment_size())) {
                     peer->Ping();
 
-                    // ping コマンドをバッファに転送
+                    // send ping command into buffer
                     protocol_->SendReliableOutgoingCommands(peer, service_time);
                 }
 
-                //  送信バッファに Unreliable Command を転送する
+                //  Send unreliable command into buffer
                 // --------------------------------------------------
 
                 if (cmd_pod->OutgoingUnreliableCommandExists())
