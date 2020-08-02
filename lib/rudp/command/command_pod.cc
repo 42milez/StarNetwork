@@ -205,9 +205,6 @@ namespace rudp
             auto flags = chamber->header_flags();
             chamber->header_flags(flags | static_cast<uint16_t>(RUdpProtocolFlag::HEADER_SENT_TIME));
 
-            // MEMO: bufferには「コマンド、データ、コマンド、データ・・・」という順番でパケットが挿入される
-            //       これは受信側でパケットを正しく識別するための基本
-
             if ((*outgoing_command)->HasPayload()) {
                 buffer = chamber->EmptyDataBuffer();
                 (*outgoing_command)->MoveDataTo((*buffer));
