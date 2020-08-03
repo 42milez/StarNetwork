@@ -51,7 +51,7 @@ If you use CLion, remote debugging is available: [Remote Debugging with CLion](h
 
 - Reliable UDP (inspired by [ENet](https://github.com/lsalzman/enet))
   - Flow Control
-    - Sliding Window
+    - Delayed Acknowledgement
     - Variable Bandwidth
 
 # Road map
