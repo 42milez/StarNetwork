@@ -19,24 +19,24 @@ By following the instruction below, you can run the demo (tmux and docker-compos
 ## Directory Structure
 ```
 p2p-techdemo/ ................ Top src dir
-├── app ...................... Application code
-├── cmake .................... Helpers for CMake
-│   ├── cable ................ https://github.com/ethereum/cable
-│   ├── templates ............ Generate build infomation
-│   └── toolchains ........... Toolchains for this project
+├── app/ ..................... Application code
+├── cmake/ ................... Helpers for CMake
+│   ├── cable/  .............. https://github.com/ethereum/cable
+│   ├── templates/ ........... Generate build infomation
+│   └── toolchains/ .......... Toolchains for this project
 ├── demo.bash ................ Run demonstration
-├── docker ................... Dockerfile and scripts
+├── docker/ .................. Dockerfile and scripts
 ├── docker-compose.dev.yml ... Define services for development
 ├── docker-compose.release.yml Define services for release build
 ├── docker-compose.test.yml .. Define services for feature testing and unit testing
-├── docs ..................... Documentation for this project
-├── lib ...................... Libraries for this project
-│   ├── core ................. Core library
-│   ├── rudp ................. Reliable UDP library
-│   └── test ................. Test library
-└── test ..................... Test code
-    ├── feature .............. Feature testing
-    └── unit ................. Unit testing
+├── docs/ .................... Documentation for this project
+├── lib/ ..................... Libraries for this project
+│   ├── core/ ................ Core library
+│   ├── rudp/ ................ Reliable UDP library
+│   └── test/ ................ Test library
+└── test/ .................... Test code
+    ├── feature/ ............. Feature testing
+    └── unit/ ................ Unit testing
 ```
 
 ## Quick Start
