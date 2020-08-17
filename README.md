@@ -26,9 +26,9 @@ p2p-techdemo/ ................ Top src dir
 │   └── toolchains/ .......... Toolchains for this project
 ├── demo.bash ................ Run demonstration
 ├── docker/ .................. Dockerfile and scripts
-├── docker-compose.dev.yml ... Define services for development
-├── docker-compose.release.yml Define services for release build
-├── docker-compose.test.yml .. Define services for feature testing and unit testing
+├── docker-compose.dev.yml ... Service definitions for development
+├── docker-compose.release.yml Service definitions for release build
+├── docker-compose.test.yml .. Service definitions for feature testing and unit testing
 ├── docs/ .................... Documentation for this project
 ├── lib/ ..................... Libraries for this project
 │   ├── core/ ................ Core library
