@@ -2,7 +2,7 @@
 ![CircleCI](https://img.shields.io/circleci/build/github/42milez/StarNetwork?token=d96746bb95c952ba079e569f683d11478f419ebb) ![Codecov](https://img.shields.io/codecov/c/github/42milez/StarNetwork)
 
 ## Overview
-StarNetwork demonstrates peer-to-peer networking (implemented as [star network](https://en.wikipedia.org/wiki/Star_network)). One peer becomes host, and other peers can send message through the host (broadcast/unicast).
+StarNetwork is a simple implementation of the [Star network](https://en.wikipedia.org/wiki/Star_network). One node becomes host, and other nodes can send message through the host (broadcast/unicast).
 
 ## Demo
 The under pain is host. The left and right upper pains are guest.
