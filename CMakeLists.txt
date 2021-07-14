@@ -7,9 +7,9 @@ include(CableToolchains)
 cable_configure_toolchain(DEFAULT cxx17)
 cable_set_build_type(DEFAULT RelWithDebInfo CONFIGURATION_TYPES Debug Release RelWithDebInfo)
 
-project(p2p_techdemo)
+project(StarNetwork)
 set(PROJECT_VERSION 0.0.1)
-cable_add_buildinfo_library(PROJECT_NAME p2p_techdemo)
+cable_add_buildinfo_library(PROJECT_NAME star_network)
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")

@@ -7,7 +7,7 @@
 #include "lib/core/exit_handler.h"
 #include "lib/core/logger.h"
 #include "lib/core/singleton.h"
-#include "p2p_techdemo/buildinfo.h"
+#include "star_network/buildinfo.h"
 
 #include "network.h"
 
@@ -16,15 +16,15 @@ namespace
     void
     version()
     {
-        const auto *buildinfo = p2p_techdemo_get_buildinfo();
-        std::cout << "p2p_techdemo " << buildinfo->project_version << "\n";
+        const auto *buildinfo = star_network_get_buildinfo();
+        std::cout << "star_network " << buildinfo->project_version << "\n";
         std::cout << "Build: " << buildinfo->system_name << "/" << buildinfo->build_type << std::endl;
     }
 
     const std::string DEFAULT_MODE           = "server";
     const std::string DEFAULT_SERVER_ADDRESS = "::FFFF:127.0.0.1";
     const uint16_t DEFAULT_PORT              = 49152;
-    const std::string LOG_FILE_PATH          = "/var/log/p2p_techdemo/app.log";
+    const std::string LOG_FILE_PATH          = "/var/log/star_network/app.log";
 
     const size_t MAX_PEERS       = 32;
     const uint32_t BANDWIDTH_IN  = 100;

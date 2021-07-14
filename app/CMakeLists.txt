@@ -1,12 +1,12 @@
 file(GLOB sources *.cc)
 file(GLOB headers *.h)
 
-add_executable(p2p_techdemo main.cc ${sources} ${headers})
+add_executable(star_network main.cc ${sources} ${headers})
 
 set(libs
-        p2p_techdemo-buildinfo
+        star_network-buildinfo
         core
         rudp
         ${CONAN_LIBS})
 
-target_link_libraries(p2p_techdemo ${libs})
+target_link_libraries(star_network ${libs})
