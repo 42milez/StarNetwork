@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCAL_WORK_DIR="${HOME}/Workspace/p2p-techdemo"
+LOCAL_WORK_DIR="${HOME}/Workspace/StarNetwork"
 REMOTE_WORK_DIR="/root"
 
 TMUX_SESSION_NAME='demo'
