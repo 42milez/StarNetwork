@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_CHANNEL_H_
-#define P2P_TECHDEMO_LIB_RUDP_CHANNEL_H_
+#ifndef STAR_NETWORK_LIB_RUDP_CHANNEL_H_
+#define STAR_NETWORK_LIB_RUDP_CHANNEL_H_
 
 #include <array>
 #include <list>
@@ -131,4 +131,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_CHANNEL_H_
+#endif // STAR_NETWORK_LIB_RUDP_CHANNEL_H_

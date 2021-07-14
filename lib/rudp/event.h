@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_EVENT_H_
-#define P2P_TECHDEMO_LIB_RUDP_EVENT_H_
+#ifndef STAR_NETWORK_LIB_RUDP_EVENT_H_
+#define STAR_NETWORK_LIB_RUDP_EVENT_H_
 
 #include "enum.h"
 #include "lib/rudp/peer/peer.h"
@@ -135,4 +135,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_EVENT_H_
+#endif // STAR_NETWORK_LIB_RUDP_EVENT_H_

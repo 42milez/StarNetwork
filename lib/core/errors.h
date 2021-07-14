@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_ERRORS_H_
-#define P2P_TECHDEMO_LIB_CORE_ERRORS_H_
+#ifndef STAR_NETWORK_LIB_CORE_ERRORS_H_
+#define STAR_NETWORK_LIB_CORE_ERRORS_H_
 
 namespace core
 {
@@ -19,4 +19,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_ERRORS_H_
+#endif // STAR_NETWORK_LIB_CORE_ERRORS_H_

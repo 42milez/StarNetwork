@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_MACRO_H_
-#define P2P_TECHDEMO_LIB_RUDP_MACRO_H_
+#ifndef STAR_NETWORK_LIB_RUDP_MACRO_H_
+#define STAR_NETWORK_LIB_RUDP_MACRO_H_
 
 #include <cstdint>
 
@@ -15,4 +15,4 @@ namespace rudp
 #define UDP_TIME_DIFFERENCE(a, b) ((a) - (b) >= UDP_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_MACRO_H_
+#endif // STAR_NETWORK_LIB_RUDP_MACRO_H_

@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_STRING_H_
-#define P2P_TECHDEMO_LIB_CORE_STRING_H_
+#ifndef STAR_NETWORK_LIB_CORE_STRING_H_
+#define STAR_NETWORK_LIB_CORE_STRING_H_
 
 #include <string>
 
@@ -15,4 +15,4 @@ namespace core
     IsValidIpAddress(const std::string &str);
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_STRING_H_
+#endif // STAR_NETWORK_LIB_CORE_STRING_H_

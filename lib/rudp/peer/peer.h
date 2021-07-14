@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
-#define P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
+#ifndef STAR_NETWORK_LIB_RUDP_PEER_PEER_H_
+#define STAR_NETWORK_LIB_RUDP_PEER_PEER_H_
 
 #include <deque>
 #include <list>
@@ -302,4 +302,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_PEER_PEER_H_
+#endif // STAR_NETWORK_LIB_RUDP_PEER_PEER_H_

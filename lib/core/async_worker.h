@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_ASYNC_WORKER_H_
-#define P2P_TECHDEMO_LIB_CORE_ASYNC_WORKER_H_
+#ifndef STAR_NETWORK_LIB_CORE_ASYNC_WORKER_H_
+#define STAR_NETWORK_LIB_CORE_ASYNC_WORKER_H_
 
 #include <atomic>
 #include <functional>
@@ -57,4 +57,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_ASYNC_WORKER_H_
+#endif // STAR_NETWORK_LIB_CORE_ASYNC_WORKER_H_

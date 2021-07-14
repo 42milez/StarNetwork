@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_TEST_UTIL_H_
-#define P2P_TECHDEMO_LIB_TEST_UTIL_H_
+#ifndef STAR_NETWORK_LIB_TEST_UTIL_H_
+#define STAR_NETWORK_LIB_TEST_UTIL_H_
 
 #include "lib/core/logger.h"
 #include "lib/core/os.h"
@@ -30,4 +30,4 @@ namespace test
     }
 } // namespace test
 
-#endif // P2P_TECHDEMO_LIB_TEST_UTIL_H_
+#endif // STAR_NETWORK_LIB_TEST_UTIL_H_

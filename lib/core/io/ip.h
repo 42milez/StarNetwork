@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_IO_IP_H_
-#define P2P_TECHDEMO_LIB_CORE_IO_IP_H_
+#ifndef STAR_NETWORK_LIB_CORE_IO_IP_H_
+#define STAR_NETWORK_LIB_CORE_IO_IP_H_
 
 #include <list>
 #include <memory>
@@ -60,4 +60,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_IO_IP_H_
+#endif // STAR_NETWORK_LIB_CORE_IO_IP_H_

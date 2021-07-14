@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_
-#define P2P_TECHDEMO_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_
+#ifndef STAR_NETWORK_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_
+#define STAR_NETWORK_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_
 
 #include "lib/rudp/dispatch/dispatch_queue.h"
 #include "lib/rudp/event.h"
@@ -84,4 +84,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_
+#endif // STAR_NETWORK_LIB_RUDP_DISPATCH_DISPATCH_HUB_H_

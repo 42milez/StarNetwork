@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_ENCODE_H_
-#define P2P_TECHDEMO_LIB_CORE_ENCODE_H_
+#ifndef STAR_NETWORK_LIB_CORE_ENCODE_H_
+#define STAR_NETWORK_LIB_CORE_ENCODE_H_
 
 #include <cstdint>
 #include <vector>
@@ -31,4 +31,4 @@ namespace core
     }
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_ENCODE_H_
+#endif // STAR_NETWORK_LIB_CORE_ENCODE_H_
