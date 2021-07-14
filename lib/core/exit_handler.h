@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_EXIT_HANDLER_H_
-#define P2P_TECHDEMO_LIB_CORE_EXIT_HANDLER_H_
+#ifndef STAR_NETWORK_LIB_CORE_EXIT_HANDLER_H_
+#define STAR_NETWORK_LIB_CORE_EXIT_HANDLER_H_
 
 #include <atomic>
 #include <csignal>
@@ -33,4 +33,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_EXIT_HANDLER_H_
+#endif // STAR_NETWORK_LIB_CORE_EXIT_HANDLER_H_

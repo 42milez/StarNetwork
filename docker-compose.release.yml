@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: p2p-techdemo-build-base
+    image: star-network-build-base
     stdin_open: true
     tty: true
     volumes:
@@ -20,7 +20,7 @@ services:
       - conan:/root/.conan
   build: &build
     <<: *base
-    container_name: p2p-techdemo-release
+    container_name: star-network-release
     environment:
       - BUILD_DIR=/var/app/cmake-build-release
       - CATCH_REPORTER=console
@@ -30,7 +30,7 @@ services:
                /bin/bash ./docker/script/test/run_all_tests.bash"
   demo:
     <<: *build
-    container_name: p2p-techdemo-release
+    container_name: star-network-release
     command: ''
 volumes:
   cmake_build_release:

@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_HASH_H_
-#define P2P_TECHDEMO_LIB_CORE_HASH_H_
+#ifndef STAR_NETWORK_LIB_CORE_HASH_H_
+#define STAR_NETWORK_LIB_CORE_HASH_H_
 
 #include <cstdint>
 
@@ -13,4 +13,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_HASH_H_
+#endif // STAR_NETWORK_LIB_CORE_HASH_H_

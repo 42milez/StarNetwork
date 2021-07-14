@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_APP_NETWORK_H_
-#define P2P_TECHDEMO_APP_NETWORK_H_
+#ifndef STAR_NETWORK_APP_NETWORK_H_
+#define STAR_NETWORK_APP_NETWORK_H_
 
 #include <list>
 #include <map>
@@ -94,4 +94,4 @@ namespace app
     };
 } // namespace app
 
-#endif // P2P_TECHDEMO_APP_NETWORK_H_
+#endif // STAR_NETWORK_APP_NETWORK_H_

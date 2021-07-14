@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_TEST_FEATURE_VAR_H_
-#define P2P_TECHDEMO_TEST_FEATURE_VAR_H_
+#ifndef STAR_NETWORK_TEST_FEATURE_VAR_H_
+#define STAR_NETWORK_TEST_FEATURE_VAR_H_
 
 namespace test
 {
@@ -9,4 +9,4 @@ namespace test
     const uint32_t DEFAULT_TIMEOUT = 5000; // msec
 } // namespace test
 
-#endif // P2P_TECHDEMO_TEST_FEATURE_VAR_H_
+#endif // STAR_NETWORK_TEST_FEATURE_VAR_H_

@@ -1,8 +1,8 @@
-# P2P Tech Demo
-![CircleCI](https://img.shields.io/circleci/build/github/42milez/p2p-techdemo?token=d96746bb95c952ba079e569f683d11478f419ebb) ![Codecov](https://img.shields.io/codecov/c/github/42milez/p2p-techdemo)
+# StarNetwork
+![CircleCI](https://img.shields.io/circleci/build/github/42milez/StarNetwork?token=d96746bb95c952ba079e569f683d11478f419ebb) ![Codecov](https://img.shields.io/codecov/c/github/42milez/StarNetwork)
 
 ## Overview
-P2P Tech Demo demonstrates peer-to-peer networking (implemented as [star network](https://en.wikipedia.org/wiki/Star_network)). One peer becomes host, and other peers can send message through the host (broadcast/unicast).
+StarNetwork demonstrates peer-to-peer networking (implemented as [star network](https://en.wikipedia.org/wiki/Star_network)). One peer becomes host, and other peers can send message through the host (broadcast/unicast).
 
 ## Demo
 The under pain is host. The left and right upper pains are guest.
@@ -18,7 +18,7 @@ By following the instruction below, you can run the demo (tmux and docker-compos
 
 ## Directory Structure
 ```
-p2p-techdemo/ ................ Top src dir
+StarNetwork/ ................. Top src dir
 ├── app/ ..................... Application code
 ├── cmake/ ................... Helpers for CMake
 │   ├── cable/  .............. https://github.com/ethereum/cable
@@ -59,7 +59,7 @@ docker-compose -f docker-compose.release.yml run --rm build
 ```
 
 ## Development
-If you use CLion, remote debugging is available: [Remote Debugging with CLion](https://github.com/42milez/p2p-techdemo/wiki/Remote-Debugging-with-CLion)
+If you use CLion, remote debugging is available: [Remote Debugging with CLion](https://github.com/42milez/StarNetwork/wiki/Remote-Debugging-with-CLion)
 
 ## Supported OS
 - Linux

@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: p2p-techdemo-test-base
+    image: star-network-test-base
     stdin_open: true
     tty: true
     volumes:
@@ -24,7 +24,7 @@ services:
       - conan:/root/.conan
   all_tests:
     <<: *base
-    container_name: p2p-techdemo-all-test
+    container_name: star-network-all-test
     environment:
       - BUILD_DIR=/var/app/cmake-build-test
       - CATCH_REPORTER=console
@@ -35,7 +35,7 @@ services:
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_asan:
     <<: *base
-    container_name: p2p-techdemo-all-test-with-asan
+    container_name: star-network-all-test-with-asan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-asan
       - CATCH_REPORTER=console
@@ -46,7 +46,7 @@ services:
                /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_lsan:
     <<: *base
-    container_name: p2p-techdemo-all-test-with-lsan
+    container_name: star-network-all-test-with-lsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-lsan
       - CATCH_REPORTER=console
@@ -57,7 +57,7 @@ services:
                /bin/bash ./docker/script/test/run_all_tests.bash"
   # all_tests_msan:
   #   <<: *base
-  #   container_name: p2p-techdemo-all-test-with-msan
+  #   container_name: star-network-all-test-with-msan
   #   environment:
   #     - BUILD_DIR=/var/app/cmake-build-test-msan
   #     - CATCH_REPORTER=console
@@ -68,7 +68,7 @@ services:
   #              /bin/bash ./docker/script/test/run_all_tests.bash"
   all_tests_tsan:
     <<: *base
-    container_name: p2p-techdemo-all-test-with-tsan
+    container_name: star-network-all-test-with-tsan
     environment:
       - BUILD_DIR=/var/app/cmake-build-test-tsan
       - CATCH_REPORTER=console

@@ -28,7 +28,7 @@ namespace core
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_path, true);
         file_sink->set_level(spdlog::level::trace);
 
-        sinks_ = std::make_shared<spdlog::logger>(spdlog::logger("p2p_techdemo", {console_sink, file_sink}));
+        sinks_ = std::make_shared<spdlog::logger>(spdlog::logger("star_network", {console_sink, file_sink}));
 
         sinks_->flush_on(spdlog::level::trace);
         sinks_->set_level(spdlog::level::trace);

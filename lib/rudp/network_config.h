@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_NETWORK_CONFIG_H_
-#define P2P_TECHDEMO_LIB_RUDP_NETWORK_CONFIG_H_
+#ifndef STAR_NETWORK_LIB_RUDP_NETWORK_CONFIG_H_
+#define STAR_NETWORK_LIB_RUDP_NETWORK_CONFIG_H_
 
 #include <array>
 #include <cstdint>
@@ -75,4 +75,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_NETWORK_CONFIG_H_
+#endif // STAR_NETWORK_LIB_RUDP_NETWORK_CONFIG_H_

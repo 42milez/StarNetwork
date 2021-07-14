@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_RUDP_COMPRESS_H_
-#define P2P_TECHDEMO_LIB_RUDP_COMPRESS_H_
+#ifndef STAR_NETWORK_LIB_RUDP_COMPRESS_H_
+#define STAR_NETWORK_LIB_RUDP_COMPRESS_H_
 
 #include <functional>
 
@@ -49,4 +49,4 @@ namespace rudp
     };
 } // namespace rudp
 
-#endif // P2P_TECHDEMO_LIB_RUDP_COMPRESS_H_
+#endif // STAR_NETWORK_LIB_RUDP_COMPRESS_H_

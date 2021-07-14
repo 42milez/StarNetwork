@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: p2p-techdemo-base
+    image: star-network-base
     stdin_open: true
     tty: true
     security_opt:
@@ -12,13 +12,13 @@ services:
       - seccomp:unconfined
     environment:
       - CMAKE_BUILD_TYPE=Debug
-  dev-server:
+  dev_server:
     <<: *base
     command: >
       bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
                chmod -R 777 /var/app/cmake-build-release-remote &&
                /usr/sbin/sshd -D"
-    container_name: p2p-techdemo-dev-server
+    container_name: star-network-dev-server
     ports:
       - "2222:22"
       - "7777:7777"
@@ -34,7 +34,7 @@ services:
     command: >
       bash -c "/bin/bash ./docker/script/build/build_all.bash &&
                /bin/bash ./docker/script/analyze/perf.bash"
-    container_name: p2p-techdemo-analyze
+    container_name: star-network-analyze
     environment:
       - BUILD_DIR=/var/app/cmake-build-debug-remote
       - CMAKE_BUILD_TYPE=Debug

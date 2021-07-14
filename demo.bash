@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCAL_WORK_DIR="${HOME}/Workspace/p2p-techdemo"
+LOCAL_WORK_DIR="${HOME}/Workspace/StarNetwork"
 REMOTE_WORK_DIR="/root"
 
 TMUX_SESSION_NAME='demo'
@@ -14,7 +14,7 @@ SHORT_SLEEP_SEC=0.5
 DOCKER_COMPOSE_FILE='docker-compose.release.yml'
 DOCKER_SERVICE_NAME='demo'
 
-BINARY='/var/app/cmake-build-release/bin/p2p_techdemo'
+BINARY='/var/app/cmake-build-release/bin/star_network'
 GUEST1_PORT=49153
 GUEST2_PORT=49154
 

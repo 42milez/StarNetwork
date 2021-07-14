@@ -1,5 +1,5 @@
-#ifndef P2P_TECHDEMO_LIB_CORE_OS_H_
-#define P2P_TECHDEMO_LIB_CORE_OS_H_
+#ifndef STAR_NETWORK_LIB_CORE_OS_H_
+#define STAR_NETWORK_LIB_CORE_OS_H_
 
 #include <cstdint>
 #include <string>
@@ -37,4 +37,4 @@ namespace core
     };
 } // namespace core
 
-#endif // P2P_TECHDEMO_LIB_CORE_OS_H_
+#endif // STAR_NETWORK_LIB_CORE_OS_H_
