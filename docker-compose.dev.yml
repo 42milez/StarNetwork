@@ -12,7 +12,7 @@ services:
       - seccomp:unconfined
     environment:
       - CMAKE_BUILD_TYPE=Debug
-  dev-server:
+  dev_server:
     <<: *base
     command: >
       bash -c "chmod -R 777 /var/app/cmake-build-debug-remote &&
